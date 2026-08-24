@@ -43,7 +43,8 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
     label: 'Navigation',
     items: [
       { href: '/', label: 'Accueil', icon: Home },
-      { href: '/diagnostic', label: 'Bilan & Diagnostic', icon: ClipboardCheck, badge: 'Gratuit' },
+      { href: '/diagnostic', label: 'Bilan Organisation', icon: ClipboardCheck, badge: 'Gratuit' },
+      { href: '/diagnostic-produit', label: 'Potentiel Produit', icon: TargetIcon, badge: 'Nouveau' },
     ],
   },
   {

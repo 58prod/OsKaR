@@ -203,15 +203,16 @@ const HomePage: React.FC = () => {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Démarrer' },
-            { id: '02', name: 'OSKAR Fit', desc: 'Validez votre adéquation produit-marché.', icon: LineChart, status: 'Bientôt' },
-            { id: '03', name: 'OSKAR Business', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt' },
-            { id: '04', name: 'OSKAR OKR', desc: 'Alignez stratégie et exécution.', icon: CheckSquare, status: 'Bientôt' },
-            { id: '05', name: 'OSKAR Team', desc: 'Renforcez la cohésion de votre organisation.', icon: Users, status: 'Bientôt' },
+            { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Bientôt', href: '/vision' },
+            { id: '02', name: 'OSKAR Fit', desc: 'Validez le potentiel et trouvez vos Early Adopters.', icon: LineChart, status: 'Disponible', href: '/diagnostic-produit' },
+            { id: '03', name: 'OSKAR Business', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt', href: '/business' },
+            { id: '04', name: 'OSKAR OKR', desc: 'Alignez stratégie et exécution.', icon: CheckSquare, status: 'Disponible', href: '/app/okr/dashboard' },
+            { id: '05', name: 'OSKAR Team', desc: 'Renforcez la cohésion de votre organisation.', icon: Users, status: 'Disponible', href: '/app/outils' },
           ].map((pillar) => (
             <div
               key={pillar.id}
-              className="group bg-white p-6 rounded-2xl border border-line shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all text-center relative overflow-hidden"
+              onClick={() => pillar.href && router.push(pillar.href)}
+              className="group bg-white p-6 rounded-2xl border border-line shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all text-center relative overflow-hidden cursor-pointer"
             >
               <div className="absolute top-3 right-4 text-[10px] font-bold text-muted/30">{pillar.id}</div>
               <div className="w-12 h-12 bg-surface rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -220,7 +221,7 @@ const HomePage: React.FC = () => {
               <h4 className="font-bold text-navy text-[13.5px] mb-1">{pillar.name}</h4>
               <p className="text-[11.5px] text-muted leading-relaxed mb-4">{pillar.desc}</p>
               <span
-                className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold ${pillar.status === 'Démarrer' ? 'bg-teal/10 text-teal-dark' : 'bg-surface text-muted/60'}`}
+                className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold ${pillar.status === 'Disponible' ? 'bg-teal/10 text-teal-dark font-extrabold' : 'bg-surface text-muted/60'}`}
               >
                 {pillar.status}
               </span>

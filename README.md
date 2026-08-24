@@ -24,45 +24,32 @@ OsKaR transforme vos ambitions en résultats concrets grâce à une approche gui
 - [Cheat Sheet Démo](docs/DEMO_CHEATSHEET.md) - Guide rapide pour les démos
 - [Référence Enums Supabase](docs/SUPABASE_ENUMS.md) - Liste des valeurs valides pour les enums
 
-## ✨ Fonctionnalités Principales
+## 🏛️ Les 5 Piliers & Fonctionnalités Principales
 
-### 🎨 Canvas Guidé Multi-Entités
-- **Étape 1** : Définition de **plusieurs ambitions** annuelles (alerte >3)
-- **Étape 2** : Création de **plusieurs Key Results** par ambition (alerte >3)
-- **Étape 3** : Déclinaison en **objectifs trimestriels** multiples (alerte >3)
-- **Étape 4** : Planification d'**actions concrètes** avec Kanban
+OsKaR est une plateforme complète de productivité et de management structurée autour de **5 piliers stratégiques** et de **modules d'évaluation gratuits** :
 
-**🚨 Système d'Alerte Intelligent :** Recommandations automatiques pour éviter la surcharge cognitive au-delà de 3 éléments par niveau.
+### 🧭 1. Diagnostic & Bilan d'Organisation (`/diagnostic`)
+- Évaluation rapide en 10 minutes sur les 5 piliers (15 critères).
+- Diagramme radar interactif de maturité et restitution d'analyse.
+- Export PDF et envoi par email (Resend) sans obligation d'inscription.
 
-### 🤖 IA Coach Contextuelle (Gemini AI)
-- **Validation intelligente** basée sur votre profil d'entreprise
-- **Suggestions personnalisées** selon votre secteur et taille
-- **Analyse SMART** automatique des objectifs
-- **Conseils d'optimisation** contextuels et pertinents
-- **Fallback gracieux** si l'API n'est pas disponible
+### 🚀 2. Bilan « Quel potentiel pour mon produit ? » (`/diagnostic-produit` - OsKaR Fit)
+- Formule fondamentale : $\text{Potentiel} = \max(\text{Problème} \times \text{Urgence} \times \text{Fréquence})$ noté sur 1000 points.
+- Saisie et comparaison des **3 personas principaux**.
+- Détection automatique de la **Cible Prioritaire (*Early Adopter*)**.
+- Recommandations d'actions de ciblage et de validation terrain.
+- 3 présets de test intégrés en 1 clic : **Eternity**, **ETAPE**, et **Hemotion**.
 
-### 🏗️ Architecture OKR Moderne
-```
-Ambitions (multiples)
-├── Key Results d'Ambition (multiples par ambition)
-├── Objectifs Trimestriels (multiples par ambition)
-│   ├── Key Results Trimestriels (multiples par objectif)
-│   └── Actions (plan d'actions par objectif)
-└── Kanban Unique (toutes les actions organisées par statut)
-```
+### 🎯 3. Le Cœur OKR : Stratégie & Exécution (`/app/okr`)
+- **Canvas Guidé Multi-Entités** : Ambitions Annuelles $\to$ Key Results Annuels $\to$ Objectifs Trimestriels $\to$ Actions.
+- **Kanban Opérationnel** avec Drag & Drop (`@dnd-kit`).
+- **Rituels Intégrés** : Check-in, Focus, et Rétrospective trimestrielle.
+- **Coach IA Gemini** : Analyse SMART, conseils d'actions et génération de rétrospectives.
+- **Rapports & Exports** : PDF haute définition, Excel (SheetJS) et sauvegarde JSON.
 
-### 📊 Gestion Avancée
-- **Vue Hiérarchique** : Structure complète des OKR
-- **Kanban des Actions** : Gestion opérationnelle (À faire | En cours | Terminé)
-- **Filtrage intelligent** : Par ambition, statut, priorité
-- **Dashboard interactif** avec métriques en temps réel
-- **Vue Pyramide** : Visualisation de la hiérarchie complète
-
-### 📈 Rapports et Analytics
-- **Export PDF** avec graphiques détaillés
-- **Données Excel** pour analyse approfondie
-- **Backup JSON** complet de toutes les données
-- **Analytics avancées** : progression, tendances, prédictions
+### 🧰 4. La Boîte à Outils Collaborative Temps Réel (`/app/outils`)
+- 11 ateliers interactifs en temps réel (Supabase Realtime) accessibles sans compte via simple code de session (ex: `POKER-7K2P`) :
+  - Planning Poker, ROTI, Daily Standup, Team Mood, Boîte à idées, Brainstorming, Disons-nous les choses, En mode récré, Compétences d'équipe, Rétrospective 4 quadrants, Speedboat.
 
 ## 🚀 Technologies Utilisées
 
