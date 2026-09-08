@@ -372,4 +372,4 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ---
 
-**OKaRina** - Transformez vos ambitions en résultats ! 🎯✨
+**OsKaR** - Transformez vos ambitions en résultats ! 🎯✨
