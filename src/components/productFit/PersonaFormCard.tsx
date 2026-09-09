@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import {
-  Flame,
-  Clock,
-  Repeat,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { PersonaEvaluation } from '@/lib/productFit/types';
+import { calculatePersonaScore } from '@/lib/productFit/scoring';
+
+/*
+ * Carte de saisie d'un profil de client.
+ *
+ * Mise en page et échelle de texte reprises de la page Diagnostic
+ * (`PillarCard`) : carte blanche `rounded-card` + `shadow-card`, padding 20px,
+ * titre 18px, texte courant 14px, curseur de 0 à 10 sous une question posée en
+ * toutes lettres. Les trois questions remplacent les libellés « Intensité du
+ * Problème (P) », « Degré d'Urgence (U) » et « Fréquence (F) » : ici on demande
+ * ce qu'on veut savoir, sans formule à décoder.
+ */
 
 interface PersonaFormCardProps {
   index: number;
@@ -15,204 +21,198 @@ interface PersonaFormCardProps {
   onChange: (updated: PersonaEvaluation) => void;
 }
 
+/** Les trois questions, dans l'ordre où on les pose. */
+const QUESTIONS = [
+  {
+    champ: 'problemIntensity' as const,
+    question: 'Ce problème la gêne-t-il beaucoup ?',
+    min: 'Un peu',
+    max: 'Énormément',
+    couleur: '#ef4444',
+  },
+  {
+    champ: 'urgency' as const,
+    question: 'Doit-elle le régler tout de suite ?',
+    min: 'Ça peut attendre',
+    max: "C'est urgent",
+    couleur: '#f59e0b',
+  },
+  {
+    champ: 'frequency' as const,
+    question: 'Rencontre-t-elle ce problème souvent ?',
+    min: 'Rarement',
+    max: 'Tous les jours',
+    couleur: '#0ea5e9',
+  },
+];
+
+const CHAMP_TEXTE =
+  'w-full text-sm text-ink px-3 py-2 rounded-lg border border-line bg-white transition-colors focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20 placeholder:text-muted/60';
+
 export const PersonaFormCard: React.FC<PersonaFormCardProps> = ({
   index,
   persona,
   isPriority,
   onChange,
 }) => {
-  const [showContext, setShowContext] = useState(false);
+  const [detailsOuverts, setDetailsOuverts] = useState(false);
 
-  const rawScore =
-    (persona.problemIntensity || 1) * (persona.urgency || 1) * (persona.frequency || 1);
-  const scoreOn100 = Math.round((rawScore / 1000) * 1000) / 10;
-  const scoreOn10 = Math.round((scoreOn100 / 10) * 10) / 10;
+  // La note vient du calcul officiel : la recopier ici la ferait diverger de
+  // celle du panneau de résultats.
+  const note = calculatePersonaScore(persona).scoreOn10;
 
-  const updateField = <K extends keyof PersonaEvaluation>(
-    field: K,
-    value: PersonaEvaluation[K]
-  ) => {
-    onChange({ ...persona, [field]: value });
+  const modifier = <K extends keyof PersonaEvaluation>(champ: K, valeur: PersonaEvaluation[K]) => {
+    onChange({ ...persona, [champ]: valeur });
   };
 
+  const nomAffiche = persona.name || `Personne ${index + 1}`;
+
   return (
-    <div
-      className={`bg-white rounded-2xl border transition-all duration-200 shadow-xs overflow-hidden ${
-        isPriority
-          ? 'border-teal ring-2 ring-teal/30'
-          : 'border-line hover:border-muted/50'
+    <article
+      className={`bg-white rounded-card shadow-card p-5 mb-4 border transition-colors ${
+        isPriority ? 'border-teal ring-2 ring-teal/25' : 'border-line'
       }`}
     >
-      {/* En-tête compact */}
-      <div
-        className={`px-4 py-2.5 border-b flex items-center justify-between gap-2 ${
-          isPriority
-            ? 'bg-gradient-to-r from-teal-light/50 to-surface border-teal/30'
-            : 'bg-surface/50 border-line'
-        }`}
-      >
-        <div className="flex items-center gap-2 min-w-0">
+      {/* En-tête : numéro, nom, note */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3 min-w-0">
           <span
-            className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-              isPriority ? 'bg-teal text-navy-dark font-extrabold' : 'bg-navy/10 text-navy'
+            className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
+              isPriority ? 'bg-teal text-navy-dark' : 'bg-surface text-navy'
             }`}
           >
-            #{index + 1}
+            {index + 1}
           </span>
-          <span className="text-xs font-bold text-navy truncate">
-            {persona.name || `Persona ${index + 1}`}
-          </span>
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold text-navy truncate">{nomAffiche}</h3>
+            {isPriority && (
+              <span className="text-[11px] font-bold uppercase tracking-wider text-teal-dark">
+                La plus gênée
+              </span>
+            )}
+          </div>
         </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {isPriority && (
-            <span className="text-[10px] font-extrabold bg-teal text-navy-dark px-2 py-0.5 rounded-full">
-              🎯 Cible n°1
-            </span>
-          )}
-          <span className="text-xs font-black text-navy bg-white px-2 py-0.5 rounded border border-line">
-            {scoreOn10}/10
-          </span>
-        </div>
+        <span className="text-sm font-bold text-navy shrink-0">
+          {note}
+          <span className="text-xs font-normal text-muted"> /10</span>
+        </span>
       </div>
 
-      <div className="p-4 space-y-3.5">
-        {/* Identité express */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {/* Qui est-ce ? */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5">
+        <div>
+          <label htmlFor={`nom-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
+            Son prénom
+          </label>
           <input
+            id={`nom-${index}`}
             type="text"
             value={persona.name}
-            onChange={(e) => updateField('name', e.target.value)}
-            placeholder="Nom (ex: Claire)"
-            className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-line focus:ring-1 focus:ring-teal focus:border-teal transition-all bg-white"
+            onChange={(e) => modifier('name', e.target.value)}
+            placeholder="Claire"
+            className={CHAMP_TEXTE}
           />
+        </div>
+        <div>
+          <label htmlFor={`role-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
+            Sa situation
+          </label>
           <input
+            id={`role-${index}`}
             type="text"
             value={persona.role}
-            onChange={(e) => updateField('role', e.target.value)}
-            placeholder="Rôle / Situation"
-            className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-line focus:ring-1 focus:ring-teal focus:border-teal transition-all bg-white"
+            onChange={(e) => modifier('role', e.target.value)}
+            placeholder="Mère de deux enfants, salariée"
+            className={CHAMP_TEXTE}
           />
         </div>
-
-        {/* Sliders P x U x F compacts */}
-        <div className="space-y-2.5 bg-surface/40 p-3 rounded-xl border border-line/60">
-          {/* Problème */}
-          <div>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="font-semibold text-navy flex items-center gap-1 text-[11.5px]">
-                <Flame className="h-3.5 w-3.5 text-red-500" />
-                Intensité du Problème (P)
-              </span>
-              <span className="font-bold text-red-600 bg-red-50 px-1.5 py-0.2 rounded border border-red-100 text-[11px]">
-                {persona.problemIntensity}/10
-              </span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={persona.problemIntensity}
-              onChange={(e) => updateField('problemIntensity', Number(e.target.value))}
-              className="w-full accent-red-500 h-1 bg-gray-200 rounded cursor-pointer"
-            />
-            <div className="flex justify-between text-[9px] text-muted mt-0.5">
-              <span>Faible (1)</span>
-              <span>Bloquant (10)</span>
-            </div>
-          </div>
-
-          {/* Urgence */}
-          <div>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="font-semibold text-navy flex items-center gap-1 text-[11.5px]">
-                <Clock className="h-3.5 w-3.5 text-amber-500" />
-                Degré d'Urgence (U)
-              </span>
-              <span className="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-100 text-[11px]">
-                {persona.urgency}/10
-              </span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={persona.urgency}
-              onChange={(e) => updateField('urgency', Number(e.target.value))}
-              className="w-full accent-amber-500 h-1 bg-gray-200 rounded cursor-pointer"
-            />
-            <div className="flex justify-between text-[9px] text-muted mt-0.5">
-              <span>Peut attendre (1)</span>
-              <span>Immédiat (10)</span>
-            </div>
-          </div>
-
-          {/* Fréquence */}
-          <div>
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="font-semibold text-navy flex items-center gap-1 text-[11.5px]">
-                <Repeat className="h-3.5 w-3.5 text-blue-500" />
-                Fréquence (F)
-              </span>
-              <span className="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-100 text-[11px]">
-                {persona.frequency}/10
-              </span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={persona.frequency}
-              onChange={(e) => updateField('frequency', Number(e.target.value))}
-              className="w-full accent-blue-500 h-1 bg-gray-200 rounded cursor-pointer"
-            />
-            <div className="flex justify-between text-[9px] text-muted mt-0.5">
-              <span>Rare (1)</span>
-              <span>Quotidien (10)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Accordéon qualitatif discret */}
-        <div className="border border-line rounded-lg overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setShowContext(!showContext)}
-            className="w-full px-3 py-1.5 bg-surface/30 hover:bg-surface flex items-center justify-between text-[11px] font-medium text-navy/80 transition-colors"
-          >
-            <span>Détails & contexte</span>
-            {showContext ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          </button>
-          {showContext && (
-            <div className="p-3 space-y-2 bg-white border-t border-line text-xs">
-              <div>
-                <label className="block text-[10px] font-semibold text-muted mb-0.5">
-                  Douleur principale
-                </label>
-                <input
-                  type="text"
-                  value={persona.keyPainPoint || ''}
-                  onChange={(e) => updateField('keyPainPoint', e.target.value)}
-                  placeholder="Ex: Perd 3h par semaine..."
-                  className="w-full text-xs px-2.5 py-1 rounded border border-line"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-muted mb-0.5">
-                  Alternative actuelle
-                </label>
-                <input
-                  type="text"
-                  value={persona.alternativeSolution || ''}
-                  onChange={(e) => updateField('alternativeSolution', e.target.value)}
-                  placeholder="Ex: Fait à la main / Excel..."
-                  className="w-full text-xs px-2.5 py-1 rounded border border-line"
-                />
-              </div>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
+
+      {/* Les trois questions */}
+      <div className="space-y-4">
+        {QUESTIONS.map(({ champ, question, min, max, couleur }) => {
+          const valeur = persona[champ];
+          return (
+            <div key={champ}>
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <span className="text-sm font-semibold text-ink">{question}</span>
+                <span className="text-xs font-bold text-muted shrink-0">{valeur}/10</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted w-[104px] shrink-0" aria-hidden>
+                  {min}
+                </span>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={valeur}
+                  onChange={(e) => modifier(champ, Number(e.target.value))}
+                  className="flex-1 h-1.5 cursor-pointer"
+                  style={{ accentColor: couleur }}
+                  aria-label={`${question} (${nomAffiche})`}
+                  aria-valuetext={`${valeur} sur 10`}
+                />
+                <span className="text-xs text-muted w-[104px] shrink-0 text-right" aria-hidden>
+                  {max}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Précisions facultatives */}
+      <div className="mt-4 pt-4 border-t border-line">
+        <button
+          type="button"
+          onClick={() => setDetailsOuverts(!detailsOuverts)}
+          aria-expanded={detailsOuverts}
+          className="flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-navy transition-colors"
+        >
+          En dire plus
+          <span className="text-xs font-normal">(facultatif)</span>
+          {detailsOuverts ? (
+            <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+          ) : (
+            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+          )}
+        </button>
+
+        {detailsOuverts && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3 animate-fade-in">
+            <div>
+              <label htmlFor={`gene-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
+                Qu&rsquo;est-ce qui la bloque ?
+              </label>
+              <input
+                id={`gene-${index}`}
+                type="text"
+                value={persona.keyPainPoint || ''}
+                onChange={(e) => modifier('keyPainPoint', e.target.value)}
+                placeholder="Elle perd 3 heures par semaine"
+                className={CHAMP_TEXTE}
+              />
+            </div>
+            <div>
+              <label htmlFor={`aujourdhui-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
+                Comment fait-elle aujourd&rsquo;hui ?
+              </label>
+              <input
+                id={`aujourdhui-${index}`}
+                type="text"
+                value={persona.alternativeSolution || ''}
+                onChange={(e) => modifier('alternativeSolution', e.target.value)}
+                placeholder="À la main, sur un tableur"
+                className={CHAMP_TEXTE}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </article>
   );
 };
+
+export default PersonaFormCard;

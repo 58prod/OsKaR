@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.4.3] - 2026-09-10
+
+### 🎨 Modifié
+- **Potentiel Produit** reprend la mise en page et l'échelle de texte de la
+  page Diagnostic : même en-tête avec légende des niveaux, mêmes cartes
+  blanches, même panneau de résultat sombre avec une note sur 10. Les textes
+  minuscules (9 à 11 px) et les coins arrondis propres à cette page ont disparu.
+- **Vocabulaire simplifié** : les libellés « Persona », « Early Adopter »,
+  « max(P × U × F) », « traction » ou « smoke test » laissent place à des
+  questions posées en toutes lettres — « Ce problème la gêne-t-il beaucoup ? »,
+  « Doit-elle le régler tout de suite ? ». Verdicts, conseils et exemples ont
+  été réécrits dans la même veine, accents compris.
+- Une seule note affichée, sur 10, au lieu d'un indice sur 100 doublé d'une
+  note sur 10 qui disaient la même chose.
+
+### 🔧 Corrigé
+- La note d'un profil était calculée deux fois, avec un facteur d'écart : une
+  carte affichait 0,5/10 quand le résultat annonçait 5/10.
+- Erreur d'hydratation React sur le logo du menu, introduite en 2.4.2.
+- Suppression de `RecommendationsPanel`, composant jamais utilisé.
+
 ## [2.4.2] - 2026-09-10
 
 ### ✨ Ajouté

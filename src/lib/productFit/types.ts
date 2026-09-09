@@ -1,9 +1,9 @@
 /**
- * Types pour le Bilan « Quel potentiel pour mon produit ? »
- * (OsKaR Fit - Potentiel Produit)
+ * Types du bilan « Potentiel Produit » (pilier OsKaR Fit).
  *
- * Évaluation du problème et de la cible prioritaire selon la formule :
- *   Bon produit = max (Problème × Urgence × Fréquence)
+ * On décrit trois personnes à qui le produit pourrait servir, on note à quel
+ * point chacune est gênée par le problème, et on retient la plus gênée : c'est
+ * elle qui achètera la première.
  */
 
 export interface PersonaEvaluation {
@@ -12,12 +12,12 @@ export interface PersonaEvaluation {
   role: string;
   description: string;
 
-  // Facteurs d'intensité de la douleur / du besoin (notés de 1 à 10)
-  problemIntensity: number; // Gravité : à quel point le problème est douloureux/bloquant
-  urgency: number;          // Urgence : doit-il/elle résoudre ce problème maintenant ou peut-il attendre ?
-  frequency: number;        // Fréquence : à quelle cadence rencontre-t-il cette difficulté ?
+  // Les trois questions, notées de 1 à 10
+  problemIntensity: number; // Le problème la gêne-t-il un peu, ou énormément ?
+  urgency: number;          // Doit-elle le régler tout de suite, ou cela peut-il attendre ?
+  frequency: number;        // Le rencontre-t-elle rarement, ou tous les jours ?
 
-  // Contexte qualitatif (optionnel)
+  // Pour aller plus loin (facultatif)
   keyPainPoint?: string;
   alternativeSolution?: string;
 }
@@ -33,9 +33,9 @@ export interface PersonaScoreResult {
   personaId: string;
   personaName: string;
   role: string;
-  rawScore: number;        // P × U × F (min 1, max 1000)
-  normalizedScore: number; // rawScore / 1000 × 100 → score sur 100
-  scoreOn10: number;       // score sur 10, arrondi à 1 décimale
+  rawScore: number;        // les trois notes multipliées (de 1 à 1000)
+  normalizedScore: number; // la même chose ramenée sur 100
+  scoreOn10: number;       // et sur 10, à une décimale — c'est ce qui s'affiche
   maturityState: 'critique' | 'modere' | 'prometteur' | 'champion';
   isPriorityTarget: boolean;
   priorityExplanation: string;
@@ -54,7 +54,7 @@ export interface ProductFitAnalysis {
   strengths: string[];
   vulnerabilities: string[];
   actionRecommendations: {
-    category: 'Cible & Positionnement' | 'Angle Marché' | 'Prochaine Étape';
+    category: 'Par où commencer' | 'Votre message' | 'Prochaine étape';
     title: string;
     advice: string;
     priority: 'Haute' | 'Moyenne' | 'Conseil';

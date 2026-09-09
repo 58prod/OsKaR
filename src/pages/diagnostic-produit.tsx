@@ -1,174 +1,189 @@
-import React, { useState, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { Target } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Check } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { PresetSelector } from '@/components/productFit/PresetSelector';
 import { PersonaFormCard } from '@/components/productFit/PersonaFormCard';
 import { ProductFitSynthesis } from '@/components/productFit/ProductFitSynthesis';
-import { PRESET_CASES, EMPTY_PROJECT } from '@/lib/productFit/presets';
+import { EMPTY_PROJECT } from '@/lib/productFit/presets';
 import { calculateProductFitAnalysis } from '@/lib/productFit/scoring';
 import type { PresetCase, ProductFitProject, PersonaEvaluation } from '@/lib/productFit/types';
 import { useAppStore } from '@/store/useAppStore';
 
-export default function DiagnosticProduitPage() {
-  const router = useRouter();
+/*
+ * Bilan « Potentiel Produit ».
+ *
+ * Même mise en page que la page Diagnostic : en-tête avec surtitre, titre et
+ * légende des niveaux, puis une grille `1fr / 340px` — la saisie à gauche, le
+ * résultat qui suit le défilement à droite.
+ *
+ * Le vocabulaire est celui de tout le monde : on décrit trois personnes, on dit
+ * à quel point le problème les gêne, et on découvre par laquelle commencer.
+ */
+
+const DiagnosticProduitPage: React.FC = () => {
   const { authReady, isAuthenticated } = useAppStore();
 
-  // État du projet (saisie vierge par défaut, exemples disponibles au clic)
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [project, setProject] = useState<ProductFitProject>(() => EMPTY_PROJECT);
 
-  // Calcul temps réel de l'analyse
-  const analysis = useMemo(() => {
-    return calculateProductFitAnalysis(project);
-  }, [project]);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<AuthModalTab>('register');
+  const openAuth = useCallback((tab: AuthModalTab) => {
+    setAuthTab(tab);
+    setAuthOpen(true);
+  }, []);
+
+  const analysis = useMemo(() => calculateProductFitAnalysis(project), [project]);
 
   const handleSelectPreset = (preset: PresetCase) => {
     setSelectedPresetId(preset.id);
-    setProject(JSON.parse(JSON.stringify(preset.project)));
+    setProject(structuredClone(preset.project));
   };
 
   const handleResetToEmpty = () => {
     setSelectedPresetId(null);
-    setProject(JSON.parse(JSON.stringify(EMPTY_PROJECT)));
+    setProject(structuredClone(EMPTY_PROJECT));
   };
 
   const handleUpdatePersona = (index: number, updated: PersonaEvaluation) => {
     setProject((prev) => {
-      const nextPersonas = [...prev.personas];
-      nextPersonas[index] = updated;
-      return {
-        ...prev,
-        personas: nextPersonas,
-      };
+      const personas = [...prev.personas];
+      personas[index] = updated;
+      return { ...prev, personas };
     });
   };
-
-  const topbarActions = !authReady ? null : isAuthenticated ? (
-    <UserMenu />
-  ) : (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => router.push('/auth/login')}
-        className="px-4 py-2 text-sm font-semibold text-navy hover:text-navy-light transition-colors"
-      >
-        Connexion
-      </button>
-      <button
-        onClick={() => router.push('/auth/register')}
-        className="px-4 py-2 bg-teal text-navy-dark text-sm font-bold rounded-lg shadow-sm hover:bg-teal-dark transition-all"
-      >
-        Commencer →
-      </button>
-    </div>
-  );
 
   return (
     <>
       <Head>
-        <title>Diagnostic : Quel potentiel pour mon produit ? | OsKaR</title>
+        <title>Potentiel Produit — Votre produit répond-il à un vrai besoin ? | OsKaR</title>
         <meta
           name="description"
-          content="Évaluez gratuitement le potentiel de votre produit grâce à la formule max(Problème x Urgence x Fréquence)."
+          content="Décrivez trois personnes à qui votre produit pourrait servir, dites à quel point le problème les gêne, et découvrez par laquelle commencer."
         />
       </Head>
 
       <AppShell
-        title="Diagnostic Produit"
-        topbarTitle="Quel potentiel pour mon produit ?"
-        topbarSubtitle="Évaluez la douleur réelle et trouvez votre cible prioritaire"
-        topbarActions={topbarActions}
+        title="Potentiel Produit"
+        topbarTitle="Bienvenue sur OSKAR"
+        topbarSubtitle="Plateforme de productivité"
+        topbarActions={
+          !authReady ? null : isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <>
+              <button
+                onClick={() => openAuth('login')}
+                className="px-4 py-2 text-sm font-semibold text-navy hover:text-navy-light transition-colors"
+              >
+                Connexion
+              </button>
+              <button
+                onClick={() => openAuth('register')}
+                className="px-5 py-2.5 bg-teal text-navy-dark text-sm font-bold rounded-lg shadow-sm hover:bg-teal-dark hover:-translate-y-0.5 transition-all"
+              >
+                Commencer gratuitement →
+              </button>
+            </>
+          )
+        }
       >
-        <div className="max-w-7xl mx-auto space-y-5 pb-16">
-          {/* Barre supérieure compacte : Titre + Presets */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-line shadow-xs">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-black text-navy">
-                  Bilan Potentiel Produit
-                </h1>
-                <span className="text-[11px] font-bold text-teal-dark bg-teal-light px-2.5 py-0.5 rounded-full">
-                  max(P × U × F)
-                </span>
-              </div>
-              <p className="text-xs text-muted mt-0.5">
-                Ajustez les curseurs pour identifier votre cœur de cible (Early Adopter) et mesurer l'intensité du besoin.
-              </p>
+        {/* En-tête, calqué sur la page Diagnostic */}
+        <header className="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-widest text-teal-dark mb-1.5">
+              Outil de pilotage
             </div>
-
-            <PresetSelector
-              selectedPresetId={selectedPresetId}
-              onSelectPreset={handleSelectPreset}
-              onResetToEmpty={handleResetToEmpty}
-            />
+            <h1 className="text-2xl font-extrabold text-navy">
+              Votre produit répond-il à un vrai besoin&nbsp;?
+            </h1>
           </div>
+          <div className="flex items-center gap-2.5">
+            <LegendPill icon={<AlertCircle className="h-3.5 w-3.5" aria-hidden />} label="0–3 Besoin faible" bg="#f0f2ff" border="#e2e4f0" />
+            <LegendPill icon={<AlertTriangle className="h-3.5 w-3.5" aria-hidden />} label="4–6 À préciser" bg="#fffbeb" border="#fde68a" />
+            <LegendPill icon={<Check className="h-3.5 w-3.5" aria-hidden />} label="7–10 Besoin fort" bg="#e6faf7" border="#a7f3e4" />
+          </div>
+        </header>
 
-          {/* Grille principale 2 colonnes (Option A) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Colonne gauche : Projet & Saisie des 3 Personas */}
-            <div className="lg:col-span-7 space-y-4">
-              {/* Saisie rapide du projet */}
-              <div className="bg-white p-4 rounded-2xl border border-line shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-1">
-                  <label className="block text-[11px] font-bold text-navy mb-1">
-                    Nom du projet
+        <div className="grid gap-5 lg:grid-cols-[1fr_340px] items-start">
+          {/* Saisie */}
+          <div>
+            <section className="bg-white rounded-card border border-line shadow-card p-5 mb-4">
+              <h2 className="text-lg font-bold text-navy mb-1">Votre produit</h2>
+              <p className="text-sm text-muted mb-4">
+                Deux lignes suffisent. Vous pourrez les modifier à tout moment.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <label htmlFor="nom-produit" className="block text-sm font-semibold text-ink mb-1.5">
+                    Son nom
                   </label>
                   <input
+                    id="nom-produit"
                     type="text"
                     value={project.projectName}
                     onChange={(e) => setProject({ ...project, projectName: e.target.value })}
-                    placeholder="Ex: Mon Produit"
-                    className="w-full text-xs font-semibold px-3 py-1.5 rounded-xl border border-line focus:ring-1 focus:ring-teal focus:border-teal transition-all bg-surface/30"
+                    placeholder="Mon produit"
+                    className="w-full text-sm text-ink px-3 py-2 rounded-lg border border-line bg-white transition-colors focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20 placeholder:text-muted/60"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-navy mb-1">
-                    Pitch / Promesse principale
+                  <label htmlFor="promesse-produit" className="block text-sm font-semibold text-ink mb-1.5">
+                    Ce qu&rsquo;il apporte, en une phrase
                   </label>
                   <input
+                    id="promesse-produit"
                     type="text"
                     value={project.pitch}
                     onChange={(e) => setProject({ ...project, pitch: e.target.value })}
-                    placeholder="Ex: Permettre aux familles de capturer facilement leurs souvenirs..."
-                    className="w-full text-xs font-medium px-3 py-1.5 rounded-xl border border-line focus:ring-1 focus:ring-teal focus:border-teal transition-all bg-surface/30"
+                    placeholder="Aider les familles à garder la mémoire de leurs proches"
+                    className="w-full text-sm text-ink px-3 py-2 rounded-lg border border-line bg-white transition-colors focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20 placeholder:text-muted/60"
                   />
                 </div>
               </div>
+            </section>
 
-              {/* Titre section personas */}
-              <div className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-bold text-navy flex items-center gap-1.5">
-                  <Target className="h-4 w-4 text-teal-dark" />
-                  Les 3 Personas Cibles
-                </h2>
-                <span className="text-[11px] text-muted font-medium">
-                  Problème (P) · Urgence (U) · Fréquence (F)
-                </span>
-              </div>
+            <section className="bg-white rounded-card border border-line shadow-card p-5 mb-4">
+              <h2 className="text-lg font-bold text-navy mb-1">À qui cela peut-il servir&nbsp;?</h2>
+              <p className="text-sm text-muted mb-4">
+                Décrivez trois personnes bien réelles. Vous découvrirez laquelle a le plus besoin de
+                vous&nbsp;: c&rsquo;est par elle qu&rsquo;il faut commencer.
+              </p>
+              <PresetSelector
+                selectedPresetId={selectedPresetId}
+                onSelectPreset={handleSelectPreset}
+                onResetToEmpty={handleResetToEmpty}
+              />
+            </section>
 
-              {/* 3 Cartes personas compactes */}
-              <div className="space-y-3.5">
-                {project.personas.map((persona, idx) => (
-                  <PersonaFormCard
-                    key={persona.id || idx}
-                    index={idx}
-                    persona={persona}
-                    isPriority={analysis.priorityPersona?.personaId === persona.id}
-                    onChange={(updated) => handleUpdatePersona(idx, updated)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Colonne droite : Restitution Live Sticky */}
-            <div className="lg:col-span-5 lg:sticky lg:top-6">
-              <ProductFitSynthesis analysis={analysis} />
-            </div>
+            {project.personas.map((persona, idx) => (
+              <PersonaFormCard
+                key={persona.id || idx}
+                index={idx}
+                persona={persona}
+                isPriority={analysis.priorityPersona?.personaId === persona.id}
+                onChange={(updated) => handleUpdatePersona(idx, updated)}
+              />
+            ))}
           </div>
+
+          {/* Résultat */}
+          <ProductFitSynthesis analysis={analysis} />
         </div>
+
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} />
       </AppShell>
     </>
   );
-}
+};
+
+const LegendPill: React.FC<{ icon: React.ReactNode; label: string; bg: string; border: string }> = ({ icon, label, bg, border }) => (
+  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs text-muted" style={{ background: bg, border: `1px solid ${border}` }}>
+    {icon} {label}
+  </span>
+);
+
+export default DiagnosticProduitPage;

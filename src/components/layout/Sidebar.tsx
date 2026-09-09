@@ -179,16 +179,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="oskar-logo-full object-contain"
             priority
           />
-          {/* Tailwind impose `height:auto` a toutes les images : sans taille
-              explicite, next/image previent d'un ratio potentiellement casse. */}
+          {/* Les deux dimensions sont posees en classes : Tailwind impose
+              `height:auto` a toutes les images, et next/image previent quand une
+              seule des deux est fixee. Pas de `priority` ici : l'icone n'est
+              visible que menu replie, et l'attribut `loading` qu'elle ajoute
+              differait entre le rendu serveur et le rendu client. */}
           <Image
             src="/images/oskar/logo-oskar2.png"
             alt="OsKaR"
             width={32}
             height={32}
-            style={{ width: 32, height: 32 }}
-            className="oskar-logo-icon object-contain"
-            priority
+            className="oskar-logo-icon object-contain h-8 w-8"
           />
         </Link>
       </div>

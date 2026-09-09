@@ -1,58 +1,57 @@
 import type { PresetCase } from './types';
 
 /**
- * Presets de demonstration - Phase 1 uniquement (P x U x F).
- * Les dimensions 3U sont volontairement absentes : elles s'evaluent
- * uniquement une fois qu'un prototype testable existe.
+ * Exemples prêts à charger, pour comprendre l'outil sans rien saisir.
+ * Chacun décrit un produit et trois personnes à qui il pourrait servir.
  */
 export const PRESET_CASES: PresetCase[] = [
   {
     id: 'eternity',
     name: 'Eternity \u23F3',
-    tagline: 'Transmission & Preservation de Memoire Familiale',
+    tagline: 'Garder la mémoire des grands-parents',
     description:
-      "Application pour recueillir, transcrire et transmettre les recits de vie des aines avant qu'il ne soit trop tard.",
+      "Une application pour recueillir et transmettre les récits de vie des aînés, avant qu'il ne soit trop tard.",
     project: {
       projectName: 'Eternity',
       pitch:
-        "Aider les familles a capturer la memoire de leurs proches via des questions audio guidees et un livre souvenir genere automatiquement.",
-      sector: 'FamilyTech / Silver Economy',
+        "Aider les familles à garder la mémoire de leurs proches, grâce à des questions audio et un livre souvenir créé automatiquement.",
+      sector: 'Famille et transmission',
       personas: [
         {
           id: 'eternity-p1',
-          name: 'Claire (Generation Pivot / 45 ans)',
-          role: 'Fille de parents vieillissants, active et mere de famille',
+          name: 'Claire, 45 ans',
+          role: 'Mère de famille, ses parents vieillissent',
           description:
-            "Voit ses parents decliner, angoisse de perdre leur histoire et regrette de ne pas avoir le temps de poser les bonnes questions.",
+            "Elle voit ses parents décliner et craint de perdre leur histoire, faute de temps pour poser les bonnes questions.",
           problemIntensity: 9,
           urgency: 8,
           frequency: 7,
-          keyPainPoint: "Le temps passe trop vite et les souvenirs s'effacent avec les grands-parents.",
-          alternativeSolution: "Enregistrements vocaux WhatsApp eparpilles, albums photos incomplets.",
+          keyPainPoint: "Le temps passe et les souvenirs s'effacent.",
+          alternativeSolution: "Des messages vocaux éparpillés et des albums photo incomplets.",
         },
         {
           id: 'eternity-p2',
-          name: 'Jean (Senior / 75 ans)',
-          role: "Grand-pere a la retraite",
+          name: 'Jean, 75 ans',
+          role: "Grand-père à la retraite",
           description:
-            "Veut laisser une trace a ses petits-enfants mais la page blanche et la technologie le freinent.",
+            "Il veut laisser une trace à ses petits-enfants, mais la page blanche et la technique le freinent.",
           problemIntensity: 7,
           urgency: 4,
           frequency: 4,
-          keyPainPoint: "Ne sait pas par ou commencer et craint la complexite technique.",
-          alternativeSolution: "Cahiers manuscrits rarement termines.",
+          keyPainPoint: "Il ne sait pas par où commencer.",
+          alternativeSolution: "Des cahiers commencés, jamais terminés.",
         },
         {
           id: 'eternity-p3',
-          name: 'Marc (Genealogiste Amateur / 55 ans)',
-          role: "Passionne d'histoire familiale",
+          name: 'Marc, 55 ans',
+          role: "Passionné d'histoire familiale",
           description:
-            "Collectionne les arbres et les dates, cherche des anecdotes vivantes pour illustrer ses recherches.",
+            "Il collectionne les dates et les arbres généalogiques, et cherche des anecdotes qui donnent vie à ses recherches.",
           problemIntensity: 6,
           urgency: 4,
           frequency: 8,
-          keyPainPoint: "A des dates et des actes mais manque de matiere vivante et de voix.",
-          alternativeSolution: "Logiciels de genealogie austeres (Genealogie, etc.).",
+          keyPainPoint: "Il a des dates, mais aucune voix ni anecdote.",
+          alternativeSolution: "Des logiciels de généalogie austères.",
         },
       ],
     },
@@ -60,50 +59,50 @@ export const PRESET_CASES: PresetCase[] = [
   {
     id: 'etape',
     name: 'ETAPE \uD83E\uDDED',
-    tagline: 'Methode & Pilotage de Reconversion Professionnelle',
+    tagline: 'Changer de métier sans se perdre',
     description:
-      "Plateforme d'accompagnement pas-a-pas pour securiser sa transition de carriere et trouver sa voie sans se perdre.",
+      "Un accompagnement pas à pas pour préparer sa reconversion et trouver sa voie sereinement.",
     project: {
       projectName: 'ETAPE',
       pitch:
-        "Guider les actifs en quete de sens pour valider leur projet de reconversion, lever les doutes et passer a l'action avec clarte.",
-      sector: 'EdTech / Career Transition',
+        "Aider ceux qui veulent changer de métier à valider leur projet, lever leurs doutes et passer à l'action.",
+      sector: 'Formation et reconversion',
       personas: [
         {
           id: 'etape-p1',
-          name: 'Sophie (Cadre en Quete de Sens / 38 ans)',
-          role: 'Responsable marketing en poste, desillusionnee',
+          name: 'Sophie, 38 ans',
+          role: 'Responsable marketing, en poste mais lassée',
           description:
-            "Ne trouve plus de sens dans son travail, se sent bloquee par la securite financiere mais etouffe.",
+            "Elle ne trouve plus de sens à son travail, mais son salaire la retient.",
           problemIntensity: 9,
           urgency: 9,
           frequency: 8,
-          keyPainPoint: "Peur du vide, syndrome de l'imposteur et absence de plan structure.",
-          alternativeSolution: "Bilans de competences classiques souvent theoriques et peu actionnables.",
+          keyPainPoint: "Peur du vide et absence de plan clair.",
+          alternativeSolution: "Des bilans de compétences trop théoriques.",
         },
         {
           id: 'etape-p2',
-          name: 'David (Salarie Post-Burnout / 47 ans)',
-          role: 'Ancien manager en arret ou conge de reclassement',
+          name: 'David, 47 ans',
+          role: 'Ancien manager, en arrêt de travail',
           description:
-            "A subi un epuisement professionnel, a besoin de reprendre confiance a son rythme avec bienveillance.",
+            "Après un épuisement professionnel, il a besoin de reprendre confiance à son rythme.",
           problemIntensity: 10,
           urgency: 6,
           frequency: 6,
-          keyPainPoint: "Perte de confiance totale et crainte de rechuter dans un environnement toxique.",
-          alternativeSolution: "Suivi psychologique + coaching individuel.",
+          keyPainPoint: "Il a perdu confiance et craint de rechuter.",
+          alternativeSolution: "Un suivi psychologique et du coaching individuel.",
         },
         {
           id: 'etape-p3',
-          name: 'Lucas (Jeune Diplome Hesitant / 25 ans)',
-          role: 'Premier emploi insatisfaisant',
+          name: 'Lucas, 25 ans',
+          role: 'Premier emploi, déjà déçu',
           description:
-            "Decu par sa premiere experience professionnelle, s'interroge sur sa trajectoire.",
+            "Déçu par sa première expérience, il s'interroge sur la suite.",
           problemIntensity: 6,
           urgency: 4,
           frequency: 5,
-          keyPainPoint: "Ne sait pas vers quel secteur s'orienter.",
-          alternativeSolution: "Conseils sur LinkedIn, videos YouTube, discussions entre pairs.",
+          keyPainPoint: "Il ne sait pas vers quel métier aller.",
+          alternativeSolution: "Des conseils glanés en ligne et entre amis.",
         },
       ],
     },
@@ -111,31 +110,31 @@ export const PRESET_CASES: PresetCase[] = [
   {
     id: 'hemotion',
     name: 'Hemotion 🚑',
-    tagline: 'Kits & Écosystème Moderne de Premiers Secours',
+    tagline: 'Les gestes qui sauvent, à portée de main',
     description:
       "Kits de premiers secours ultra-compacts (format canette), application d'urgence interactive et formations pour démocratiser les gestes qui sauvent.",
     project: {
       projectName: 'Hemotion',
       pitch:
         "Rendre le secourisme accessible, compact et instinctif grâce à des kits d'urgence nomades et une application de guidage pas-à-pas.",
-      sector: 'HealthTech / Secourisme & Outdoor',
+      sector: 'Santé et secourisme',
       personas: [
         {
           id: 'hemotion-p1',
-          name: 'Thomas (Pratiquant Outdoor & Aventure / 32 ans)',
-          role: 'Randonneur, traileur, vanlife ou sportif engagé',
+          name: 'Thomas, 32 ans',
+          role: 'Randonneur, souvent loin de tout',
           description:
             "Évolue souvent en milieu isolé où les secours mettent du temps à arriver. Angoisse d'une blessure grave (hémorragie, fracture, plaie) sans matériel adapté.",
-          problemIntensity: 9, // Risque vital / douleur critique en milieu isolé
-          urgency: 9,          // Besoin d'être équipé avant son prochain départ
-          frequency: 7,        // Sorties régulières en extérieur
+          problemIntensity: 9, // une blessure grave loin des secours
+          urgency: 9,          // il repart bientôt
+          frequency: 7,        // il sort régulièrement
           keyPainPoint: "Trousses classiques trop encombrantes, mal organisées et inadaptées aux urgences vitales.",
           alternativeSolution: "Trousse à pharmacie basique bricolée ou rien par manque de place.",
         },
         {
           id: 'hemotion-p2',
-          name: 'Julie (Jeune Parent Prévoyante / 35 ans)',
-          role: 'Maman de deux jeunes enfants',
+          name: 'Julie, 35 ans',
+          role: 'Mère de deux jeunes enfants',
           description:
             "Veut protéger son foyer contre les accidents domestiques (étouffement, brûlure, chute) mais panique sur les gestes à effectuer.",
           problemIntensity: 9,
@@ -146,8 +145,8 @@ export const PRESET_CASES: PresetCase[] = [
         },
         {
           id: 'hemotion-p3',
-          name: 'Stéphane (Responsable Sécurité / QSE en PME / 48 ans)',
-          role: 'En charge de la sécurité et des SST (Sauveteurs Secouristes du Travail)',
+          name: 'Stéphane, 48 ans',
+          role: "Responsable de la sécurité dans une PME",
           description:
             "Doit équiper les véhicules de service et former les équipes avec du matériel moderne et attrayant.",
           problemIntensity: 7,

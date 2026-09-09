@@ -6,11 +6,16 @@ import type {
 } from './types';
 
 /**
- * Phase 1 — Scoring basé uniquement sur P × U × F (évaluation du problème)
+ * Note d'un profil de client : à quel point cette personne est gênée.
  *
- * La formule : Bon produit = max (Problème × Urgence × Fréquence)
- * Chaque facteur est noté de 1 à 10.
- * Score brut : 1 à 1000. Normalisé sur 100.
+ * Trois questions notées de 1 à 10 — le problème la gêne-t-il, doit-elle le
+ * régler vite, le rencontre-t-elle souvent — multipliées entre elles. Le
+ * produit vaut par la personne la plus gênée, pas par la moyenne : c'est elle
+ * qui achètera la première.
+ *
+ * Note brute de 1 à 1000, ramenée sur 100 puis sur 10 pour l'affichage.
+ * Les textes ci-dessous s'adressent directement à l'utilisateur : pas de
+ * jargon, on nomme les choses simplement.
  */
 export function calculatePersonaScore(
   persona: PersonaEvaluation,
@@ -31,13 +36,13 @@ export function calculatePersonaScore(
   else maturityState = 'critique';
 
   const priorityExplanation = isPriority
-    ? `Ce persona présente la douleur la plus intense (Problème ${p}/10 × Urgence ${u}/10 × Fréquence ${f}/10 = ${rawScore} pts). C'est votre cible prioritaire à interviewer et à convaincre en premier.`
-    : `Segment secondaire à adresser dans un second temps, une fois la traction validée sur la cible prioritaire.`;
+    ? `C'est la personne la plus gênée des trois : le problème la gêne ${p}/10, elle doit le régler ${u}/10, elle le rencontre ${f}/10. Commencez par elle.`
+    : `À garder pour plus tard, une fois votre premier client convaincu.`;
 
   return {
     personaId: persona.id,
-    personaName: persona.name || 'Persona sans nom',
-    role: persona.role || 'Rôle non spécifié',
+    personaName: persona.name || 'Profil sans nom',
+    role: persona.role || 'Situation non précisée',
     rawScore,
     normalizedScore,
     scoreOn10,
@@ -48,8 +53,7 @@ export function calculatePersonaScore(
 }
 
 /**
- * Analyse complète de Phase 1 : identification de la cible prioritaire
- * et production des recommandations de ciblage & prochaines étapes.
+ * Analyse complète : qui est le premier client à viser, et quoi faire ensuite.
  */
 export function calculateProductFitAnalysis(project: ProductFitProject): ProductFitAnalysis {
   const activePersonas = (project.personas || []).filter((p) => p && (p.name || p.role));
@@ -58,8 +62,8 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
     return {
       globalPotentialScore: 0,
       globalScoreOn10: 0,
-      verdictLabel: 'En attente de saisie',
-      verdictDescription: 'Renseignez au moins un persona pour obtenir votre indice de potentiel.',
+      verdictLabel: 'À vous de jouer',
+      verdictDescription: 'Décrivez au moins une personne à qui votre produit s\'adresse pour voir votre résultat.',
       verdictTone: 'info',
       priorityPersona: null,
       personasResults: [],
@@ -84,8 +88,8 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
 
   const priorityPersona = personasResults.find((r) => r.isPriorityTarget) || personasResults[0];
 
-  // 2. Le score global = score de la meilleure cible (logique P×U×F)
-  // Un bon produit n'a besoin que d'une cible avec une douleur intense pour décoller.
+  // 2. La note du produit est celle de la personne la plus gênée.
+  // Un produit démarre grâce à une personne très gênée, pas grâce à une moyenne.
   const globalPotentialScore = priorityPersona.normalizedScore;
   const globalScoreOn10 = priorityPersona.scoreOn10;
 
@@ -95,29 +99,29 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
   let verdictTone: ProductFitAnalysis['verdictTone'] = 'info';
 
   if (globalPotentialScore >= 65) {
-    verdictLabel = 'Douleur Forte & Traction Potentielle Élevée 🚀';
+    verdictLabel = 'Le besoin est fort';
     verdictDescription =
-      `Votre cible prioritaire "${priorityPersona.personaName}" souffre d'un problème intense, urgent et fréquent. ` +
-      `Les conditions de traction initiale sont réunies. Passez vite à la validation terrain.`;
+      `${priorityPersona.personaName} a un problème important, urgent et fréquent. ` +
+      `C'est très bon signe : allez lui parler pour le confirmer sur le terrain.`;
     verdictTone = 'success';
   } else if (globalPotentialScore >= 40) {
-    verdictLabel = 'Potentiel Réel mais Douleur à Préciser ⚡';
+    verdictLabel = 'Le besoin est réel';
     verdictDescription =
-      `Le besoin existe, mais la combinaison Problème × Urgence × Fréquence n'est pas encore assez forte pour ` +
-      `déclencher une adoption spontanée. Approfondissez vos interviews pour trouver l'angle le plus douloureux.`;
+      `Le besoin existe, mais il n'est pas encore assez fort pour qu'on achète sans hésiter. ` +
+      `Cherchez le moment précis où le problème devient vraiment pénible.`;
     verdictTone = 'info';
   } else if (globalPotentialScore >= 20) {
-    verdictLabel = 'Risque de "Nice-to-Have" ⚠️';
+    verdictLabel = 'Utile, mais pas indispensable';
     verdictDescription =
-      `Aucun de vos personas ne ressent une douleur suffisamment vive ou urgente. ` +
-      `Vous risquez de construire quelque chose que les gens trouvent sympa mais qu'ils n'adoptent pas. ` +
-      `Revoyez votre angle de ciblage ou la formulation du problème.`;
+      `Personne n'est assez gêné pour changer ses habitudes. ` +
+      `Le risque : un produit que l'on trouve sympathique mais que l'on n'achète pas. ` +
+      `Revoyez à qui vous vous adressez.`;
     verdictTone = 'warning';
   } else {
-    verdictLabel = 'Niveau de Risque Élevé 🛑';
+    verdictLabel = 'Le besoin reste à trouver';
     verdictDescription =
-      `Les scores P × U × F sont très faibles sur l'ensemble des cibles testées. ` +
-      `Il est urgent de requalifier le problème ou d'explorer un segment plus en souffrance.`;
+      `Les trois profils sont peu gênés par ce problème. ` +
+      `Cherchez des personnes qui en souffrent vraiment, ou reformulez le problème.`;
     verdictTone = 'danger';
   }
 
@@ -127,68 +131,68 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
 
   if (priorityPersona.normalizedScore >= 60) {
     strengths.push(
-      `Cœur de cible très net : "${priorityPersona.personaName}" cumule une douleur forte sur les 3 facteurs (${priorityPersona.rawScore}/1000 pts).`
+      `${priorityPersona.personaName} est nettement la plus gênée des trois. Vous savez par qui commencer.`
     );
   }
   if (activePersonas.length > 1) {
     const secondBest = personasResults.filter((p) => !p.isPriorityTarget).sort((a, b) => b.rawScore - a.rawScore)[0];
     if (secondBest && secondBest.normalizedScore >= 30) {
       strengths.push(
-        `Segment de croissance identifié : "${secondBest.personaName}" offre un potentiel d'expansion à moyen terme (${secondBest.rawScore}/1000 pts).`
+        `${secondBest.personaName} pourrait devenir votre second marché, une fois le premier convaincu.`
       );
     }
   }
   if (activePersonas.some((p) => (p.urgency || 1) >= 8)) {
-    strengths.push(`Urgence forte détectée : au moins un persona ressent une pression temporelle élevée — facteur clé de conversion rapide.`);
+    strengths.push(`Au moins une personne veut régler ce problème tout de suite. C'est ce qui déclenche un achat rapide.`);
   }
 
   if (personasResults.every((p) => p.normalizedScore < 30)) {
     vulnerabilities.push(
-      `Douleur globale trop faible : aucune cible ne dépasse 30/100 sur la formule P × U × F. Risque fort de "nice-to-have".`
+      `Aucun des trois profils n'est vraiment gêné. Un produit que l'on trouve sympathique se vend mal.`
     );
   }
   if (priorityPersona && (activePersonas.find((p) => p.id === priorityPersona.personaId)?.urgency || 0) < 5) {
     vulnerabilities.push(
-      `Urgence faible pour la cible prioritaire : le persona peut attendre, ce qui allonge les cycles de vente et ralentit la traction.`
+      `${priorityPersona.personaName} peut attendre. Sans urgence, la décision d'achat traîne.`
     );
   }
   if (priorityPersona && (activePersonas.find((p) => p.id === priorityPersona.personaId)?.frequency || 0) < 4) {
     vulnerabilities.push(
-      `Fréquence basse : le problème est rare. Un produit à usage peu fréquent est difficile à ancrer dans la routine — pensez à un modèle d'abonnement ou à un effet de réseau.`
+      `Le problème est rare. Un produit qu'on utilise peu s'oublie vite : prévoyez une raison d'y revenir.`
     );
   }
 
-  // 5. Recommandations Phase 1 : ciblage, positionnement et prochaines étapes
+  // 5. Quoi faire ensuite, dans l'ordre.
   const actionRecommendations: ProductFitAnalysis['actionRecommendations'] = [];
 
   actionRecommendations.push({
-    category: 'Cible & Positionnement',
-    title: `Concentrez 100% de vos efforts initiaux sur "${priorityPersona.personaName}"`,
-    advice: `Ne cherchez pas à plaire à tout le monde dès le début. Adressez exclusivement ce persona dans vos messages, votre landing page et vos premières conversations commerciales.`,
+    category: 'Par où commencer',
+    title: `Adressez-vous à ${priorityPersona.personaName}, et à elle seule`,
+    advice: `Ne cherchez pas à plaire à tout le monde au début. Parlez d'elle, et à elle, sur votre site, dans vos messages et lors de vos premiers rendez-vous.`,
     priority: 'Haute',
   });
 
   const priorityPersonaData = activePersonas.find((p) => p.id === priorityPersona.personaId);
   if (priorityPersonaData && (priorityPersonaData.urgency || 1) < 7) {
     actionRecommendations.push({
-      category: 'Angle Marché',
-      title: `Retravailler l'angle d'urgence dans votre message`,
-      advice: `L'urgence perçue est modérée (${priorityPersonaData.urgency}/10). Cherchez le déclencheur d'urgence : un événement de vie, une réglementation imminente, une fenêtre de marché ? C'est lui qui provoque l'achat immédiat plutôt que "je le ferai plus tard".`,
+      category: 'Votre message',
+      title: `Trouvez ce qui rend le problème urgent`,
+      advice: `L'urgence n'est que de ${priorityPersonaData.urgency}/10. Quel événement rend soudain le problème insupportable — un déménagement, une échéance, une nouvelle règle ? C'est ce déclic qui fait acheter maintenant plutôt que « plus tard ».`,
       priority: 'Haute',
     });
   }
 
   actionRecommendations.push({
-    category: 'Prochaine Étape',
-    title: `Conduire 10 interviews de découverte avec "${priorityPersona.personaName}"`,
-    advice: `Avant de coder ou de maquetter quoi que ce soit, réalisez 10 entretiens terrain avec ce persona. Objectif : valider que vous avez bien compris le problème et découvrir des nuances que vous n'avez pas anticipées.`,
+    category: 'Prochaine étape',
+    title: `Parlez à 10 personnes comme ${priorityPersona.personaName}`,
+    advice: `Avant de créer quoi que ce soit, discutez avec dix personnes de ce profil. Vous saurez tout de suite si vous avez visé juste, et vous découvrirez ce que vous n'aviez pas imaginé.`,
     priority: 'Haute',
   });
 
   actionRecommendations.push({
-    category: 'Prochaine Étape',
-    title: `Créer une landing page "smoke test" pour mesurer l'intention réelle`,
-    advice: `Une page simple décrivant le bénéfice principal et un bouton "Je suis intéressé(e)" vous donnera votre premier signal de traction réelle — sans avoir à développer le produit.`,
+    category: 'Prochaine étape',
+    title: `Testez l'intérêt avec une page toute simple`,
+    advice: `Une page qui explique ce que vous apportez, avec un bouton « Ça m'intéresse ». Le nombre de clics vous dira si le besoin est réel, sans avoir rien développé.`,
     priority: 'Moyenne',
   });
 
