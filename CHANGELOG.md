@@ -7,6 +7,32 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+> Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
+> Les changements de cette période sont dans l'historique Git.
+
+## [2.4.2] - 2026-09-10
+
+### ✨ Ajouté
+- **Parcours OKR en 3 étapes** sur `/app/okr`, transposition de la maquette
+  `okr.html` : objectifs annuels avec cible chiffrée, objectifs et résultats
+  clés du trimestre, plan d'actions en kanban. L'étape est portée par l'URL,
+  le trimestre choisi est mémorisé. L'espace en huit pages reste accessible
+  par ses adresses, et son menu ramène désormais au parcours.
+
+### 🔧 Corrigé
+- **Authentification** : atterrissage sur `/app/okr` après connexion, retour
+  à la page demandée après une redirection, lien de réinitialisation expiré
+  signalé, messages d'erreur Supabase en français, bouton Google masqué tant
+  que le fournisseur n'est pas activé, identifiants qui pouvaient passer dans
+  l'URL avant chargement du JavaScript.
+- **Menu latéral** : « Bilan Organisation » renommé « Diagnostic », une seule
+  entrée surlignée à la fois, plus de repli-dépli au changement de page ni au
+  chargement, infobulles quand le menu est replié, navigation clavier.
+
+### 🗃️ Données
+- La cible chiffrée d'un objectif annuel utilise les colonnes `target_value`
+  et `unit` déjà présentes sur `ambitions` : aucune migration Supabase.
+
 ## [1.0.0] - 2024-12-26 🚀
 
 ### ✨ Ajouté
