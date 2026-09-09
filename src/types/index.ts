@@ -103,6 +103,12 @@ export interface Ambition {
   category: AmbitionCategory;
   priority: Priority;
   status: Status;
+  /** Cible chiffrée de l'objectif annuel (colonne `target_value`), ex. 500. */
+  target?: number | null;
+  /** Unité de la cible (colonne `unit`), ex. « k€ de CA ». */
+  unit?: string | null;
+  /** Position dans le parcours OKR (colonne `order_index`). */
+  orderIndex?: number;
   createdAt: Date;
   updatedAt: Date;
   aiValidation?: AIValidation;

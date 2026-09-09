@@ -216,6 +216,7 @@ export class ActionsService {
         : null;
     }
     if (updates.labels !== undefined) updateData.metadata = { labels: updates.labels };
+    if (updates.quarterlyKeyResultId !== undefined) updateData.key_result_id = updates.quarterlyKeyResultId || null;
 
     // Si le statut passe à DONE, enregistrer la date de complétion
     if (updates.status && (typeof updates.status === 'string' ? updates.status.toUpperCase() : String(updates.status).toUpperCase()) === 'DONE') {

@@ -25,6 +25,9 @@ export class AmbitionsService {
       category: categoryFromDb(row.category) as any,
       priority: Priority.HIGH, // TODO: Ajouter priority dans le schéma SQL
       status: Status.ACTIVE, // TODO: Ajouter status dans le schéma SQL
+      target: row.target_value,
+      unit: row.unit,
+      orderIndex: row.order_index ?? 0,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
@@ -40,11 +43,11 @@ export class AmbitionsService {
       description: ambition.description || null,
       category: categoryToDb(ambition.category || 'growth'),
       year: ambition.year || new Date().getFullYear(),
-      target_value: null,
+      target_value: ambition.target ?? null,
       current_value: 0,
-      unit: null,
+      unit: ambition.unit ?? null,
       color: null,
-      order_index: 0,
+      order_index: ambition.orderIndex ?? 0,
     };
   }
 
@@ -139,6 +142,9 @@ export class AmbitionsService {
     if (updates.description !== undefined) updateData.description = updates.description || null;
     if (updates.category !== undefined) updateData.category = categoryToDb(updates.category);
     if (updates.year !== undefined) updateData.year = updates.year;
+    if (updates.target !== undefined) updateData.target_value = updates.target;
+    if (updates.unit !== undefined) updateData.unit = updates.unit;
+    if (updates.orderIndex !== undefined) updateData.order_index = updates.orderIndex;
 
     const result = await (supabase as any)
       .from('ambitions')

@@ -42,7 +42,7 @@ const OnboardingPage: React.FC = () => {
 
     // Profil entreprise rempli ET onboarding du module déjà fait -> espace
     if (user.companyProfile && user.settings?.onboarding?.[moduleId]) {
-      router.push('/app/okr/dashboard');
+      router.push('/app/okr');
       return;
     }
 
@@ -110,7 +110,7 @@ const OnboardingPage: React.FC = () => {
   // Marque l'onboarding du module comme terminé en base (settings) puis rejoint l'espace
   const completeOnboarding = async () => {
     if (!user) {
-      router.push('/app/okr/dashboard');
+      router.push('/app/okr');
       return;
     }
     const newSettings = {
@@ -125,7 +125,7 @@ const OnboardingPage: React.FC = () => {
       console.error('❌ Erreur enregistrement onboarding:', err?.message ?? err);
     }
     setUser({ ...user, settings: newSettings });
-    router.push('/app/okr/dashboard');
+    router.push('/app/okr');
   };
 
   const handleAmbitionSubmit = async (data: AmbitionFormData) => {

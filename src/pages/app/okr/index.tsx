@@ -1,197 +1,242 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
-import {
-  Target,
-  ListChecks,
-  CheckSquare,
-  LayoutDashboard,
-  CalendarCheck,
-  Repeat,
-  Activity,
-  Layers,
-  ArrowRight,
-  Sparkles,
-} from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { AuthModal } from '@/components/layout/AuthModal';
+import { UserMenu } from '@/components/layout/UserMenu';
+import { OkrTabs } from '@/components/okr/OkrTabs';
+import { EtapeObjectifs } from '@/components/okr/EtapeObjectifs';
+import { EtapeTrimestre } from '@/components/okr/EtapeTrimestre';
+import { EtapeActions } from '@/components/okr/EtapeActions';
+import { ANNEE, BTN_OUTLINE, BTN_PRIMARY, ETAPES, MAX_OBJECTIFS, trimLabel, type Etape } from '@/components/okr/okrFlux';
 import { useAppStore } from '@/store/useAppStore';
+import { useAmbitions } from '@/hooks/useAmbitions';
+import { useQuarterlyObjectives } from '@/hooks/useQuarterlyObjectives';
+import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
+import { useActions } from '@/hooks/useActions';
+import { getCurrentQuarter } from '@/utils';
+import type { Quarter } from '@/types';
 
-/** Destination de l'espace de travail OKR (compte requis). */
-const OKR_WORKSPACE = '/app/okr/dashboard';
+/*
+ * OsKaR OKR — parcours en 3 étapes, transposition de okr.html :
+ *   1. Mes 3 objectifs annuels   2. Mon trimestre   3. Mes actions
+ *
+ * L'étape courante vit dans l'URL (?etape=trimestre|actions) pour être partageable ;
+ * les données sont chargées ici une fois et passées aux trois écrans.
+ * L'ancien espace en huit pages (dashboard, canvas, gestion…) reste accessible
+ * par ses URL sous /app/okr/*, mais n'est plus le point d'entrée du pilier.
+ */
 
-/** Étapes de la méthode OKR (hiérarchie portée du PRD). */
-const STEPS = [
-  { icon: Target, t: 'Ambitions annuelles', d: 'Définissez 1 à 3 ambitions structurantes pour l’année.' },
-  { icon: ListChecks, t: 'Key Results', d: 'Rendez chaque ambition mesurable avec des résultats clés.' },
-  { icon: CalendarCheck, t: 'Objectifs trimestriels', d: 'Déclinez vos ambitions en objectifs par trimestre.' },
-  { icon: CheckSquare, t: 'Actions & Kanban', d: 'Pilotez l’exécution au quotidien, du « à faire » au « terminé ».' },
-];
+const CLE_TRIMESTRE = 'oskar.okr.trimestre';
 
-/** Fonctionnalités du module (existantes dans l'app). */
-const FEATURES = [
-  { icon: Sparkles, t: 'Canvas guidé par l’IA', d: 'Créez vos ambitions, KR et actions avec des suggestions contextuelles.' },
-  { icon: LayoutDashboard, t: 'Dashboard temps réel', d: 'Suivez la progression globale, par ambition et par trimestre.' },
-  { icon: CheckSquare, t: 'Kanban des actions', d: 'Glissez-déposez vos actions entre À faire, En cours et Terminé.' },
-  { icon: CalendarCheck, t: 'Check-in hebdomadaire', d: 'Une revue courte et guidée pour débloquer les KR en retard.' },
-  { icon: Repeat, t: 'Rétrospective trimestrielle', d: 'Analysez réussites et blocages, préparez le trimestre suivant.' },
-  { icon: Activity, t: 'Health score OKR', d: 'Repérez les résultats clés à risque avant qu’il ne soit trop tard.' },
-];
+function lireTrimestre(): Quarter {
+  try {
+    const v = window.localStorage.getItem(CLE_TRIMESTRE);
+    if (v === 'Q1' || v === 'Q2' || v === 'Q3' || v === 'Q4') return v as Quarter;
+  } catch {
+    /* stockage indisponible : on retombe sur le trimestre courant */
+  }
+  return getCurrentQuarter();
+}
 
-const OkrHomePage: React.FC = () => {
+const OkrPage: React.FC = () => {
   const router = useRouter();
-  const { isAuthenticated } = useAppStore();
+  const { user, authReady, isAuthenticated } = useAppStore();
+  const userId = isAuthenticated ? user?.id : undefined;
+
+  /* ── Étape courante, portée par l'URL ── */
+  const etape: Etape = useMemo(() => {
+    const q = router.query.etape;
+    return typeof q === 'string' && (ETAPES as string[]).includes(q) ? (q as Etape) : 'annee';
+  }, [router.query.etape]);
+
+  const allerA = useCallback(
+    (e: Etape) => {
+      router.push({ pathname: '/app/okr', query: e === 'annee' ? {} : { etape: e } }, undefined, { shallow: true });
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [router]
+  );
+
+  /* ── Trimestre sélectionné (mémorisé dans le navigateur) ── */
+  const [quarter, setQuarter] = useState<Quarter>(getCurrentQuarter);
+  useEffect(() => {
+    setQuarter(lireTrimestre());
+  }, []);
+  const changerTrimestre = (q: Quarter) => {
+    setQuarter(q);
+    try {
+      window.localStorage.setItem(CLE_TRIMESTRE, q);
+    } catch {
+      /* ignoré */
+    }
+  };
+
+  /* ── Données ── */
+  const { data: ambitionsBrutes = [] } = useAmbitions(userId, ANNEE);
+  const ambitions = useMemo(
+    () =>
+      [...ambitionsBrutes]
+        .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0) || a.createdAt.getTime() - b.createdAt.getTime())
+        .slice(0, MAX_OBJECTIFS),
+    [ambitionsBrutes]
+  );
+  const { data: objectifsBruts = [] } = useQuarterlyObjectives(userId, quarter, ANNEE);
+  const ambitionIds = useMemo(() => new Set(ambitions.map((a) => a.id)), [ambitions]);
+  const objectifs = useMemo(() => objectifsBruts.filter((o) => ambitionIds.has(o.ambitionId)), [objectifsBruts, ambitionIds]);
+  const { data: keyResults = [] } = useQuarterlyKeyResultsByUser(userId);
+  const krsTrimestre = useMemo(() => {
+    const ids = new Set(objectifs.map((o) => o.id));
+    return keyResults.filter((k) => ids.has(k.quarterlyObjectiveId));
+  }, [keyResults, objectifs]);
+  const { data: actions = [] } = useActions(userId);
+
+  /* ── Barre du haut ── */
+  const [demandeNouvelle, setDemandeNouvelle] = useState(0);
+  const nouvelleAction = () => {
+    if (etape !== 'actions') allerA('actions');
+    setDemandeNouvelle((n) => n + 1);
+  };
+
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'register'>('register');
-
-  const openAuth = (tab: 'login' | 'register' = 'register') => {
+  const ouvrirAuth = (tab: 'login' | 'register') => {
     setAuthTab(tab);
     setAuthOpen(true);
   };
 
-  /** « Aller plus loin » : espace OKR si connecté, sinon création de compte. */
-  const goFurther = (tab: 'login' | 'register' = 'register') => {
-    if (isAuthenticated) {
-      router.push(OKR_WORKSPACE);
-    } else {
-      openAuth(tab);
-    }
+  const libelles: Record<Etape, string> = {
+    annee: 'Mes 3 objectifs annuels',
+    trimestre: `Mon trimestre ${trimLabel(quarter)}`,
+    actions: 'Mes actions',
+  };
+  const titresBarre: Record<Etape, string> = {
+    annee: 'Mes 3 objectifs annuels',
+    trimestre: `Mon trimestre ${trimLabel(quarter)} ${ANNEE}`,
+    actions: `Mes actions ${trimLabel(quarter)} ${ANNEE}`,
   };
 
+  const topbarActions = !authReady ? null : isAuthenticated ? (
+    <>
+      <button type="button" onClick={nouvelleAction} className={`${BTN_OUTLINE} !py-2 !text-14`}>
+        <Plus className="w-[15px] h-[15px]" aria-hidden />
+        Nouvelle action
+      </button>
+      <UserMenu />
+    </>
+  ) : (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => ouvrirAuth('login')}
+        className="px-4 py-2 text-14 font-semibold text-navy hover:text-navy-light transition-colors"
+      >
+        Connexion
+      </button>
+      <button
+        type="button"
+        onClick={() => ouvrirAuth('register')}
+        className="px-4 py-2 bg-teal text-navy-dark text-14 font-bold rounded-lg shadow-sm hover:bg-teal-dark transition-all"
+      >
+        Commencer →
+      </button>
+    </div>
+  );
+
   return (
-    <AppShell
-      title="OsKaR OKR"
-      topbarTitle="OSKAR OKR"
-      topbarSubtitle="Alignez stratégie et exécution"
-      topbarActions={
-        isAuthenticated ? (
-          <button
-            onClick={() => router.push(OKR_WORKSPACE)}
-            className="px-5 py-2.5 bg-teal text-navy-dark text-sm font-bold rounded-lg shadow-sm hover:bg-teal-dark hover:-translate-y-0.5 transition-all"
-          >
-            Accéder à mon espace →
-          </button>
+    <>
+      <Head>
+        <title>OsKaR OKR · Mes objectifs | OsKaR</title>
+      </Head>
+      <AppShell
+        title="OsKaR OKR"
+        topbarTitle={<span className="text-okr">OSKAR OKR — {titresBarre[etape]}</span>}
+        topbarActions={topbarActions}
+        contentMaxWidth="max-w-[1400px]"
+      >
+        {!authReady ? (
+          <div className="flex flex-col items-center justify-center py-32 text-muted" aria-live="polite">
+            <Loader2 className="h-8 w-8 animate-spin text-teal mb-4" aria-hidden />
+            <p className="text-14">Chargement de votre espace…</p>
+          </div>
+        ) : !isAuthenticated || !user ? (
+          <Visiteur onConnexion={() => ouvrirAuth('login')} onInscription={() => ouvrirAuth('register')} />
         ) : (
           <>
-            <button
-              onClick={() => openAuth('login')}
-              className="px-4 py-2 text-sm font-semibold text-navy hover:text-navy-light transition-colors"
-            >
-              Connexion
-            </button>
-            <button
-              onClick={() => openAuth('register')}
-              className="px-5 py-2.5 bg-teal text-navy-dark text-sm font-bold rounded-lg shadow-sm hover:bg-teal-dark hover:-translate-y-0.5 transition-all"
-            >
-              Créer mon compte →
-            </button>
+            <OkrTabs etape={etape} libelles={libelles} onChange={allerA} />
+
+            {etape === 'annee' && (
+              <EtapeObjectifs
+                userId={user.id}
+                ambitions={ambitions}
+                libelleSuivant={`Définir mon trimestre ${trimLabel(quarter)}`}
+                onSuivant={() => allerA('trimestre')}
+              />
+            )}
+            {etape === 'trimestre' && (
+              <EtapeTrimestre
+                userId={user.id}
+                ambitions={ambitions}
+                quarter={quarter}
+                onQuarterChange={changerTrimestre}
+                objectifs={objectifs}
+                keyResults={keyResults}
+                onRetourObjectifs={() => allerA('annee')}
+                onSuivant={() => allerA('actions')}
+              />
+            )}
+            {etape === 'actions' && (
+              <EtapeActions
+                userId={user.id}
+                quarter={quarter}
+                actions={actions}
+                keyResults={krsTrimestre}
+                demandeNouvelle={demandeNouvelle}
+              />
+            )}
           </>
-        )
-      }
-    >
-      {/* Hero */}
-      <section
-        className="relative overflow-hidden bg-navy-dark rounded-[24px] mb-12 p-10 lg:p-16 text-white shadow-card"
-        aria-labelledby="okr-hero-title"
-      >
-        <div className="relative z-10 max-w-2xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-block text-[11px] font-bold tracking-[2px] uppercase text-teal mb-4">
-              Pilier 04 · Exécution
-            </span>
-            <h1 id="okr-hero-title" className="text-4xl lg:text-5xl font-extrabold leading-[1.15] mb-6">
-              Transformez vos ambitions en <span className="text-teal">résultats mesurables.</span>
-            </h1>
-            <p className="text-lg text-white/70 leading-relaxed mb-8">
-              OSKAR OKR structure votre exécution : des ambitions claires, des résultats clés mesurables,
-              des objectifs trimestriels et un plan d’actions piloté au quotidien.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => goFurther('register')}
-                className="px-8 py-4 bg-teal text-navy-dark font-bold rounded-xl shadow-lg hover:bg-teal-dark hover:-translate-y-1 transition-all flex items-center gap-2"
-              >
-                {isAuthenticated ? 'Accéder à mon espace OKR' : 'Créer mon compte pour démarrer'}
-                <ArrowRight className="h-5 w-5" aria-hidden />
-              </button>
-              <button
-                onClick={() => router.push('/diagnostic')}
-                className="px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/15 transition-all"
-              >
-                Refaire mon bilan
-              </button>
-            </div>
-          </motion.div>
-        </div>
-        <div className="absolute -right-20 -top-20 w-80 h-80 bg-teal/10 rounded-full blur-[100px]" aria-hidden />
-      </section>
-
-      {/* Comment ça marche */}
-      <section className="mb-20" aria-labelledby="okr-steps-title">
-        <div className="flex items-center gap-3 mb-10">
-          <Layers className="h-5 w-5 text-teal-dark" aria-hidden />
-          <h2 id="okr-steps-title" className="text-xl font-bold text-navy uppercase tracking-wider">
-            La méthode OSKAR OKR
-          </h2>
-        </div>
-        <ol className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {STEPS.map((step, idx) => (
-            <li key={step.t} className="bg-white p-7 rounded-2xl border border-line shadow-card relative">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-11 h-11 bg-navy text-white rounded-xl flex items-center justify-center">
-                  <step.icon className="h-5 w-5" aria-hidden />
-                </div>
-                <span className="text-2xl font-black text-line">{idx + 1}</span>
-              </div>
-              <h3 className="font-bold text-navy mb-1.5">{step.t}</h3>
-              <p className="text-sm text-muted leading-relaxed">{step.d}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* Fonctionnalités */}
-      <section className="mb-20" aria-labelledby="okr-features-title">
-        <h2 id="okr-features-title" className="text-xl font-bold text-navy mb-10 text-center uppercase tracking-wider">
-          Tout pour piloter votre exécution
-        </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map((item) => (
-            <div key={item.t} className="flex items-start gap-4 p-6 bg-white rounded-2xl border border-line shadow-card">
-              <div className="w-10 h-10 rounded-lg bg-teal/10 flex items-center justify-center shrink-0">
-                <item.icon className="h-5 w-5 text-teal-dark" aria-hidden />
-              </div>
-              <div>
-                <h3 className="font-bold text-navy text-sm mb-1">{item.t}</h3>
-                <p className="text-xs text-muted leading-relaxed">{item.d}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA final */}
-      <section className="bg-navy rounded-[32px] p-10 lg:p-16 text-center text-white shadow-card mb-12" aria-labelledby="okr-cta-title">
-        <Target className="h-12 w-12 text-teal mx-auto mb-6 opacity-80" aria-hidden />
-        <h2 id="okr-cta-title" className="text-3xl font-extrabold mb-4">
-          {isAuthenticated ? 'Reprenez le pilotage de vos objectifs' : 'Pour aller plus loin, créez votre compte'}
-        </h2>
-        <p className="text-white/60 mb-10 max-w-xl mx-auto leading-relaxed">
-          {isAuthenticated
-            ? 'Accédez à votre espace OKR pour créer vos ambitions, suivre vos résultats clés et piloter vos actions.'
-            : 'Le bilan reste gratuit et sans inscription. Pour construire et suivre vos OKR, un compte est nécessaire.'}
-        </p>
-        <button
-          onClick={() => goFurther('register')}
-          className="px-10 py-5 bg-teal text-navy-dark font-black rounded-xl shadow-lg hover:bg-teal-dark hover:-translate-y-1 transition-all text-sm uppercase tracking-wider"
-        >
-          {isAuthenticated ? 'Accéder à mon espace OKR →' : 'Créer mon compte →'}
-        </button>
-      </section>
-
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} redirectTo={OKR_WORKSPACE} />
-    </AppShell>
+        )}
+      </AppShell>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} redirectTo="/app/okr" />
+    </>
   );
 };
 
-export default OkrHomePage;
+/** Vue visiteur : la bannière de l'étape 1 et une invitation à se connecter. */
+const Visiteur: React.FC<{ onConnexion: () => void; onInscription: () => void }> = ({ onConnexion, onInscription }) => (
+  <div className="max-w-3xl">
+    <div className="relative overflow-hidden rounded-[18px] px-10 py-9 mb-7 bg-[linear-gradient(135deg,#151f5e_0%,#1e2d7d_60%,#2a3d99_100%)]">
+      <div
+        className="absolute -right-10 -top-10 w-[220px] h-[220px] rounded-full bg-[radial-gradient(circle,rgba(0,212,180,0.13)_0%,transparent_70%)]"
+        aria-hidden
+      />
+      <div className="relative">
+        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-teal mb-2">Pilier 04 · OsKaR OKR</div>
+        <h1 className="text-[24px] leading-[1.25] font-extrabold text-white mb-2">
+          Trois objectifs pour l&rsquo;année, un trimestre à la fois.
+        </h1>
+        <p className="text-14.5 leading-[1.6] text-white/60 max-w-[480px]">
+          Fixez vos 3 objectifs annuels avec une cible chiffrée, déclinez-les en résultats clés chaque trimestre, puis
+          pilotez vos actions au quotidien.
+        </p>
+      </div>
+    </div>
+    <div className="bg-white border border-line rounded-card shadow-card px-8 py-7 flex flex-col sm:flex-row sm:items-center gap-5">
+      <div className="flex-1">
+        <p className="text-15.5 font-bold text-navy mb-1">Un compte est nécessaire pour construire vos OKR</p>
+        <p className="text-13.5 text-muted">Vos objectifs, résultats clés et actions sont enregistrés et retrouvés à chaque visite.</p>
+      </div>
+      <div className="flex items-center gap-2.5 shrink-0">
+        <button type="button" onClick={onConnexion} className={BTN_OUTLINE}>
+          Connexion
+        </button>
+        <button type="button" onClick={onInscription} className={BTN_PRIMARY}>
+          Créer mon compte →
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+export default OkrPage;
