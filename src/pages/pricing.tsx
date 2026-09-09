@@ -151,10 +151,10 @@ export default function PricingPage() {
               Rejoignez des centaines d'entrepreneurs qui utilisent OsKaR pour atteindre leurs objectifs
             </p>
             <button
-              onClick={() => router.push(user ? '/app/okr/dashboard' : '/auth/signup')}
+              onClick={() => router.push(user ? '/app/okr' : '/auth/register')}
               className="bg-teal text-navy-dark px-8 py-4 rounded-lg font-bold text-lg hover:bg-teal-dark transition-colors duration-200 shadow-lg"
             >
-              {user ? 'Accéder au tableau de bord' : 'Commencer gratuitement'}
+              {user ? 'Accéder à mes OKR' : 'Commencer gratuitement'}
             </button>
           </div>
 

@@ -16,6 +16,7 @@ import { UserMenu } from './UserMenu';
 import { NotificationContainer } from '@/components/ui/Notification';
 import type { SidebarSection, SidebarNavItem } from './Sidebar';
 import { useAppStore } from '@/store/useAppStore';
+import { urlConnexion } from '@/lib/authFlux';
 
 interface OkrShellProps {
   children: React.ReactNode;
@@ -71,7 +72,7 @@ export const OkrShell: React.FC<OkrShellProps> = ({
   useEffect(() => {
     if (!authReady) return;
     if (!isAuthenticated) {
-      router.push('/auth/login');
+      router.replace(urlConnexion(router.asPath));
       return;
     }
     if (!user) return;

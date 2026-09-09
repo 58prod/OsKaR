@@ -11,6 +11,8 @@ import Button from '@/components/ui/Button';
 import { AuthService } from '@/services/auth';
 import { supabase } from '@/lib/supabaseClient';
 import { useAppStore } from '@/store/useAppStore';
+import { GOOGLE_AUTH_ENABLED } from '@/constants';
+import { APRES_CONNEXION, destinationSure, messageConnexion } from '@/lib/authFlux';
 
 // Schéma de validation
 const loginSchema = z.object({
@@ -41,12 +43,15 @@ const LoginPage: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  // Page demandée avant la redirection vers la connexion (?redirect=/settings), sinon le pilier OKR
+  const destination = destinationSure(router.query.redirect) ?? APRES_CONNEXION;
+
   // Si la session est déjà rétablie, rediriger sans attendre le chargement complet du profil
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      router.push('/app/okr/dashboard');
+      router.replace(destination);
     }
-  }, [authReady, isAuthenticated, router]);
+  }, [authReady, isAuthenticated, destination, router]);
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -61,16 +66,7 @@ const LoginPage: React.FC = () => {
       });
 
       if (authError) {
-        const msg = authError.message || '';
-        if (msg.includes('Invalid login credentials')) {
-          setError('Email ou mot de passe incorrect. Veuillez réessayer.');
-        } else if (msg.includes('Email not confirmed')) {
-          setError("Votre email n'a pas encore été confirmé. Vérifiez votre boîte mail.");
-        } else if (msg.includes('Too many requests')) {
-          setError('Trop de tentatives de connexion. Veuillez réessayer dans quelques minutes.');
-        } else {
-          setError('Une erreur est survenue lors de la connexion. Veuillez réessayer.');
-        }
+        setError(messageConnexion(authError.message));
         setIsLoading(false);
         return;
       }
@@ -89,7 +85,7 @@ const LoginPage: React.FC = () => {
     try {
       await AuthService.signInWithGoogle();
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la connexion avec Google');
+      setError(messageConnexion(err?.message));
     }
   };
 
@@ -132,7 +128,7 @@ const LoginPage: React.FC = () => {
             )}
 
             {/* Formulaire */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form method="post" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -200,6 +196,8 @@ const LoginPage: React.FC = () => {
               </Button>
             </form>
 
+            {GOOGLE_AUTH_ENABLED && (
+              <>
             {/* Séparateur */}
             <div className="mt-6 relative">
               <div className="absolute inset-0 flex items-center">
@@ -240,6 +238,9 @@ const LoginPage: React.FC = () => {
                 Google
               </Button>
             </div>
+
+              </>
+            )}
 
             {/* Lien vers inscription */}
             <div className="mt-6 text-center">

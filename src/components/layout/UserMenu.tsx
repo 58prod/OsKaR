@@ -8,6 +8,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
+import { useQueryClient } from '@tanstack/react-query';
 import { AuthService } from '@/services/auth';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
@@ -19,6 +20,7 @@ import { isSupabaseConfigured } from '@/lib/supabaseClient';
 export const UserMenu: React.FC = () => {
   const router = useRouter();
   const { user, logout } = useAppStore();
+  const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +47,8 @@ export const UserMenu: React.FC = () => {
       if (isSupabaseConfigured()) await AuthService.signOut();
     } finally {
       logout();
+      // Ne pas laisser en mémoire les données du compte qui vient de se déconnecter.
+      queryClient.clear();
       router.push('/');
     }
   };

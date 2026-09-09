@@ -10,6 +10,7 @@ import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import { AuthService } from '@/services/auth';
 import { useAppStore } from '@/store/useAppStore';
+import { messageInscription } from '@/lib/authFlux';
 
 // Schéma de validation
 const registerSchema = z.object({
@@ -31,7 +32,8 @@ const RegisterPage: React.FC = () => {
   const { setUser } = useAppStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  /** 'session' : compte créé et connecté ; 'confirmation' : un email de confirmation a été envoyé. */
+  const [success, setSuccess] = useState<'session' | 'confirmation' | false>(false);
 
   const {
     register,
@@ -55,33 +57,22 @@ const RegisterPage: React.FC = () => {
         role: data.role,
       });
 
-      setSuccess(true);
+      // Sans session, Supabase attend une confirmation par email : on le dit, on ne redirige pas.
+      if (!result.session) {
+        setSuccess('confirmation');
+        return;
+      }
 
-      // Attendre 2 secondes puis rediriger vers onboarding
-      setTimeout(() => {
-        if ((result as any).profile) {
-          const user = AuthService.profileToUser((result as any).profile);
-          setUser(user);
-          router.push('/onboarding');
-        }
-      }, 2000);
+      setSuccess('session');
+      // Le profil peut manquer si le trigger Supabase a échoué : la session suffit pour continuer.
+      const user = result.profile
+        ? AuthService.profileToUser(result.profile)
+        : AuthService.authUserToUser(result.user);
+      setUser(user);
+      setTimeout(() => router.push('/onboarding'), 1500);
     } catch (err: any) {
       console.error('Erreur d\'inscription:', err);
-
-      // Messages d'erreur personnalisés et clairs
-      if (err.message?.includes('already registered') || err.message?.includes('User already registered')) {
-        setError('Cet email est déjà utilisé. Essayez de vous connecter.');
-      } else if (err.message?.includes('Invalid email')) {
-        setError('L\'adresse email n\'est pas valide.');
-      } else if (err.message?.includes('Password should be at least')) {
-        setError('Le mot de passe doit contenir au moins 6 caractères.');
-      } else if (err.message?.includes('Signup requires a valid password')) {
-        setError('Veuillez entrer un mot de passe valide.');
-      } else if (err.message?.includes('Unable to validate email')) {
-        setError('Impossible de valider l\'adresse email. Veuillez vérifier le format.');
-      } else {
-        setError('Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
-      }
+      setError(messageInscription(err?.message));
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +82,7 @@ const RegisterPage: React.FC = () => {
     try {
       await AuthService.signInWithGoogle();
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'inscription avec Google');
+      setError(messageInscription(err?.message));
     }
   };
 
@@ -131,7 +122,11 @@ const RegisterPage: React.FC = () => {
                 <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-green-800">Compte créé avec succès !</p>
-                  <p className="text-sm text-green-700 mt-1">Redirection en cours...</p>
+                  <p className="text-sm text-green-700 mt-1">
+                    {success === 'confirmation'
+                      ? 'Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.'
+                      : 'Redirection en cours...'}
+                  </p>
                 </div>
               </motion.div>
             )}
@@ -149,7 +144,7 @@ const RegisterPage: React.FC = () => {
             )}
 
             {/* Formulaire */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form method="post" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {/* Nom */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -282,7 +277,7 @@ const RegisterPage: React.FC = () => {
                 variant="primary"
                 size="lg"
                 className="w-full mt-6"
-                disabled={isLoading || success}
+                disabled={isLoading || success !== false}
                 leftIcon={isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <UserPlus className="h-5 w-5" />}
               >
                 {isLoading ? 'Création...' : success ? 'Compte créé !' : 'Créer mon compte'}

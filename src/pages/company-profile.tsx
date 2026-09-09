@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { CompanyProfileForm } from '@/components/ui/CompanyProfileForm';
 import { useAppStore } from '@/store/useAppStore';
+import { APRES_CONNEXION, urlConnexion } from '@/lib/authFlux';
 import type { CompanyProfile } from '@/types';
 
 const CompanyProfilePage: React.FC = () => {
@@ -12,12 +13,12 @@ const CompanyProfilePage: React.FC = () => {
   const { user, authReady, isAuthenticated, updateCompanyProfile } = useAppStore();
 
   useEffect(() => {
-    if (authReady && !isAuthenticated) router.push('/auth/login');
+    if (authReady && !isAuthenticated) router.replace(urlConnexion(router.asPath));
   }, [authReady, isAuthenticated, router]);
 
   const handleCompanyProfileSubmit = (companyProfile: CompanyProfile) => {
     updateCompanyProfile(companyProfile);
-    router.push('/app/okr/dashboard');
+    router.push(APRES_CONNEXION);
   };
 
   return (

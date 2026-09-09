@@ -9,6 +9,8 @@ import { z } from 'zod';
 import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import { AuthService } from '@/services/auth';
+import { useAppStore } from '@/store/useAppStore';
+import { APRES_CONNEXION, messageNouveauMotDePasse } from '@/lib/authFlux';
 
 // Schéma de validation
 const updatePasswordSchema = z.object({
@@ -23,6 +25,9 @@ type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
 
 const UpdatePasswordPage: React.FC = () => {
   const router = useRouter();
+  const { authReady, isAuthenticated } = useAppStore();
+  // Le lien reçu par email ouvre une session de récupération ; sans session, le lien est invalide ou expiré.
+  const lienInvalide = authReady && !isAuthenticated;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -44,13 +49,13 @@ const UpdatePasswordPage: React.FC = () => {
       await AuthService.updatePassword({ password: data.password });
       setSuccess(true);
 
-      // Rediriger vers le dashboard après 2 secondes
+      // Rediriger vers l'espace après 2 secondes
       setTimeout(() => {
-        router.push('/app/okr/dashboard');
+        router.push(APRES_CONNEXION);
       }, 2000);
     } catch (err: any) {
       console.error('Erreur de mise à jour:', err);
-      setError(err.message || 'Une erreur est survenue lors de la mise à jour du mot de passe');
+      setError(messageNouveauMotDePasse(err?.message));
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +99,7 @@ const UpdatePasswordPage: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-green-800">Mot de passe mis à jour !</p>
                     <p className="text-sm text-green-700 mt-1">
-                      Redirection vers le dashboard...
+                      Redirection vers votre espace...
                     </p>
                   </div>
                 </div>
@@ -113,8 +118,18 @@ const UpdatePasswordPage: React.FC = () => {
               </motion.div>
             )}
 
-            {!success && (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {lienInvalide && !success && (
+              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm font-medium text-amber-900">Ce lien de réinitialisation est invalide ou a expiré.</p>
+                <p className="text-sm text-amber-800 mt-1">
+                  <Link href="/auth/forgot-password" className="font-medium underline">Demandez un nouveau lien</Link>
+                  {' '}pour choisir votre mot de passe.
+                </p>
+              </div>
+            )}
+
+            {!success && !lienInvalide && (
+              <form method="post" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Nouveau mot de passe */}
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">

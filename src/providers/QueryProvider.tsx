@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider, MutationCache, QueryCache } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 import { useAppStore } from '@/store/useAppStore';
+import { urlConnexion } from '@/lib/authFlux';
 
 interface QueryProviderProps {
   children: ReactNode;
@@ -31,7 +32,7 @@ function handleQueryError(error: any) {
     isRedirecting = true;
     console.warn('⚠️ Erreur d\'auth dans une query, redirection vers login...');
     if (typeof window !== 'undefined') {
-      window.location.href = '/auth/login?error=session_expired';
+      window.location.href = urlConnexion(window.location.pathname, 'session_expired');
     }
   }
 }

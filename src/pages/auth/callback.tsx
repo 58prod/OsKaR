@@ -5,6 +5,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { AuthService } from '@/services/auth';
 import { useAppStore } from '@/store/useAppStore';
+import { APRES_CONNEXION } from '@/lib/authFlux';
 
 /**
  * Page de callback OAuth (Google, etc.)
@@ -39,7 +40,7 @@ const AuthCallbackPage: React.FC = () => {
 
           // Rediriger vers le dashboard ou onboarding selon le profil
           if ((result.profile as any).company_profile) {
-            router.push('/app/okr/dashboard');
+            router.push(APRES_CONNEXION);
           } else {
             router.push('/onboarding');
           }

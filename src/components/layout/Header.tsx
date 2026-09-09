@@ -43,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobileMenuOpen }) => {
 
   // Navigation complète avec features expérimentales
   const allNavigation = [
-    { name: 'Dashboard', href: '/app/okr/dashboard', icon: BarChart3 },
+    { name: 'Mes OKR', href: '/app/okr', icon: BarChart3 },
     { name: 'Check-in', href: '/app/okr/check-in', icon: AlarmClock, experimental: true, featureKey: 'checkIn' },
     { name: 'Focus', href: '/app/okr/focus', icon: AlarmClock, experimental: true, featureKey: 'focus' },
     { name: 'Canvas', href: '/app/okr/canvas', icon: FileText, experimental: true, featureKey: 'canvas' },
@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobileMenuOpen }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo et navigation principale */}
           <div className="flex items-center">
-            <Link href={isAuthenticated ? "/app/okr/dashboard" : "/"} className="flex items-center">
+            <Link href={isAuthenticated ? "/app/okr" : "/"} className="flex items-center">
               <img
                 src="/images/Oskar-logo.png"
                 alt="OsKaR"

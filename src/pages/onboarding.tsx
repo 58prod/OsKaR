@@ -10,6 +10,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { AmbitionForm, AmbitionFormData } from '@/components/forms/AmbitionForm';
 import { useCreateAmbition } from '@/hooks/useAmbitions';
 import { useAppStore } from '@/store/useAppStore';
+import { urlConnexion } from '@/lib/authFlux';
 import { AuthService } from '@/services/auth';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 import { Status } from '@/types';
@@ -34,7 +35,7 @@ const OnboardingPage: React.FC = () => {
     if (!authReady) return;
 
     if (!isAuthenticated) {
-      router.push('/auth/login');
+      router.replace(urlConnexion(router.asPath));
       return;
     }
 

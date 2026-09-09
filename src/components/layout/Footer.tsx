@@ -62,8 +62,8 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/app/okr/dashboard" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
-                  Dashboard
+                <Link href="/app/okr" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
+                  Mes OKR
                 </Link>
               </li>
               <li>

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabaseClient';
 import { AuthService } from '@/services/auth';
+import { APRES_CONNEXION, messageConnexion, messageInscription } from '@/lib/authFlux';
 
 export type AuthModalTab = 'login' | 'register';
 
@@ -14,7 +15,7 @@ interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   initialTab?: AuthModalTab;
-  /** Redirection après login/register réussi (défaut: /app/okr/dashboard) */
+  /** Redirection après login/register réussi (défaut : le pilier OKR) */
   redirectTo?: string;
 }
 
@@ -33,15 +34,21 @@ const registerSchema = z.object({
 });
 type RegisterForm = z.infer<typeof registerSchema>;
 
-export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab = 'register', redirectTo = '/app/okr/dashboard' }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab = 'register', redirectTo = APRES_CONNEXION }) => {
   const router = useRouter();
   const [tab, setTab] = useState<AuthModalTab>(initialTab);
   const [error, setError] = useState<string | null>(null);
+  /** Message non bloquant (ex. confirmation d'email à faire). */
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
-    if (open) setTab(initialTab);
+    if (open) {
+      setTab(initialTab);
+      setError(null);
+      setInfo(null);
+    }
   }, [open, initialTab]);
 
   useEffect(() => {
@@ -63,8 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab 
     setLoading(true); setError(null);
     const { error: authError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
     if (authError) {
-      const msg = authError.message || '';
-      setError(msg.includes('Invalid login credentials') ? 'Email ou mot de passe incorrect.' : 'Erreur lors de la connexion.');
+      setError(messageConnexion(authError.message));
       setLoading(false); return;
     }
     onClose();
@@ -74,11 +80,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab 
   const handleRegister = useCallback(async (data: RegisterForm) => {
     setLoading(true); setError(null);
     try {
-      await AuthService.signUp({ email: data.email, password: data.password, name: `${data.firstName} ${data.lastName}`.trim(), company: data.company });
+      const result = await AuthService.signUp({ email: data.email, password: data.password, name: `${data.firstName} ${data.lastName}`.trim(), company: data.company });
+      if (!result.session) {
+        // Confirmation par email exigée : on reste sur la modale avec la consigne.
+        setInfo('Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.');
+        setTab('login');
+        return;
+      }
       onClose();
       router.push(redirectTo);
     } catch (err: any) {
-      setError(err?.message || 'Erreur lors de l\'inscription.');
+      setError(messageInscription(err?.message));
     } finally {
       setLoading(false);
     }
@@ -120,6 +132,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab 
           {error && (
             <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-sm text-red-800">
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" aria-hidden /> <span>{error}</span>
+            </div>
+          )}
+          {info && (
+            <div role="status" className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
+              {info}
             </div>
           )}
           {tab === 'login' ? (

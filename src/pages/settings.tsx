@@ -5,6 +5,7 @@ import { UserMenu } from '@/components/layout/UserMenu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAppStore } from '@/store/useAppStore';
+import { urlConnexion } from '@/lib/authFlux';
 import { supabase } from '@/lib/supabaseClient';
 import { Settings, User, Bell, Lock, Trash2, Download, Eye, EyeOff, Save, CreditCard, Beaker, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -15,7 +16,7 @@ const SettingsPage: React.FC = () => {
   const { user, authReady, isAuthenticated, experimentalFeatures, toggleExperimentalFeature } = useAppStore();
 
   useEffect(() => {
-    if (authReady && !isAuthenticated) router.push('/auth/login');
+    if (authReady && !isAuthenticated) router.replace(urlConnexion(router.asPath));
   }, [authReady, isAuthenticated, router]);
   const [activeTab, setActiveTab] = useState<'profile' | 'subscription' | 'notifications' | 'privacy' | 'data' | 'experimental'>('profile');
   const [isLoading, setIsLoading] = useState(false);

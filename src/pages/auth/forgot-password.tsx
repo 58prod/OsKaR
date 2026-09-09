@@ -8,6 +8,7 @@ import { z } from 'zod';
 import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import { AuthService } from '@/services/auth';
+import { messageReinitialisation } from '@/lib/authFlux';
 
 // Schéma de validation
 const forgotPasswordSchema = z.object({
@@ -39,7 +40,7 @@ const ForgotPasswordPage: React.FC = () => {
       setSuccess(true);
     } catch (err: any) {
       console.error('Erreur de reset:', err);
-      setError(err.message || 'Une erreur est survenue lors de l\'envoi de l\'email');
+      setError(messageReinitialisation(err?.message));
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +104,7 @@ const ForgotPasswordPage: React.FC = () => {
             )}
 
             {!success && (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form method="post" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

@@ -14,6 +14,15 @@ export const APP_CONFIG = {
   maxTasksPerAction: 10,
 };
 
+/*
+ * Connexion Google : le fournisseur n'est PAS activé dans le projet Supabase
+ * (constaté le 2026-09-09 sur /auth/v1/settings : google=false). Tant qu'il
+ * n'est pas configuré (identifiants OAuth Google Cloud + activation dans
+ * Supabase > Authentication > Providers), le bouton reste masqué : sinon il
+ * renvoie « Unsupported provider ».
+ */
+export const GOOGLE_AUTH_ENABLED = false;
+
 // Messages de l'IA Coach
 export const AI_MESSAGES = {
   WELCOME: "Bonjour ! Je suis votre coach IA. Je vais vous accompagner dans la définition et le suivi de vos objectifs. Commençons par vos ambitions pour cette année !",

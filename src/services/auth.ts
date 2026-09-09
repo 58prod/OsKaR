@@ -54,6 +54,13 @@ export class AuthService {
       throw new Error('Aucun utilisateur créé');
     }
 
+    // Confirmation par email exigée par Supabase : pas de session, donc aucune
+    // lecture/écriture possible sous RLS. Le trigger handle_new_user() a créé le
+    // profil côté base ; l'appelant affiche « vérifiez votre boîte mail ».
+    if (!authData.session) {
+      return { user: authData.user, profile: null, session: null };
+    }
+
     // 2. Le profil est normalement créé automatiquement via le trigger handle_new_user()
     // Attendre un peu pour que le trigger s'exécute
     await new Promise(resolve => setTimeout(resolve, 1000));

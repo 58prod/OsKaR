@@ -5,6 +5,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { NotificationContainer } from '@/components/ui/Notification';
 import { useAppStore } from '@/store/useAppStore';
+import { urlConnexion } from '@/lib/authFlux';
 import { APP_CONFIG } from '@/constants';
 
 interface LayoutProps {
@@ -36,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({
 
     if (!isAuthenticated) {
       console.log('🔄 Redirection vers login (pas de session après initialisation auth)');
-      router.push('/auth/login');
+      router.replace(urlConnexion(router.asPath));
       return;
     }
 

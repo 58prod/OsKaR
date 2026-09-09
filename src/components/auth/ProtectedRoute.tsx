@@ -3,10 +3,12 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
+import { urlConnexion } from '@/lib/authFlux';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
+  /** Destination si non connecté ; par défaut la connexion, qui ramènera ici ensuite. */
   redirectTo?: string;
 }
 
@@ -18,7 +20,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireAuth = true,
-  redirectTo = '/auth/login',
+  redirectTo,
 }) => {
   const router = useRouter();
   const { user, authReady, isAuthenticated } = useAppStore();
@@ -28,7 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     // Auth prête mais pas de session → rediriger
     if (!isAuthenticated) {
-      router.push(redirectTo);
+      router.replace(redirectTo ?? urlConnexion(router.asPath));
     }
   }, [requireAuth, authReady, isAuthenticated, redirectTo, router]);
 
