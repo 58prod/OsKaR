@@ -3,6 +3,55 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Menu lateral : largeur portee par une variable CSS pour que le premier
+   * affichage soit deja au bon format. `_document` pose data-sidebar sur <html>
+   * avant le premier paint, donc ni clignotement au chargement, ni au
+   * changement de page. Valeurs relevees sur oskar.css (240px / 64px).
+   */
+  :root {
+    --oskar-sidebar: 15rem;
+  }
+  html[data-sidebar='collapsed'] {
+    --oskar-sidebar: 4rem;
+  }
+
+  /* Libelles, sections et pastilles : masques quand le menu est replie. */
+  .oskar-nav-label {
+    opacity: 1;
+    transition: opacity 0.2s;
+  }
+  html[data-sidebar='collapsed'] .oskar-nav-label {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Logo complet ou icone seule, selon l'etat du menu. */
+  .oskar-logo-icon {
+    display: none;
+  }
+  html[data-sidebar='collapsed'] .oskar-logo-full {
+    display: none;
+  }
+  html[data-sidebar='collapsed'] .oskar-logo-icon {
+    display: block;
+  }
+
+  /* Le chevron du bouton pointe vers l'exterieur quand le menu est replie. */
+  html[data-sidebar='collapsed'] .oskar-sidebar-toggle {
+    transform: rotate(180deg);
+  }
+
+  /* Confort : pas d'animation pour qui demande moins de mouvement. */
+  @media (prefers-reduced-motion: reduce) {
+    .oskar-sidebar,
+    .oskar-sidebar-toggle,
+    .oskar-nav-label,
+    .oskar-main {
+      transition: none !important;
+    }
+  }
+
   html {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   }

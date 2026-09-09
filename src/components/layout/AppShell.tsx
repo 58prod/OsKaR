@@ -49,7 +49,6 @@ export const AppShell: React.FC<AppShellProps> = ({
     footerItem !== undefined ? footerItem : !authReady || isAuthenticated ? null : undefined;
 
   const pageTitle = title ? `${title} — ${APP_CONFIG.name}` : APP_CONFIG.name;
-  const mainOffset = sidebarCollapsed ? 'ml-16' : 'ml-60';
 
   return (
     <>
@@ -59,7 +58,10 @@ export const AppShell: React.FC<AppShellProps> = ({
       </Head>
       <div className="min-h-screen bg-surface text-ink font-sans">
         <Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} sections={sections} footerItem={resolvedFooterItem} />
-        <div className={`flex flex-col min-h-screen transition-[margin] duration-250 ${mainOffset}`}>
+        <div
+          className="oskar-main flex flex-col min-h-screen transition-[margin] duration-250"
+          style={{ marginLeft: 'var(--oskar-sidebar)' }}
+        >
           <Topbar title={topbarTitle} subtitle={topbarSubtitle} actions={topbarActions} />
           <main className={`flex-1 w-full ${contentMaxWidth} ${contentPadding}`}>{children}</main>
           <footer className={`w-full ${contentMaxWidth} px-8 py-5 mt-auto border-t border-line`}>

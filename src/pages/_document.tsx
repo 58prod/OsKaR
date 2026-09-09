@@ -29,6 +29,23 @@ export default function Document() {
 
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
+
+        {/*
+          Etat du menu lateral applique avant le premier affichage : sans cela,
+          le menu s'affiche deplie puis se replie (ou l'inverse) une fois React
+          monte. Meme cle que le hook useSidebarCollapsed.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var v=localStorage.getItem('oskar.sidebar.collapsed');" +
+              "var w=window.innerWidth||document.documentElement.clientWidth||0;" +
+              "var c=v===null?(w>0&&w<=900):v==='1';" +
+              "var r=document.documentElement;" +
+              "r.setAttribute('data-sidebar',c?'collapsed':'expanded');" +
+              "r.style.setProperty('--oskar-sidebar',c?'4rem':'15rem')}catch(e){}})()",
+          }}
+        />
       </Head>
       <body className="antialiased">
         <Main />

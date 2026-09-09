@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import {
+  Route,
   LayoutDashboard,
   FileText,
   FolderKanban,
@@ -10,6 +11,7 @@ import {
   ClipboardCheck,
   History,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react';
 import { AppShell } from './AppShell';
 import { UserMenu } from './UserMenu';
@@ -37,6 +39,9 @@ const OKR_NAV: { label: string; items: OkrNavItem[] }[] = [
   {
     label: 'Espace OKR',
     items: [
+      // Sans cette entrée, les pages de l'espace ne permettent pas de revenir
+      // au parcours en 3 étapes : la sidebar de la plateforme n'y est pas affichée.
+      { href: '/app/okr', label: 'Mon parcours', icon: Route, exact: true },
       { href: '/app/okr/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/app/okr/canvas', label: 'Canvas guidé', icon: FileText, featureKey: 'canvas' },
       { href: '/app/okr/management', label: 'Gestion', icon: FolderKanban },
@@ -94,7 +99,7 @@ export const OkrShell: React.FC<OkrShellProps> = ({
     [experimentalFeatures]
   );
 
-  const footerItem: SidebarNavItem = { href: '/', label: 'Retour à la plateforme', icon: LayoutDashboard };
+  const footerItem: SidebarNavItem = { href: '/', label: 'Retour à la plateforme', icon: ArrowLeft };
 
   return (
     <AppShell

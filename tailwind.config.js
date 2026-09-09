@@ -156,6 +156,11 @@ module.exports = {
       borderRadius: {
         card: '12px',
       },
+      // La maquette anime le menu lateral en 0.25s ; l'echelle Tailwind
+      // s'arrete a 200 puis 300, d'ou ce cran supplementaire.
+      transitionDuration: {
+        250: '250ms',
+      },
       boxShadow: {
         card: '0 2px 16px rgba(30,45,125,0.08)',
         'card-hover': '0 8px 32px rgba(30,45,125,0.14)',

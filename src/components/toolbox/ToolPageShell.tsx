@@ -70,7 +70,10 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
 
       <div className="min-h-screen bg-surface text-ink font-sans">
         <Sidebar collapsed={collapsed} onToggle={toggle} footerItem={footerItem} />
-        <div className={`flex h-screen flex-col transition-[margin] duration-250 ${collapsed ? 'ml-16' : 'ml-60'}`}>
+        <div
+          className="oskar-main flex h-screen flex-col transition-[margin] duration-250"
+          style={{ marginLeft: 'var(--oskar-sidebar)' }}
+        >
           {content}
         </div>
       </div>
