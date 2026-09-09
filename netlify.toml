@@ -61,14 +61,20 @@
 #   node_bundler = "esbuild"
 
 # Variables d'environnement pour la production
+#
+# NE PAS y remettre NODE_ENV = "production" : npm n'installe alors AUCUNE
+# devDependency, et le build echoue sur les paquets qui s'y trouvent
+# (eslint, @types/papaparse). Un site existant peut ne rien voir tant que son
+# cache de build conserve un node_modules complet ; l'echec apparait au premier
+# build sans cache — nouveau site, ou cache vide.
+# `next build` positionne lui-meme NODE_ENV=production pour la compilation :
+# le declarer ici n'apporte rien et casse l'installation.
 [context.production.environment]
   NEXT_PUBLIC_APP_ENV = "production"
-  NODE_ENV = "production"
 
 # Variables d'environnement pour la recette
 [context.branch-deploy.environment]
   NEXT_PUBLIC_APP_ENV = "staging"
-  NODE_ENV = "production"
 
 # Configuration des formulaires Netlify (pour future utilisation)
 [forms]
