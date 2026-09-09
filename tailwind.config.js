@@ -110,6 +110,49 @@ module.exports = {
         sans: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
         outfit: ['Outfit', 'system-ui', 'sans-serif'],
       },
+
+      /*
+       * Echelle typographique des maquettes (oskar.css), relevee telle quelle.
+       * Elle procede par demi-pixels : aucune de ces valeurs n'existe dans
+       * l'echelle par defaut de Tailwind, ce qui a conduit a arrondir au cran
+       * le plus proche (text-sm = 14 au lieu de 14.5 ou 15.5, text-2xl = 24 au
+       * lieu de 25.5...) et a faire deriver toute l'application de 1 a 2 px.
+       *
+       * Utiliser text-15.5 plutot que text-sm des qu'on transpose une maquette.
+       * L'interligne est celui observe dans oskar.css ; 1.6 quand la regle
+       * n'en declare pas (valeur heritee du body).
+       *
+       * Les crans Tailwind d'origine restent disponibles : la migration des
+       * ecrans deja ecrits se fait progressivement, ecran par ecran.
+       */
+      fontSize: {
+        '10.5': ['10.5px', { lineHeight: '1.6' }],
+        '11': ['11px', { lineHeight: '1.6' }],
+        '11.5': ['11.5px', { lineHeight: '1.6' }],
+        '12': ['12px', { lineHeight: '1.6' }],
+        '12.5': ['12.5px', { lineHeight: '1.6' }],
+        '13': ['13px', { lineHeight: '1.6' }],
+        '13.5': ['13.5px', { lineHeight: '1.6' }],
+        '14': ['14px', { lineHeight: '1.6' }],
+        '14.5': ['14.5px', { lineHeight: '1.6' }],
+        '15': ['15px', { lineHeight: '1.6' }],
+        '15.5': ['15.5px', { lineHeight: '1.6' }],
+        '16': ['16px', { lineHeight: '1.6' }],
+        '16.5': ['16.5px', { lineHeight: '1.7' }],
+        '17': ['17px', { lineHeight: '1.6' }],
+        '17.5': ['17.5px', { lineHeight: '1.6' }],
+        '18.5': ['18.5px', { lineHeight: '1.6' }],
+        '19.5': ['19.5px', { lineHeight: '1.6' }],
+        '20.5': ['20.5px', { lineHeight: '1.6' }],
+        '22': ['22px', { lineHeight: '1.1' }],
+        '23': ['23px', { lineHeight: '1.15' }],
+        '25.5': ['25.5px', { lineHeight: '1.25' }],
+        '27.5': ['27.5px', { lineHeight: '1.2' }],
+        '29': ['29px', { lineHeight: '1.3' }],
+        '32': ['32px', { lineHeight: '1.25' }],
+        '34.5': ['34.5px', { lineHeight: '1.2' }],
+        '41.5': ['41.5px', { lineHeight: '1.05' }],
+      },
       borderRadius: {
         card: '12px',
       },
