@@ -139,24 +139,41 @@ export const HierarchicalTreeView: React.FC<HierarchicalTreeViewProps> = ({
     setExpandedKeyResults(newExpanded);
   };
 
-  const quarterLabels = {
+  /**
+ * Etat d'un resultat cle d'apres sa progression.
+ * Les maquettes ecrivent l'etat en dur (pas de seuil declare) ; les valeurs
+ * qu'elles affichent le revelent : 0 % et 20 % en retard, 33 % a risque,
+ * 67 % et 78 % dans les temps. D'ou les bornes ci-dessous.
+ * Couleurs : fit (vert) / finance (ambre) / rouge, comme .kr-bar dans
+ * okr-objectifs.html.
+ */
+const statutKR = (progression: number): { barre: string; texte: string } => {
+  if (progression >= 60) return { barre: 'bg-fit', texte: 'text-fit-dark' };
+  if (progression >= 30) return { barre: 'bg-finance', texte: 'text-finance-dark' };
+  return { barre: 'bg-[#ef4444]', texte: 'text-[#ef4444]' };
+};
+
+const quarterLabels = {
     [Quarter.Q1]: 'T1',
     [Quarter.Q2]: 'T2',
     [Quarter.Q3]: 'T3',
     [Quarter.Q4]: 'T4',
   };
 
+  // Pastilles : memes couples fond clair / texte fonce que .obj-badge dans
+  // okr-objectifs.html, pris dans les jetons OsKaR plutot que dans les
+  // echelles Tailwind generiques.
   const priorityColors = {
-    [Priority.LOW]: 'bg-gray-100 text-gray-800',
-    [Priority.MEDIUM]: 'bg-blue-100 text-blue-800',
-    [Priority.HIGH]: 'bg-orange-100 text-orange-800',
-    [Priority.CRITICAL]: 'bg-red-100 text-red-800',
+    [Priority.LOW]: 'bg-surface text-muted',
+    [Priority.MEDIUM]: 'bg-okr-light text-okr-dark',
+    [Priority.HIGH]: 'bg-finance-light text-finance-dark',
+    [Priority.CRITICAL]: 'bg-[#fee2e2] text-[#dc2626]',
   };
 
   const statusColors = {
-    [ActionStatus.TODO]: 'bg-gray-100 text-gray-800',
-    [ActionStatus.IN_PROGRESS]: 'bg-blue-100 text-blue-800',
-    [ActionStatus.DONE]: 'bg-green-100 text-green-800',
+    [ActionStatus.TODO]: 'bg-surface text-muted',
+    [ActionStatus.IN_PROGRESS]: 'bg-okr-light text-okr-dark',
+    [ActionStatus.DONE]: 'bg-fit-light text-fit-dark',
   };
 
   const getKeyResultsForAmbition = (ambitionId: string) =>
@@ -195,26 +212,26 @@ export const HierarchicalTreeView: React.FC<HierarchicalTreeViewProps> = ({
             <Card key={ambition.id} className="overflow-hidden">
               <CardContent className="p-0">
                 {/* Niveau Ambition */}
-                <div className="bg-purple-50 border-l-4 border-purple-500 p-4">
+                <div className={`relative bg-white p-4 border-l-4 transition-colors ${isExpanded ? 'border-okr' : 'border-transparent'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3 flex-1">
                       <button
                         onClick={() => toggleAmbition(ambition.id)}
-                        className="p-1 hover:bg-purple-100 rounded transition-colors"
+                        className="p-1 hover:bg-surface rounded transition-colors"
                       >
                         {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-purple-600" />
+                          <ChevronDown className="h-4 w-4 text-muted" />
                         ) : (
-                          <ChevronRight className="h-4 w-4 text-purple-600" />
+                          <ChevronRight className="h-4 w-4 text-muted" />
                         )}
                       </button>
-                      <Building2 className="h-5 w-5 text-purple-600" />
+                      <Building2 className="h-5 w-5 text-okr" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-purple-900">{ambition.title}</h3>
-                          <span className="text-xs text-purple-400 font-normal">Objectif annuel</span>
+                          <h3 className="text-15.5 font-bold text-navy">{ambition.title}</h3>
+                          <span className="text-11.5 font-bold uppercase tracking-[0.5px] text-muted">Objectif annuel</span>
                         </div>
-                        <p className="text-sm text-purple-700">{ambition.description}</p>
+                        <p className="text-12.5 text-muted">{ambition.description}</p>
                       </div>
                       <Badge variant="info" size="sm">
                         {ambition.category}
@@ -267,10 +284,10 @@ export const HierarchicalTreeView: React.FC<HierarchicalTreeViewProps> = ({
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="overflow-hidden bg-green-50"
+                      className="overflow-hidden bg-surface"
                     >
                       <div className="pl-8 pr-4 py-3 space-y-2">
-                        <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">
+                        <div className="text-11.5 font-bold text-muted uppercase tracking-[0.5px] mb-2">
                           Résultats Clés Annuels ({ambitionKeyResults.length})
                         </div>
                         {ambitionKeyResults.map((kr) => {
@@ -279,30 +296,30 @@ export const HierarchicalTreeView: React.FC<HierarchicalTreeViewProps> = ({
                           return (
                             <div
                               key={kr.id}
-                              className="bg-white border border-green-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
+                              className="bg-white border border-line rounded-[10px] p-3 hover:shadow-card transition-shadow"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3 flex-1">
-                                  <TrendingUp className="h-4 w-4 text-green-600" />
+                                  <TrendingUp className="h-4 w-4 text-muted" />
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2">
-                                      <h5 className="font-medium text-gray-900">{kr.title}</h5>
-                                      <span className="text-xs text-green-600 font-normal">KR Annuel</span>
+                                      <h5 className="text-13.5 font-medium text-ink">{kr.title}</h5>
+                                      <span className="text-11.5 font-bold uppercase tracking-[0.5px] text-muted">KR annuel</span>
                                     </div>
-                                    <p className="text-sm text-gray-600">{kr.description}</p>
+                                    <p className="text-12.5 text-muted">{kr.description}</p>
                                     <div className="flex items-center gap-4 mt-2">
-                                      <div className="text-xs text-gray-500">
+                                      <div className="text-12 text-muted">
                                         <span className="font-medium">{kr.current}</span> / {kr.target} {kr.unit}
                                       </div>
-                                      <div className="flex-1 max-w-xs">
-                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                      <div className="w-[88px] shrink-0">
+                                        <div className="w-full bg-[#eef0f8] rounded-full h-[5px]">
                                           <div
-                                            className="bg-green-500 h-2 rounded-full transition-all"
+                                            className={`${statutKR(progress).barre} h-[5px] rounded-full transition-all`}
                                             style={{ width: `${Math.min(progress, 100)}%` }}
                                           />
                                         </div>
                                       </div>
-                                      <span className="text-xs font-medium text-green-600">{progress}%</span>
+                                      <span className={`text-12 font-bold ${statutKR(progress).texte}`}>{progress}%</span>
                                     </div>
                                   </div>
                                 </div>
@@ -349,28 +366,28 @@ export const HierarchicalTreeView: React.FC<HierarchicalTreeViewProps> = ({
                           const actionStats = getActionStatsForObjective(objective.id);
 
                           return (
-                            <div key={objective.id} className="bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+                            <div key={objective.id} className="bg-white border border-line rounded-[10px]">
                               {/* Niveau Objectif Trimestriel */}
                               <div className="p-3">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-3 flex-1">
                                     <button
                                       onClick={() => toggleObjective(objective.id)}
-                                      className="p-1 hover:bg-blue-100 rounded transition-colors"
+                                      className="p-1 hover:bg-surface rounded transition-colors"
                                     >
                                       {isObjectiveExpanded ? (
-                                        <ChevronDown className="h-4 w-4 text-blue-600" />
+                                        <ChevronDown className="h-4 w-4 text-muted" />
                                       ) : (
-                                        <ChevronRight className="h-4 w-4 text-blue-600" />
+                                        <ChevronRight className="h-4 w-4 text-muted" />
                                       )}
                                     </button>
-                                    <Target className="h-4 w-4 text-blue-600" />
+                                    <Target className="h-4 w-4 text-okr" />
                                     <div className="flex-1">
                                       <div className="flex items-center gap-2">
-                                        <h4 className="font-medium text-blue-900">{objective.title}</h4>
-                                        <span className="text-xs text-blue-400 font-normal">Objectif Trimestriel</span>
+                                        <h4 className="text-15 font-bold text-navy">{objective.title}</h4>
+                                        <span className="text-11 font-bold uppercase tracking-[0.8px] text-muted">Objectif trimestriel</span>
                                       </div>
-                                      <p className="text-xs text-blue-700">{objective.description}</p>
+                                      <p className="text-12.5 text-muted">{objective.description}</p>
                                     </div>
                                     <Badge variant="secondary" size="sm">
                                       {quarterLabels[objective.quarter]} {objective.year}
@@ -468,24 +485,24 @@ export const HierarchicalTreeView: React.FC<HierarchicalTreeViewProps> = ({
                                         const krActions = getActionsForKeyResult(kr.id);
 
                                         return (
-                                          <div key={kr.id} className="bg-green-50 border-l-2 border-green-400 rounded-r">
+                                          <div key={kr.id} className="bg-white border border-line rounded-[10px]">
                                             <div className="p-2">
                                               <div className="flex items-center justify-between">
                                                 <div className="flex items-center space-x-2 flex-1">
                                                   <button
                                                     onClick={() => toggleKeyResult(kr.id)}
-                                                    className="p-1 hover:bg-green-100 rounded transition-colors"
+                                                    className="p-1 hover:bg-surface rounded transition-colors"
                                                   >
                                                     {isKRExpanded ? (
-                                                      <ChevronDown className="h-3 w-3 text-green-600" />
+                                                      <ChevronDown className="h-3 w-3 text-muted" />
                                                     ) : (
-                                                      <ChevronRight className="h-3 w-3 text-green-600" />
+                                                      <ChevronRight className="h-3 w-3 text-muted" />
                                                     )}
                                                   </button>
-                                                  <TrendingUp className="h-3 w-3 text-green-600" />
-                                                  <span className="text-sm font-medium text-green-900">{kr.title}</span>
-                                                  <span className="text-xs text-green-400 font-normal">KR</span>
-                                                  <span className="text-xs text-green-700">
+                                                  <TrendingUp className="h-3 w-3 text-muted" />
+                                                  <span className="text-13.5 font-medium text-ink">{kr.title}</span>
+                                                  <span className="text-11 font-bold uppercase tracking-[0.8px] text-muted">KR</span>
+                                                  <span className="text-12 text-muted">
                                                     {kr.current}/{kr.target} {kr.unit}
                                                   </span>
                                                   <Badge variant="success" size="sm">
