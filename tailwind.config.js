@@ -19,10 +19,44 @@ module.exports = {
           dark: '#00b89c',
           light: '#e0faf6',
         },
+        coral: {
+          DEFAULT: '#ffa089',
+          dark: '#e2653f',
+          light: '#fff0ea',
+        },
         ink: '#1a1a2e',
         muted: '#6b7280',
         surface: '#f5f6fa',
         line: '#e2e4f0',
+
+        // Couleurs des 5 piliers, nommees par le pilier qu'elles designent.
+        // Memes valeurs que les echelles generiques ci-dessous : on ajoute le
+        // vocabulaire metier des maquettes, on ne change aucune couleur.
+        vision: {
+          DEFAULT: '#0ea5e9', // = primary.500
+          dark: '#0284c7',    // = primary.600
+          light: '#e0f2fe',   // = primary.100
+        },
+        fit: {
+          DEFAULT: '#22c55e', // = success.500
+          dark: '#16a34a',    // = success.600
+          light: '#dcfce7',   // = success.100
+        },
+        finance: {
+          DEFAULT: '#f59e0b', // = warning.500
+          dark: '#d97706',    // = warning.600
+          light: '#fef3c7',   // = warning.100
+        },
+        okr: {
+          DEFAULT: '#6366f1',
+          dark: '#4f46e5',
+          light: '#ede9fe',
+        },
+        team: {
+          DEFAULT: '#ec4899',
+          dark: '#db2777',
+          light: '#fce7f3',
+        },
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
