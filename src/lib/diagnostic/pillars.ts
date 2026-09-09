@@ -29,7 +29,7 @@ export const PILLARS: Pillar[] = [
   {
     id: 'finance',
     label: 'Finance',
-    module: 'OSKAR Business',
+    module: 'OSKAR Finance',
     color: '#00a890',
     desc: 'Solidité et lisibilité du modèle économique et de la trésorerie.',
     q: [
@@ -64,11 +64,11 @@ export const PILLARS: Pillar[] = [
   },
 ];
 
-/** Libellés courts par pilier pour la synthèse (note : finance → « Business ») */
+/** Libellés courts par pilier pour la synthèse. */
 export const PILLAR_SHORT_LABEL: Record<PillarId, string> = {
   vision: 'Vision',
   fit: 'Market Fit',
-  finance: 'Business',
+  finance: 'Finance',
   okr: 'OKR',
   team: 'Team',
 };

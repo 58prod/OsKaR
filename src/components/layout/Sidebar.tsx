@@ -52,7 +52,7 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
     items: [
       { href: '/vision', label: 'OsKaR Vision', icon: Eye },
       { href: '/fit', label: 'OsKaR Fit', icon: LineChart },
-      { href: '/business', label: 'OsKaR Business', icon: TargetIcon },
+      { href: '/finance', label: 'OsKaR Finance', icon: TargetIcon },
       { href: '/app/okr', label: 'OsKaR OKR', icon: CheckSquare },
       { href: '/team', label: 'OsKaR Team', icon: Users },
     ],

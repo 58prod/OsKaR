@@ -31,7 +31,7 @@ import { useAppStore } from '@/store/useAppStore';
 const RADAR_DATA = [
   { subject: 'Vision', A: 70 },
   { subject: 'Market Fit', A: 45 },
-  { subject: 'Business', A: 55 },
+  { subject: 'Finance', A: 55 },
   { subject: 'OKR', A: 38 },
   { subject: 'Team', A: 71 },
 ];
@@ -205,7 +205,7 @@ const HomePage: React.FC = () => {
           {[
             { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Bientôt', href: '/vision' },
             { id: '02', name: 'OSKAR Fit', desc: 'Validez le potentiel et trouvez vos Early Adopters.', icon: LineChart, status: 'Disponible', href: '/diagnostic-produit' },
-            { id: '03', name: 'OSKAR Business', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt', href: '/business' },
+            { id: '03', name: 'OsKaR Finance', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt', href: '/finance' },
             { id: '04', name: 'OSKAR OKR', desc: 'Alignez stratégie et exécution.', icon: CheckSquare, status: 'Disponible', href: '/app/okr/dashboard' },
             { id: '05', name: 'OSKAR Team', desc: 'Renforcez la cohésion de votre organisation.', icon: Users, status: 'Disponible', href: '/app/outils' },
           ].map((pillar) => (

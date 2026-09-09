@@ -1,43 +1,36 @@
 import React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ArrowRight, Clock, ListChecks, FileDown, UserCog } from 'lucide-react';
+import { ArrowRight, Clock, ListChecks, FileDown, UserCog, Layers } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAppStore } from '@/store/useAppStore';
 
-/** Les 6 étapes du parcours Team, dans l'ordre de la maquette. */
-const STEPS = [
-  'Diagnostic',
-  'Rôles',
-  'Cohésion',
-  'Rituels',
-  'Feedback',
-  'Plan d’action',
-] as const;
+/** Les 4 étapes du parcours Finance, dans l'ordre de la maquette. */
+const STEPS = ['Revenus', 'Coûts & Marge', 'Rentabilité', 'Décisions'] as const;
 
 const HIGHLIGHTS = [
   {
     icon: Clock,
-    value: '~1h',
+    value: '~90 min',
     label: 'Durée estimée',
     text: 'À votre rythme, en une ou plusieurs sessions.',
   },
   {
     icon: ListChecks,
-    value: '6 étapes',
+    value: '4 étapes',
     label: 'Parcours structuré',
-    text: 'Diagnostic · Rôles · Cohésion · Rituels · Feedback · Plan d’action',
+    text: 'Revenus · Coûts & Marge · Rentabilité · Décisions',
   },
   {
     icon: FileDown,
     value: 'PDF',
     label: 'Export inclus',
-    text: 'Téléchargez votre feuille de route Team à la fin de l’atelier.',
+    text: 'Téléchargez votre synthèse financière à la fin de l’atelier.',
   },
 ] as const;
 
-export default function TeamPillarPage() {
+export default function FinancePage() {
   const router = useRouter();
   const { authReady, isAuthenticated } = useAppStore();
 
@@ -63,12 +56,12 @@ export default function TeamPillarPage() {
   return (
     <>
       <Head>
-        <title>OsKaR Team · Faire avancer vos équipes ensemble | OsKaR</title>
+        <title>OsKaR Finance · Solidifiez votre modèle économique | OsKaR</title>
       </Head>
       <AppShell
-        title="OsKaR Team"
-        topbarTitle="OsKaR Team"
-        topbarSubtitle="Diagnostiquez la dynamique de votre équipe et posez les rituels qui la font avancer"
+        title="OsKaR Finance"
+        topbarTitle="OsKaR Finance"
+        topbarSubtitle="Maîtrisez votre marge et vérifiez la viabilité de votre modèle économique"
         topbarActions={topbarActions}
       >
         <div className="max-w-5xl mx-auto space-y-10 pb-16">
@@ -76,20 +69,20 @@ export default function TeamPillarPage() {
           <div className="bg-navy-dark text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-card">
             <div className="relative z-10 max-w-2xl space-y-5">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest text-teal bg-white/10 px-3 py-1 rounded-full">
-                Module 05 · OsKaR Team
+                Module 03 · OsKaR Finance
               </span>
               <h1 className="text-3xl sm:text-5xl font-black leading-tight">
-                Unir ses équipes pour qu’elles se sentent{' '}
-                <span className="text-teal">utiles et avancent ensemble</span>
+                Maîtrisez votre marge. Solidifiez votre{' '}
+                <span className="text-teal">modèle économique</span>.
               </h1>
               <p className="text-sm sm:text-base text-white/80 leading-relaxed">
-                Un parcours structuré pour diagnostiquer la dynamique de votre équipe, clarifier
-                les rôles, renforcer la cohésion et mettre en place les rituels qui font avancer
-                collectivement.
+                Un parcours guidé en 4 étapes pour cartographier vos revenus, analyser vos coûts,
+                calculer votre seuil de rentabilité et prendre des décisions financières
+                structurantes.
               </p>
             </div>
 
-            <div className="absolute -right-16 -top-16 w-80 h-80 bg-team/10 rounded-full blur-[100px]" />
+            <div className="absolute -right-16 -top-16 w-80 h-80 bg-finance/10 rounded-full blur-[100px]" />
           </div>
 
           {/* Ce que contient l'atelier */}
@@ -99,7 +92,7 @@ export default function TeamPillarPage() {
                 key={label}
                 className="bg-white p-6 rounded-2xl border border-line shadow-card space-y-3"
               >
-                <div className="w-10 h-10 rounded-xl bg-team-light text-team-dark flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-finance-light text-finance-dark flex items-center justify-center">
                   <Icon className="h-5 w-5" />
                 </div>
                 <p className="text-2xl font-black text-navy leading-none">{value}</p>
@@ -107,6 +100,42 @@ export default function TeamPillarPage() {
                 <p className="text-xs text-muted leading-relaxed">{text}</p>
               </div>
             ))}
+          </div>
+
+          {/* Enchaînement avec les piliers précédents — propre au module Finance */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-card">
+            <div className="flex flex-col sm:flex-row gap-5">
+              <div className="w-11 h-11 shrink-0 rounded-xl bg-finance-light text-finance-dark flex items-center justify-center">
+                <Layers className="h-5 w-5" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <h2 className="font-bold text-navy text-base">
+                  Ce module s&rsquo;appuie sur OsKaR Vision et OsKaR Fit
+                </h2>
+                <p className="text-xs text-muted leading-relaxed">
+                  Vision a défini <strong className="text-navy">pour qui</strong> vous travaillez
+                  et quel problème vous résolvez. Fit a confirmé l&rsquo;adéquation offre-marché.
+                  Finance vérifie que votre{' '}
+                  <strong className="text-navy">modèle économique est viable</strong> : vos revenus
+                  couvrent vos coûts, votre marge est saine et vos décisions sont fondées sur des
+                  chiffres réels.
+                </p>
+                <div className="flex flex-wrap gap-4 pt-1">
+                  <button
+                    onClick={() => router.push('/vision')}
+                    className="text-sm font-bold text-navy hover:text-navy-light transition-colors inline-flex items-center gap-1.5"
+                  >
+                    Voir Vision <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => router.push('/fit')}
+                    className="text-sm font-bold text-navy hover:text-navy-light transition-colors inline-flex items-center gap-1.5"
+                  >
+                    Voir Fit <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Profil : on renvoie vers le profil d'entreprise déjà existant */}
@@ -118,8 +147,8 @@ export default function TeamPillarPage() {
               <div className="flex-1 space-y-1">
                 <h2 className="font-bold text-navy text-base">Avant de commencer, votre profil</h2>
                 <p className="text-xs text-muted leading-relaxed">
-                  Votre secteur et votre rôle permettent de personnaliser les conseils tout au long
-                  de l&rsquo;atelier.
+                  Votre secteur et votre rôle permettent d&rsquo;adapter les exemples et les
+                  repères chiffrés tout au long de l&rsquo;atelier.
                 </p>
               </div>
               <button
@@ -134,10 +163,10 @@ export default function TeamPillarPage() {
           {/* Le parcours */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-card space-y-6">
             <div className="space-y-1">
-              <h2 className="font-bold text-navy text-lg">Prêt à faire grandir votre équipe ?</h2>
+              <h2 className="font-bold text-navy text-lg">Prêt à piloter par les chiffres ?</h2>
               <p className="text-xs text-muted leading-relaxed">
-                Ce module arrive bientôt. Commencez par les piliers Vision, Fit, Finance et OKR
-                pour poser des bases solides.
+                Répondez aux questions étape par étape. Vous pourrez naviguer librement entre les
+                étapes à tout moment.
               </p>
             </div>
 
@@ -145,9 +174,9 @@ export default function TeamPillarPage() {
               {STEPS.map((step, i) => (
                 <li
                   key={step}
-                  className="inline-flex items-center gap-2 text-xs font-semibold text-navy bg-team-light/60 border border-team/20 rounded-full pl-2 pr-3.5 py-1.5"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-navy bg-finance-light/60 border border-finance/20 rounded-full pl-2 pr-3.5 py-1.5"
                 >
-                  <span className="w-5 h-5 rounded-full bg-team text-white grid place-items-center text-[10px] font-extrabold tabular-nums">
+                  <span className="w-5 h-5 rounded-full bg-finance text-white grid place-items-center text-[10px] font-extrabold tabular-nums">
                     {i + 1}
                   </span>
                   {step}
@@ -163,8 +192,8 @@ export default function TeamPillarPage() {
               >
                 Démarrer l&rsquo;atelier <ArrowRight className="h-4 w-4" />
               </button>
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-team-dark bg-team-light px-3 py-1 rounded-full">
-                Bientôt disponible
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-finance-dark bg-finance-light px-3 py-1 rounded-full">
+                Bientôt
               </span>
             </div>
           </div>

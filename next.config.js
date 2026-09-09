@@ -21,11 +21,16 @@ const nextConfig = {
       'retrospective',
       'reports',
     ];
-    return okrRoutes.map((route) => ({
-      source: `/${route}`,
-      destination: `/app/okr/${route}`,
-      permanent: false,
-    }));
+    return [
+      ...okrRoutes.map((route) => ({
+        source: `/${route}`,
+        destination: `/app/okr/${route}`,
+        permanent: false,
+      })),
+      // Le 3e pilier s'appelait « Business » ; il porte desormais le nom des
+      // maquettes, « Finance ». On garde l'ancienne URL vivante.
+      { source: '/business', destination: '/finance', permanent: false },
+    ];
   },
 }
 
