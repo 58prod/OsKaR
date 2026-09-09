@@ -87,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       router.pathname === item.href ||
       (item.href !== '/' && router.pathname.startsWith(item.href));
 
-    const className = `relative flex items-center gap-3 px-5 py-2.5 text-[13.5px] font-medium transition-colors whitespace-nowrap ${
+    const className = `relative flex items-center gap-[14px] px-5 py-[11.5px] text-[15.5px] font-medium transition-colors whitespace-nowrap ${
       isActive
         ? 'bg-teal/10 text-teal before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-teal before:rounded-r'
         : 'text-white/65 hover:bg-white/[0.07] hover:text-white/95'
@@ -95,7 +95,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     const content = (
       <>
-        <Icon className="h-5 w-5 shrink-0" aria-hidden />
+        <Icon
+          className={`icone-fine h-5 w-5 shrink-0 ${isActive ? 'opacity-100' : 'opacity-80'}`}
+          aria-hidden
+        />
         <span className={`transition-opacity ${collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           {item.label}
         </span>
@@ -159,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-thin">
         {sections.map((section) => (
           <div key={section.label}>
-            <div className={`text-[10px] font-semibold tracking-[1.2px] uppercase text-white/30 px-5 pt-3 pb-1 whitespace-nowrap transition-opacity ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
+            <div className={`text-[11.5px] font-semibold tracking-[1.2px] uppercase text-white/30 px-5 pt-[14px] pb-1 whitespace-nowrap transition-opacity ${collapsed ? 'opacity-0' : 'opacity-100'}`}>
               {section.label}
             </div>
             {section.items.map(renderItem)}

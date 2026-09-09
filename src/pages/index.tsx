@@ -85,10 +85,10 @@ const HomePage: React.FC = () => {
             <span className="inline-block text-[11px] font-bold tracking-[2px] uppercase text-teal mb-4">
               La méthode des organisations performantes
             </span>
-            <h1 className="text-4xl lg:text-5xl font-extrabold leading-[1.15] mb-6">
+            <h1 className="text-[27.5px] lg:text-[32px] font-extrabold leading-[1.25] mb-6">
               La productivité, c'est créer <span className="text-teal">plus de valeur durable.</span>
             </h1>
-            <p className="text-lg text-white/70 leading-relaxed mb-8">
+            <p className="text-[16.5px] text-white/70 leading-[1.7] mb-8">
               OSKAR est un cadre de management structuré en 5 piliers pour aligner votre vision, valider votre marché, piloter vos finances, exécuter vos objectifs et renforcer vos équipes.
             </p>
             <button
@@ -145,10 +145,10 @@ const HomePage: React.FC = () => {
               <span className="inline-block px-3 py-1 bg-white/50 rounded-full text-[11px] font-bold text-navy-light mb-4 tracking-wide">
                 Outil gratuit · Confidentiel
               </span>
-              <h3 className="text-2xl font-extrabold text-navy mb-4 leading-tight">
+              <h3 className="text-[25.5px] font-extrabold text-navy mb-4 leading-[1.25]">
                 Mesurez l'efficacité de votre organisation sur les 5 piliers OSKAR.
               </h3>
-              <p className="text-sm text-muted mb-8 leading-relaxed max-w-md">
+              <p className="text-[15.5px] text-muted mb-8 leading-[1.75] max-w-md">
                 Un diagnostic structuré pour identifier vos forces et vos zones d'amélioration — sans inscription requise.
               </p>
               <div className="grid grid-cols-2 gap-4 mb-8">
