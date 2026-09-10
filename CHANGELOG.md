@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.6.0] - 2026-09-10
+
+### ✨ Ajouté — règles d'accès de la plateforme
+- **Une seule source de vérité** (`src/lib/acces.ts`) décide qui accède à quoi :
+  visiteur, compte gratuit ou formule payante. Les ateliers à venir n'auront
+  qu'à l'appeler. Neuf tests verrouillent ces règles.
+- **Page de présentation du pilier OKR** (`/okr`), libre d'accès comme celles
+  des quatre autres piliers. L'atelier reste sur `/app/okr` ; le menu latéral
+  mène désormais à la présentation.
+- **Première étape de l'atelier OKR offerte** à tout compte gratuit. Les étapes
+  « Mon trimestre » et « Mes actions » affichent un écran qui montre ce qu'elles
+  contiennent et renvoie vers les formules.
+- **Export du bilan Potentiel Produit par email**, sans compte, sur le modèle du
+  Diagnostic : un PDF en pièce jointe et un résumé dans le message
+  (`/api/send-product-fit`, `lib/productFit/pdf.ts`).
+
+Règles posées par Christophe : l'accueil, les présentations de piliers, le
+Diagnostic, le Potentiel Produit et les outils restent libres ; un compte
+gratuit sert à conserver ses résultats et à goûter à la première étape de
+chaque atelier ; la suite relève des formules payantes.
+
 ## [2.5.0] - 2026-09-10
 
 ### ✨ Modifié — calcul du Potentiel Produit

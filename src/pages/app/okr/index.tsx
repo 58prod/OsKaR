@@ -9,12 +9,15 @@ import { OkrTabs } from '@/components/okr/OkrTabs';
 import { EtapeObjectifs } from '@/components/okr/EtapeObjectifs';
 import { EtapeTrimestre } from '@/components/okr/EtapeTrimestre';
 import { EtapeActions } from '@/components/okr/EtapeActions';
+import { EtapeVerrouillee } from '@/components/okr/EtapeVerrouillee';
 import { ANNEE, BTN_OUTLINE, BTN_PRIMARY, ETAPES, MAX_OBJECTIFS, trimLabel, type Etape } from '@/components/okr/okrFlux';
 import { useAppStore } from '@/store/useAppStore';
 import { useAmbitions } from '@/hooks/useAmbitions';
 import { useQuarterlyObjectives } from '@/hooks/useQuarterlyObjectives';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
 import { useActions } from '@/hooks/useActions';
+import { useSubscription } from '@/hooks/useSubscription';
+import { etapeAccessible, niveauAcces } from '@/lib/acces';
 import { getCurrentQuarter } from '@/utils';
 import type { Quarter } from '@/types';
 
@@ -29,6 +32,21 @@ import type { Quarter } from '@/types';
  */
 
 const CLE_TRIMESTRE = 'oskar.okr.trimestre';
+
+/** Ce que contient chaque étape, montré quand elle est encore verrouillée. */
+const APERCU_ETAPES: Record<Etape, string[]> = {
+  annee: [],
+  trimestre: [
+    'Décliner chacun de vos objectifs annuels en un objectif pour le trimestre',
+    'Y attacher deux résultats clés chiffrés, que vous mettez à jour au fil des semaines',
+    'Suivre votre progression trimestre après trimestre',
+  ],
+  actions: [
+    'Transformer vos résultats clés en actions concrètes',
+    'Les suivre dans un tableau à trois colonnes : à faire, en cours, terminé',
+    'Garder le lien entre chaque action et le résultat clé qu’elle sert',
+  ],
+};
 
 function lireTrimestre(): Quarter {
   try {
@@ -72,6 +90,12 @@ const OkrPage: React.FC = () => {
       /* ignoré */
     }
   };
+
+  /* ── Droits d'accès : la 1re étape est offerte, la suite est dans les formules ── */
+  const { data: abonnement } = useSubscription(userId);
+  const niveau = niveauAcces(isAuthenticated, abonnement);
+  const indexEtape = ETAPES.indexOf(etape);
+  const etapeOuverte = etapeAccessible(niveau, indexEtape);
 
   /* ── Données ── */
   const { data: ambitionsBrutes = [] } = useAmbitions(userId, ANNEE);
@@ -166,6 +190,15 @@ const OkrPage: React.FC = () => {
           <>
             <OkrTabs etape={etape} libelles={libelles} onChange={allerA} />
 
+            {!etapeOuverte ? (
+              <EtapeVerrouillee
+                niveau={niveau}
+                titreEtape={`Étape ${indexEtape + 1} · ${libelles[etape]}`}
+                apercu={APERCU_ETAPES[etape]}
+                onCreerCompte={() => ouvrirAuth('register')}
+              />
+            ) : (
+            <>
             {etape === 'annee' && (
               <EtapeObjectifs
                 userId={user.id}
@@ -194,6 +227,8 @@ const OkrPage: React.FC = () => {
                 keyResults={krsTrimestre}
                 demandeNouvelle={demandeNouvelle}
               />
+            )}
+            </>
             )}
           </>
         )}

@@ -4,6 +4,7 @@ import { AlertCircle, AlertTriangle, Check } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
 import { UserMenu } from '@/components/layout/UserMenu';
+import { EmailPromptModal } from '@/components/diagnostic/EmailPromptModal';
 import { PresetSelector } from '@/components/productFit/PresetSelector';
 import { PersonaFormCard } from '@/components/productFit/PersonaFormCard';
 import { ProductFitSynthesis } from '@/components/productFit/ProductFitSynthesis';
@@ -11,6 +12,7 @@ import { EMPTY_PROJECT } from '@/lib/productFit/presets';
 import { calculateProductFitAnalysis, SEUIL_FAIBLE, SEUIL_REEL, SEUIL_FORT } from '@/lib/productFit/scoring';
 import type { PresetCase, ProductFitProject, PersonaEvaluation } from '@/lib/productFit/types';
 import { useAppStore } from '@/store/useAppStore';
+import { useToast } from '@/hooks/useToast';
 
 /*
  * Bilan « Potentiel Produit ».
@@ -24,7 +26,8 @@ import { useAppStore } from '@/store/useAppStore';
  */
 
 const DiagnosticProduitPage: React.FC = () => {
-  const { authReady, isAuthenticated } = useAppStore();
+  const { user, authReady, isAuthenticated } = useAppStore();
+  const toast = useToast();
 
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [project, setProject] = useState<ProductFitProject>(() => EMPTY_PROJECT);
@@ -37,6 +40,43 @@ const DiagnosticProduitPage: React.FC = () => {
   }, []);
 
   const analysis = useMemo(() => calculateProductFitAnalysis(project), [project]);
+
+  /* ── Recevoir la synthèse par email : libre, aucun compte requis ── */
+  const [emailOuvert, setEmailOuvert] = useState(false);
+  const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  const [avisEnvoi, setAvisEnvoi] = useState('');
+
+  const envoyerSynthese = useCallback(
+    async (email: string) => {
+      setEnvoiEnCours(true);
+      try {
+        const res = await fetch('/api/send-product-fit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, analysis, project }),
+        });
+        if (!res.ok) {
+          let detail = '';
+          try {
+            detail = (await res.json())?.error ?? '';
+          } catch {
+            /* réponse non JSON */
+          }
+          throw new Error(detail);
+        }
+        setEmailOuvert(false);
+        setAvisEnvoi(`Votre synthèse a été envoyée à ${email}.`);
+        toast.success('Synthèse envoyée par email.');
+      } catch (err) {
+        setAvisEnvoi('');
+        const detail = err instanceof Error && err.message ? ` ${err.message}` : '';
+        toast.error(`L'envoi de la synthèse a échoué.${detail}`);
+      } finally {
+        setEnvoiEnCours(false);
+      }
+    },
+    [analysis, project, toast]
+  );
 
   const handleSelectPreset = (preset: PresetCase) => {
     setSelectedPresetId(preset.id);
@@ -110,6 +150,12 @@ const DiagnosticProduitPage: React.FC = () => {
           </div>
         </header>
 
+        {avisEnvoi && (
+          <div role="status" aria-live="polite" className="mb-6 rounded-lg border border-teal/40 bg-teal-light px-4 py-3 text-sm text-navy">
+            {avisEnvoi}
+          </div>
+        )}
+
         <div className="grid gap-5 lg:grid-cols-[1fr_340px] items-start">
           {/* Saisie */}
           <div>
@@ -173,8 +219,23 @@ const DiagnosticProduitPage: React.FC = () => {
           </div>
 
           {/* Résultat */}
-          <ProductFitSynthesis analysis={analysis} />
+          <ProductFitSynthesis
+            analysis={analysis}
+            onRecevoirParEmail={() => setEmailOuvert(true)}
+            envoiEnCours={envoiEnCours}
+          />
         </div>
+
+        <EmailPromptModal
+          open={emailOuvert}
+          title="Recevoir ma synthèse"
+          description="Indiquez votre email pour recevoir votre bilan en PDF. Aucun compte n'est nécessaire."
+          submitLabel="Envoyer"
+          defaultEmail={user?.email ?? ''}
+          loading={envoiEnCours}
+          onSubmit={envoyerSynthese}
+          onClose={() => setEmailOuvert(false)}
+        />
 
         <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} />
       </AppShell>

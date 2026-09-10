@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { AlertCircle, AlertTriangle, Check, Target, Lightbulb } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Check, Target, Lightbulb, FileText, Loader2 } from 'lucide-react';
 import type { ProductFitAnalysis } from '@/lib/productFit/types';
 
 /*
@@ -15,6 +15,9 @@ import type { ProductFitAnalysis } from '@/lib/productFit/types';
 
 interface ProductFitSynthesisProps {
   analysis: ProductFitAnalysis;
+  /** Envoi de la synthèse par email — comme sur la page Diagnostic, sans compte. */
+  onRecevoirParEmail?: () => void;
+  envoiEnCours?: boolean;
 }
 
 /** Même code couleur que le Diagnostic : fragile, en construction, solide. */
@@ -31,7 +34,11 @@ const TON_COULEURS: Record<ProductFitAnalysis['verdictTone'], { bg: string; c: s
   danger: { bg: '#fff0ea', c: '#e2653f', barre: '#e2653f' }, // corail OsKaR
 };
 
-export const ProductFitSynthesis: React.FC<ProductFitSynthesisProps> = ({ analysis }) => {
+export const ProductFitSynthesis: React.FC<ProductFitSynthesisProps> = ({
+  analysis,
+  onRecevoirParEmail,
+  envoiEnCours = false,
+}) => {
   const router = useRouter();
   const {
     globalPotentialScore,
@@ -83,6 +90,23 @@ export const ProductFitSynthesis: React.FC<ProductFitSynthesisProps> = ({ analys
         </div>
         <p className="text-sm text-white/70 leading-relaxed mt-4">{verdictDescription}</p>
       </section>
+
+      {/* Recevoir la synthèse : libre, sans compte */}
+      {onRecevoirParEmail && aDesResultats && (
+        <button
+          type="button"
+          onClick={onRecevoirParEmail}
+          disabled={envoiEnCours}
+          className="w-full justify-center inline-flex items-center gap-2 px-4 py-3 bg-white text-navy text-sm font-semibold border-[1.5px] border-line rounded-lg transition-all hover:border-navy disabled:opacity-35 disabled:cursor-not-allowed"
+        >
+          {envoiEnCours ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <FileText className="h-4 w-4" aria-hidden />
+          )}
+          Recevoir ma synthèse par email
+        </button>
+      )}
 
       {/* Par qui commencer */}
       {priorityPersona && (
