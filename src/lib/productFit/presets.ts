@@ -77,8 +77,8 @@ export const PRESET_CASES: PresetCase[] = [
           description:
             "Il fait le trajet seul chaque jour et voit le carburant peser lourd sur son budget.",
           problemIntensity: 8,
-          urgency: 7,
-          frequency: 9,
+          urgency: 6,
+          frequency: 6,
           keyPainPoint: 'Le carburant lui coûte 200 € par mois pour aller travailler.',
           alternativeSolution: 'Il y va seul en voiture, faute de mieux.',
         },
@@ -88,8 +88,8 @@ export const PRESET_CASES: PresetCase[] = [
           role: 'Sans voiture, mal desservie par le bus',
           description:
             "Elle dépend des horaires de bus et arrive parfois en retard, mais elle a fini par s'organiser.",
-          problemIntensity: 8,
-          urgency: 6,
+          problemIntensity: 7,
+          urgency: 5,
           frequency: 6,
           keyPainPoint: 'Deux bus et une correspondance pour vingt kilomètres.',
           alternativeSolution: 'Le bus, et un collègue qui la dépanne de temps en temps.',
@@ -126,8 +126,8 @@ export const PRESET_CASES: PresetCase[] = [
           role: 'Cuisine tous les soirs après le travail',
           description:
             "Elle manque d'idées en fin de semaine et jette parfois des légumes oubliés, sans que cela lui gâche la vie.",
-          problemIntensity: 7,
-          urgency: 5,
+          problemIntensity: 5,
+          urgency: 3,
           frequency: 6,
           keyPainPoint: "Elle ne sait pas quoi faire à manger et finit par commander.",
           alternativeSolution: 'Une recherche rapide sur internet.',
@@ -138,7 +138,7 @@ export const PRESET_CASES: PresetCase[] = [
           role: 'Étudiant, petit budget',
           description:
             "Il mange souvent la même chose. Cela lui convient, même s'il aimerait varier.",
-          problemIntensity: 5,
+          problemIntensity: 4,
           urgency: 3,
           frequency: 5,
           keyPainPoint: 'Des pâtes, encore des pâtes.',

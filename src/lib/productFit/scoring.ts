@@ -5,17 +5,39 @@ import type {
   ProductFitProject,
 } from './types';
 
+/*
+ * Paliers de lecture, sur l'échelle de 10 des réponses. Exportés pour que la
+ * légende affichée à l'écran et le verdict calculé ici ne puissent pas diverger.
+ */
+/** À partir de 7/10 : les trois facteurs sont élevés, le besoin est net. */
+export const SEUIL_FORT = 7;
+/** À partir de 5/10 : le besoin existe mais un facteur reste faible. */
+export const SEUIL_REEL = 5;
+/** En dessous de 3/10 : personne n'est vraiment gêné. */
+export const SEUIL_FAIBLE = 3;
+
 /**
  * Note d'un profil de client : à quel point cette personne est gênée.
  *
  * Trois questions notées de 1 à 10 — le problème la gêne-t-il, doit-elle le
- * régler vite, le rencontre-t-elle souvent — multipliées entre elles. Le
- * produit vaut par la personne la plus gênée, pas par la moyenne : c'est elle
- * qui achètera la première.
+ * régler vite, le rencontre-t-elle souvent. On les multiplie, conformément à
+ * l'esprit de la méthode : un besoin ne tient que si les trois sont réunis,
+ * donc un facteur faible doit faire chuter le résultat, ce qu'une moyenne
+ * ordinaire ne ferait pas.
  *
- * Note brute de 1 à 1000, ramenée sur 100 puis sur 10 pour l'affichage.
- * Les textes ci-dessous s'adressent directement à l'utilisateur : pas de
- * jargon, on nomme les choses simplement.
+ * La note affichée est la **moyenne géométrique** de ces trois notes, c'est-à-
+ * dire la racine cubique de leur produit. C'est la façon usuelle de combiner
+ * des critères multiplicatifs sans quitter leur échelle d'origine : trois
+ * réponses à 5 donnent 5/10, trois réponses à 9 donnent 9/10, et un « 1 »
+ * quelque part plombe l'ensemble (10, 10 et 1 donnent 4,6/10).
+ *
+ * Le produit brut, lui, n'était pas affichable : divisé par 100 pour tenir sur
+ * 10, il donnait 1,2/10 à quelqu'un qui avait répondu 5 partout, et classait
+ * 70 % des réponses possibles en « besoin à trouver ».
+ *
+ * `rawScore` (1 à 1000) reste le critère de classement entre profils : il est
+ * strictement équivalent à la moyenne géométrique pour comparer, et se lit
+ * mieux dans les explications.
  */
 export function calculatePersonaScore(
   persona: PersonaEvaluation,
@@ -26,13 +48,14 @@ export function calculatePersonaScore(
   const f = Math.max(1, Math.min(10, persona.frequency || 1));
 
   const rawScore = p * u * f;
-  const normalizedScore = Math.round((rawScore / 1000) * 1000) / 10; // 0.1 à 100.0
-  const scoreOn10 = Math.round((normalizedScore / 10) * 10) / 10;
+  // Moyenne géométrique : on revient sur l'échelle 1-10 des réponses.
+  const scoreOn10 = Math.round(Math.cbrt(rawScore) * 10) / 10;
+  const normalizedScore = Math.round(scoreOn10 * 100) / 10; // même note, sur 100
 
   let maturityState: PersonaScoreResult['maturityState'] = 'modere';
-  if (normalizedScore >= 65) maturityState = 'champion';
-  else if (normalizedScore >= 40) maturityState = 'prometteur';
-  else if (normalizedScore >= 20) maturityState = 'modere';
+  if (scoreOn10 >= SEUIL_FORT) maturityState = 'champion';
+  else if (scoreOn10 >= SEUIL_REEL) maturityState = 'prometteur';
+  else if (scoreOn10 >= SEUIL_FAIBLE) maturityState = 'modere';
   else maturityState = 'critique';
 
   const priorityExplanation = isPriority
@@ -98,19 +121,19 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
   let verdictDescription = '';
   let verdictTone: ProductFitAnalysis['verdictTone'] = 'info';
 
-  if (globalPotentialScore >= 65) {
+  if (globalScoreOn10 >= SEUIL_FORT) {
     verdictLabel = 'Le besoin est fort';
     verdictDescription =
       `${priorityPersona.personaName} a un problème important, urgent et fréquent. ` +
       `C'est très bon signe : allez lui parler pour le confirmer sur le terrain.`;
     verdictTone = 'success';
-  } else if (globalPotentialScore >= 40) {
+  } else if (globalScoreOn10 >= SEUIL_REEL) {
     verdictLabel = 'Le besoin est réel';
     verdictDescription =
       `Le besoin existe, mais il n'est pas encore assez fort pour qu'on achète sans hésiter. ` +
       `Cherchez le moment précis où le problème devient vraiment pénible.`;
     verdictTone = 'info';
-  } else if (globalPotentialScore >= 20) {
+  } else if (globalScoreOn10 >= SEUIL_FAIBLE) {
     verdictLabel = 'Utile, mais pas indispensable';
     verdictDescription =
       `Personne n'est assez gêné pour changer ses habitudes. ` +
@@ -129,14 +152,14 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
   const strengths: string[] = [];
   const vulnerabilities: string[] = [];
 
-  if (priorityPersona.normalizedScore >= 60) {
+  if (priorityPersona.scoreOn10 >= SEUIL_FORT) {
     strengths.push(
       `${priorityPersona.personaName} est nettement la plus gênée des trois. Vous savez par qui commencer.`
     );
   }
   if (activePersonas.length > 1) {
     const secondBest = personasResults.filter((p) => !p.isPriorityTarget).sort((a, b) => b.rawScore - a.rawScore)[0];
-    if (secondBest && secondBest.normalizedScore >= 30) {
+    if (secondBest && secondBest.scoreOn10 >= SEUIL_REEL) {
       strengths.push(
         `${secondBest.personaName} pourrait devenir votre second marché, une fois le premier convaincu.`
       );
@@ -146,7 +169,7 @@ export function calculateProductFitAnalysis(project: ProductFitProject): Product
     strengths.push(`Au moins une personne veut régler ce problème tout de suite. C'est ce qui déclenche un achat rapide.`);
   }
 
-  if (personasResults.every((p) => p.normalizedScore < 30)) {
+  if (personasResults.every((p) => p.scoreOn10 < SEUIL_FAIBLE)) {
     vulnerabilities.push(
       `Aucun des trois profils n'est vraiment gêné. Un produit que l'on trouve sympathique se vend mal.`
     );

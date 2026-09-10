@@ -8,7 +8,7 @@ import { PresetSelector } from '@/components/productFit/PresetSelector';
 import { PersonaFormCard } from '@/components/productFit/PersonaFormCard';
 import { ProductFitSynthesis } from '@/components/productFit/ProductFitSynthesis';
 import { EMPTY_PROJECT } from '@/lib/productFit/presets';
-import { calculateProductFitAnalysis } from '@/lib/productFit/scoring';
+import { calculateProductFitAnalysis, SEUIL_FAIBLE, SEUIL_REEL, SEUIL_FORT } from '@/lib/productFit/scoring';
 import type { PresetCase, ProductFitProject, PersonaEvaluation } from '@/lib/productFit/types';
 import { useAppStore } from '@/store/useAppStore';
 
@@ -101,10 +101,12 @@ const DiagnosticProduitPage: React.FC = () => {
               Votre produit répond-il à un vrai besoin&nbsp;?
             </h1>
           </div>
-          <div className="flex items-center gap-2.5">
-            <LegendPill icon={<AlertCircle className="h-3.5 w-3.5" aria-hidden />} label="0–3 Besoin faible" bg="#f0f2ff" border="#e2e4f0" />
-            <LegendPill icon={<AlertTriangle className="h-3.5 w-3.5" aria-hidden />} label="4–6 À préciser" bg="#fffbeb" border="#fde68a" />
-            <LegendPill icon={<Check className="h-3.5 w-3.5" aria-hidden />} label="7–10 Besoin fort" bg="#e6faf7" border="#a7f3e4" />
+          {/* Les bornes viennent du calcul : la légende ne peut pas mentir. */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <LegendPill icon={<AlertCircle className="h-3.5 w-3.5" aria-hidden />} label={`0–${SEUIL_FAIBLE} À trouver`} bg="#fff0ea" border="#ffd4c4" />
+            <LegendPill icon={<AlertTriangle className="h-3.5 w-3.5" aria-hidden />} label={`${SEUIL_FAIBLE}–${SEUIL_REEL} Pas indispensable`} bg="#fffbeb" border="#fde68a" />
+            <LegendPill icon={<AlertTriangle className="h-3.5 w-3.5" aria-hidden />} label={`${SEUIL_REEL}–${SEUIL_FORT} Besoin réel`} bg="#e0f2fe" border="#bae6fd" />
+            <LegendPill icon={<Check className="h-3.5 w-3.5" aria-hidden />} label={`${SEUIL_FORT}–10 Besoin fort`} bg="#e6faf7" border="#a7f3e4" />
           </div>
         </header>
 

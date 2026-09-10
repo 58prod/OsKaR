@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.5.0] - 2026-09-10
+
+### ✨ Modifié — calcul du Potentiel Produit
+- **La note est désormais la moyenne géométrique** des trois réponses, c'est-à-
+  dire la racine cubique de leur produit, au lieu du produit brut divisé par
+  cent. La logique multiplicative de la méthode est conservée — un facteur
+  faible fait chuter le résultat — mais la note reste sur l'échelle des
+  réponses : trois réponses à 5 donnent 5/10 au lieu de 1,2/10, et 10-10-1
+  donne 4,6/10 là où une moyenne ordinaire dirait 7.
+- **Paliers corrigés et nommés** (`SEUIL_FAIBLE`, `SEUIL_REEL`, `SEUIL_FORT`
+  dans `scoring.ts`) : besoin fort à partir de 7/10, besoin réel à partir de 5,
+  pas indispensable à partir de 3. La légende affichée lit ces constantes, elle
+  ne peut donc plus contredire le verdict — elle annonçait « 7–10 besoin fort »
+  quand le calcul basculait à 6,5.
+- **Exemples recalibrés** pour continuer d'illustrer trois verdicts distincts :
+  Facturation 9/10, Covoiturage 6,6/10, Recettes 4,5/10.
+
+Avant ce changement, 70 % des réponses possibles étaient classées « le besoin
+reste à trouver » et la note médiane était de 1/10 : l'outil décourageait
+presque tout le monde, quelles que soient les réponses.
+
 ## [2.4.4] - 2026-09-10
 
 ### 🎨 Modifié
