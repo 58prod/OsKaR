@@ -152,38 +152,43 @@ export const ConseilsPanel: React.FC<{ etape: EtapeVision; exemples: JeuExemples
 
   return (
     <aside className="lg:sticky lg:top-24" aria-label="Conseils pour cette étape">
-      <div className="rounded-card overflow-hidden border border-vision/20 shadow-card">
-        <div className="bg-[linear-gradient(135deg,#151f5e_0%,#1e2d7d_100%)] px-5 py-3.5">
-          <div className="text-13 font-bold text-white">Conseils pour cette étape</div>
+      {/* Valeurs relevées sur la maquette : panneau navy-dark rayon 18.5px,
+          en-tête sur un voile vision à 10 %, intro 15px blanc 70 %,
+          titres de liste 12.5px vision, encart d'exemple blanc 5 % en italique. */}
+      <div className="rounded-[18.5px] overflow-hidden bg-navy-dark">
+        <div className="bg-vision/10 px-[18px] py-[18.5px]">
+          <div className="text-14 font-bold text-white">Conseils pour cette étape</div>
         </div>
-        <div className="bg-white p-5">
+
+        <div className="p-[18px]">
           <div className="flex items-center gap-2.5 mb-3">
-            <span className="w-9 h-9 rounded-lg bg-vision-light text-vision-dark flex items-center justify-center shrink-0">
+            <span className="w-9 h-9 rounded-[10.5px] bg-vision/15 text-vision flex items-center justify-center shrink-0">
               {conseil.icone}
             </span>
             <div>
-              <div className="text-11 font-bold uppercase tracking-wider text-muted">{conseil.numero}</div>
-              <div className="text-15.5 font-bold text-navy">{conseil.titre}</div>
+              <div className="text-11.5 font-bold uppercase tracking-[0.8px] text-white/40">{conseil.numero}</div>
+              <div className="text-15.5 font-bold text-white">{conseil.titre}</div>
             </div>
           </div>
 
-          <p className="text-13.5 text-ink leading-[1.6] mb-4">{conseil.intro}</p>
+          <p className="text-15 text-white/70 leading-[1.65] mb-4">{conseil.intro}</p>
 
+          <div className="text-12.5 font-bold uppercase tracking-[0.8px] text-vision mb-2">Points clés</div>
           <ul className="space-y-2 mb-4">
             {conseil.puces.map((puce) => (
-              <li key={puce} className="flex items-start gap-2 text-13 text-muted leading-[1.5]">
-                <span className="text-vision font-bold shrink-0" aria-hidden>
-                  •
+              <li key={puce} className="flex items-start gap-2 text-13.5 text-white/70 leading-[1.5]">
+                <span className="text-vision shrink-0" aria-hidden>
+                  →
                 </span>
                 <span>{puce}</span>
               </li>
             ))}
           </ul>
 
-          <div className="rounded-lg bg-vision-light/50 border border-vision/20 p-3.5">
-            <div className="text-11 font-bold uppercase tracking-wider text-vision-dark mb-1.5">Exemple</div>
-            <p className="text-13 text-ink leading-[1.6]">{conseil.exemple(exemples)}</p>
-          </div>
+          <div className="text-12.5 font-bold uppercase tracking-[0.8px] text-vision mb-2">Exemple</div>
+          <p className="rounded-[10.5px] bg-white/5 px-3 py-[11.5px] text-13.5 italic text-white/60 leading-[1.6]">
+            {conseil.exemple(exemples)}
+          </p>
         </div>
       </div>
     </aside>

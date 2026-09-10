@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { Loader2, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
 import { UserMenu } from '@/components/layout/UserMenu';
@@ -18,12 +18,13 @@ import {
 } from '@/components/vision/EtapesVision';
 import { SyntheseVision } from '@/components/vision/SyntheseVision';
 import { ConseilsPanel } from '@/components/vision/ConseilsPanel';
+import { BarreEtapes, LIBELLES_BARRE } from '@/components/vision/BarreEtapes';
 import { useAppStore } from '@/store/useAppStore';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useExemples } from '@/hooks/useExemples';
 import { useVision } from '@/hooks/useVision';
 import { etapeAccessible, niveauAcces } from '@/lib/acces';
-import { ETAPES_VISION, etapeRemplie, NB_ETAPES_VISION, type EtapeVision as Etape } from '@/lib/vision/types';
+import { ETAPES_VISION, type EtapeVision as Etape } from '@/lib/vision/types';
 
 /*
  * Atelier Vision — transposition de `Oskar/plateforme/vision-atelier.html`.
@@ -34,16 +35,6 @@ import { ETAPES_VISION, etapeRemplie, NB_ETAPES_VISION, type EtapeVision as Etap
  * Ce qui est saisi est enregistré sans bouton dédié (voir `useVision`).
  */
 
-const LIBELLES: Record<Etape, string> = {
-  sens: 'Le sens',
-  cibles: 'Cibles & acteurs',
-  probleme: 'Le problème',
-  projection: 'Vision à 1 an',
-  valeurs: 'Valeurs',
-  vision: 'Votre vision',
-  objectifs: 'Objectifs',
-  synthese: 'Synthèse',
-};
 
 /** Ce que contient chaque étape, montré quand elle est encore verrouillée. */
 const APERCU: Partial<Record<Etape, string[]>> = {
@@ -115,7 +106,24 @@ const VisionAtelierPage: React.FC = () => {
   );
 
   const topbarActions = !authReady ? null : isAuthenticated ? (
-    <UserMenu />
+    <>
+      {/* Les deux boutons de la maquette : contour gris, puis teal. */}
+      <button
+        type="button"
+        onClick={() => window.print()}
+        className="inline-flex items-center gap-1.5 px-[18px] py-[10.5px] rounded-[10.5px] border-[1.5px] border-line text-muted text-15.5 font-semibold hover:border-navy hover:text-navy transition-all"
+      >
+        Exporter PDF
+      </button>
+      <button
+        type="button"
+        onClick={enregistrerMaintenant}
+        className="inline-flex items-center gap-1.5 px-[18px] py-[10.5px] rounded-[10.5px] bg-teal text-navy-dark text-15.5 font-semibold hover:bg-teal-dark transition-all"
+      >
+        {enregistrement === 'en cours' ? 'Enregistrement…' : 'Sauvegarder →'}
+      </button>
+      <UserMenu />
+    </>
   ) : (
     <div className="flex items-center gap-2">
       <button
@@ -140,11 +148,19 @@ const VisionAtelierPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>OsKaR Vision · Votre cap à 1 an | OsKaR</title>
+        <title>OsKaR Vision · Atelier | OsKaR</title>
       </Head>
       <AppShell
         title="OsKaR Vision"
-        topbarTitle={<span className="text-vision">OSKAR VISION — {LIBELLES[etape]}</span>}
+        topbarTitle={
+          <span className="flex items-center gap-2.5 text-15">
+            <span className="text-muted">OSKAR</span>
+            <span className="text-line" aria-hidden>›</span>
+            <span className="text-muted">Vision</span>
+            <span className="text-line" aria-hidden>›</span>
+            <span className="text-vision font-bold">Atelier</span>
+          </span>
+        }
         topbarActions={topbarActions}
         contentMaxWidth="max-w-[1400px]"
       >
@@ -157,12 +173,30 @@ const VisionAtelierPage: React.FC = () => {
           <Visiteur onConnexion={() => ouvrirAuth('login')} onInscription={() => ouvrirAuth('register')} />
         ) : (
           <>
-            <FilEtapes atelier={atelier} etape={etape} onChange={allerA} />
+            {/* En-tête de la maquette : surtitre du module, titre, retour. */}
+            <header className="flex flex-wrap items-end justify-between gap-3 mb-6">
+              <div>
+                <div className="text-12.5 font-bold uppercase tracking-[1.25px] text-teal-dark mb-1">
+                  Module 01 — OsKaR Vision
+                </div>
+                <h1 className="text-27.5 font-extrabold text-navy leading-[1.2]">Atelier Vision</h1>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/vision')}
+                className="inline-flex items-center gap-1.5 text-14 text-muted hover:text-navy transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+                Retour à l’accueil
+              </button>
+            </header>
+
+            <BarreEtapes etape={etape} onChange={allerA} />
 
             {!ouverte ? (
               <EtapeVerrouillee
                 niveau={niveau}
-                titreEtape={`Étape ${index + 1} · ${LIBELLES[etape]}`}
+                titreEtape={`Étape ${index + 1} · ${LIBELLES_BARRE[etape]}`}
                 apercu={APERCU[etape] ?? []}
                 onCreerCompte={() => ouvrirAuth('register')}
               />
@@ -203,44 +237,6 @@ const VisionAtelierPage: React.FC = () => {
   );
 };
 
-/** Fil des huit étapes, dans l'esprit des onglets du parcours OKR. */
-const FilEtapes: React.FC<{
-  atelier: Parameters<typeof etapeRemplie>[0];
-  etape: Etape;
-  onChange: (e: Etape) => void;
-}> = ({ atelier, etape, onChange }) => {
-  const courante = ETAPES_VISION.indexOf(etape);
-  return (
-    <nav aria-label="Étapes de l’atelier Vision" className="bg-white border border-line rounded-card shadow-card mb-7 p-1.5 flex flex-wrap gap-1">
-      {ETAPES_VISION.map((e, i) => {
-        const active = e === etape;
-        const faite = etapeRemplie(atelier, e);
-        const passee = i < courante;
-        return (
-          <button
-            key={e}
-            type="button"
-            onClick={() => onChange(e)}
-            aria-current={active ? 'step' : undefined}
-            className={`flex items-center gap-2 px-3 py-2.5 rounded-[9px] text-13 font-semibold transition-all ${
-              active ? 'bg-vision-light text-vision-dark' : 'text-muted hover:bg-surface hover:text-navy'
-            }`}
-          >
-            <span
-              className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-11 font-extrabold shrink-0 ${
-                active || faite || passee ? 'bg-vision text-white' : 'bg-vision/10 text-vision-dark'
-              }`}
-            >
-              {faite && !active ? <Check className="w-3 h-3" aria-hidden /> : i + 1 <= NB_ETAPES_VISION ? i + 1 : '★'}
-            </span>
-            <span className="hidden sm:inline">{LIBELLES[e]}</span>
-          </button>
-        );
-      })}
-    </nav>
-  );
-};
-
 /** Précédent / suivant, avec l'état d'enregistrement. */
 const Navigation: React.FC<{
   etape: Etape;
@@ -263,7 +259,11 @@ const Navigation: React.FC<{
         {enregistrement === 'echec' && 'Enregistrement impossible'}
       </span>
       {index < ETAPES_VISION.length - 1 && (
-        <button type="button" onClick={() => onChange(ETAPES_VISION[index + 1])} className={BTN_PRIMARY}>
+        <button
+          type="button"
+          onClick={() => onChange(ETAPES_VISION[index + 1])}
+          className="inline-flex items-center gap-1.5 px-[18px] py-[10.5px] rounded-[10.5px] bg-vision text-white text-15.5 font-semibold hover:bg-vision-dark transition-all"
+        >
           Suivant
           <ArrowRight className="h-4 w-4" aria-hidden />
         </button>

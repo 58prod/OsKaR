@@ -10,6 +10,26 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.12.0] - 2026-09-10
+
+### 🎨 Modifié — l'atelier Vision repris sur la maquette servie
+La première transposition avait été faite en lisant le HTML, sans regarder le
+rendu. En servant `plateforme/` et en relevant les styles calculés, plusieurs
+écarts sont apparus. L'atelier suit maintenant la maquette :
+
+- **Barre d'étapes** : sept onglets avec un point au-dessus du libellé en
+  majuscules, soulignement navy sous l'étape courante. Le récapitulatif n'y
+  figure pas, on y arrive par « Suivant ».
+- **En-tête de page** : surtitre « Module 01 — OsKaR Vision », titre « Atelier
+  Vision », lien « Retour à l'accueil ».
+- **Barre du haut** : fil d'Ariane « OSKAR › Vision › Atelier », boutons
+  « Exporter PDF » et « Sauvegarder → ».
+- **Titres d'étape** : 27,5 px en bleu Vision, promesse en majuscules turquoise.
+- **Cartes** : padding 27,5 px, pastilles Pourquoi (navy), Comment (turquoise),
+  Quoi (bleu pâle), note en italique.
+- **Colonne de conseils** : entièrement en navy, en-tête sur un voile bleu,
+  « Points clés » avec des flèches, encart d'exemple en italique sur blanc 5 %.
+
 ## [2.11.0] - 2026-09-10
 
 ### 🔧 Corrigé — fidélité aux maquettes
