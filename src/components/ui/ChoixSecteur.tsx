@@ -15,6 +15,7 @@ interface ChoixSecteurProps {
   placeholder?: string;
   required?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   'aria-describedby'?: string;
 }
 

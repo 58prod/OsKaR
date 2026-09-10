@@ -10,6 +10,32 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.14.1] - 2026-09-10
+
+### 🎨 Modifié — pages de présentation des 5 piliers alignées sur les maquettes
+Comparaison chiffre à chiffre avec `vision.html`, `fit.html`, `finance.html`
+et `team.html` servies (OKR n'a pas de maquette de présentation, il suit le
+même gabarit).
+
+- **Cadre** : le contenu n'est plus centré dans une colonne de 1 024 px ; il
+  démarre à 42,5 px du menu et occupe toute la largeur, comme les ateliers.
+- **Bannière** : les deux halos décoratifs de la maquette, sans ombre, texte
+  borné à 680 px, marges de 14 px.
+- **Espacements** : 28 px entre bannière, repères et bloc final ; repères
+  espacés de 18,5 px ; icônes au trait 1,8 et pictogrammes de la maquette.
+- **Couleurs** : valeur des repères en vert foncé pour Fit, liseré rose et
+  icônes #be185d pour Team.
+- **Profil** : deux menus côte à côte (secteur et rôle principal), intitulés en
+  majuscules, menus de 48 px ; le bloc n'est plus étiré à la hauteur de
+  l'appel à l'action. Le rôle reste mémorisé dans le navigateur.
+- **Appel à l'action** : bouton à droite du texte ; quand l'atelier n'existe
+  pas encore (Finance, Team), bouton grisé et badge « Bientôt disponible » de
+  `team.html`.
+- **Finance** : encart « Ce module s'appuie sur OsKaR Vision et OsKaR Fit » au
+  format de la maquette, lien « Voir Fit → ».
+- **Barre du haut** : « Bienvenue sur OSKAR — productivité max », boutons
+  Connexion et Commencer gratuitement aux styles de la maquette.
+
 ## [2.14.0] - 2026-09-10
 
 ### ✨ Ajouté — atelier Fit, d'après la maquette

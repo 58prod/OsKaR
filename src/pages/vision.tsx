@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, ListChecks, FileDown } from 'lucide-react';
+import { Clock, CheckSquare, FileText } from 'lucide-react';
 import { ModuleLanding, type Repere } from '@/components/layout/ModuleLanding';
 
 /** Transposition de vision.html. */
@@ -22,13 +22,13 @@ const REPERES: Repere[] = [
     texte: 'À votre rythme, en une ou plusieurs sessions.',
   },
   {
-    icon: ListChecks,
+    icon: CheckSquare,
     valeur: '8 étapes',
     libelle: 'Parcours structuré',
     texte: 'Sens · Cibles · Réalité · Projection · Valeurs · Synthèse · Objectifs · Récap',
   },
   {
-    icon: FileDown,
+    icon: FileText,
     valeur: 'PDF',
     libelle: 'Export inclus',
     texte: 'Téléchargez votre fiche de cap à la fin de l’atelier.',
@@ -42,11 +42,11 @@ export default function VisionPage() {
       numero="01"
       nom="OsKaR Vision"
       titreOnglet="OsKaR Vision · Clarifiez votre cap | OsKaR"
-      sousTitreBarre="Formalisez votre cap et transformez-le en objectifs concrets"
       titre={
         <>
-          Clarifiez votre cap, transformez-le en{' '}
-          <span className="text-teal">objectifs concrets</span>
+          Clarifiez votre cap,
+          <br />
+          transformez-le en <span className="text-teal">objectifs concrets</span>
         </>
       }
       description="Un parcours guidé en 8 étapes pour formaliser votre vision, cartographier vos cibles et acteurs, définir vos valeurs et poser les 3 objectifs qui comptent vraiment."

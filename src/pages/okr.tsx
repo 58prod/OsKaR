@@ -1,10 +1,11 @@
 import React from 'react';
-import { Clock, ListChecks, Repeat } from 'lucide-react';
+import { Clock, CheckSquare, Repeat } from 'lucide-react';
 import { ModuleLanding, type Repere } from '@/components/layout/ModuleLanding';
 
 /*
  * Page de présentation du pilier OKR — libre d'accès, comme celles de Vision,
- * Fit, Finance et Team.
+ * Fit, Finance et Team. Pas de maquette de présentation pour ce pilier : elle
+ * suit le gabarit commun des quatre autres.
  *
  * L'atelier lui-même vit sur /app/okr : il demande un compte, et ses étapes 2
  * et 3 font partie des formules. Cette page-ci n'a donc aucune restriction :
@@ -21,7 +22,7 @@ const REPERES: Repere[] = [
     texte: 'Trois objectifs pour l’année, puis votre premier trimestre.',
   },
   {
-    icon: ListChecks,
+    icon: CheckSquare,
     valeur: '3 étapes',
     libelle: 'Parcours guidé',
     texte: 'Objectifs annuels · Trimestre et résultats clés · Plan d’actions',
@@ -41,11 +42,11 @@ export default function OkrPresentationPage() {
       numero="04"
       nom="OsKaR OKR"
       titreOnglet="OsKaR OKR · Transformez vos ambitions en résultats | OsKaR"
-      sousTitreBarre="Trois objectifs pour l’année, un trimestre à la fois"
       titre={
         <>
-          Trois objectifs pour l’année. Des résultats{' '}
-          <span className="text-teal">que vous mesurez</span>.
+          Trois objectifs pour l’année.
+          <br />
+          Des résultats <span className="text-teal">que vous mesurez</span>.
         </>
       }
       description="Un parcours en 3 étapes pour fixer vos objectifs de l’année avec une cible chiffrée, les décliner en résultats clés chaque trimestre, puis piloter vos actions au quotidien."
