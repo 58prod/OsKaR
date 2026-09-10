@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.9.0] - 2026-09-10
+
+### ✨ Ajouté — les exemples parlent le métier de la personne
+- **Un jeu d'exemples par famille de métier** (`src/lib/exemples.ts`) : objectifs
+  annuels avec cible chiffrée, amorces de saisie, objectif de trimestre, résultat
+  clé, action de la semaine et repères pour le Potentiel Produit. Les 14 familles
+  de la liste des secteurs sont couvertes, un test le vérifie.
+- **Branché** sur les trois étapes du parcours OKR et sur le Potentiel Produit :
+  un plombier se voit proposer « Augmenter le nombre de chantiers signés » et
+  « Envoyer 40 devis » là où un éditeur de logiciel lit « Installer un revenu
+  mensuel récurrent ».
+- **Repli systématique** : tant qu'aucun domaine d'activité n'est choisi, les
+  exemples génériques d'origine s'affichent. Jamais de champ vide.
+
+Les exemples sont définis par famille (14) et non par activité (95) : un
+plombier, un menuisier et un couvreur partagent les mêmes repères, et 95 jeux
+seraient impossibles à tenir à jour.
+
+**Pour les pages à venir** : appeler `useExemples()` plutôt que d'écrire des
+phrases d'exemple en dur.
+
 ## [2.8.1] - 2026-09-10
 
 ### 🔧 Corrigé

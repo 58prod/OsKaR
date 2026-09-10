@@ -14,6 +14,7 @@ import { calculateProductFitAnalysis, SEUIL_FAIBLE, SEUIL_REEL, SEUIL_FORT } fro
 import type { PresetCase, ProductFitProject, PersonaEvaluation } from '@/lib/productFit/types';
 import { useAppStore } from '@/store/useAppStore';
 import { useToast } from '@/hooks/useToast';
+import { useExemples } from '@/hooks/useExemples';
 import { useCreateDiagnostic } from '@/hooks/useDiagnostics';
 import { DiagnosticsService } from '@/services/db/diagnostics';
 import type { DiagnosticState, AnalysisResult } from '@/lib/diagnostic';
@@ -33,6 +34,8 @@ const DiagnosticProduitPage: React.FC = () => {
   const router = useRouter();
   const { user, authReady, isAuthenticated } = useAppStore();
   const toast = useToast();
+  // Exemples adaptés au métier déclaré ; génériques tant qu'il n'est pas choisi.
+  const exemples = useExemples();
   const enregistrerBilan = useCreateDiagnostic();
 
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
@@ -231,7 +234,7 @@ const DiagnosticProduitPage: React.FC = () => {
                     type="text"
                     value={project.projectName}
                     onChange={(e) => setProject({ ...project, projectName: e.target.value })}
-                    placeholder="Mon produit"
+                    placeholder={exemples.produit.nom}
                     className="w-full text-sm text-ink px-3 py-2 rounded-lg border border-line bg-white transition-colors focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20 placeholder:text-muted/60"
                   />
                 </div>
@@ -244,7 +247,7 @@ const DiagnosticProduitPage: React.FC = () => {
                     type="text"
                     value={project.pitch}
                     onChange={(e) => setProject({ ...project, pitch: e.target.value })}
-                    placeholder="Aider les familles à garder la mémoire de leurs proches"
+                    placeholder={exemples.produit.promesse}
                     className="w-full text-sm text-ink px-3 py-2 rounded-lg border border-line bg-white transition-colors focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20 placeholder:text-muted/60"
                   />
                 </div>

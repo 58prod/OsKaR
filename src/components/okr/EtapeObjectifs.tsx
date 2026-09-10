@@ -4,6 +4,7 @@ import { useCreateAmbition, useUpdateAmbition } from '@/hooks/useAmbitions';
 import { useToast } from '@/hooks/useToast';
 import { AmbitionCategory, type Ambition } from '@/types';
 import { ANNEE, BTN_PRIMARY, MAX_OBJECTIFS, ORDINAUX, formatNombre, nombreDepuisSaisie } from './okrFlux';
+import { useExemples } from '@/hooks/useExemples';
 
 /*
  * Étape 1 — « Vos 3 objectifs pour l'année » (vue-annee de okr.html).
@@ -31,29 +32,8 @@ interface Saisie {
 
 const VIDE: Saisie = { title: '', target: '', unit: '' };
 
-const PLACEHOLDERS = [
-  'Ex : Devenir leader sur mon marché régional…',
-  'Ex : Créer une équipe autonome et performante…',
-  'Ex : Lancer un nouveau produit rentable…',
-];
-
-interface Inspiration {
-  slot: number;
-  icone: LucideIcon;
-  libelle: string;
-  title: string;
-  target: string;
-  unit: string;
-}
-
-const INSPIRATIONS: Inspiration[] = [
-  { slot: 0, icone: Sun, libelle: 'Doubler le CA', title: "Doubler mon chiffre d'affaires", target: '2', unit: 'M€ de CA' },
-  { slot: 1, icone: Users, libelle: "Structurer l'équipe", title: "Recruter et structurer l'équipe", target: '5', unit: 'collaborateurs' },
-  { slot: 2, icone: ArrowRight, libelle: 'Lancer un produit', title: 'Lancer un nouveau produit sur le marché', target: '3', unit: 'nouveaux clients' },
-  { slot: 0, icone: Crosshair, libelle: 'Devenir la référence', title: 'Devenir la référence locale de mon secteur', target: '50', unit: '% de notoriété' },
-  { slot: 1, icone: Settings, libelle: 'Automatiser', title: 'Automatiser la production pour gagner du temps', target: '10', unit: 'h/semaine gagnées' },
-  { slot: 2, icone: Heart, libelle: 'Fidéliser les clients', title: 'Fidéliser 90% de mes clients actuels', target: '90', unit: '% de rétention' },
-];
+/** Icône associée à chaque position de pastille, indépendante du métier. */
+const ICONES_INSPIRATION: LucideIcon[] = [Sun, Users, ArrowRight, Crosshair, Settings, Heart];
 
 function depuisAmbition(a: Ambition | undefined): Saisie {
   if (!a) return VIDE;
@@ -75,6 +55,8 @@ interface EtapeObjectifsProps {
 export const EtapeObjectifs: React.FC<EtapeObjectifsProps> = ({ userId, ambitions, libelleSuivant, onSuivant }) => {
   const toast = useToast();
   const creer = useCreateAmbition();
+  // Exemples adaptés au métier déclaré ; génériques tant qu'il n'est pas choisi.
+  const exemples = useExemples();
   const modifier = useUpdateAmbition();
 
   const [saisies, setSaisies] = useState<Saisie[]>(() =>
@@ -156,10 +138,10 @@ export const EtapeObjectifs: React.FC<EtapeObjectifsProps> = ({ userId, ambition
     onSuivant();
   };
 
-  const remplir = (insp: Inspiration) => {
-    changer(insp.slot, { title: insp.title, target: insp.target, unit: insp.unit });
+  const remplir = (slot: number, objectif: { titre: string; cible: string; unite: string }) => {
+    changer(slot, { title: objectif.titre, target: objectif.cible, unit: objectif.unite });
     // La valeur vient d'être posée dans l'état : on sauvegarde au prochain tick.
-    setTimeout(() => sauver(insp.slot), 0);
+    setTimeout(() => sauver(slot), 0);
   };
 
   const nbRemplis = useMemo(() => saisies.filter((s) => s.title.trim()).length, [saisies]);
@@ -191,17 +173,20 @@ export const EtapeObjectifs: React.FC<EtapeObjectifsProps> = ({ userId, ambition
           Besoin d&rsquo;inspiration&nbsp;? Cliquez pour remplir un champ
         </div>
         <div className="flex flex-wrap gap-2">
-          {INSPIRATIONS.map((insp) => (
-            <button
-              key={insp.libelle}
-              type="button"
-              onClick={() => remplir(insp)}
-              className="inline-flex items-center gap-1.5 px-[13px] py-[7px] rounded-full border-[1.5px] border-line bg-[#fafbff] text-12.5 font-medium text-muted hover:border-okr hover:text-okr-dark hover:bg-okr-light transition-all select-none"
-            >
-              <insp.icone className="w-[13px] h-[13px] shrink-0" aria-hidden />
-              {insp.libelle}
-            </button>
-          ))}
+          {exemples.objectifs.map((objectif, i) => {
+            const Icone = ICONES_INSPIRATION[i % ICONES_INSPIRATION.length];
+            return (
+              <button
+                key={objectif.libelle}
+                type="button"
+                onClick={() => remplir(i % MAX_OBJECTIFS, objectif)}
+                className="inline-flex items-center gap-1.5 px-[13px] py-[7px] rounded-full border-[1.5px] border-line bg-[#fafbff] text-12.5 font-medium text-muted hover:border-okr hover:text-okr-dark hover:bg-okr-light transition-all select-none"
+              >
+                <Icone className="w-[13px] h-[13px] shrink-0" aria-hidden />
+                {objectif.libelle}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -226,7 +211,7 @@ export const EtapeObjectifs: React.FC<EtapeObjectifsProps> = ({ userId, ambition
                 value={s.title}
                 onChange={(e) => changer(i, { title: e.target.value })}
                 onBlur={() => sauver(i)}
-                placeholder={PLACEHOLDERS[i]}
+                placeholder={exemples.amorces[i]}
                 rows={2}
                 aria-label={`${ORDINAUX[i]} objectif`}
                 className="w-full border-none outline-none bg-transparent resize-none text-15 font-semibold text-navy leading-[1.45] min-h-[56px] mb-3.5 placeholder:text-[#bcc3d8] placeholder:font-normal"
@@ -239,7 +224,7 @@ export const EtapeObjectifs: React.FC<EtapeObjectifsProps> = ({ userId, ambition
                   value={s.target}
                   onChange={(e) => changer(i, { target: e.target.value })}
                   onBlur={() => sauver(i)}
-                  placeholder={['Ex : 500', 'Ex : 200', 'Ex : 3'][i]}
+                  placeholder={`Ex : ${exemples.objectifs[i]?.cible ?? ''}`}
                   aria-label="Valeur cible"
                   className="w-full border-[1.5px] border-line rounded-lg px-3 py-2.5 text-[18px] font-extrabold text-navy text-center outline-none bg-[#fafbff] transition-colors focus:border-okr focus:bg-white focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)] placeholder:text-[#c4cae8] placeholder:font-normal placeholder:text-14"
                 />
@@ -248,7 +233,7 @@ export const EtapeObjectifs: React.FC<EtapeObjectifsProps> = ({ userId, ambition
                   value={s.unit}
                   onChange={(e) => changer(i, { unit: e.target.value })}
                   onBlur={() => sauver(i)}
-                  placeholder="unité"
+                  placeholder={exemples.objectifs[i]?.unite ?? 'unité'}
                   aria-label="Unité de la cible"
                   className="w-full border-[1.5px] border-line rounded-lg px-3 py-2.5 text-13.5 font-medium text-muted outline-none bg-[#fafbff] transition-colors focus:border-okr focus:bg-white placeholder:text-[#c4cae8]"
                 />

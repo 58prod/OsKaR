@@ -9,6 +9,7 @@ import {
 import { useToast } from '@/hooks/useToast';
 import type { Ambition, Quarter, QuarterlyKeyResult, QuarterlyObjective } from '@/types';
 import { OkrModal, MODAL_INPUT, MODAL_LABEL, BTN_ANNULER, BTN_VALIDER, BTN_SUPPRIMER } from './OkrModal';
+import { useExemples } from '@/hooks/useExemples';
 import {
   ANNEE,
   BTN_PRIMARY,
@@ -68,6 +69,8 @@ export const EtapeTrimestre: React.FC<EtapeTrimestreProps> = ({
   onSuivant,
 }) => {
   const toast = useToast();
+  // Exemples adaptés au métier déclaré ; génériques tant qu'il n'est pas choisi.
+  const exemples = useExemples();
   const creerObjectif = useCreateQuarterlyObjective();
   const modifierObjectif = useUpdateQuarterlyObjective();
   const creerKR = useCreateQuarterlyKeyResult();
@@ -294,7 +297,7 @@ export const EtapeTrimestre: React.FC<EtapeTrimestreProps> = ({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                     }}
-                    placeholder={`Quel est votre objectif pour ${trimLabel(quarter)} ? Ex : Augmenter les ventes`}
+                    placeholder={`Quel est votre objectif pour ${trimLabel(quarter)} ? Ex : ${exemples.objectifTrimestre}`}
                     aria-label={`Objectif du trimestre pour « ${a.title} »`}
                     className="w-full bg-transparent border-none outline-none p-0 text-15 font-bold text-navy placeholder:text-[#bcc3d8] placeholder:font-medium"
                   />
@@ -454,7 +457,7 @@ export const EtapeTrimestre: React.FC<EtapeTrimestreProps> = ({
             autoFocus
             value={nouveau.title}
             onChange={(e) => setNouveau((n) => ({ ...n, title: e.target.value }))}
-            placeholder="Ex : Signer 3 partenariats commerciaux"
+            placeholder={`Ex : ${exemples.resultatCle.titre}`}
             className={`${MODAL_INPUT} mb-4`}
           />
           <div className="flex gap-2.5 mb-4">
@@ -465,7 +468,7 @@ export const EtapeTrimestre: React.FC<EtapeTrimestreProps> = ({
                 inputMode="decimal"
                 value={nouveau.target}
                 onChange={(e) => setNouveau((n) => ({ ...n, target: e.target.value }))}
-                placeholder="Ex : 3"
+                placeholder={`Ex : ${exemples.resultatCle.cible}`}
                 className={MODAL_INPUT}
               />
             </div>
@@ -475,7 +478,7 @@ export const EtapeTrimestre: React.FC<EtapeTrimestreProps> = ({
                 type="text"
                 value={nouveau.unit}
                 onChange={(e) => setNouveau((n) => ({ ...n, unit: e.target.value }))}
-                placeholder="Ex : partenariats"
+                placeholder={`Ex : ${exemples.resultatCle.unite}`}
                 className={MODAL_INPUT}
               />
             </div>

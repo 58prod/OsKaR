@@ -4,6 +4,7 @@ import { useCreateAction, useDeleteAction, useUpdateAction } from '@/hooks/useAc
 import { useToast } from '@/hooks/useToast';
 import { ActionStatus, type Action, type Quarter, type QuarterlyKeyResult } from '@/types';
 import { OkrModal, MODAL_INPUT, MODAL_LABEL, BTN_ANNULER, BTN_VALIDER, BTN_SUPPRIMER } from './OkrModal';
+import { useExemples } from '@/hooks/useExemples';
 import {
   ANNEE,
   BTN_PRIMARY,
@@ -100,6 +101,8 @@ interface EtapeActionsProps {
 
 export const EtapeActions: React.FC<EtapeActionsProps> = ({ userId, quarter, actions, keyResults, demandeNouvelle }) => {
   const toast = useToast();
+  // Exemples adaptés au métier déclaré ; génériques tant qu'il n'est pas choisi.
+  const exemples = useExemples();
   const creer = useCreateAction();
   const modifier = useUpdateAction(userId);
   const supprimer = useDeleteAction(userId);
@@ -272,7 +275,7 @@ export const EtapeActions: React.FC<EtapeActionsProps> = ({ userId, quarter, act
               autoFocus
               value={fiche.title}
               onChange={(e) => setFiche({ ...fiche, title: e.target.value })}
-              placeholder="Ex : Contacter 5 prospects cette semaine"
+              placeholder={`Ex : ${exemples.action}`}
               className={`${MODAL_INPUT} mb-4`}
             />
 
