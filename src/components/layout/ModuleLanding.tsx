@@ -1,7 +1,9 @@
 import React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { ArrowRight, UserCog, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Check, type LucideIcon } from 'lucide-react';
+import { ChoixSecteur } from '@/components/ui/ChoixSecteur';
+import { useSecteurChoisi } from '@/hooks/useSecteurChoisi';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAppStore } from '@/store/useAppStore';
@@ -117,6 +119,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
 }) => {
   const router = useRouter();
   const { authReady, isAuthenticated } = useAppStore();
+  const { secteur, choisirSecteur, enregistre } = useSecteurChoisi();
   const c = COULEURS[pilier];
 
   const topbarActions = !authReady ? null : isAuthenticated ? (
@@ -192,13 +195,23 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
                 Ces informations permettent de personnaliser les conseils tout au long de
                 l&rsquo;atelier.
               </p>
-              <button
-                onClick={() => router.push('/company-profile')}
-                className="mt-auto self-start inline-flex items-center gap-2 px-5 py-3 border border-line rounded-xl text-15 font-bold text-navy hover:bg-surface transition-colors"
-              >
-                <UserCog className="h-5 w-5" aria-hidden />
-                Compléter mon profil
-              </button>
+              {/* La maquette pose ici la liste des secteurs : c'est le moment
+                  où l'on apprend le métier, et tous les exemples de l'atelier
+                  s'y adaptent ensuite. */}
+              <div className="mt-auto">
+                <label htmlFor="secteur-module" className="block text-sm font-semibold text-ink mb-1.5">
+                  Votre secteur d&rsquo;activité
+                </label>
+                <ChoixSecteur id="secteur-module" value={secteur} onChange={choisirSecteur} />
+                {secteur && (
+                  <p className="flex items-center gap-1.5 text-13 text-teal-dark mt-2">
+                    <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    {enregistre
+                      ? 'Enregistré : les exemples de l’atelier sont adaptés à votre métier.'
+                      : 'Les exemples sont adaptés. Créez un compte pour le conserver.'}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="rounded-[18.5px] p-8 bg-gradient-to-br from-navy-dark to-navy shadow-card">

@@ -10,6 +10,25 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.11.0] - 2026-09-10
+
+### 🔧 Corrigé — fidélité aux maquettes
+- **La colonne « Conseils pour cette étape » manquait** dans l'atelier Vision.
+  C'est le bloc bleu de droite de `vision-atelier.html` : intro, quatre repères
+  de méthode et un encart « Exemple », pour chacune des huit étapes. Le
+  formulaire passe à gauche, la colonne à droite, comme dans la maquette.
+- **Le bloc « Avant de commencer — votre profil »** des pages de pilier
+  contenait dans la maquette la liste des secteurs, pas un lien vers un autre
+  écran. La liste y est désormais, sur les cinq pages de pilier.
+
+### ✨ Ajouté
+- **Le secteur se choisit sans compte.** Depuis la page d'un pilier, le choix
+  est gardé dans le navigateur et suffit à adapter les exemples ; avec un
+  compte, il rejoint le profil d'entreprise.
+- **Les exemples des conseils suivent le métier** : ils sont calculés à partir
+  du jeu d'exemples de la famille, pas écrits en dur. Un plombier lit des
+  chantiers et des devis jusque dans la colonne de droite.
+
 ## [2.10.0] - 2026-09-10
 
 ### ✨ Ajouté — l'atelier Vision

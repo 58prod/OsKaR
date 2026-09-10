@@ -17,6 +17,7 @@ import {
   EtapeVision,
 } from '@/components/vision/EtapesVision';
 import { SyntheseVision } from '@/components/vision/SyntheseVision';
+import { ConseilsPanel } from '@/components/vision/ConseilsPanel';
 import { useAppStore } from '@/store/useAppStore';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useExemples } from '@/hooks/useExemples';
@@ -145,6 +146,7 @@ const VisionAtelierPage: React.FC = () => {
         title="OsKaR Vision"
         topbarTitle={<span className="text-vision">OSKAR VISION — {LIBELLES[etape]}</span>}
         topbarActions={topbarActions}
+        contentMaxWidth="max-w-[1400px]"
       >
         {!authReady ? (
           <div className="flex flex-col items-center justify-center py-32 text-muted" aria-live="polite">
@@ -170,18 +172,23 @@ const VisionAtelierPage: React.FC = () => {
                 <span className="text-14">Chargement de vos réponses…</span>
               </div>
             ) : (
-              <>
-                {etape === 'sens' && <EtapeSens {...props} />}
-                {etape === 'cibles' && <EtapeCibles {...props} />}
-                {etape === 'probleme' && <EtapeProbleme {...props} />}
-                {etape === 'projection' && <EtapeProjection {...props} />}
-                {etape === 'valeurs' && <EtapeValeurs {...props} />}
-                {etape === 'vision' && <EtapeVision {...props} />}
-                {etape === 'objectifs' && <EtapeObjectifsVision {...props} />}
-                {etape === 'synthese' && <SyntheseVision atelier={atelier} />}
+              /* Mise en page de la maquette : le formulaire à gauche,
+                 la colonne de conseils à droite. */
+              <div className="grid gap-6 lg:grid-cols-[1fr_320px] items-start">
+                <div>
+                  {etape === 'sens' && <EtapeSens {...props} />}
+                  {etape === 'cibles' && <EtapeCibles {...props} />}
+                  {etape === 'probleme' && <EtapeProbleme {...props} />}
+                  {etape === 'projection' && <EtapeProjection {...props} />}
+                  {etape === 'valeurs' && <EtapeValeurs {...props} />}
+                  {etape === 'vision' && <EtapeVision {...props} />}
+                  {etape === 'objectifs' && <EtapeObjectifsVision {...props} />}
+                  {etape === 'synthese' && <SyntheseVision atelier={atelier} />}
 
-                <Navigation etape={etape} index={index} onChange={allerA} enregistrement={enregistrement} />
-              </>
+                  <Navigation etape={etape} index={index} onChange={allerA} enregistrement={enregistrement} />
+                </div>
+                <ConseilsPanel etape={etape} exemples={exemples} />
+              </div>
             )}
           </>
         )}
