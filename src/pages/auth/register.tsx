@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -10,7 +10,7 @@ import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import { AuthService } from '@/services/auth';
 import { useAppStore } from '@/store/useAppStore';
-import { messageInscription } from '@/lib/authFlux';
+import { APRES_CONNEXION, destinationSure, messageInscription } from '@/lib/authFlux';
 
 // Schéma de validation
 const registerSchema = z.object({
@@ -29,7 +29,16 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
-  const { setUser } = useAppStore();
+  const { setUser, authReady, isAuthenticated } = useAppStore();
+
+  // Page demandée avant la redirection, sinon l'espace OKR — même règle que la
+  // connexion et que la modale, pour qu'on atterrisse toujours au même endroit.
+  const destination = destinationSure(router.query.redirect) ?? APRES_CONNEXION;
+
+  // 4. Déjà connecté : le formulaire d'inscription n'a plus de sens.
+  useEffect(() => {
+    if (authReady && isAuthenticated) router.replace(destination);
+  }, [authReady, isAuthenticated, destination, router]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   /** 'session' : compte créé et connecté ; 'confirmation' : un email de confirmation a été envoyé. */
@@ -69,7 +78,7 @@ const RegisterPage: React.FC = () => {
         ? AuthService.profileToUser(result.profile)
         : AuthService.authUserToUser(result.user);
       setUser(user);
-      setTimeout(() => router.push('/onboarding'), 1500);
+      setTimeout(() => router.push(destination), 1500);
     } catch (err: any) {
       console.error('Erreur d\'inscription:', err);
       setError(messageInscription(err?.message));

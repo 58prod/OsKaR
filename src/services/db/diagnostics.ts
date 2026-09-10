@@ -143,10 +143,35 @@ export class DiagnosticsService {
   }
 
   /**
+   * Rattacher au compte connecté les bilans faits sans compte avec la même
+   * adresse. Sans cela, un bilan de visiteur reste invisible après inscription :
+   * la policy de lecture est `user_id = auth.uid()`, jamais vraie pour NULL.
+   *
+   * S'appuie sur la fonction SQL `rattacher_bilans_par_email`
+   * (migration 20260910). Tant qu'elle n'est pas appliquée, l'appel échoue et
+   * l'on continue sans bruit : la liste s'affiche, simplement sans les bilans
+   * de visiteur.
+   */
+  static async rattacherBilansDeMonEmail(): Promise<number> {
+    const { data, error } = await (supabase as any).rpc('rattacher_bilans_par_email');
+    if (error) {
+      console.warn('Rattachement des bilans indisponible :', error.message);
+      return 0;
+    }
+    const nb = typeof data === 'number' ? data : 0;
+    if (nb > 0) console.log(`✅ ${nb} bilan(s) rattaché(s) au compte`);
+    return nb;
+  }
+
+  /**
    * Récupérer les bilans d'un utilisateur (du plus récent au plus ancien).
    * Sans filtre, les deux types sont renvoyés.
+   *
+   * Les bilans faits sans compte avec la même adresse sont rattachés au passage.
    */
   static async getByUser(userId: string, type?: TypeBilan): Promise<DiagnosticRecord[]> {
+    await this.rattacherBilansDeMonEmail();
+
     const { data, error } = await supabase
       .from('diagnostics')
       .select('*')

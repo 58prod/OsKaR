@@ -63,10 +63,12 @@ export function raisonVerrou(niveau: NiveauAcces): {
       bouton: 'Créer mon compte',
     };
   }
+  // Ne rien présumer de ce que la personne a déjà fait : elle peut arriver ici
+  // juste après avoir créé son compte, sans avoir rempli la première étape.
   return {
     titre: 'La suite fait partie des formules',
     texte:
-      'Vous avez terminé l’étape offerte. Les étapes suivantes, et les autres ateliers, sont inclus dans nos formules.',
+      'La première étape est offerte avec votre compte. Les étapes suivantes, et les autres ateliers, sont inclus dans nos formules.',
     bouton: 'Voir les formules',
   };
 }

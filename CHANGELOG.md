@@ -10,6 +10,30 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.7.1] - 2026-09-10
+
+### 🔧 Corrigé — cohérence du parcours d'inscription
+- **Même atterrissage partout après inscription.** La page `/auth/register`
+  menait à l'onboarding, la modale à l'espace OKR. Les deux suivent désormais la
+  même règle que la connexion : la page demandée, sinon l'espace OKR.
+- **Les pages d'inscription et de mot de passe oublié** renvoyaient un
+  formulaire à quelqu'un déjà connecté ; elles redirigent maintenant.
+- **L'étape demandée n'est plus perdue** : créer son compte depuis une étape
+  verrouillée y ramène, au lieu de revenir au début du parcours.
+- **Message du verrou** : il affirmait « Vous avez terminé l'étape offerte »,
+  y compris à quelqu'un qui venait de s'inscrire sans rien remplir.
+- **Un seul libellé d'entrée** — « Commencer gratuitement » — là où trois
+  formulations coexistaient.
+
+### ✨ Ajouté
+- **Rattachement des bilans faits sans compte** : la fonction SQL
+  `rattacher_bilans_par_email` (migration `20260910`) rattache au compte les
+  bilans portant son adresse. Sans elle, un bilan de visiteur restait invisible
+  après inscription — la policy de lecture est `user_id = auth.uid()`, jamais
+  vraie pour une ligne à NULL. **Migration à appliquer dans Supabase** ; tant
+  qu'elle ne l'est pas, l'appel échoue sans bruit et la liste s'affiche sans ces
+  bilans.
+
 ## [2.7.0] - 2026-09-10
 
 ### ✨ Ajouté — « Mes bilans »

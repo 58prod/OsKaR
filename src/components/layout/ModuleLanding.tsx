@@ -133,7 +133,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
         onClick={() => router.push('/auth/register')}
         className="px-4 py-2 bg-teal text-navy-dark text-14 font-bold rounded-lg shadow-sm hover:bg-teal-dark transition-all"
       >
-        Commencer →
+        Commencer gratuitement →
       </button>
     </div>
   );

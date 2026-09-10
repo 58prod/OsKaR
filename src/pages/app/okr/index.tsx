@@ -163,7 +163,7 @@ const OkrPage: React.FC = () => {
         onClick={() => ouvrirAuth('register')}
         className="px-4 py-2 bg-teal text-navy-dark text-14 font-bold rounded-lg shadow-sm hover:bg-teal-dark transition-all"
       >
-        Commencer →
+        Commencer gratuitement →
       </button>
     </div>
   );
@@ -233,7 +233,13 @@ const OkrPage: React.FC = () => {
           </>
         )}
       </AppShell>
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} redirectTo="/app/okr" />
+      {/* On revient à l'étape que la personne voulait faire, pas au début. */}
+      <AuthModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        initialTab={authTab}
+        redirectTo={etape === 'annee' ? '/app/okr' : `/app/okr?etape=${etape}`}
+      />
     </>
   );
 };

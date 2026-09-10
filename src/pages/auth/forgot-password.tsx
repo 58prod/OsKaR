@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Mail, AlertCircle, Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
@@ -8,7 +8,9 @@ import { z } from 'zod';
 import Layout from '@/components/layout/Layout';
 import Button from '@/components/ui/Button';
 import { AuthService } from '@/services/auth';
-import { messageReinitialisation } from '@/lib/authFlux';
+import { useRouter } from 'next/router';
+import { useAppStore } from '@/store/useAppStore';
+import { APRES_CONNEXION, messageReinitialisation } from '@/lib/authFlux';
 
 // Schéma de validation
 const forgotPasswordSchema = z.object({
@@ -18,6 +20,14 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPasswordPage: React.FC = () => {
+  const router = useRouter();
+  const { authReady, isAuthenticated } = useAppStore();
+
+  // Déjà connecté : on change son mot de passe dans les paramètres, pas ici.
+  useEffect(() => {
+    if (authReady && isAuthenticated) router.replace(APRES_CONNEXION);
+  }, [authReady, isAuthenticated, router]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
