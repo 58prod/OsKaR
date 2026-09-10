@@ -23,7 +23,8 @@ interface AppShellProps {
   footerItem?: SidebarNavItem | null;
   /** Largeur max du contenu (défaut: 1200px / max-w-content) */
   contentMaxWidth?: string;
-  /** Padding du conteneur principal (défaut: p-8) */
+  /** Padding du conteneur principal. Défaut : les 42,5px de `.page-content`
+   * dans `plateforme/oskar.css`, ramenés à 18,5px sous 600px comme la maquette. */
   contentPadding?: string;
 }
 
@@ -37,7 +38,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   sections,
   footerItem,
   contentMaxWidth = 'max-w-content',
-  contentPadding = 'p-8',
+  contentPadding = 'p-[18.5px] min-[600px]:p-[42.5px]',
 }) => {
   const { authReady, isAuthenticated } = useAppStore();
   const { collapsed: sidebarCollapsed, toggle: handleToggle } = useSidebarCollapsed();
@@ -64,7 +65,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         >
           <Topbar title={topbarTitle} subtitle={topbarSubtitle} actions={topbarActions} />
           <main className={`flex-1 w-full ${contentMaxWidth} ${contentPadding}`}>{children}</main>
-          <footer className={`w-full ${contentMaxWidth} px-8 py-5 mt-auto border-t border-line`}>
+          <footer className={`w-full ${contentMaxWidth} px-[18.5px] min-[600px]:px-[42.5px] py-5 mt-auto border-t border-line`}>
             <nav aria-label="Liens légaux" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-muted">
               <Link href="/legal/privacy-policy" className="hover:text-ink transition-colors">Confidentialité</Link>
               <Link href="/legal/terms-of-service" className="hover:text-ink transition-colors">CGU</Link>

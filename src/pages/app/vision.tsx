@@ -162,7 +162,6 @@ const VisionAtelierPage: React.FC = () => {
           </span>
         }
         topbarActions={topbarActions}
-        contentMaxWidth="max-w-[1400px]"
       >
         {!authReady ? (
           <div className="flex flex-col items-center justify-center py-32 text-muted" aria-live="polite">
@@ -191,39 +190,45 @@ const VisionAtelierPage: React.FC = () => {
               </button>
             </header>
 
-            <BarreEtapes etape={etape} onChange={allerA} />
+            {/* Mise en page de la maquette : deux colonnes, le formulaire à
+                gauche et les conseils à droite. Mesures relevées sur
+                `vision-atelier.html` : colonne de droite de 340px, écart de
+                23px, le formulaire prend tout le reste. La barre d'étapes
+                appartient à la colonne de gauche, elle ne déborde pas sous le
+                panneau bleu. */}
+            <div className="grid gap-[23px] lg:grid-cols-[minmax(0,1fr)_340px] items-start">
+              <div className="min-w-0">
+                <BarreEtapes etape={etape} onChange={allerA} />
 
-            {!ouverte ? (
-              <EtapeVerrouillee
-                niveau={niveau}
-                titreEtape={`Étape ${index + 1} · ${LIBELLES_BARRE[etape]}`}
-                apercu={APERCU[etape] ?? []}
-                onCreerCompte={() => ouvrirAuth('register')}
-              />
-            ) : !charge ? (
-              <div className="flex items-center gap-2 text-muted py-20" aria-live="polite">
-                <Loader2 className="h-5 w-5 animate-spin text-vision" aria-hidden />
-                <span className="text-14">Chargement de vos réponses…</span>
-              </div>
-            ) : (
-              /* Mise en page de la maquette : le formulaire à gauche,
-                 la colonne de conseils à droite. */
-              <div className="grid gap-6 lg:grid-cols-[1fr_320px] items-start">
-                <div>
-                  {etape === 'sens' && <EtapeSens {...props} />}
-                  {etape === 'cibles' && <EtapeCibles {...props} />}
-                  {etape === 'probleme' && <EtapeProbleme {...props} />}
-                  {etape === 'projection' && <EtapeProjection {...props} />}
-                  {etape === 'valeurs' && <EtapeValeurs {...props} />}
-                  {etape === 'vision' && <EtapeVision {...props} />}
-                  {etape === 'objectifs' && <EtapeObjectifsVision {...props} />}
-                  {etape === 'synthese' && <SyntheseVision atelier={atelier} />}
+                {!ouverte ? (
+                  <EtapeVerrouillee
+                    niveau={niveau}
+                    titreEtape={`Étape ${index + 1} · ${LIBELLES_BARRE[etape]}`}
+                    apercu={APERCU[etape] ?? []}
+                    onCreerCompte={() => ouvrirAuth('register')}
+                  />
+                ) : !charge ? (
+                  <div className="flex items-center gap-2 text-muted py-20" aria-live="polite">
+                    <Loader2 className="h-5 w-5 animate-spin text-vision" aria-hidden />
+                    <span className="text-14">Chargement de vos réponses…</span>
+                  </div>
+                ) : (
+                  <>
+                    {etape === 'sens' && <EtapeSens {...props} />}
+                    {etape === 'cibles' && <EtapeCibles {...props} />}
+                    {etape === 'probleme' && <EtapeProbleme {...props} />}
+                    {etape === 'projection' && <EtapeProjection {...props} />}
+                    {etape === 'valeurs' && <EtapeValeurs {...props} />}
+                    {etape === 'vision' && <EtapeVision {...props} />}
+                    {etape === 'objectifs' && <EtapeObjectifsVision {...props} />}
+                    {etape === 'synthese' && <SyntheseVision atelier={atelier} />}
 
-                  <Navigation etape={etape} index={index} onChange={allerA} enregistrement={enregistrement} />
-                </div>
-                <ConseilsPanel etape={etape} exemples={exemples} />
+                    <Navigation etape={etape} index={index} onChange={allerA} enregistrement={enregistrement} />
+                  </>
+                )}
               </div>
-            )}
+              <ConseilsPanel etape={etape} exemples={exemples} />
+            </div>
           </>
         )}
       </AppShell>
@@ -244,7 +249,7 @@ const Navigation: React.FC<{
   onChange: (e: Etape) => void;
   enregistrement: 'repos' | 'en cours' | 'echec';
 }> = ({ index, onChange, enregistrement }) => (
-  <div className="flex flex-wrap items-center justify-between gap-3 mt-8 max-w-3xl">
+  <div className="flex flex-wrap items-center justify-between gap-3 mt-2.5">
     <div>
       {index > 0 && (
         <button type="button" onClick={() => onChange(ETAPES_VISION[index - 1])} className={BTN_OUTLINE}>

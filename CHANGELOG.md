@@ -10,6 +10,36 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.13.0] - 2026-09-10
+
+### 🎨 Modifié — largeurs et couleurs relevées sur la maquette servie
+Deux écarts signalés sur l'atelier Vision, corrigés en comparant les styles
+calculés de `plateforme/vision-atelier.html` avec ceux de l'application.
+
+- **Blocs de saisie sur toute la largeur** : les cartes blanches étaient bridées
+  à `max-w-3xl` et s'arrêtaient avant la colonne bleue. Elles occupent
+  maintenant toute la colonne de gauche, comme les 888 px de la maquette.
+- **Barre d'étapes dans la colonne de gauche** : elle s'étendait sous le
+  panneau de conseils. Dans la maquette elle appartient à `.atelier-main`, elle
+  s'arrête donc à la même largeur que les cartes.
+- **Conteneur de page** : padding de 42,5 px et largeur maximale de 1400 px,
+  les valeurs de `.page-content` dans `oskar.css` (18,5 px sous 600 px). Le
+  cadre valait jusqu'ici 32 px et 1200 px, sur toutes les pages.
+- **Marges intérieures** : en-tête d'étape à 24 px du premier bloc, navigation
+  « Retour / Suivant » à 10 px sous le dernier.
+
+### 🎨 Modifié — le menu prend la couleur du pilier
+`oskar.css` donne une couleur d'accent à chaque pilier pour l'entrée active du
+menu. L'application n'en avait qu'une, le turquoise de la marque.
+
+- Vision bleu, Fit vert, Finance orange, OKR indigo, Team rose : fond à 12 %,
+  libellé et liseré gauche de 3 px dans la couleur du pilier.
+- L'atelier d'un pilier allume l'entrée du pilier : `/app/vision` allume
+  « OsKaR Vision », `/app/okr` allume « OsKaR OKR ».
+- Le liseré reprend le rayon de la maquette, 2 px du côté droit.
+
+---
+
 ## [2.12.0] - 2026-09-10
 
 ### 🎨 Modifié — l'atelier Vision repris sur la maquette servie

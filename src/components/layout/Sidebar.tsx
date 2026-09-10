@@ -31,6 +31,22 @@ import {
  * clignotement au chargement et aux changements de page.
  */
 
+/**
+ * Couleur d'accent d'une entrée quand elle est active, reprise de `oskar.css` :
+ * chaque pilier a la sienne, le reste garde le turquoise de la marque.
+ * Classes écrites en toutes lettres : Tailwind ne résout pas les noms construits.
+ */
+export type AccentPilier = 'vision' | 'fit' | 'finance' | 'okr' | 'team';
+
+const ACCENTS: Record<AccentPilier | 'defaut', { fond: string; texte: string; liseré: string }> = {
+  vision: { fond: 'bg-vision/[0.12]', texte: 'text-vision', liseré: 'before:bg-vision' },
+  fit: { fond: 'bg-fit/[0.12]', texte: 'text-fit', liseré: 'before:bg-fit' },
+  finance: { fond: 'bg-finance/[0.12]', texte: 'text-finance', liseré: 'before:bg-finance' },
+  okr: { fond: 'bg-okr/[0.12]', texte: 'text-okr', liseré: 'before:bg-okr' },
+  team: { fond: 'bg-team/[0.12]', texte: 'text-team', liseré: 'before:bg-team' },
+  defaut: { fond: 'bg-teal/[0.12]', texte: 'text-teal', liseré: 'before:bg-teal' },
+};
+
 export interface SidebarNavItem {
   href: string;
   label: string;
@@ -38,6 +54,10 @@ export interface SidebarNavItem {
   badge?: string;
   /** Vrai si l'entrée ne doit s'allumer que sur sa page, pas sur ses sous-pages. */
   exact?: boolean;
+  /** Couleur prise quand l'entrée est active ; turquoise par défaut. */
+  accent?: AccentPilier;
+  /** Autres chemins qui allument l'entrée — l'atelier d'un pilier, par exemple. */
+  aussi?: string[];
   external?: boolean;
   onClick?: (e: React.MouseEvent) => void;
 }
@@ -67,11 +87,11 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
   {
     label: 'Les 5 Piliers',
     items: [
-      { href: '/vision', label: 'OsKaR Vision', icon: Eye },
-      { href: '/fit', label: 'OsKaR Fit', icon: LineChart },
-      { href: '/finance', label: 'OsKaR Finance', icon: TargetIcon },
-      { href: '/okr', label: 'OsKaR OKR', icon: CheckSquare },
-      { href: '/team', label: 'OsKaR Team', icon: Users },
+      { accent: 'vision', href: '/vision', aussi: ['/app/vision'], label: 'OsKaR Vision', icon: Eye },
+      { accent: 'fit', href: '/fit', label: 'OsKaR Fit', icon: LineChart },
+      { accent: 'finance', href: '/finance', label: 'OsKaR Finance', icon: TargetIcon },
+      { accent: 'okr', href: '/okr', aussi: ['/app/okr'], label: 'OsKaR OKR', icon: CheckSquare },
+      { accent: 'team', href: '/team', label: 'OsKaR Team', icon: Users },
     ],
   },
   {
@@ -113,11 +133,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const renderItem = (item: SidebarNavItem) => {
     const Icon = item.icon;
-    const actif = estActif(router.pathname, item.href, item.exact);
+    const actif =
+      estActif(router.pathname, item.href, item.exact) ||
+      (item.aussi ?? []).some((chemin) => estActif(router.pathname, chemin));
 
+    const accent = ACCENTS[item.accent ?? 'defaut'];
     const className = `relative flex items-center gap-[14px] px-5 py-[11.5px] text-15.5 font-medium transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
       actif
-        ? 'bg-teal/10 text-teal before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] before:bg-teal before:rounded-r'
+        ? `${accent.fond} ${accent.texte} before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] ${accent.liseré} before:rounded-r-[2px]`
         : 'text-white/65 hover:bg-white/[0.07] hover:text-white/95'
     }`;
 

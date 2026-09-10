@@ -35,7 +35,7 @@ const nouvelId = () =>
 /* ═══ Étape 1 — Le sens ═══ */
 
 export const EtapeSens: React.FC<EtapeProps> = ({ atelier, modifier, exemples }) => (
-  <div className="max-w-3xl">
+  <div>
     <EnTeteEtape titre="Le sens" promesse="Clarifier l’identité profonde de l’organisation" />
     <CarteChamp
       prefixe="Pourquoi l’entreprise existe"
@@ -90,7 +90,7 @@ export const EtapeCibles: React.FC<EtapeProps> = ({ atelier, modifier, exemples 
     modifier({ acteurs: atelier.acteurs.map((a) => (a.id === id ? { ...a, ...patch } : a)) });
 
   return (
-    <div className="max-w-4xl">
+    <div>
       <EnTeteEtape
         titre="Cibles & acteurs"
         promesse="Pour qui et avec qui ?"
@@ -277,7 +277,7 @@ export const EtapeCibles: React.FC<EtapeProps> = ({ atelier, modifier, exemples 
 /* ═══ Étape 3 — Le problème ═══ */
 
 export const EtapeProbleme: React.FC<EtapeProps> = ({ atelier, modifier, exemples }) => (
-  <div className="max-w-3xl">
+  <div>
     <EnTeteEtape
       titre="Le problème"
       promesse="Ancrer dans le réel"
@@ -304,7 +304,7 @@ export const EtapeProjection: React.FC<EtapeProps> = ({ atelier, modifier, exemp
   const ex = exemples.vision.projection;
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <EnTeteEtape
         titre="Vision à 1 an"
         promesse="Projection concrète"
@@ -339,7 +339,7 @@ export const EtapeValeurs: React.FC<EtapeProps> = ({ atelier, modifier, exemples
     modifier({ valeurs: atelier.valeurs.map((v, idx) => (idx === i ? { ...v, ...patch } : v)) });
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <EnTeteEtape
         titre="Valeurs"
         promesse="Trois au maximum"
@@ -374,7 +374,7 @@ export const EtapeValeurs: React.FC<EtapeProps> = ({ atelier, modifier, exemples
 export const EtapeVision: React.FC<EtapeProps> = ({ atelier, modifier }) => {
   const assemblee = visionAssemblee(atelier);
   return (
-    <div className="max-w-3xl">
+    <div>
       <EnTeteEtape
         titre="Votre vision"
         promesse="Assemblée, à ajuster"
@@ -419,7 +419,7 @@ export const EtapeObjectifsVision: React.FC<EtapeProps> = ({ atelier, modifier, 
     modifier({ objectifs: atelier.objectifs.map((o, idx) => (idx === i ? { ...o, ...patch } : o)) });
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <EnTeteEtape
         titre="La vision devient action"
         promesse="Trois objectifs au maximum"

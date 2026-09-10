@@ -18,7 +18,7 @@ export const EnTeteEtape: React.FC<{ titre: string; promesse: string; aide?: str
   promesse,
   aide,
 }) => (
-  <header className="mb-5">
+  <header className="mb-6">
     <h1 className="text-27.5 font-extrabold text-vision-dark leading-[1.2]">{titre}</h1>
     <div className="text-12.5 font-bold uppercase tracking-[1.25px] text-teal-dark mt-1">{promesse}</div>
     {aide && <p className="text-14.5 text-muted mt-2.5 max-w-2xl leading-[1.6]">{aide}</p>}

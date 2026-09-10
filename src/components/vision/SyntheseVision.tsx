@@ -40,7 +40,7 @@ export const SyntheseVision: React.FC<{ atelier: AtelierVision }> = ({ atelier }
   const projection = atelier.projection;
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <header className="mb-6">
         <h1 className="text-[24px] leading-[1.25] font-extrabold text-navy">Votre cap à 1 an</h1>
         <p className="text-14.5 text-muted mt-1.5 max-w-2xl leading-[1.6]">

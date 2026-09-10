@@ -167,7 +167,9 @@ module.exports = {
         'auth-modal': '0 24px 80px rgba(15,20,60,0.25)',
       },
       maxWidth: {
-        content: '1200px',
+        // Largeur du conteneur de page des maquettes : `.page-content` est
+        // declare a 1200px puis ramene a 1400px par l'override d'oskar.css.
+        content: '1400px',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
