@@ -74,7 +74,15 @@ export const AppShell: React.FC<AppShellProps> = ({
                 Paramètres des cookies
               </button>
             </nav>
-            <p className="mt-3 text-[12px] text-muted">
+            {/*
+               * Le numéro de version est lu dans package.json à la compilation.
+               * En développement, il change à chaque commit alors que le serveur
+               * tourne encore avec l'ancien : Turbopack ne recharge pas ce
+               * fichier, et React signalait un écart entre serveur et client à
+               * chaque montée de version. L'année a le même défaut la nuit du
+               * 31 décembre. Un écart sur ce paragraphe est sans conséquence.
+               */}
+            <p className="mt-3 text-[12px] text-muted" suppressHydrationWarning>
               © {new Date().getFullYear()} {APP_CONFIG.name} · v{APP_CONFIG.version}
             </p>
           </footer>

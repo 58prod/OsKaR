@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.8.1] - 2026-09-10
+
+### 🔧 Corrigé
+- **Erreur d'hydratation sur le pied de page en développement.** Le numéro de
+  version est lu dans `package.json` à la compilation ; comme il change à chaque
+  commit et que Turbopack ne recharge pas ce fichier, le serveur affichait
+  l'ancienne version et le navigateur la nouvelle. React signalait l'écart à
+  chaque montée de version. Le paragraphe porte désormais
+  `suppressHydrationWarning` — l'année, qui a le même défaut la nuit du
+  31 décembre, est couverte au passage.
+
 ## [2.8.0] - 2026-09-10
 
 ### ✨ Ajouté — le domaine d'activité, tout de suite

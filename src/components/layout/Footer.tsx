@@ -158,7 +158,9 @@ export const Footer: React.FC = () => {
         <div className="mt-8 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright et version */}
-            <p className="text-sm text-gray-500">
+            {/* Même raison que dans AppShell : version et année peuvent différer
+                entre le rendu serveur et le rendu client, sans conséquence. */}
+            <p className="text-sm text-gray-500" suppressHydrationWarning>
               © {currentYear} OsKaR v{APP_CONFIG.version}. Tous droits réservés.
             </p>
 
