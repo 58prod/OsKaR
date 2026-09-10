@@ -11,7 +11,7 @@ import { BTN_GHOST, BTN_NAVY } from '@/components/atelier/champs';
  * coche 28px ; titre 28px / 800 navy ; texte 16px gris borné à 440px, 28px
  * dessous ; boutons espacés de 12. Bandeau navy rayon 12, padding 23/24,
  * halo vert en haut à droite ; surtitre 11.5px / 700 blanc 40 % ; texte
- * 17px / 700 blanc, « OsKaR OKR » en teal.
+ * 17px / 700 blanc, « OSKAR OKR » en teal.
  */
 
 export const SyntheseFinance: React.FC<{ onRevoir: () => void; onPdf: () => void }> = ({ onRevoir, onPdf }) => (
@@ -56,9 +56,9 @@ export const SyntheseFinance: React.FC<{ onRevoir: () => void; onPdf: () => void
         aria-hidden
       />
       <div className="relative z-[1]">
-        <div className="text-11.5 font-bold uppercase tracking-[1.38px] text-white/40 mb-1">Prochaine étape OsKaR</div>
+        <div className="text-11.5 font-bold uppercase tracking-[1.38px] text-white/40 mb-1">Prochaine étape Oskar</div>
         <div className="text-17 font-bold text-white">
-          Passez au module <span className="text-teal">OsKaR OKR</span> — Transformer vos ambitions en résultats
+          Passez au module <span className="text-teal">OSKAR OKR</span> — Transformer vos ambitions en résultats
           mesurables
         </div>
       </div>

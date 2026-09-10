@@ -57,7 +57,7 @@ export class ExportService {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text('📊 Rapport OKaRina', pageWidth / 2, 20, { align: 'center' });
+    doc.text('📊 Rapport Oskar', pageWidth / 2, 20, { align: 'center' });
 
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
@@ -333,7 +333,7 @@ export class ExportService {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
-      doc.text('📊 Généré par OKaRina', margin, pageHeight - 10);
+      doc.text('📊 Généré par Oskar', margin, pageHeight - 10);
       doc.text(`Page ${i} / ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
       doc.setTextColor(0, 0, 0);
     }
@@ -348,8 +348,8 @@ export class ExportService {
     const workbook = new ExcelJS.Workbook();
 
     // Configuration du workbook
-    workbook.creator = 'OKaRina';
-    workbook.lastModifiedBy = 'OKaRina';
+    workbook.creator = 'Oskar';
+    workbook.lastModifiedBy = 'Oskar';
     workbook.created = new Date();
     workbook.modified = new Date();
 

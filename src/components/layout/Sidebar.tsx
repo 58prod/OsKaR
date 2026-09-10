@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 /*
- * Menu latéral OsKaR — transposition de la sidebar de `plateforme/oskar.css` :
+ * Menu latéral Oskar — transposition de la sidebar de `plateforme/oskar.css` :
  *   largeur      240px, 64px replié, transition 0.25s
  *   en-tête      hauteur 64px, fond blanc, logo 30px (icône 32px quand replié)
  *   libellé      15.5px / 500, retrait 20px, hauteur de ligne 11.5px
@@ -87,11 +87,11 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
   {
     label: 'Les 5 Piliers',
     items: [
-      { accent: 'vision', href: '/vision', aussi: ['/app/vision'], label: 'OsKaR Vision', icon: Eye },
-      { accent: 'fit', href: '/fit', aussi: ['/app/fit'], label: 'OsKaR Fit', icon: LineChart },
-      { accent: 'finance', href: '/finance', aussi: ['/app/finance'], label: 'OsKaR Finance', icon: TargetIcon },
-      { accent: 'okr', href: '/okr', aussi: ['/app/okr'], label: 'OsKaR OKR', icon: CheckSquare },
-      { accent: 'team', href: '/team', label: 'OsKaR Team', icon: Users },
+      { accent: 'vision', href: '/vision', aussi: ['/app/vision'], label: 'OSKAR Vision', icon: Eye },
+      { accent: 'fit', href: '/fit', aussi: ['/app/fit'], label: 'OSKAR Market Fit', icon: LineChart },
+      { accent: 'finance', href: '/finance', aussi: ['/app/finance'], label: 'OSKAR Finance', icon: TargetIcon },
+      { accent: 'okr', href: '/okr', aussi: ['/app/okr'], label: 'OSKAR OKR', icon: CheckSquare },
+      { accent: 'team', href: '/team', label: 'OSKAR Team', icon: Users },
     ],
   },
   {
@@ -195,7 +195,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <Image
             src="/images/oskar/logo-oskar.png"
-            alt="OsKaR"
+            alt="Oskar"
             width={150}
             height={30}
             style={{ width: 'auto', height: 30 }}
@@ -209,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               differait entre le rendu serveur et le rendu client. */}
           <Image
             src="/images/oskar/logo-oskar2.png"
-            alt="OsKaR"
+            alt="Oskar"
             width={32}
             height={32}
             className="oskar-logo-icon object-contain h-8 w-8"

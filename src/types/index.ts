@@ -1,4 +1,4 @@
-// Types principaux pour OsKaR
+// Types principaux pour Oskar
 
 export interface User {
   id: string;

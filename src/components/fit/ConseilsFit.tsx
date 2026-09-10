@@ -99,7 +99,7 @@ const CONSEILS: Record<EtapeFit, Conseil> = {
       'Un FIT « En construction » n’est pas un échec — c’est une direction de travail claire.',
       'Partagez cette fiche avec votre équipe ou vos associés : la lucidité collective vaut mieux que la certitude solitaire.',
       'Le FIT évolue avec le marché — ce qui était vrai il y a 2 ans peut ne plus l’être aujourd’hui.',
-      'Prochaine étape naturelle : traduire votre FIT en OKR concrets avec le module OsKaR OKR.',
+      'Prochaine étape naturelle : traduire votre FIT en OKR concrets avec le module OSKAR OKR.',
     ],
     exemple: () =>
       'FIT Confirmé ne signifie pas qu’on arrête de questionner. Le marché évolue, la concurrence aussi. Revoyez ce diagnostic chaque trimestre.',

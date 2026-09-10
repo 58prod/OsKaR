@@ -31,8 +31,8 @@ export default function FinancePage() {
     <ModuleLanding
       pilier="finance"
       numero="03"
-      nom="OsKaR Finance"
-      titreOnglet="OsKaR Finance · Solidifiez votre modèle économique | OsKaR"
+      nom="OSKAR Finance"
+      titreOnglet="OSKAR Finance · Solidifiez votre modèle économique | Oskar"
       titre={
         <>
           Maîtrisez votre marge.
@@ -49,7 +49,7 @@ export default function FinancePage() {
       ctaHref="/app/finance"
     >
       <EncartLien
-        titre="Ce module s’appuie sur OsKaR Vision et OsKaR Fit"
+        titre="Ce module s’appuie sur OSKAR Vision et OSKAR Market Fit"
         icone="finance"
         href="/fit"
         libelle="Voir Fit →"

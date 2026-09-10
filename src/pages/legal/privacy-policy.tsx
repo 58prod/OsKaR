@@ -7,7 +7,7 @@ const PrivacyPolicyPage: React.FC = () => {
   return (
     <Layout
       title="Politique de Confidentialité"
-      description="Politique de confidentialité et protection des données personnelles - OKaRina"
+      description="Politique de confidentialité et protection des données personnelles - Oskar"
       skipOnboarding
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -29,7 +29,7 @@ const PrivacyPolicyPage: React.FC = () => {
           </CardHeader>
           <CardContent className="prose max-w-none">
             <p>
-              OKaRina s'engage à protéger la vie privée de ses utilisateurs. Cette politique de confidentialité
+              Oskar s'engage à protéger la vie privée de ses utilisateurs. Cette politique de confidentialité
               explique comment nous collectons, utilisons, stockons et protégeons vos données personnelles
               conformément au Règlement Général sur la Protection des Données (RGPD).
             </p>
@@ -45,7 +45,7 @@ const PrivacyPolicyPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="prose max-w-none">
-            <p><strong>OKaRina</strong></p>
+            <p><strong>Oskar</strong></p>
             <p>Email : contact@okarina.com</p>
             <p>
               Pour toute question concernant vos données personnelles, vous pouvez nous contacter à l'adresse
@@ -153,7 +153,7 @@ const PrivacyPolicyPage: React.FC = () => {
           <CardContent className="prose max-w-none">
             <p>Le traitement de vos données repose sur :</p>
             <ul>
-              <li><strong>Exécution du contrat</strong> : Pour fournir le service OKaRina</li>
+              <li><strong>Exécution du contrat</strong> : Pour fournir le service Oskar</li>
               <li><strong>Consentement</strong> : Pour les cookies non essentiels et les newsletters</li>
               <li><strong>Intérêt légitime</strong> : Pour améliorer le service et assurer la sécurité</li>
               <li><strong>Obligation légale</strong> : Pour respecter les lois applicables</li>

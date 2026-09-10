@@ -142,7 +142,7 @@ export const AnalysisModal: React.FC<AnalysisModalProps> = ({ open, loading, res
         </div>
 
         <footer className="flex items-center justify-between px-6 py-3.5 border-t border-line bg-surface shrink-0">
-          <span className="text-[11.5px] text-muted">Analyse personnalisée OSKAR</span>
+          <span className="text-[11.5px] text-muted">Analyse personnalisée Oskar</span>
           <button type="button" onClick={onClose} className="px-4 py-2 bg-navy text-white text-[13px] font-bold rounded-lg hover:bg-navy-light transition-colors">Fermer</button>
         </footer>
       </div>

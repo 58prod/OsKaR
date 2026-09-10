@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
           {/* À propos */}
           <div>
             <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
-              OsKaR
+              Oskar
             </h3>
             <p className="text-sm text-gray-600 mb-4">
               Votre coach IA pour définir et atteindre vos objectifs d'entreprise avec la méthode OKR.
@@ -161,7 +161,7 @@ export const Footer: React.FC = () => {
             {/* Même raison que dans AppShell : version et année peuvent différer
                 entre le rendu serveur et le rendu client, sans conséquence. */}
             <p className="text-sm text-gray-500" suppressHydrationWarning>
-              © {currentYear} OsKaR v{APP_CONFIG.version}. Tous droits réservés.
+              © {currentYear} Oskar v{APP_CONFIG.version}. Tous droits réservés.
             </p>
 
             {/* Bouton paramètres cookies */}
@@ -186,7 +186,7 @@ export const Footer: React.FC = () => {
           {/* Mentions légales supplémentaires */}
           <div className="mt-4 text-center">
             <p className="text-xs text-gray-500">
-              OsKaR utilise l'IA Google Gemini pour fournir des conseils personnalisés.
+              Oskar utilise l'IA Google Gemini pour fournir des conseils personnalisés.
               Les conseils fournis sont à titre informatif uniquement.
             </p>
           </div>

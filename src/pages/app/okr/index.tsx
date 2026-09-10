@@ -22,7 +22,7 @@ import { getCurrentQuarter } from '@/utils';
 import type { Quarter } from '@/types';
 
 /*
- * OsKaR OKR — parcours en 3 étapes, transposition de okr.html :
+ * OSKAR OKR — parcours en 3 étapes, transposition de okr.html :
  *   1. Mes 3 objectifs annuels   2. Mon trimestre   3. Mes actions
  *
  * L'étape courante vit dans l'URL (?etape=trimestre|actions) pour être partageable ;
@@ -171,10 +171,10 @@ const OkrPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>OsKaR OKR · Mes objectifs | OsKaR</title>
+        <title>OSKAR OKR · Mes objectifs | Oskar</title>
       </Head>
       <AppShell
-        title="OsKaR OKR"
+        title="OSKAR OKR"
         topbarTitle={<span className="text-okr">OSKAR OKR — {titresBarre[etape]}</span>}
         topbarActions={topbarActions}
         contentMaxWidth="max-w-[1400px]"
@@ -253,7 +253,7 @@ const Visiteur: React.FC<{ onConnexion: () => void; onInscription: () => void }>
         aria-hidden
       />
       <div className="relative">
-        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-teal mb-2">Pilier 04 · OsKaR OKR</div>
+        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-teal mb-2">Pilier 04 · OSKAR OKR</div>
         <h1 className="text-[24px] leading-[1.25] font-extrabold text-white mb-2">
           Trois objectifs pour l&rsquo;année, un trimestre à la fois.
         </h1>

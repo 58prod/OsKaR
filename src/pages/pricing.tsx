@@ -55,7 +55,7 @@ export default function PricingPage() {
   return (
     <AppShell
       title="Tarifs"
-      description="Choisissez le plan OsKaR qui correspond à vos besoins"
+      description="Choisissez le plan Oskar qui correspond à vos besoins"
       topbarTitle="Tarifs"
       topbarSubtitle="Choisissez le plan adapté à votre croissance"
       topbarActions={authReady && isAuthenticated ? <UserMenu /> : null}
@@ -148,7 +148,7 @@ export default function PricingPage() {
               Prêt à transformer vos ambitions en réalité ?
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              Rejoignez des centaines d'entrepreneurs qui utilisent OsKaR pour atteindre leurs objectifs
+              Rejoignez des centaines d'entrepreneurs qui utilisent Oskar pour atteindre leurs objectifs
             </p>
             <button
               onClick={() => router.push(user ? '/app/okr' : '/auth/register')}

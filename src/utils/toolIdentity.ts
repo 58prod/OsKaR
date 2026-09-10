@@ -4,7 +4,7 @@ const CLIENT_ID_KEY = 'oskar.tool.clientId';
 const NAME_KEY = 'oskar.tool.name';
 const COLOR_KEY = 'oskar.tool.color';
 
-/** Palette de couleurs participants (alignée sur les maquettes OsKaR). */
+/** Palette de couleurs participants (alignée sur les maquettes Oskar). */
 export const PARTICIPANT_PALETTE = [
   '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6',
   '#10b981', '#f97316', '#06b6d4', '#ef4444',

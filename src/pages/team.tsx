@@ -38,8 +38,8 @@ export default function TeamPillarPage() {
     <ModuleLanding
       pilier="team"
       numero="05"
-      nom="OsKaR Team"
-      titreOnglet="OsKaR Team · Faire avancer vos équipes ensemble | OsKaR"
+      nom="OSKAR Team"
+      titreOnglet="OSKAR Team · Faire avancer vos équipes ensemble | Oskar"
       titre={
         <>
           Unir ses équipes pour qu’elles

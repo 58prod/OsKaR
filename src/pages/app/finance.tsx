@@ -135,10 +135,10 @@ const FinanceAtelierPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>OsKaR Finance · Atelier | OsKaR</title>
+        <title>OSKAR Finance · Atelier | Oskar</title>
       </Head>
       <AppShell
-        title="OsKaR Finance"
+        title="OSKAR Finance"
         topbarTitle={
           <span className="flex items-center gap-[10.5px] text-15">
             <Link href="/" className="text-muted font-medium hover:text-navy transition-colors">
@@ -167,7 +167,7 @@ const FinanceAtelierPage: React.FC = () => {
             <header className="flex flex-wrap items-center justify-between gap-3 mb-[18px] pb-4 border-b border-line">
               <div>
                 <div className="text-14 font-bold uppercase tracking-[1.4px] text-finance mb-1">
-                  Module 03 — OsKaR Finance
+                  Module 03 — OSKAR Finance
                 </div>
                 <h1 className="text-23 font-extrabold text-navy leading-[1.6]">Atelier Finance &amp; Marge</h1>
               </div>
@@ -287,7 +287,7 @@ const Visiteur: React.FC<{ onConnexion: () => void; onInscription: () => void }>
         aria-hidden
       />
       <div className="relative">
-        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-finance mb-2">Pilier 03 · OsKaR Finance</div>
+        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-finance mb-2">Pilier 03 · OSKAR Finance</div>
         <h1 className="text-[24px] leading-[1.25] font-extrabold text-white mb-2">
           Maîtrisez votre marge. Solidifiez votre modèle économique.
         </h1>

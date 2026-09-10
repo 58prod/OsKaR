@@ -23,7 +23,7 @@ function buildEmailHtml(result: AnalysisResult): string {
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;max-width:560px;margin:auto;">
     <div style="background:#1e2d7d;color:#fff;padding:20px 24px;border-radius:12px 12px 0 0;">
-      <h1 style="margin:0;font-size:20px;">Votre bilan de maturité OSKAR</h1>
+      <h1 style="margin:0;font-size:20px;">Votre bilan de maturité Oskar</h1>
     </div>
     <div style="border:1px solid #e5e7eb;border-top:0;padding:20px 24px;border-radius:0 0 12px 12px;">
       <p>Bonjour,</p>
@@ -31,7 +31,7 @@ function buildEmailHtml(result: AnalysisResult): string {
       Score global : <strong>${fmt(result.average)}/10</strong> — ${stateLabel(result.averageState)}.</p>
       <ul style="padding-left:18px;">${rows}</ul>
       <p>Le détail complet (axes prioritaires, points d'appui et recommandations) se trouve dans le PDF joint.</p>
-      <p style="color:#6b7280;font-size:13px;margin-top:24px;">— L'équipe OSKAR</p>
+      <p style="color:#6b7280;font-size:13px;margin-top:24px;">— L'équipe Oskar</p>
     </div>
   </div>
   <br/><br/>`;
@@ -64,12 +64,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     const pdf = Buffer.from(generateDiagnosticPdf(scores));
     const resend = new Resend(apiKey);
-    const from = process.env.RESEND_FROM_EMAIL || 'OSKAR <onboarding@resend.dev>';
+    const from = process.env.RESEND_FROM_EMAIL || 'Oskar <onboarding@resend.dev>';
 
     const { error } = await resend.emails.send({
       from,
       to: email,
-      subject: 'Votre bilan de maturité OSKAR',
+      subject: 'Votre bilan de maturité Oskar',
       html: buildEmailHtml(scores),
       attachments: [{ filename: 'bilan-oskar.pdf', content: pdf }],
     });

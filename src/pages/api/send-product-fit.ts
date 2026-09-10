@@ -43,7 +43,7 @@ function buildEmailHtml(analysis: ProductFitAnalysis, nomProjet?: string): strin
       <p>Votre produit obtient <strong>${analysis.globalScoreOn10}/10</strong> — ${analysis.verdictLabel}.</p>
       <ul style="padding-left:18px;">${lignes}</ul>
       <p>Le détail — par qui commencer, vos atouts, ce qu'il faut surveiller et les prochaines étapes — se trouve dans le PDF joint.</p>
-      <p style="color:#6b7280;font-size:13px;margin-top:24px;">— L'équipe OSKAR</p>
+      <p style="color:#6b7280;font-size:13px;margin-top:24px;">— L'équipe Oskar</p>
     </div>
   </div>
   <br/><br/>`;
@@ -76,12 +76,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     const pdf = Buffer.from(generateProductFitPdf(analysis, body?.project));
     const resend = new Resend(apiKey);
-    const from = process.env.RESEND_FROM_EMAIL || 'OSKAR <onboarding@resend.dev>';
+    const from = process.env.RESEND_FROM_EMAIL || 'Oskar <onboarding@resend.dev>';
 
     const { error } = await resend.emails.send({
       from,
       to: email,
-      subject: 'Votre bilan Potentiel Produit OSKAR',
+      subject: 'Votre bilan Potentiel Produit Oskar',
       html: buildEmailHtml(analysis, body?.project?.projectName),
       attachments: [{ filename: 'potentiel-produit-oskar.pdf', content: pdf }],
     });

@@ -139,10 +139,10 @@ const CONSEILS: Record<EtapeVision, Conseil> = {
       'Partagez-la avec votre équipe ou vos associés.',
       'Affichez-la dans votre espace de travail : la visibilité crée la discipline.',
       'Reprenez-la chaque trimestre, lors de vos points stratégiques.',
-      'Imprimez-la et envoyez-la à votre coach OsKaR.',
+      'Imprimez-la et envoyez-la à votre coach Oskar.',
     ],
     exemple: () =>
-      'Prochaine étape : transformer ces trois objectifs en OKR trimestriels avec le pilier OsKaR OKR.',
+      'Prochaine étape : transformer ces trois objectifs en OKR trimestriels avec le pilier OSKAR OKR.',
   },
 };
 

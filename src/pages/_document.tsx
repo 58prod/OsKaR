@@ -7,15 +7,15 @@ export default function Document() {
         <meta charSet="utf-8" />
 
         {/* App Meta Tags */}
-        <meta name="application-name" content="OsKaR" />
+        <meta name="application-name" content="Oskar" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="OsKaR" />
+        <meta name="apple-mobile-web-app-title" content="Oskar" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#1e2d7d" />
 
-        {/* Police Outfit (design system OsKaR) */}
+        {/* Police Outfit (design system Oskar) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

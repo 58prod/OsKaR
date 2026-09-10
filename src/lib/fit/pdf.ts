@@ -31,7 +31,7 @@ export function telechargerPdfFit(atelier: AtelierFit): void {
   doc.setTextColor(...TEAL);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('MODULE 02 — OSKAR FIT', M, 13);
+  doc.text('MODULE 02 — OSKAR MARKET FIT', M, 13);
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(20);
   doc.text('Diagnostic Market Fit', M, 27);

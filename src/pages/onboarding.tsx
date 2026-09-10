@@ -61,7 +61,7 @@ const OnboardingPage: React.FC = () => {
   if (!authReady || (isAuthenticated && (!user || !profileReady))) {
     return (
       <>
-        <Head><title>Bienvenue dans OsKaR</title></Head>
+        <Head><title>Bienvenue dans Oskar</title></Head>
         <div className="min-h-screen bg-surface flex items-center justify-center px-4 font-sans">
           <div className="text-center" role="status">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal mx-auto mb-4"></div>
@@ -331,7 +331,7 @@ const OnboardingPage: React.FC = () => {
                 <h1 className="text-2xl lg:text-3xl font-bold text-navy">Configurons votre espace</h1>
                 <p className="text-muted mt-1 max-w-2xl">
                   Ce profil d'entreprise est utilisé par les{' '}
-                  <strong className="text-navy">5 piliers</strong> d'OSKAR pour personnaliser vos
+                  <strong className="text-navy">5 piliers</strong> d'Oskar pour personnaliser vos
                   recommandations. Il est facultatif et se complète quand vous voulez.
                 </p>
               </div>

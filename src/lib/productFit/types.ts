@@ -1,5 +1,5 @@
 /**
- * Types du bilan « Potentiel Produit » (pilier OsKaR Fit).
+ * Types du bilan « Potentiel Produit » (pilier OSKAR Market Fit).
  *
  * On décrit trois personnes à qui le produit pourrait servir, on note à quel
  * point chacune est gênée par le problème, et on retient la plus gênée : c'est

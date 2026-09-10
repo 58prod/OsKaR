@@ -98,7 +98,7 @@ const MesBilansPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Mes bilans | OsKaR</title>
+        <title>Mes bilans | Oskar</title>
       </Head>
       <AppShell
         title="Mes bilans"

@@ -248,7 +248,7 @@ const DiagnosticPage: React.FC = () => {
       <header className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
           <div className="text-[11px] font-bold uppercase tracking-widest text-teal-dark mb-1.5">Outil de pilotage</div>
-          <h1 className="text-2xl font-extrabold text-navy">Diagnostic de maturité OSKAR</h1>
+          <h1 className="text-2xl font-extrabold text-navy">Diagnostic de maturité Oskar</h1>
         </div>
         <div className="flex items-center gap-2.5">
           <LegendPill icon={<AlertCircle className="h-3.5 w-3.5" aria-hidden />} label="0–4 Fragile" bg="#f0f2ff" border="#e2e4f0" />

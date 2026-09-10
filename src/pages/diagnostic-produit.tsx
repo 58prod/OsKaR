@@ -159,7 +159,7 @@ const DiagnosticProduitPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Potentiel Produit — Votre produit répond-il à un vrai besoin ? | OsKaR</title>
+        <title>Potentiel Produit — Votre produit répond-il à un vrai besoin ? | Oskar</title>
         <meta
           name="description"
           content="Décrivez trois personnes à qui votre produit pourrait servir, dites à quel point le problème les gêne, et découvrez par laquelle commencer."

@@ -152,8 +152,8 @@ export function statutFit(score: number): StatutFit {
       fond: '#e0faf6',
       description: 'Votre offre correspond bien à votre marché. Les signaux sont solides. Capitalisez et développez.',
       prochaineEtape:
-        'Traduisez votre FIT en OKR avec le module OsKaR OKR — et documentez ce qui fonctionne pour le répliquer.',
-      prochaineEtapePdf: 'Traduisez votre FIT en OKR avec le module OsKaR OKR.',
+        'Traduisez votre FIT en OKR avec le module OSKAR OKR — et documentez ce qui fonctionne pour le répliquer.',
+      prochaineEtapePdf: 'Traduisez votre FIT en OKR avec le module OSKAR OKR.',
     };
   if (score >= 8)
     return {
@@ -184,7 +184,7 @@ export function statutFit(score: number): StatutFit {
     description:
       'L’adéquation marché n’est pas encore établie. Revenez sur la clarté de l’offre et la différenciation.',
     prochaineEtape:
-      'Retravaillez la clarté de votre offre avec l’atelier OsKaR Vision, puis revenez tester votre positionnement sur ce module.',
+      'Retravaillez la clarté de votre offre avec l’atelier OSKAR Vision, puis revenez tester votre positionnement sur ce module.',
     prochaineEtapePdf: 'Revenez sur l’atelier Vision pour clarifier votre offre et votre positionnement.',
   };
 }

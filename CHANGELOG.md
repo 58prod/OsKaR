@@ -10,6 +10,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.15.1] - 2026-09-10
+
+### 🎨 Modifié — écriture du nom et profil des pages de pilier
+- **Une seule graphie** : « Oskar » dans le texte (phrases, titres d'onglet,
+  pied de page, emails), « OSKAR » suivi du pilier pour les piliers. Les
+  anciennes graphies « OsKaR » et « OKaRina » disparaissent de l'application.
+  Restent en majuscules, comme dans les maquettes : « Bienvenue sur OSKAR »,
+  le fil d'Ariane et les en-têtes de PDF.
+- **« OSKAR Fit » devient « OSKAR Market Fit »** : menu, pages, conseils,
+  diagnostic de maturité et PDF de l'atelier.
+- **Pages de pilier** : le menu « Votre rôle principal » est retiré, seul le
+  secteur d'activité est demandé.
+
 ## [2.15.0] - 2026-09-10
 
 ### ✨ Ajouté — atelier Finance, d'après la maquette

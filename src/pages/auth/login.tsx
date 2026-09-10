@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Connexion à OsKaR
+              Connexion à Oskar
             </h1>
             <p className="text-gray-600">
               Accédez à votre espace de gestion d'objectifs

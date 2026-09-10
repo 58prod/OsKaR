@@ -112,7 +112,7 @@ const RegisterPage: React.FC = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Créer un compte OsKaR
+              Créer un compte Oskar
             </h1>
             <p className="text-gray-600">
               Commencez à gérer vos objectifs dès aujourd'hui

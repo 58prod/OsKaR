@@ -3,10 +3,10 @@ import packageJson from '../../package.json';
 
 // Configuration de l'application (version : source unique = package.json)
 export const APP_CONFIG = {
-  name: 'OsKaR',
+  name: 'Oskar',
   version: packageJson.version,
   description: 'Outil de gestion d\'objectifs pour entrepreneurs avec IA coach',
-  author: 'OsKaR Team',
+  author: 'Oskar Team',
   maxAmbitionsPerYear: 5,
   maxKeyResultsPerAmbition: 3,
   maxOKRsPerQuarter: 10,

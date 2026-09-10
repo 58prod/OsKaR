@@ -40,8 +40,8 @@ export default function VisionPage() {
     <ModuleLanding
       pilier="vision"
       numero="01"
-      nom="OsKaR Vision"
-      titreOnglet="OsKaR Vision · Clarifiez votre cap | OsKaR"
+      nom="OSKAR Vision"
+      titreOnglet="OSKAR Vision · Clarifiez votre cap | Oskar"
       titre={
         <>
           Clarifiez votre cap,

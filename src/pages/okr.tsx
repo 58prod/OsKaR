@@ -40,8 +40,8 @@ export default function OkrPresentationPage() {
     <ModuleLanding
       pilier="okr"
       numero="04"
-      nom="OsKaR OKR"
-      titreOnglet="OsKaR OKR · Transformez vos ambitions en résultats | OsKaR"
+      nom="OSKAR OKR"
+      titreOnglet="OSKAR OKR · Transformez vos ambitions en résultats | Oskar"
       titre={
         <>
           Trois objectifs pour l’année.

@@ -89,7 +89,7 @@ const HomePage: React.FC = () => {
               La productivité, c'est créer <span className="text-teal">plus de valeur durable.</span>
             </h1>
             <p className="text-16.5 text-white/70 mb-8">
-              OSKAR est un cadre de management structuré en 5 piliers pour aligner votre vision, valider votre marché, piloter vos finances, exécuter vos objectifs et renforcer vos équipes.
+              Oskar est un cadre de management structuré en 5 piliers pour aligner votre vision, valider votre marché, piloter vos finances, exécuter vos objectifs et renforcer vos équipes.
             </p>
             <button
               onClick={() => router.push('/diagnostic')}
@@ -134,7 +134,7 @@ const HomePage: React.FC = () => {
       {/* Bilan Section */}
       <section className="mb-20">
         <div className="flex items-baseline justify-between mb-8">
-          <h2 className="text-xl font-bold text-navy uppercase tracking-wider">Bilan & diagnostic OSKAR</h2>
+          <h2 className="text-xl font-bold text-navy uppercase tracking-wider">Bilan & diagnostic Oskar</h2>
           <button onClick={() => router.push('/diagnostic')} className="text-sm font-bold text-teal-dark hover:underline">
             Voir un exemple →
           </button>
@@ -146,7 +146,7 @@ const HomePage: React.FC = () => {
                 Outil gratuit · Confidentiel
               </span>
               <h3 className="text-25.5 font-extrabold text-navy mb-4">
-                Mesurez l'efficacité de votre organisation sur les 5 piliers OSKAR.
+                Mesurez l'efficacité de votre organisation sur les 5 piliers Oskar.
               </h3>
               <p className="text-15.5 text-muted mb-8 leading-[1.75] max-w-md">
                 Un diagnostic structuré pour identifier vos forces et vos zones d'amélioration — sans inscription requise.
@@ -198,14 +198,14 @@ const HomePage: React.FC = () => {
       {/* Pillars Grid Section */}
       <section className="mb-20">
         <div className="flex items-baseline justify-between mb-8">
-          <h2 className="text-xl font-bold text-navy uppercase tracking-wider">Les 5 piliers OSKAR</h2>
+          <h2 className="text-xl font-bold text-navy uppercase tracking-wider">Les 5 piliers Oskar</h2>
           <button className="text-sm font-bold text-teal-dark hover:underline">Accéder aux modules →</button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Bientôt', href: '/vision' },
-            { id: '02', name: 'OSKAR Fit', desc: 'Validez le potentiel et trouvez vos Early Adopters.', icon: LineChart, status: 'Disponible', href: '/diagnostic-produit' },
-            { id: '03', name: 'OsKaR Finance', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt', href: '/finance' },
+            { id: '02', name: 'OSKAR Market Fit', desc: 'Validez le potentiel et trouvez vos Early Adopters.', icon: LineChart, status: 'Disponible', href: '/diagnostic-produit' },
+            { id: '03', name: 'OSKAR Finance', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt', href: '/finance' },
             { id: '04', name: 'OSKAR OKR', desc: 'Alignez stratégie et exécution.', icon: CheckSquare, status: 'Disponible', href: '/app/okr/dashboard' },
             { id: '05', name: 'OSKAR Team', desc: 'Renforcez la cohésion de votre organisation.', icon: Users, status: 'Disponible', href: '/app/outils' },
           ].map((pillar) => (
@@ -232,7 +232,7 @@ const HomePage: React.FC = () => {
 
       {/* Benefits Section */}
       <section className="mb-20">
-        <h2 className="text-xl font-bold text-navy mb-10 text-center uppercase tracking-wider">OSKAR est fait pour vous si…</h2>
+        <h2 className="text-xl font-bold text-navy mb-10 text-center uppercase tracking-wider">Oskar est fait pour vous si…</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             { t: 'Vous lancez votre projet', d: 'Posez des fondations solides avant de scaler.', i: PlayCircle },

@@ -515,7 +515,7 @@ a {
 /*
  * Epaisseur de trait des icones (hors @layer : Tailwind y supprimait la regle
  * generale au profit de la seule regle specifique).
- * lucide-react dessine a stroke-width="2". Les maquettes OsKaR utilisent 1.8
+ * lucide-react dessine a stroke-width="2". Les maquettes Oskar utilisent 1.8
  * de facon dominante (192 occurrences contre 104 a 2) : c'est l'epaisseur
  * maison. La propriete CSS l'emporte sur l'attribut de presentation SVG.
  * Le menu lateral fait exception a 1 : classe .icone-fine.

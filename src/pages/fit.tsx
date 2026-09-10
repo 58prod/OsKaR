@@ -31,8 +31,8 @@ export default function FitPage() {
     <ModuleLanding
       pilier="fit"
       numero="02"
-      nom="OsKaR Fit"
-      titreOnglet="OsKaR Fit · Market Fit | OsKaR"
+      nom="OSKAR Market Fit"
+      titreOnglet="OSKAR Market Fit · Vérifiez votre offre | Oskar"
       titre={
         <>
           Vérifiez que votre offre
@@ -48,7 +48,7 @@ export default function FitPage() {
       ctaSousTitre="Répondez aux questions étape par étape. Vous pouvez naviguer librement entre les étapes à tout moment."
       ctaHref="/app/fit"
     >
-      <EncartLien titre="Ce module complète OsKaR Vision" icone="navy" href="/vision" libelle="Voir Vision →">
+      <EncartLien titre="Ce module complète OSKAR Vision" icone="navy" href="/vision" libelle="Voir Vision →">
         La Vision a défini <strong>pour qui</strong> vous travaillez et <strong>quel problème</strong> vous
         résolvez. Le Fit vérifie que votre <strong>offre concrète</strong>, votre <strong>positionnement</strong>{' '}
         et vos <strong>signaux terrain</strong> confirment cette adéquation. Commencez par Vision si ce n’est pas

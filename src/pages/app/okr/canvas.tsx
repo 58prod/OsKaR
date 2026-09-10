@@ -107,7 +107,7 @@ const CanvasPage: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-navy">
-                  Canvas Guidé OsKaR
+                  Canvas Guidé Oskar
                 </h1>
                 <p className="text-muted mt-1">
                   Transformez vos ambitions en objectifs mesurables en 4 étapes

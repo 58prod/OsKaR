@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobileMenuOpen }) => {
             <Link href={isAuthenticated ? "/app/okr" : "/"} className="flex items-center">
               <img
                 src="/images/Oskar-logo.png"
-                alt="OsKaR"
+                alt="Oskar"
                 className="h-16 w-auto object-contain"
               />
             </Link>

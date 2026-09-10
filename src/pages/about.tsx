@@ -5,7 +5,7 @@ export default function AboutPage() {
   return (
     <ComingSoon
       title="À propos"
-      tagline="Découvrez la méthode OSKAR et l'équipe qui construit votre plateforme de productivité durable."
+      tagline="Découvrez la méthode Oskar et l'équipe qui construit votre plateforme de productivité durable."
       features={[
         'La méthode des 5 piliers',
         'Notre approche de la productivité',

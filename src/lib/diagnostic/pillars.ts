@@ -17,7 +17,7 @@ export const PILLARS: Pillar[] = [
   {
     id: 'fit',
     label: 'Market Fit',
-    module: 'OSKAR Fit',
+    module: 'OSKAR Market Fit',
     color: '#2563eb',
     desc: 'Adéquation entre la solution proposée et les besoins réels du marché.',
     q: [

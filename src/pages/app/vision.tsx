@@ -148,10 +148,10 @@ const VisionAtelierPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>OsKaR Vision · Atelier | OsKaR</title>
+        <title>OSKAR Vision · Atelier | Oskar</title>
       </Head>
       <AppShell
-        title="OsKaR Vision"
+        title="OSKAR Vision"
         topbarTitle={
           <span className="flex items-center gap-2.5 text-15">
             <span className="text-muted">OSKAR</span>
@@ -176,7 +176,7 @@ const VisionAtelierPage: React.FC = () => {
             <header className="flex flex-wrap items-end justify-between gap-3 mb-6">
               <div>
                 <div className="text-12.5 font-bold uppercase tracking-[1.25px] text-teal-dark mb-1">
-                  Module 01 — OsKaR Vision
+                  Module 01 — OSKAR Vision
                 </div>
                 <h1 className="text-27.5 font-extrabold text-navy leading-[1.2]">Atelier Vision</h1>
               </div>
@@ -286,7 +286,7 @@ const Visiteur: React.FC<{ onConnexion: () => void; onInscription: () => void }>
         aria-hidden
       />
       <div className="relative">
-        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-vision mb-2">Pilier 01 · OsKaR Vision</div>
+        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-vision mb-2">Pilier 01 · OSKAR Vision</div>
         <h1 className="text-[24px] leading-[1.25] font-extrabold text-white mb-2">
           Clarifiez votre cap, en sept étapes.
         </h1>

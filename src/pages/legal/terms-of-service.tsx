@@ -7,7 +7,7 @@ const TermsOfServicePage: React.FC = () => {
   return (
     <Layout
       title="Conditions Générales d'Utilisation"
-      description="Conditions générales d'utilisation du service OKaRina"
+      description="Conditions générales d'utilisation du service Oskar"
       skipOnboarding
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -30,10 +30,10 @@ const TermsOfServicePage: React.FC = () => {
           <CardContent className="prose max-w-none">
             <p>
               Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation de l'application
-              web OKaRina, un outil de gestion d'objectifs avec IA coach intégrée.
+              web Oskar, un outil de gestion d'objectifs avec IA coach intégrée.
             </p>
             <p>
-              En utilisant OKaRina, vous acceptez sans réserve les présentes CGU. Si vous n'acceptez pas
+              En utilisant Oskar, vous acceptez sans réserve les présentes CGU. Si vous n'acceptez pas
               ces conditions, veuillez ne pas utiliser le service.
             </p>
           </CardContent>
@@ -46,7 +46,7 @@ const TermsOfServicePage: React.FC = () => {
           </CardHeader>
           <CardContent className="prose max-w-none">
             <ul>
-              <li><strong>Service</strong> : L'application web OKaRina accessible à l'adresse okarina.com</li>
+              <li><strong>Service</strong> : L'application web Oskar accessible à l'adresse okarina.com</li>
               <li><strong>Utilisateur</strong> : Toute personne utilisant le Service</li>
               <li><strong>Compte</strong> : Espace personnel de l'Utilisateur sur le Service</li>
               <li><strong>Contenu</strong> : Toutes les données créées par l'Utilisateur (objectifs, ambitions, etc.)</li>
@@ -135,7 +135,7 @@ const TermsOfServicePage: React.FC = () => {
             <h3>5.1 Propriété du Service</h3>
             <p>
               Tous les éléments du Service (code, design, logos, textes, graphiques, etc.) sont la
-              propriété exclusive d'OKaRina et sont protégés par les lois sur la propriété intellectuelle.
+              propriété exclusive d'Oskar et sont protégés par les lois sur la propriété intellectuelle.
             </p>
 
             <h3>5.2 Licence d'utilisation</h3>
@@ -172,7 +172,7 @@ const TermsOfServicePage: React.FC = () => {
 
             <h3>6.3 Responsabilité</h3>
             <p>
-              OKaRina ne peut être tenu responsable des décisions prises sur la base des conseils de l'IA
+              Oskar ne peut être tenu responsable des décisions prises sur la base des conseils de l'IA
               Coach. Vous devez toujours exercer votre propre jugement professionnel.
             </p>
           </CardContent>
@@ -209,7 +209,7 @@ const TermsOfServicePage: React.FC = () => {
             </p>
 
             <h3>8.2 Exclusion de responsabilité</h3>
-            <p>OKaRina ne peut être tenu responsable :</p>
+            <p>Oskar ne peut être tenu responsable :</p>
             <ul>
               <li>De la perte de données due à un problème technique ou à une erreur de l'Utilisateur</li>
               <li>Des dommages indirects, accessoires ou consécutifs</li>
@@ -239,7 +239,7 @@ const TermsOfServicePage: React.FC = () => {
               dans les paramètres.
             </p>
 
-            <h3>9.2 Par OKaRina</h3>
+            <h3>9.2 Par Oskar</h3>
             <p>
               Nous nous réservons le droit de suspendre ou résilier votre accès au Service en cas de :
             </p>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -29,9 +29,10 @@ import { useAppStore } from '@/store/useAppStore';
  *                 padding 23/22 ; icone 40px rayon 11.5 trait 1.8, 12px dessous ;
  *                 valeur 27.5px / 800 ; libelle 15px gris a 4px ; texte 15px a 8px
  *   bloc final    2 colonnes, ecart 20, alignees en haut
- *   profil        rayon 18.5, padding 32 ; aide 15px, 22px avant les champs ;
- *                 deux menus cote a cote (ecart 18.5), intitules 14px / 700
- *                 gris en majuscules, menu 16px rayon 11.5 bord 1.5, 48px
+ *   profil        rayon 18.5, padding 32 ; aide 15px, 22px avant le champ ;
+ *                 intitule 14px / 700 gris en majuscules, menu 16px rayon 11.5
+ *                 bord 1.5, 48px. La maquette propose aussi le role : retire le
+ *                 2026-09-10 a la demande de Christophe, un menu de trop.
  *   appel         degrade navy, rayon 18.5, padding 32 ; texte a gauche, bouton
  *                 a droite (ecart 27.5) ; pastilles 14px, point 6px du pilier ;
  *                 bouton 17px / 700 rayon 14, padding 16/28
@@ -82,22 +83,6 @@ const COULEURS: Record<Pilier, { texte: string; valeur: string; icone: string; b
   },
 };
 
-/** Les roles proposes par les maquettes, dans leur ordre. */
-const ROLES = [
-  'Dirigeant',
-  'Manager',
-  'Indépendant',
-  'Responsable d’équipe',
-  'Expert métier',
-  'Porteur de projet',
-  'Associé',
-  'Salarié',
-  'Autre',
-];
-
-/** Comme la maquette, le role reste dans ce navigateur : il ne sert qu'a l'atelier. */
-const CLE_ROLE = 'oskar.role';
-
 /** Chevron des menus du profil (`.profil-select`). */
 const CHEVRON =
   "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%237b82a0' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")";
@@ -118,7 +103,7 @@ interface ModuleLandingProps {
   pilier: Pilier;
   /** Numero affiche dans l'eyebrow, ex. « 01 ». */
   numero: string;
-  /** Nom du module, ex. « OsKaR Vision ». */
+  /** Nom du module, ex. « OSKAR Vision ». */
   nom: string;
   /** Titre du bandeau ; la partie mise en avant est passee en <span>. */
   titre: React.ReactNode;
@@ -178,23 +163,6 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
   const { secteur, choisirSecteur, enregistre } = useSecteurChoisi();
   const c = COULEURS[pilier];
   const team = pilier === 'team';
-
-  const [role, setRole] = useState('');
-  useEffect(() => {
-    try {
-      setRole(window.localStorage.getItem(CLE_ROLE) ?? '');
-    } catch {
-      /* stockage indisponible */
-    }
-  }, []);
-  const choisirRole = (valeur: string) => {
-    setRole(valeur);
-    try {
-      window.localStorage.setItem(CLE_ROLE, valeur);
-    } catch {
-      /* le choix vaut pour cette page */
-    }
-  };
 
   // Boutons de la barre du haut : `.btn-outline` puis `.btn-primary`, comme la maquette.
   const topbarActions = !authReady ? null : isAuthenticated ? (
@@ -267,40 +235,17 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
             <h2 className="text-18.5 font-bold text-navy mb-1.5">Avant de commencer — votre profil</h2>
             <p className="text-15 leading-[1.5] text-muted mb-[22px]">{profilAide}</p>
             {/* Le secteur adapte tous les exemples de l'atelier au métier. */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18.5px]">
-              <div>
-                <label htmlFor="profil-secteur" className={INTITULE_PROFIL}>
-                  Votre secteur d’activité
-                </label>
-                <ChoixSecteur
-                  id="profil-secteur"
-                  value={secteur}
-                  onChange={choisirSecteur}
-                  placeholder="-- Sélectionnez votre secteur --"
-                  className={MENU_PROFIL}
-                  style={{ backgroundImage: CHEVRON }}
-                />
-              </div>
-              <div>
-                <label htmlFor="profil-role" className={INTITULE_PROFIL}>
-                  Votre rôle principal
-                </label>
-                <select
-                  id="profil-role"
-                  value={role}
-                  onChange={(e) => choisirRole(e.target.value)}
-                  className={MENU_PROFIL}
-                  style={{ backgroundImage: CHEVRON }}
-                >
-                  <option value="">-- Sélectionnez votre rôle --</option>
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <label htmlFor="profil-secteur" className={INTITULE_PROFIL}>
+              Votre secteur d’activité
+            </label>
+            <ChoixSecteur
+              id="profil-secteur"
+              value={secteur}
+              onChange={choisirSecteur}
+              placeholder="-- Sélectionnez votre secteur --"
+              className={MENU_PROFIL}
+              style={{ backgroundImage: CHEVRON }}
+            />
             {secteur && (
               <p className="flex items-center gap-1.5 text-13 text-teal-dark mt-3">
                 <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />

@@ -33,7 +33,7 @@ const GDPRPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <p className="text-gray-700 mb-4">
-                OsKaR s'engage à protéger vos données personnelles conformément au Règlement Général
+                Oskar s'engage à protéger vos données personnelles conformément au Règlement Général
                 sur la Protection des Données (RGPD) et à la loi Informatique et Libertés.
               </p>
               <p className="text-gray-700">

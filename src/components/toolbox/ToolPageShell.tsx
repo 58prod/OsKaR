@@ -21,7 +21,7 @@ interface ToolPageShellProps {
 
 /**
  * Ossature commune d'une page d'outil :
- * - sidebar OsKaR (navigation inter-modules), comme le reste de l'app ;
+ * - sidebar Oskar (navigation inter-modules), comme le reste de l'app ;
  * - écran de chargement tant que le code n'est pas résolu ;
  * - modal de connexion (prénom) tant qu'aucune identité ;
  * - en-tête (logo, titre, toggle animateur, invitation) + contenu de l'outil.
@@ -64,7 +64,7 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
   return (
     <>
       <Head>
-        <title>{`${title} — OsKaR`}</title>
+        <title>{`${title} — Oskar`}</title>
         <meta name="robots" content="noindex" />
       </Head>
 

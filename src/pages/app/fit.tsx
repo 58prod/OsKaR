@@ -139,10 +139,10 @@ const FitAtelierPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>OsKaR Fit · Atelier | OsKaR</title>
+        <title>OSKAR Market Fit · Atelier | Oskar</title>
       </Head>
       <AppShell
-        title="OsKaR Fit"
+        title="OSKAR Market Fit"
         topbarTitle={
           <span className="flex items-center gap-[10.5px] text-15">
             <Link href="/" className="text-muted font-medium hover:text-navy transition-colors">
@@ -170,7 +170,7 @@ const FitAtelierPage: React.FC = () => {
             {/* En-tête compact de la maquette : filet bas, 16px dessous, 18px avant le contenu. */}
             <header className="flex flex-wrap items-center justify-between gap-3 mb-[18px] pb-4 border-b border-line">
               <div>
-                <div className="text-14 font-bold uppercase tracking-[1.4px] text-teal mb-1">Module 02 — OsKaR Fit</div>
+                <div className="text-14 font-bold uppercase tracking-[1.4px] text-teal mb-1">Module 02 — OSKAR Market Fit</div>
                 <h1 className="text-23 font-extrabold text-navy leading-[1.6]">Atelier Market Fit</h1>
               </div>
               <Link
@@ -299,7 +299,7 @@ const Visiteur: React.FC<{ onConnexion: () => void; onInscription: () => void }>
         aria-hidden
       />
       <div className="relative">
-        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-fit mb-2">Pilier 02 · OsKaR Fit</div>
+        <div className="text-11.5 font-bold tracking-[1.6px] uppercase text-fit mb-2">Pilier 02 · OSKAR Market Fit</div>
         <h1 className="text-[24px] leading-[1.25] font-extrabold text-white mb-2">
           Vérifiez que votre offre répond à un vrai besoin marché.
         </h1>

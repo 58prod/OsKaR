@@ -5,7 +5,7 @@ import { Clock, ArrowLeft, Bell } from 'lucide-react';
 import { AppShell } from './AppShell';
 
 interface ComingSoonProps {
-  /** Nom du module/pilier (ex: "OsKaR Vision"). */
+  /** Nom du module/pilier (ex: "OSKAR Vision"). */
   title: string;
   /** Phrase d'accroche décrivant le futur module. */
   tagline: string;

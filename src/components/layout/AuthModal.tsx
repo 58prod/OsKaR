@@ -108,12 +108,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab 
     >
       <div className="bg-white rounded-2xl w-[420px] max-w-[95vw] shadow-auth-modal overflow-hidden animate-slide-up">
         <div className="relative bg-gradient-to-br from-navy-dark to-navy px-7 pt-7 pb-5 text-center">
-          <Image src="/images/oskar/logo-oskar.png" alt="OsKaR" width={120} height={28} className="h-7 w-auto mx-auto mb-3.5 brightness-0 invert" />
+          <Image src="/images/oskar/logo-oskar.png" alt="Oskar" width={120} height={28} className="h-7 w-auto mx-auto mb-3.5 brightness-0 invert" />
           <h2 id="auth-modal-title" className="text-xl font-extrabold text-white mb-1">
-            {tab === 'login' ? 'Bon retour !' : 'Rejoignez OsKaR'}
+            {tab === 'login' ? 'Bon retour !' : 'Rejoignez Oskar'}
           </h2>
           <p className="text-[13px] text-white/60">
-            {tab === 'login' ? 'Connectez-vous à votre espace OsKaR' : 'Créez votre compte gratuit pour accéder à la plateforme'}
+            {tab === 'login' ? 'Connectez-vous à votre espace Oskar' : 'Créez votre compte gratuit pour accéder à la plateforme'}
           </p>
           <button ref={closeBtnRef} type="button" onClick={onClose} aria-label="Fermer" className="absolute top-3.5 right-4 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center">
             <X className="h-4 w-4" aria-hidden />

@@ -21,7 +21,7 @@ function escapeHtml(text: string): string {
 
 /**
  * Réception d'une suggestion d'outil pour la Boîte à outils :
- * transmet la proposition par email (Resend) à l'équipe OSKAR.
+ * transmet la proposition par email (Resend) à l'équipe Oskar.
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
   if (req.method !== 'POST') {
@@ -53,13 +53,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       <p><strong>Outil / rituel :</strong> ${escapeHtml(name)}</p>
       ${description ? `<p><strong>Description :</strong><br/>${escapeHtml(description).replace(/\n/g, '<br/>')}</p>` : ''}
       ${from ? `<p><strong>Proposé par :</strong> ${escapeHtml(from)}</p>` : ''}
-      <p style="color:#6b7280;font-size:13px;margin-top:24px;">— Boîte à outils OSKAR</p>
+      <p style="color:#6b7280;font-size:13px;margin-top:24px;">— Boîte à outils Oskar</p>
     </div>
   </div>`;
 
   try {
     const resend = new Resend(apiKey);
-    const sender = process.env.RESEND_FROM_EMAIL || 'OSKAR <onboarding@resend.dev>';
+    const sender = process.env.RESEND_FROM_EMAIL || 'Oskar <onboarding@resend.dev>';
     const { error } = await resend.emails.send({
       from: sender,
       to,

@@ -27,7 +27,7 @@ interface PersonaFormCardProps {
 
 /**
  * Les trois questions, dans l'ordre où on les pose.
- * Couleurs prises dans la charte OsKaR : corail, ambre du pilier Finance,
+ * Couleurs prises dans la charte Oskar : corail, ambre du pilier Finance,
  * turquoise de la marque — du plus chaud au plus froid.
  */
 const QUESTIONS = [
@@ -50,7 +50,7 @@ const QUESTIONS = [
     question: 'Rencontre-t-elle ce problème souvent ?',
     min: 'Rarement',
     max: 'Tous les jours',
-    couleur: '#00b89c', // turquoise OsKaR
+    couleur: '#00b89c', // turquoise Oskar
   },
 ];
 

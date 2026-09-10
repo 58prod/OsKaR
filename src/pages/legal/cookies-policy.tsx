@@ -7,7 +7,7 @@ const CookiesPolicyPage: React.FC = () => {
   return (
     <Layout
       title="Politique de Cookies"
-      description="Politique d'utilisation des cookies - OsKaR"
+      description="Politique d'utilisation des cookies - Oskar"
       skipOnboarding
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -41,7 +41,7 @@ const CookiesPolicyPage: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Eye className="h-5 w-5 mr-2 text-primary-600" />
-              Cookies Utilisés par OKaRina
+              Cookies Utilisés par Oskar
             </CardTitle>
           </CardHeader>
           <CardContent className="prose max-w-none">
@@ -134,7 +134,7 @@ const CookiesPolicyPage: React.FC = () => {
 
             <h3>4. Cookies Publicitaires (Non utilisés actuellement)</h3>
             <p>
-              OKaRina n'utilise actuellement aucun cookie publicitaire ou de ciblage.
+              Oskar n'utilise actuellement aucun cookie publicitaire ou de ciblage.
             </p>
           </CardContent>
         </Card>
@@ -146,7 +146,7 @@ const CookiesPolicyPage: React.FC = () => {
           </CardHeader>
           <CardContent className="prose max-w-none">
             <p>
-              En plus des cookies, OKaRina utilise le <strong>localStorage</strong> de votre navigateur
+              En plus des cookies, Oskar utilise le <strong>localStorage</strong> de votre navigateur
               pour stocker vos données d'application (objectifs, ambitions, résultats clés, etc.).
             </p>
             

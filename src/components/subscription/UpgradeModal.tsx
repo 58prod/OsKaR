@@ -79,7 +79,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         return {
           icon: <Crown className="h-12 w-12 text-yellow-500" />,
           title: 'Passez au niveau supérieur',
-          description: 'Débloquez toutes les fonctionnalités d\'OsKaR.',
+          description: 'Débloquez toutes les fonctionnalités d\'Oskar.',
           benefits: [
             'Fonctionnalités illimitées',
             'Support prioritaire',

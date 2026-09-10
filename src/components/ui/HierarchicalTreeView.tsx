@@ -161,7 +161,7 @@ const quarterLabels = {
   };
 
   // Pastilles : memes couples fond clair / texte fonce que .obj-badge dans
-  // okr-objectifs.html, pris dans les jetons OsKaR plutot que dans les
+  // okr-objectifs.html, pris dans les jetons Oskar plutot que dans les
   // echelles Tailwind generiques.
   const priorityColors = {
     [Priority.LOW]: 'bg-surface text-muted',
