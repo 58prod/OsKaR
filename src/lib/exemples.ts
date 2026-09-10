@@ -40,6 +40,17 @@ export interface JeuExemples {
   action: string;
   /** Repères pour le bilan Potentiel Produit. */
   produit: { nom: string; promesse: string; prenom: string; situation: string; probleme: string; aujourdhui: string };
+  /** Repères pour l'atelier Vision. */
+  vision: {
+    pourquoi: string;
+    comment: string;
+    quoi: string;
+    cible: string;
+    acteur: string;
+    probleme: string;
+    projection: { ca: string; clients: string; offre: string; organisation: string };
+    valeurs: { nom: string; traduction: string }[];
+  };
 }
 
 /** Sans secteur choisi : les exemples d'origine, volontairement passe-partout. */
@@ -67,6 +78,20 @@ export const EXEMPLES_PAR_DEFAUT: JeuExemples = {
     situation: 'Mère de deux enfants, salariée',
     probleme: 'Elle perd 3 heures par semaine',
     aujourdhui: 'À la main, sur un tableur',
+  },
+  vision: {
+    pourquoi: 'Nous croyons que chaque organisation mérite un cap clair et une équipe alignée',
+    comment: 'Grâce à une méthode structurée, des rituels courts et un accompagnement ancré dans le réel',
+    quoi: 'Nous accompagnons nos clients avec une méthode éprouvée',
+    cible: 'Dirigeants de PME',
+    acteur: 'Partenaire prescripteur',
+    probleme: 'des difficultés à aligner leurs équipes sur une direction commune, du temps perdu sans décision',
+    projection: { ca: '400 k€ de chiffre d\'affaires', clients: '50 clients actifs', offre: '2 offres packagées', organisation: 'une équipe de 4 personnes' },
+    valeurs: [
+      { nom: 'Simplicité', traduction: 'Jamais plus de trois étapes dans un processus' },
+      { nom: 'Confiance', traduction: 'On dit ce qu\'on fait, on fait ce qu\'on dit' },
+      { nom: 'Exigence', traduction: 'On livre ce dont on serait fier' },
+    ],
   },
 };
 
@@ -98,6 +123,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Elle attend trois jours un artisan disponible',
       aujourdhui: 'Elle appelle plusieurs numéros au hasard',
     },
+    vision: {
+      pourquoi: 'Nous croyons qu\'un chantier bien fait, livré dans les délais, change la vie de ceux qui l\'attendent',
+      comment: 'Grâce à des devis clairs, des délais tenus et un chantier laissé propre',
+      quoi: 'Nous réalisons des installations et des rénovations chez les particuliers et les entreprises',
+      cible: 'Propriétaires de maisons anciennes',
+      acteur: 'Fournisseur de matériaux',
+      probleme: 'des artisans injoignables, des devis flous et des chantiers qui traînent, au point de renoncer à leurs travaux',
+      projection: { ca: '350 k€ de chiffre d\'affaires', clients: '80 chantiers dans l\'année', offre: '2 prestations phares', organisation: 'un binôme et un apprenti' },
+      valeurs: [
+        { nom: 'Parole tenue', traduction: 'Un délai annoncé est un délai respecté' },
+        { nom: 'Propreté', traduction: 'Le chantier est rendu net chaque soir' },
+        { nom: 'Franchise', traduction: 'On dit quand on ne sait pas faire' },
+      ],
+    },
   },
 
   'Immobilier & habitat': {
@@ -124,6 +163,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       situation: 'Propriétaire qui veut vendre',
       probleme: 'Il ne sait pas à quel prix mettre son bien',
       aujourdhui: 'Il compare des annonces sur internet',
+    },
+    vision: {
+      pourquoi: 'Nous croyons qu\'un projet immobilier réussi commence par une estimation honnête',
+      comment: 'Grâce à une connaissance fine du quartier et un accompagnement de bout en bout',
+      quoi: 'Nous accompagnons les vendeurs et les acquéreurs sur notre secteur',
+      cible: 'Propriétaires qui vendent pour la première fois',
+      acteur: 'Notaire partenaire',
+      probleme: 'des estimations fantaisistes, des visites inutiles et des ventes qui s\'éternisent faute de conseil',
+      projection: { ca: '400 k€ d\'honoraires', clients: '45 transactions', offre: 'vente et gestion locative', organisation: 'trois négociateurs' },
+      valeurs: [
+        { nom: 'Honnêteté', traduction: 'On annonce le prix du marché, pas celui qui fait signer' },
+        { nom: 'Disponibilité', traduction: 'On rappelle dans la journée' },
+        { nom: 'Discrétion', traduction: 'Ce qui se dit chez le client y reste' },
+      ],
     },
   },
 
@@ -152,6 +205,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Elle décide seule et doute de ses arbitrages',
       aujourdhui: 'Elle en parle à son expert-comptable',
     },
+    vision: {
+      pourquoi: 'Nous croyons que chaque dirigeant mérite un cap clair et une équipe alignée',
+      comment: 'Grâce à une méthode structurée, des rituels courts et un accompagnement ancré dans le réel',
+      quoi: 'Nous accompagnons les dirigeants de PME dans leurs décisions structurantes',
+      cible: 'Dirigeants de PME de 10 à 50 personnes',
+      acteur: 'Réseau d\'entrepreneurs prescripteur',
+      probleme: 'des difficultés à aligner leurs équipes sur une direction commune, du temps perdu en réunions sans décision',
+      projection: { ca: '180 k€ de chiffre d\'affaires', clients: '12 clients accompagnés', offre: '2 offres packagées', organisation: 'seul, avec deux partenaires' },
+      valeurs: [
+        { nom: 'Clarté', traduction: 'Aucun jargon dans nos livrables' },
+        { nom: 'Exigence', traduction: 'On dit ce qui fâche quand c\'est utile' },
+        { nom: 'Indépendance', traduction: 'On refuse une mission qu\'on ne croit pas utile' },
+      ],
+    },
   },
 
   'Comptabilité, finance & juridique': {
@@ -178,6 +245,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       situation: 'Gérant d’une société de services',
       probleme: 'Il découvre ses résultats six mois trop tard',
       aujourdhui: 'Il attend le bilan annuel',
+    },
+    vision: {
+      pourquoi: 'Nous croyons qu\'un dirigeant doit comprendre ses chiffres pour décider sereinement',
+      comment: 'Grâce à des points réguliers, un langage simple et des outils qui évitent la paperasse',
+      quoi: 'Nous tenons la comptabilité et conseillons les dirigeants tout au long de l\'année',
+      cible: 'Indépendants et TPE',
+      acteur: 'Éditeur du logiciel comptable',
+      probleme: 'des chiffres découverts trop tard, des échéances subies et l\'impression de payer sans comprendre',
+      projection: { ca: '600 k€ d\'honoraires', clients: '150 clients', offre: 'une offre de conseil mensuelle', organisation: 'une équipe de six' },
+      valeurs: [
+        { nom: 'Pédagogie', traduction: 'On explique jusqu\'à ce que ce soit compris' },
+        { nom: 'Anticipation', traduction: 'Aucune échéance découverte la veille' },
+        { nom: 'Confidentialité', traduction: 'Les dossiers restent entre nous' },
+      ],
     },
   },
 
@@ -206,6 +287,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Elle abandonne son suivi au bout de trois semaines',
       aujourdhui: 'Elle prend rendez-vous quand ça ne va plus',
     },
+    vision: {
+      pourquoi: 'Nous croyons que prendre soin de quelqu\'un demande du temps et de l\'écoute',
+      comment: 'Grâce à des séances qui ne se ressemblent pas et un suivi entre les rendez-vous',
+      quoi: 'Nous accompagnons les personnes qui souhaitent aller mieux, durablement',
+      cible: 'Actifs de 30 à 50 ans',
+      acteur: 'Médecin traitant prescripteur',
+      probleme: 'des parcours morcelés, des rendez-vous trop courts et l\'impression de repartir sans réponse',
+      projection: { ca: '90 k€ de chiffre d\'affaires', clients: '120 personnes suivies', offre: 'un accompagnement en 6 séances', organisation: 'un cabinet partagé' },
+      valeurs: [
+        { nom: 'Écoute', traduction: 'On ne coupe jamais la parole' },
+        { nom: 'Justesse', traduction: 'On oriente ailleurs quand ce n\'est pas notre domaine' },
+        { nom: 'Régularité', traduction: 'Un suivi, pas des rendez-vous isolés' },
+      ],
+    },
   },
 
   'Commerce & services': {
@@ -232,6 +327,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       situation: 'Travaille à plein temps, peu disponible',
       probleme: 'Elle arrive après la fermeture',
       aujourdhui: 'Elle commande en ligne ailleurs',
+    },
+    vision: {
+      pourquoi: 'Nous croyons qu\'un commerce de quartier crée du lien autant qu\'il vend',
+      comment: 'Grâce à une sélection exigeante, des conseils sincères et un accueil qui donne envie de revenir',
+      quoi: 'Nous proposons des produits choisis et un service de proximité',
+      cible: 'Habitants du quartier',
+      acteur: 'Producteur local',
+      probleme: 'des rayons impersonnels, des conseils absents et des horaires qui ne collent pas à leur vie',
+      projection: { ca: '500 k€ de chiffre d\'affaires', clients: '500 clients fidèles', offre: 'boutique et vente en ligne', organisation: 'trois vendeurs formés' },
+      valeurs: [
+        { nom: 'Conseil sincère', traduction: 'On dit quand un produit ne convient pas' },
+        { nom: 'Proximité', traduction: 'On connaît nos clients par leur prénom' },
+        { nom: 'Qualité', traduction: 'On ne vend que ce qu\'on utiliserait' },
+      ],
     },
   },
 
@@ -260,6 +369,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Elle recopie les mêmes données chaque semaine',
       aujourdhui: 'Un tableur et beaucoup de patience',
     },
+    vision: {
+      pourquoi: 'Nous croyons que le logiciel doit faire gagner du temps, pas en prendre',
+      comment: 'Grâce à un produit simple, livré souvent, construit avec ceux qui l\'utilisent',
+      quoi: 'Nous éditons un outil qui automatise une tâche répétitive du quotidien',
+      cible: 'Responsables d\'équipe en PME',
+      acteur: 'Investisseur principal',
+      probleme: 'des heures perdues à recopier des données d\'un outil à l\'autre, sans jamais avoir le temps d\'y remédier',
+      projection: { ca: '240 k€ de revenus récurrents', clients: '150 clients payants', offre: 'deux formules', organisation: 'une équipe de quatre' },
+      valeurs: [
+        { nom: 'Simplicité', traduction: 'Jamais plus de trois étapes pour une action' },
+        { nom: 'Écoute produit', traduction: 'Chaque semaine, on parle à un utilisateur' },
+        { nom: 'Transparence', traduction: 'Les incidents sont annoncés avant d\'être remarqués' },
+      ],
+    },
   },
 
   'Communication & création': {
@@ -286,6 +409,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       situation: 'Fondateur qui lance son activité',
       probleme: 'Il n’ose pas montrer son site à ses prospects',
       aujourdhui: 'Un logo fait avec un outil en ligne',
+    },
+    vision: {
+      pourquoi: 'Nous croyons qu\'une marque juste vaut mieux qu\'une marque tape-à-l\'œil',
+      comment: 'Grâce à un travail d\'écoute avant tout dessin, et des livrables qui servent vraiment',
+      quoi: 'Nous créons des identités et des supports pour des entreprises qui se lancent ou se réinventent',
+      cible: 'Fondateurs qui lancent leur activité',
+      acteur: 'Imprimeur partenaire',
+      probleme: 'une image qui ne leur ressemble pas, faite vite, qu\'ils n\'osent pas montrer à leurs clients',
+      projection: { ca: '150 k€ de chiffre d\'affaires', clients: '20 projets livrés', offre: 'une offre packagée', organisation: 'un studio de trois' },
+      valeurs: [
+        { nom: 'Écoute', traduction: 'On comprend avant de proposer' },
+        { nom: 'Utilité', traduction: 'Chaque livrable a un usage précis' },
+        { nom: 'Tenue des délais', traduction: 'Une date annoncée est tenue' },
+      ],
     },
   },
 
@@ -314,6 +451,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Il relance trois fois pour savoir où en est sa commande',
       aujourdhui: 'Des appels et des courriels',
     },
+    vision: {
+      pourquoi: 'Nous croyons qu\'un client bien livré est un client qui revient',
+      comment: 'Grâce à des procédés fiables, une maintenance anticipée et des équipes polyvalentes',
+      quoi: 'Nous produisons et livrons des pièces pour nos donneurs d\'ordre',
+      cible: 'Donneurs d\'ordre industriels',
+      acteur: 'Transporteur partenaire',
+      probleme: 'des retards en cascade, des non-conformités découvertes trop tard et des relances permanentes',
+      projection: { ca: '2 M€ de chiffre d\'affaires', clients: '25 clients réguliers', offre: 'deux lignes de production', organisation: 'une équipe de vingt' },
+      valeurs: [
+        { nom: 'Fiabilité', traduction: 'Ce qui est promis est livré à l\'heure' },
+        { nom: 'Sécurité', traduction: 'Aucun raccourci sur les règles' },
+        { nom: 'Amélioration continue', traduction: 'Chaque incident donne lieu à une action' },
+      ],
+    },
   },
 
   'Éducation, sport & loisirs': {
@@ -340,6 +491,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       situation: 'Débutant, horaires irréguliers',
       probleme: 'Il abandonne au bout d’un mois',
       aujourdhui: 'Des vidéos trouvées en ligne',
+    },
+    vision: {
+      pourquoi: 'Nous croyons que progresser doit rester un plaisir',
+      comment: 'Grâce à des groupes à taille humaine, un encadrement formé et une progression visible',
+      quoi: 'Nous proposons des séances et des formations tout au long de l\'année',
+      cible: 'Débutants adultes',
+      acteur: 'Collectivité qui subventionne',
+      probleme: 'des cours trop grands, des progrès invisibles et l\'envie d\'abandonner au bout d\'un mois',
+      projection: { ca: '200 k€ de chiffre d\'affaires', clients: '300 adhérents', offre: 'trois formats de séance', organisation: 'quatre encadrants' },
+      valeurs: [
+        { nom: 'Bienveillance', traduction: 'Personne n\'est laissé au fond de la salle' },
+        { nom: 'Progression', traduction: 'Chacun sait où il en est' },
+        { nom: 'Régularité', traduction: 'Les séances ont lieu, quoi qu\'il arrive' },
+      ],
     },
   },
 
@@ -368,6 +533,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Elle n’a pas le temps de s’asseoir',
       aujourdhui: 'Un sandwich acheté en vitesse',
     },
+    vision: {
+      pourquoi: 'Nous croyons qu\'un bon repas et un bon accueil font une vraie journée',
+      comment: 'Grâce à des produits frais, une carte courte et une équipe qui reste',
+      quoi: 'Nous accueillons nos clients midi et soir, sur place et à emporter',
+      cible: 'Salariés du quartier le midi',
+      acteur: 'Producteur local',
+      probleme: 'des cartes interminables, des produits sans goût et un service pressé qui gâche la pause',
+      projection: { ca: '450 k€ de chiffre d\'affaires', clients: '25 000 couverts', offre: 'une carte courte de saison', organisation: 'une brigade de six' },
+      valeurs: [
+        { nom: 'Produit frais', traduction: 'Rien de surgelé dans nos assiettes' },
+        { nom: 'Accueil', traduction: 'On dit bonjour à chacun' },
+        { nom: 'Respect de l\'équipe', traduction: 'Les plannings sont connus à l\'avance' },
+      ],
+    },
   },
 
   'Agriculture & environnement': {
@@ -395,6 +574,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       probleme: 'Elle ne sait pas d’où viennent ses légumes',
       aujourdhui: 'Le supermarché du coin',
     },
+    vision: {
+      pourquoi: 'Nous croyons qu\'on peut nourrir correctement sans épuiser la terre',
+      comment: 'Grâce à des pratiques choisies, des circuits courts et un lien direct avec ceux qui consomment',
+      quoi: 'Nous produisons et vendons nos récoltes, en direct et auprès de commerçants',
+      cible: 'Familles du secteur',
+      acteur: 'Coopérative',
+      probleme: 'des produits anonymes venus de loin, sans savoir qui les a cultivés ni comment',
+      projection: { ca: '180 k€ de chiffre d\'affaires', clients: '200 paniers par semaine', offre: 'paniers et vente à la ferme', organisation: 'deux associés et un saisonnier' },
+      valeurs: [
+        { nom: 'Transparence', traduction: 'On dit comment on cultive' },
+        { nom: 'Saison', traduction: 'On ne vend que ce qui pousse maintenant' },
+        { nom: 'Juste prix', traduction: 'Un prix qui fait vivre les deux côtés' },
+      ],
+    },
   },
 
   'Secteur public & intérêt général': {
@@ -421,6 +614,20 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
       situation: 'Parent isolé, peu à l’aise avec le numérique',
       probleme: 'Elle renonce à des aides faute de savoir les demander',
       aujourdhui: 'Elle demande à un proche',
+    },
+    vision: {
+      pourquoi: 'Nous croyons que personne ne devrait renoncer à ses droits faute d\'accompagnement',
+      comment: 'Grâce à des permanences régulières, des bénévoles formés et un langage compréhensible',
+      quoi: 'Nous accompagnons les personnes dans leurs démarches et leurs projets',
+      cible: 'Familles du territoire',
+      acteur: 'Collectivité financeuse',
+      probleme: 'des démarches illisibles, des guichets fermés et l\'abandon avant d\'avoir obtenu quoi que ce soit',
+      projection: { ca: '150 k€ de budget', clients: '1 000 bénéficiaires', offre: 'permanences et ateliers', organisation: 'deux salariés et 40 bénévoles' },
+      valeurs: [
+        { nom: 'Inconditionnalité', traduction: 'On accueille sans condition' },
+        { nom: 'Clarté', traduction: 'On explique sans jargon administratif' },
+        { nom: 'Durée', traduction: 'On ne lâche pas en cours de route' },
+      ],
     },
   },
 

@@ -10,6 +10,34 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.10.0] - 2026-09-10
+
+### ✨ Ajouté — l'atelier Vision
+Transposition de `Oskar/plateforme/vision-atelier.html` sur `/app/vision` :
+sept étapes puis une synthèse.
+
+1. **Le sens** — pourquoi l'entreprise existe, comment elle agit, ce qu'elle fait
+2. **Cibles & acteurs** — deux listes qualifiées (type, segment, priorité ;
+   rôle, pouvoir, intérêt)
+3. **Le problème** que vous résolvez
+4. **Vision à 1 an** — quatre repères d'entreprise, quatre personnels
+5. **Valeurs** — trois au plus, avec leur traduction concrète
+6. **Votre vision** — assemblée depuis l'étape 1, réécrivable
+7. **Objectifs** — trois au plus, chacun d'entreprise ou personnel
+8. **Synthèse** — « Votre cap à 1 an », imprimable, avec le passage vers les OKR
+
+- L'étape courante vit dans l'URL, la saisie est enregistrée sans bouton dédié.
+- Mêmes règles d'accès que l'OKR : première étape offerte, la suite dans les
+  formules.
+- Les exemples suivent le métier déclaré : le bloc `vision` a été ajouté aux
+  14 familles.
+- La page de présentation `/vision` mène maintenant à l'atelier.
+
+### 🗃️ Base de données
+- **Migration `20260910_create_vision_ateliers.sql` à appliquer** : une table
+  `vision_ateliers`, une ligne par personne, contenu en JSONB, avec ses règles
+  d'accès. Purement additive.
+
 ## [2.9.0] - 2026-09-10
 
 ### ✨ Ajouté — les exemples parlent le métier de la personne

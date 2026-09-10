@@ -54,7 +54,7 @@ export default function VisionPage() {
       etapes={ETAPES}
       ctaTitre="Prêt à construire votre vision ?"
       ctaSousTitre="Répondez aux questions étape par étape. Vous pouvez naviguer librement entre les étapes à tout moment."
-      ctaIndisponible
+      ctaHref="/app/vision"
     />
   );
 }
