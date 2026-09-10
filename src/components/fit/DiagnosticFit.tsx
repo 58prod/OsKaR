@@ -1,5 +1,5 @@
 import React from 'react';
-import { EnTeteEtapeFit } from './champs';
+import { EnTeteEtapeAtelier } from '@/components/atelier/champs';
 import { IconeConcurrence, IconeDifferenciation, IconeOffre, IconeSignaux } from './icones';
 import { detailsFit, recapFit, scoreFit, statutFit, type AtelierFit } from '@/lib/fit/types';
 
@@ -35,7 +35,7 @@ export const DiagnosticFit: React.FC<{ atelier: AtelierFit }> = ({ atelier }) =>
 
   return (
     <div>
-      <EnTeteEtapeFit
+      <EnTeteEtapeAtelier
         titre="Votre diagnostic FIT"
         aide="Synthèse de votre adéquation produit/marché — à partager avec votre équipe et à revisiter régulièrement."
       />

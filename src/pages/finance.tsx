@@ -46,7 +46,7 @@ export default function FinancePage() {
       profilAide="Ces informations permettent d’adapter les exemples et repères chiffrés tout au long de l’atelier."
       ctaTitre="Prêt à piloter par les chiffres ?"
       ctaSousTitre="Répondez aux questions étape par étape. Vous pouvez naviguer librement entre les étapes à tout moment."
-      ctaIndisponible
+      ctaHref="/app/finance"
     >
       <EncartLien
         titre="Ce module s’appuie sur OsKaR Vision et OsKaR Fit"

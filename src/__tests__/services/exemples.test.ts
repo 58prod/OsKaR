@@ -1,6 +1,7 @@
 import { SECTEURS } from '@/lib/secteurs';
 import { exemplesPour, EXEMPLES_PAR_FAMILLE, EXEMPLES_PAR_DEFAUT } from '@/lib/exemples';
 import { FIT_PAR_FAMILLE } from '@/lib/exemplesFit';
+import { FINANCE_PAR_FAMILLE } from '@/lib/exemplesFinance';
 
 /*
  * Règle produit : les exemples proposés doivent parler le langage du métier
@@ -30,10 +31,12 @@ describe('Exemples adaptés au métier', () => {
     });
   });
 
-  it('a des exemples Fit propres à chaque famille, tous remplis', () => {
+  it('a des exemples Fit et Finance propres à chaque famille, tous remplis', () => {
     const familles = Array.from(new Set(SECTEURS.map((s) => s.famille))).filter((f) => f !== 'Autre');
     const sansFit = familles.filter((f) => !FIT_PAR_FAMILLE[f]);
     expect(sansFit).toEqual([]);
+    const sansFinance = familles.filter((f) => !FINANCE_PAR_FAMILLE[f]);
+    expect(sansFinance).toEqual([]);
 
     const vides = (valeur: unknown, chemin: string): string[] =>
       typeof valeur === 'string'
@@ -41,6 +44,7 @@ describe('Exemples adaptés au métier', () => {
         : Object.entries(valeur as object).flatMap(([cle, v]) => vides(v, `${chemin}.${cle}`));
     Object.entries(EXEMPLES_PAR_FAMILLE).forEach(([famille, jeu]) => {
       expect(vides(jeu.fit, famille)).toEqual([]);
+      expect(vides(jeu.finance, famille)).toEqual([]);
     });
   });
 

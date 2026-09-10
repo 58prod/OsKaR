@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { BarreEtapesFit } from '@/components/fit/BarreEtapesFit';
+import { BarreEtapesAtelier } from '@/components/atelier/BarreEtapesAtelier';
 import { ConseilsFit } from '@/components/fit/ConseilsFit';
 import { EtapeOffre } from '@/components/fit/EtapesFit';
 import { exemplesPour } from '@/lib/exemples';
-import { ATELIER_FIT_VIDE, ETAPES_FIT } from '@/lib/fit/types';
+import { ATELIER_FIT_VIDE, ETAPES_FIT, LIBELLES_ETAPES_FIT } from '@/lib/fit/types';
 
 /*
  * Atelier Fit, d'après `fit-atelier.html` : une barre de cinq étapes
@@ -16,13 +16,13 @@ describe('Atelier Fit', () => {
   const artisan = exemplesPour('Plombier');
 
   it('reprend les cinq onglets de la maquette, dans l’ordre', () => {
-    render(<BarreEtapesFit etape="offre" onChange={() => {}} />);
+    render(<BarreEtapesAtelier pilier="fit" nom="Fit" etapes={ETAPES_FIT} libelles={LIBELLES_ETAPES_FIT} etape="offre" onChange={() => {}} />);
     const onglets = screen.getAllByRole('button').map((b) => b.textContent?.trim());
     expect(onglets).toEqual(['Offre', 'Différenciation', 'Concurrence', 'Signaux', 'Diagnostic']);
   });
 
   it('marque l’étape courante', () => {
-    render(<BarreEtapesFit etape="signaux" onChange={() => {}} />);
+    render(<BarreEtapesAtelier pilier="fit" nom="Fit" etapes={ETAPES_FIT} libelles={LIBELLES_ETAPES_FIT} etape="signaux" onChange={() => {}} />);
     expect(screen.getByRole('button', { current: 'step' })).toHaveTextContent('Signaux');
   });
 

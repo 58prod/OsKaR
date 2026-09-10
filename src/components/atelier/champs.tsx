@@ -1,8 +1,9 @@
 import React from 'react';
 
 /*
- * Briques de saisie de l'atelier Fit, aux valeurs relevées sur
- * `fit-atelier.html` servie (styles calculés, fenêtre de 1400 px) :
+ * Briques de saisie communes aux ateliers Fit et Finance, aux valeurs relevées
+ * sur `fit-atelier.html` et `finance-atelier.html` servies (mêmes classes
+ * `.card`, `.field`, `.step-header` dans `oskar.css`, fenêtre de 1400 px) :
  *   carte        blanche, bord 1px #e2e4f0, rayon 12, padding 27.5, marge 12
  *   préfixe      14px / 700 / gris / majuscules / interlettrage 0.8px
  *   intitulé     14.5px / 600 / navy, 5px au-dessus du champ
@@ -15,7 +16,7 @@ import React from 'react';
  *                aide 16px gris interligne 1.65
  */
 
-export const CHAMP_FIT =
+export const CHAMP_ATELIER =
   'w-full bg-surface border-[1.5px] border-line rounded-[10.5px] px-3.5 py-[11.5px] text-16 leading-[1.6] text-ink outline-none transition-[border-color,box-shadow] focus:border-teal focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,212,180,0.1)] placeholder:text-muted placeholder:text-15';
 
 /** Bouton principal des pieds d'étape (`.btn-navy`) : l'atelier Fit ne le recolore pas.
@@ -28,7 +29,7 @@ export const BTN_GHOST =
   'inline-flex items-center gap-1.5 px-[18px] py-[10.5px] rounded-[10.5px] bg-transparent border-[1.5px] border-line text-muted text-15.5 leading-[normal] font-semibold transition-all hover:border-navy hover:text-navy';
 
 /** En-tête d'étape : titre, promesse éventuelle, phrase d'aide. */
-export const EnTeteEtapeFit: React.FC<{ titre: string; promesse?: string; aide: string }> = ({
+export const EnTeteEtapeAtelier: React.FC<{ titre: string; promesse?: string; aide: string }> = ({
   titre,
   promesse,
   aide,
@@ -43,19 +44,21 @@ export const EnTeteEtapeFit: React.FC<{ titre: string; promesse?: string; aide: 
 );
 
 /** Carte blanche, avec le préfixe en majuscules de la maquette. */
-export const CarteFit: React.FC<{
+export const CarteAtelier: React.FC<{
   prefixe?: string;
   /** La maquette espace un peu plus le préfixe à l'étape « Signaux ». */
   prefixeAere?: boolean;
+  /** Marge sous le préfixe quand elle diffère (12px dans l'atelier Finance). */
+  prefixeMarge?: string;
   className?: string;
   children: React.ReactNode;
-}> = ({ prefixe, prefixeAere, className = 'mb-3', children }) => (
+}> = ({ prefixe, prefixeAere, prefixeMarge, className = 'mb-3', children }) => (
   <div
     className={`bg-white border border-line rounded-card p-[27.5px] shadow-card transition-colors hover:border-[#c8ccec] ${className}`}
   >
     {prefixe && (
       <span
-        className={`block text-14 font-bold uppercase tracking-[0.8px] text-muted ${prefixeAere ? 'mb-3.5' : 'mb-2.5'}`}
+        className={`block text-14 font-bold uppercase tracking-[0.8px] text-muted ${prefixeMarge ?? (prefixeAere ? 'mb-3.5' : 'mb-2.5')}`}
       >
         {prefixe}
       </span>
@@ -65,7 +68,7 @@ export const CarteFit: React.FC<{
 );
 
 /** Un champ : intitulé, saisie, note facultative. */
-export const ChampFit: React.FC<{
+export const ChampAtelier: React.FC<{
   id: string;
   label: string;
   value: string;
@@ -87,7 +90,7 @@ export const ChampFit: React.FC<{
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`${CHAMP_FIT} min-h-[80px] resize-y`}
+        className={`${CHAMP_ATELIER} min-h-[80px] resize-y`}
       />
     ) : (
       <input
@@ -96,7 +99,7 @@ export const ChampFit: React.FC<{
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`${CHAMP_FIT} h-10 resize-none`}
+        className={`${CHAMP_ATELIER} h-10 resize-none`}
       />
     )}
     {note && <p className="text-12.5 italic text-muted mt-[5px]">{note}</p>}
@@ -104,7 +107,7 @@ export const ChampFit: React.FC<{
 );
 
 /** Question à choix unique, présentée en cartouches empilés (`.fit-radio-group`). */
-export function ChoixFit<T extends string>({
+export function ChoixAtelier<T extends string>({
   name,
   label,
   value,

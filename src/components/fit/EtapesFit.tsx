@@ -1,5 +1,5 @@
 import React from 'react';
-import { CarteFit, ChampFit, ChoixFit, EnTeteEtapeFit } from './champs';
+import { CarteAtelier, ChampAtelier, ChoixAtelier, EnTeteEtapeAtelier } from '@/components/atelier/champs';
 import { nouveauConcurrent, TYPES_CONCURRENT, type AtelierFit, type Concurrent } from '@/lib/fit/types';
 import type { JeuExemples } from '@/lib/exemples';
 
@@ -23,21 +23,21 @@ export const EtapeOffre: React.FC<EtapeProps> = ({ atelier, modifier, exemples }
   const ex = exemples.fit.offre;
   return (
     <div>
-      <EnTeteEtapeFit
+      <EnTeteEtapeAtelier
         titre="L’offre"
         promesse="Ce que vous proposez vraiment"
         aide="Décrivez vos produits ou services en termes de valeur délivrée — pas de fonctionnalités, mais de bénéfices concrets pour vos clients."
       />
 
-      <CarteFit prefixe="Votre offre principale">
-        <ChampFit
+      <CarteAtelier prefixe="Votre offre principale">
+        <ChampAtelier
           id="f-offre-nom"
           label="Nom / intitulé de l’offre"
           value={atelier.offreNom}
           onChange={(v) => modifier({ offreNom: v })}
           placeholder={`Ex : ${ex.nom}`}
         />
-        <ChampFit
+        <ChampAtelier
           id="f-offre-valeur"
           label="Ce qu’elle permet de faire"
           lignes={3}
@@ -46,7 +46,7 @@ export const EtapeOffre: React.FC<EtapeProps> = ({ atelier, modifier, exemples }
           placeholder={`Ex : ${ex.valeur}…`}
           note="Formulez du point de vue du client : « ça me permet de… »"
         />
-        <ChampFit
+        <ChampAtelier
           id="f-offre-limite"
           label="Ce qu’elle ne fait PAS (périmètre)"
           lignes={2}
@@ -55,10 +55,10 @@ export const EtapeOffre: React.FC<EtapeProps> = ({ atelier, modifier, exemples }
           placeholder={`Ex : ${ex.limite}…`}
           note="Délimiter clairement ce qui est hors scope évite les malentendus et renforce la clarté perçue."
         />
-      </CarteFit>
+      </CarteAtelier>
 
-      <CarteFit prefixe="Lisibilité de l’offre">
-        <ChampFit
+      <CarteAtelier prefixe="Lisibilité de l’offre">
+        <ChampAtelier
           id="f-offre-pitch"
           label="En une phrase, pour quelqu’un qui ne vous connaît pas"
           lignes={2}
@@ -66,7 +66,7 @@ export const EtapeOffre: React.FC<EtapeProps> = ({ atelier, modifier, exemples }
           onChange={(v) => modifier({ offrePitch: v })}
           placeholder={`Ex : ${ex.pitch}…`}
         />
-        <ChoixFit
+        <ChoixAtelier
           name="lisibilite"
           label="Êtes-vous à l’aise pour l’expliquer en 30 secondes ?"
           value={atelier.lisibilite}
@@ -77,7 +77,7 @@ export const EtapeOffre: React.FC<EtapeProps> = ({ atelier, modifier, exemples }
             { valeur: 'non', libelle: 'Non, c’est encore flou' },
           ]}
         />
-      </CarteFit>
+      </CarteAtelier>
     </div>
   );
 };
@@ -86,14 +86,14 @@ export const EtapeOffre: React.FC<EtapeProps> = ({ atelier, modifier, exemples }
 
 export const EtapeDifferenciation: React.FC<EtapeProps> = ({ atelier, modifier, exemples }) => (
   <div>
-    <EnTeteEtapeFit
+    <EnTeteEtapeAtelier
       titre="La différenciation"
       promesse="Pourquoi vous, plutôt qu’un autre ?"
       aide="Ce qui vous distingue doit être réel, défendable dans le temps, et perçu comme tel par vos clients — pas seulement revendiqué par vous."
     />
 
-    <CarteFit>
-      <ChampFit
+    <CarteAtelier>
+      <ChampAtelier
         id="f-diff-avantage"
         label="Votre avantage principal"
         lignes={3}
@@ -102,7 +102,7 @@ export const EtapeDifferenciation: React.FC<EtapeProps> = ({ atelier, modifier, 
         placeholder={`Ex : ${exemples.fit.avantage}…`}
         note="Un seul avantage fort vaut mieux que cinq arguments dilués."
       />
-      <ChoixFit
+      <ChoixAtelier
         name="diff-clients"
         label="Est-ce que vos clients l’expriment spontanément ?"
         value={atelier.diffClients}
@@ -113,10 +113,10 @@ export const EtapeDifferenciation: React.FC<EtapeProps> = ({ atelier, modifier, 
           { valeur: 'non', libelle: 'Non, c’est surtout nous qui l’affirmons' },
         ]}
       />
-    </CarteFit>
+    </CarteAtelier>
 
-    <CarteFit>
-      <ChampFit
+    <CarteAtelier>
+      <ChampAtelier
         id="f-diff-mieux"
         label="Ce que vous faites mieux ou différemment que les alternatives"
         lignes={3}
@@ -124,7 +124,7 @@ export const EtapeDifferenciation: React.FC<EtapeProps> = ({ atelier, modifier, 
         onChange={(v) => modifier({ diffMieux: v })}
         placeholder={`Ex : ${exemples.fit.mieux}…`}
       />
-      <ChoixFit
+      <ChoixAtelier
         name="diff-durable"
         label="Cet avantage est-il durable ?"
         value={atelier.diffDurable}
@@ -135,7 +135,7 @@ export const EtapeDifferenciation: React.FC<EtapeProps> = ({ atelier, modifier, 
           { valeur: 'non', libelle: 'Non, facilement reproductible' },
         ]}
       />
-    </CarteFit>
+    </CarteAtelier>
   </div>
 );
 
@@ -164,7 +164,7 @@ export const EtapeConcurrence: React.FC<EtapeProps> = ({ atelier, modifier, exem
 
   return (
     <div>
-      <EnTeteEtapeFit
+      <EnTeteEtapeAtelier
         titre="L’environnement concurrentiel"
         promesse="Ce que le marché propose déjà"
         aide="Identifier ce qui existe vous aide à positionner votre offre — et à comprendre pourquoi un client vous choisit (ou ne vous choisit pas)."
@@ -264,8 +264,8 @@ export const EtapeConcurrence: React.FC<EtapeProps> = ({ atelier, modifier, exem
         + Ajouter un concurrent / une alternative
       </button>
 
-      <CarteFit className="mt-[18px] mb-3">
-        <ChampFit
+      <CarteAtelier className="mt-[18px] mb-3">
+        <ChampAtelier
           id="f-conc-raison"
           label="Pourquoi un client nous choisit-il plutôt qu’une alternative ?"
           lignes={3}
@@ -273,7 +273,7 @@ export const EtapeConcurrence: React.FC<EtapeProps> = ({ atelier, modifier, exem
           onChange={(v) => modifier({ concRaison: v })}
           placeholder={`Ex : ${exemples.fit.raison}…`}
         />
-        <ChampFit
+        <ChampAtelier
           id="f-conc-sans"
           label="Que font les clients qui ne font pas appel à nous ?"
           lignes={2}
@@ -282,7 +282,7 @@ export const EtapeConcurrence: React.FC<EtapeProps> = ({ atelier, modifier, exem
           placeholder={`Ex : ${exemples.fit.sans}…`}
           note="Le « statu quo » est votre premier concurrent."
         />
-      </CarteFit>
+      </CarteAtelier>
     </div>
   );
 };
@@ -296,14 +296,14 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
   const grille = 'mb-3.5';
   return (
     <div>
-      <EnTeteEtapeFit
+      <EnTeteEtapeAtelier
         titre="Les signaux marché"
         promesse="Ce que le terrain confirme"
         aide="Les signaux sont les preuves que le marché « vote » pour vous — rétention, recommandations, croissance organique. Ils ne mentent pas."
       />
 
-      <CarteFit prefixe="Signaux qualitatifs" prefixeAere>
-        <ChampFit
+      <CarteAtelier prefixe="Signaux qualitatifs" prefixeAere>
+        <ChampAtelier
           id="f-sig-verbatim"
           label="Retours clients spontanés (verbatims, témoignages)"
           lignes={3}
@@ -311,7 +311,7 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
           onChange={(v) => modifier({ sigVerbatim: v })}
           placeholder={`Ex : ${exemples.fit.verbatim}…`}
         />
-        <ChoixFit
+        <ChoixAtelier
           name="sig-bouche"
           label="Vos clients recommandent-ils spontanément ?"
           value={atelier.sigBouche}
@@ -322,11 +322,11 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
             { valeur: 'non', libelle: 'Rarement ou jamais' },
           ]}
         />
-      </CarteFit>
+      </CarteAtelier>
 
-      <CarteFit prefixe="Signaux quantitatifs" prefixeAere>
+      <CarteAtelier prefixe="Signaux quantitatifs" prefixeAere>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <ChampFit
+          <ChampAtelier
             id="f-sig-retention"
             label="Taux de rétention / renouvellement"
             value={atelier.sigRetention}
@@ -334,7 +334,7 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
             placeholder={`Ex : ${ex.retention}`}
             className={grille}
           />
-          <ChampFit
+          <ChampAtelier
             id="f-sig-organique"
             label="Part de croissance organique"
             value={atelier.sigOrganique}
@@ -342,7 +342,7 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
             placeholder={`Ex : ${ex.organique}`}
             className={grille}
           />
-          <ChampFit
+          <ChampAtelier
             id="f-sig-nps"
             label="NPS ou satisfaction mesurée"
             value={atelier.sigNps}
@@ -350,7 +350,7 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
             placeholder={`Ex : ${ex.nps}`}
             className={grille}
           />
-          <ChampFit
+          <ChampAtelier
             id="f-sig-autre"
             label="Autre indicateur clé"
             value={atelier.sigAutre}
@@ -359,10 +359,10 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
             className="mb-0"
           />
         </div>
-      </CarteFit>
+      </CarteAtelier>
 
-      <CarteFit>
-        <ChoixFit
+      <CarteAtelier>
+        <ChoixAtelier
           name="sig-demande"
           label="Ce que vous observez sur la demande entrante"
           value={atelier.sigDemande}
@@ -373,7 +373,7 @@ export const EtapeSignaux: React.FC<EtapeProps> = ({ atelier, modifier, exemples
             { valeur: 'faible', libelle: 'La demande est faible, on tâtonne' },
           ]}
         />
-      </CarteFit>
+      </CarteAtelier>
     </div>
   );
 };

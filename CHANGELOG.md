@@ -10,6 +10,32 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.15.0] - 2026-09-10
+
+### ✨ Ajouté — atelier Finance, d'après la maquette
+Transposition de `plateforme/finance-atelier.html`, maquette servie et styles
+calculés comparés à l'application.
+
+- **Atelier `/app/finance`** : cinq étapes dans la barre (revenus, coûts &
+  marge, rentabilité, décisions, synthèse). Tableaux éditables avec calcul en
+  direct (part de chaque ligne, CA total, part récurrente, marge brute), point
+  mort, marge de sécurité, runway, jauge et objectif de CA au curseur, trois
+  décisions à 90 jours, écran de fin vers le pilier OKR. Calculs repris à
+  l'identique de la maquette, les totaux de coûts sont recopiés dans l'étape
+  « Rentabilité » comme dans la maquette.
+- **Colonne « Conseils Coach »** : pictogramme et numéro d'étape dans
+  l'en-tête, repères chiffrés (seuils, marges par secteur) de la maquette.
+- **Exemples par métier** : sources de revenus, coûts, ordres de grandeur et
+  décisions adaptés aux 14 familles de métiers (`src/lib/exemplesFinance.ts`).
+- **Accès** : première étape avec un compte gratuit, la suite dans les formules.
+- **Page `/finance`** : le bouton « Démarrer l'atelier » est actif.
+- **Données** : table `ateliers` déjà créée pour Fit (pilier « finance »),
+  aucune migration.
+
+### 🔧 Technique
+- Briques de saisie et barre d'étapes communes aux ateliers Fit et Finance,
+  déplacées dans `src/components/atelier/`.
+
 ## [2.14.1] - 2026-09-10
 
 ### 🎨 Modifié — pages de présentation des 5 piliers alignées sur les maquettes
