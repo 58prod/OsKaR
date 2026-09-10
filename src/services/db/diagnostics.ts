@@ -1,17 +1,46 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { Database, Json } from '@/types/supabase';
 import type { AnalysisResult, DiagnosticState } from '@/lib/diagnostic';
+import type { ProductFitAnalysis, ProductFitProject } from '@/lib/productFit/types';
 
 type DiagnosticRow = Database['public']['Tables']['diagnostics']['Row'];
 type DiagnosticInsert = Database['public']['Tables']['diagnostics']['Insert'];
+
+/*
+ * Deux bilans gratuits cohabitent dans la table `diagnostics` : le bilan de
+ * maturité (5 piliers) et le bilan Potentiel Produit.
+ *
+ * Ils se distinguent par une clé `__bilan` posée dans le JSON `responses`.
+ * Pourquoi pas une colonne : la base est partagée avec l'application d'Eric,
+ * une migration devrait être coordonnée, et le JSONB accepte la clé sans rien
+ * changer au schéma. Les enregistrements antérieurs n'ont pas la clé : ils sont
+ * donc lus comme des bilans d'organisation, ce qu'ils sont.
+ */
+export type TypeBilan = 'organisation' | 'produit';
+
+/** Marqueur ajouté dans `responses` pour distinguer les deux bilans. */
+const CLE_TYPE = '__bilan';
 
 /** Diagnostic persisté (mapping de la row Supabase vers le domaine) */
 export interface DiagnosticRecord {
   id: string;
   userId: string | null;
   email: string | null;
+  /** Le type de bilan, déduit du contenu enregistré. */
+  type: TypeBilan;
   scores: AnalysisResult;
   responses: DiagnosticState;
+  createdAt: Date;
+}
+
+/** Bilan Potentiel Produit persisté. */
+export interface ProductFitRecord {
+  id: string;
+  userId: string | null;
+  email: string | null;
+  type: 'produit';
+  analysis: ProductFitAnalysis;
+  project: ProductFitProject;
   createdAt: Date;
 }
 
@@ -25,6 +54,14 @@ export interface DiagnosticPayload {
   scores: AnalysisResult;
   /** État brut du questionnaire (sliders, cases, touched) */
   responses: DiagnosticState;
+  /** Type de bilan ; « organisation » par défaut. */
+  type?: TypeBilan;
+}
+
+/** Type d'un enregistrement, d'après le marqueur posé dans `responses`. */
+export function typeDuBilan(responses: unknown): TypeBilan {
+  const marqueur = (responses as Record<string, unknown> | null)?.[CLE_TYPE];
+  return marqueur === 'produit' ? 'produit' : 'organisation';
 }
 
 /**
@@ -37,6 +74,7 @@ export class DiagnosticsService {
       id: row.id,
       userId: row.user_id,
       email: row.email,
+      type: typeDuBilan(row.responses),
       scores: row.scores as unknown as AnalysisResult,
       responses: row.responses as unknown as DiagnosticState,
       createdAt: new Date(row.created_at),
@@ -63,7 +101,10 @@ export class DiagnosticsService {
       user_id: authUserId,
       email,
       scores: payload.scores as unknown as Json,
-      responses: payload.responses as unknown as Json,
+      responses: {
+        ...(payload.responses as unknown as Record<string, unknown>),
+        [CLE_TYPE]: payload.type ?? 'organisation',
+      } as unknown as Json,
     };
 
     // Invité : la policy SELECT (user_id = auth.uid()) ne permet pas de relire la ligne
@@ -79,6 +120,7 @@ export class DiagnosticsService {
         id: '',
         userId: null,
         email,
+        type: payload.type ?? 'organisation',
         scores: payload.scores,
         responses: payload.responses,
         createdAt: new Date(),
@@ -101,9 +143,10 @@ export class DiagnosticsService {
   }
 
   /**
-   * Récupérer tous les diagnostics d'un utilisateur (du plus récent au plus ancien).
+   * Récupérer les bilans d'un utilisateur (du plus récent au plus ancien).
+   * Sans filtre, les deux types sont renvoyés.
    */
-  static async getByUser(userId: string): Promise<DiagnosticRecord[]> {
+  static async getByUser(userId: string, type?: TypeBilan): Promise<DiagnosticRecord[]> {
     const { data, error } = await supabase
       .from('diagnostics')
       .select('*')
@@ -115,7 +158,25 @@ export class DiagnosticsService {
       throw error;
     }
 
-    return (data || []).map((row: DiagnosticRow) => this.rowToRecord(row));
+    const tous: DiagnosticRecord[] = (data || []).map((row: DiagnosticRow) => this.rowToRecord(row));
+    return type ? tous.filter((r) => r.type === type) : tous;
+  }
+
+  /**
+   * Récupérer un bilan par son identifiant (pour le rouvrir dans l'outil).
+   */
+  static async getById(id: string): Promise<DiagnosticRecord | null> {
+    const { data, error } = await supabase
+      .from('diagnostics')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('❌ Erreur lors de la récupération du bilan:', error);
+      throw error;
+    }
+    return data ? this.rowToRecord(data) : null;
   }
 
   /**
@@ -154,7 +215,11 @@ export class DiagnosticsService {
     }
 
     const row = (Array.isArray(data) ? data[0] : data) as DiagnosticRow | undefined;
-    return row ? this.rowToRecord(row) : null;
+    if (!row) return null;
+    const record = this.rowToRecord(row);
+    // La fonction SQL renvoie le dernier bilan de cet email, quel qu'il soit :
+    // on écarte un bilan produit, dont la structure n'a rien à voir.
+    return record.type === 'organisation' ? record : null;
   }
 
   /**

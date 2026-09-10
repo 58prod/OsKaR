@@ -1,4 +1,5 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import { AlertCircle, AlertTriangle, Check } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
@@ -24,6 +25,7 @@ import {
 type EmailPromptMode = 'save' | 'pdf' | 'restore';
 
 const DiagnosticPage: React.FC = () => {
+  const router = useRouter();
   const [state, setState] = useState<DiagnosticState>(createInitialState);
 
   const user = useAppStore((s) => s.user);
@@ -34,6 +36,10 @@ const DiagnosticPage: React.FC = () => {
 
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<AuthModalTab>('register');
+
+  // Rouvrir un bilan enregistré, appelé depuis « Mes bilans » (?bilan=<id>).
+  const bilanDemande = typeof router.query.bilan === 'string' ? router.query.bilan : null;
+  const bilanChargeRef = useRef<string | null>(null);
 
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [analysisLoading, setAnalysisLoading] = useState(false);
@@ -49,6 +55,22 @@ const DiagnosticPage: React.FC = () => {
   // Email connu pour la session courante (après une restauration ou un enregistrement invité)
   // → permet de réenregistrer sans redemander l'email.
   const [currentEmail, setCurrentEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!bilanDemande || bilanChargeRef.current === bilanDemande) return;
+    bilanChargeRef.current = bilanDemande;
+    DiagnosticsService.getById(bilanDemande)
+      .then((record) => {
+        if (record?.type === 'organisation') {
+          setState(record.responses);
+          setCurrentEmail(record.email);
+          toast.info('Bilan rouvert.');
+        } else {
+          toast.error('Ce bilan est introuvable.');
+        }
+      })
+      .catch(() => toast.error('Ce bilan n’a pas pu être rouvert.'));
+  }, [bilanDemande, toast]);
 
   const openAuth = useCallback((tab: AuthModalTab) => { setAuthTab(tab); setAuthOpen(true); }, []);
 

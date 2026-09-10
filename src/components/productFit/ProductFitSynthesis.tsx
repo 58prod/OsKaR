@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { AlertCircle, AlertTriangle, Check, Target, Lightbulb, FileText, Loader2 } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Check, Target, Lightbulb, FileText, Loader2, Save } from 'lucide-react';
 import type { ProductFitAnalysis } from '@/lib/productFit/types';
 
 /*
@@ -18,6 +18,9 @@ interface ProductFitSynthesisProps {
   /** Envoi de la synthèse par email — comme sur la page Diagnostic, sans compte. */
   onRecevoirParEmail?: () => void;
   envoiEnCours?: boolean;
+  /** Enregistrement dans le compte ; absent si personne n'est connecté. */
+  onEnregistrer?: () => void;
+  enregistrementEnCours?: boolean;
 }
 
 /** Même code couleur que le Diagnostic : fragile, en construction, solide. */
@@ -38,6 +41,8 @@ export const ProductFitSynthesis: React.FC<ProductFitSynthesisProps> = ({
   analysis,
   onRecevoirParEmail,
   envoiEnCours = false,
+  onEnregistrer,
+  enregistrementEnCours = false,
 }) => {
   const router = useRouter();
   const {
@@ -90,6 +95,23 @@ export const ProductFitSynthesis: React.FC<ProductFitSynthesisProps> = ({
         </div>
         <p className="text-sm text-white/70 leading-relaxed mt-4">{verdictDescription}</p>
       </section>
+
+      {/* Conserver dans mon compte */}
+      {onEnregistrer && aDesResultats && (
+        <button
+          type="button"
+          onClick={onEnregistrer}
+          disabled={enregistrementEnCours}
+          className="w-full justify-center inline-flex items-center gap-2 px-4 py-3 bg-white text-navy text-sm font-semibold border-[1.5px] border-line rounded-lg transition-all hover:border-navy disabled:opacity-35 disabled:cursor-not-allowed"
+        >
+          {enregistrementEnCours ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <Save className="h-4 w-4" aria-hidden />
+          )}
+          Enregistrer dans mon compte
+        </button>
+      )}
 
       {/* Recevoir la synthèse : libre, sans compte */}
       {onRecevoirParEmail && aDesResultats && (

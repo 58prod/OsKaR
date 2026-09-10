@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { AlertCircle, AlertTriangle, Check } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
@@ -13,6 +14,9 @@ import { calculateProductFitAnalysis, SEUIL_FAIBLE, SEUIL_REEL, SEUIL_FORT } fro
 import type { PresetCase, ProductFitProject, PersonaEvaluation } from '@/lib/productFit/types';
 import { useAppStore } from '@/store/useAppStore';
 import { useToast } from '@/hooks/useToast';
+import { useCreateDiagnostic } from '@/hooks/useDiagnostics';
+import { DiagnosticsService } from '@/services/db/diagnostics';
+import type { DiagnosticState, AnalysisResult } from '@/lib/diagnostic';
 
 /*
  * Bilan « Potentiel Produit ».
@@ -26,8 +30,10 @@ import { useToast } from '@/hooks/useToast';
  */
 
 const DiagnosticProduitPage: React.FC = () => {
+  const router = useRouter();
   const { user, authReady, isAuthenticated } = useAppStore();
   const toast = useToast();
+  const enregistrerBilan = useCreateDiagnostic();
 
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [project, setProject] = useState<ProductFitProject>(() => EMPTY_PROJECT);
@@ -40,6 +46,50 @@ const DiagnosticProduitPage: React.FC = () => {
   }, []);
 
   const analysis = useMemo(() => calculateProductFitAnalysis(project), [project]);
+
+  /* ── Conserver le bilan : le projet fait office de réponses, l'analyse de scores ── */
+  const conserver = useCallback(
+    async (email: string | null) => {
+      await enregistrerBilan.mutateAsync({
+        userId: user?.id ?? null,
+        email,
+        type: 'produit',
+        scores: analysis as unknown as AnalysisResult,
+        responses: project as unknown as DiagnosticState,
+      });
+    },
+    [analysis, project, user, enregistrerBilan]
+  );
+
+  const [avisEnregistrement, setAvisEnregistrement] = useState('');
+  const enregistrerPourMonCompte = useCallback(async () => {
+    try {
+      await conserver(user?.email ?? null);
+      setAvisEnregistrement('Bilan enregistré. Vous le retrouverez dans « Mes bilans ».');
+      toast.success('Bilan enregistré.');
+    } catch {
+      toast.error("Le bilan n'a pas pu être enregistré.");
+    }
+  }, [conserver, user, toast]);
+
+  /* ── Rouvrir un bilan enregistré (?bilan=<id>) ── */
+  const bilanDemande = typeof router.query.bilan === 'string' ? router.query.bilan : null;
+  const bilanChargeRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!bilanDemande || bilanChargeRef.current === bilanDemande) return;
+    bilanChargeRef.current = bilanDemande;
+    DiagnosticsService.getById(bilanDemande)
+      .then((record) => {
+        if (record?.type === 'produit') {
+          setProject(record.responses as unknown as ProductFitProject);
+          setSelectedPresetId(null);
+          toast.info('Bilan rouvert.');
+        } else {
+          toast.error('Ce bilan est introuvable.');
+        }
+      })
+      .catch(() => toast.error('Ce bilan n’a pas pu être rouvert.'));
+  }, [bilanDemande, toast]);
 
   /* ── Recevoir la synthèse par email : libre, aucun compte requis ── */
   const [emailOuvert, setEmailOuvert] = useState(false);
@@ -64,6 +114,13 @@ const DiagnosticProduitPage: React.FC = () => {
           }
           throw new Error(detail);
         }
+        // Comme sur le Diagnostic : on garde le bilan rattaché à cet email,
+        // pour que la personne le retrouve si elle crée un compte ensuite.
+        try {
+          await conserver(email);
+        } catch {
+          /* l'envoi a réussi : un échec d'enregistrement ne doit pas alarmer */
+        }
         setEmailOuvert(false);
         setAvisEnvoi(`Votre synthèse a été envoyée à ${email}.`);
         toast.success('Synthèse envoyée par email.');
@@ -75,7 +132,7 @@ const DiagnosticProduitPage: React.FC = () => {
         setEnvoiEnCours(false);
       }
     },
-    [analysis, project, toast]
+    [analysis, project, toast, conserver]
   );
 
   const handleSelectPreset = (preset: PresetCase) => {
@@ -150,9 +207,9 @@ const DiagnosticProduitPage: React.FC = () => {
           </div>
         </header>
 
-        {avisEnvoi && (
+        {(avisEnvoi || avisEnregistrement) && (
           <div role="status" aria-live="polite" className="mb-6 rounded-lg border border-teal/40 bg-teal-light px-4 py-3 text-sm text-navy">
-            {avisEnvoi}
+            {avisEnvoi || avisEnregistrement}
           </div>
         )}
 
@@ -223,6 +280,8 @@ const DiagnosticProduitPage: React.FC = () => {
             analysis={analysis}
             onRecevoirParEmail={() => setEmailOuvert(true)}
             envoiEnCours={envoiEnCours}
+            onEnregistrer={isAuthenticated ? enregistrerPourMonCompte : undefined}
+            enregistrementEnCours={enregistrerBilan.isPending}
           />
         </div>
 

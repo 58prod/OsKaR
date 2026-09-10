@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.7.0] - 2026-09-10
+
+### ✨ Ajouté — « Mes bilans »
+- **Écran `/mes-bilans`** : un compte y retrouve ses bilans de maturité et ses
+  analyses de potentiel produit, du plus récent au plus ancien, avec la note et
+  le verdict. Chaque bilan se rouvre dans l'outil qui l'a produit
+  (`?bilan=<id>`) ou se supprime. Accessible depuis le menu utilisateur.
+- **Le Potentiel Produit s'enregistre** : bouton « Enregistrer dans mon compte »
+  quand on est connecté, et enregistrement automatique lors de l'envoi par
+  email — rattaché à l'adresse, comme le fait déjà le Diagnostic, de sorte
+  qu'un compte créé ensuite retrouve le bilan.
+
+### 🔧 Technique
+- Les deux bilans cohabitent dans la table `diagnostics`, distingués par une
+  clé `__bilan` posée dans le JSON `responses` : aucune migration, donc aucune
+  coordination nécessaire avec l'application d'Eric sur la base partagée. Les
+  enregistrements antérieurs, sans la clé, sont lus comme des bilans
+  d'organisation — ce qu'ils sont.
+- La restauration d'un bilan par email écarte désormais un bilan produit, dont
+  la structure n'a rien à voir avec celle du questionnaire de maturité.
+
 ## [2.6.0] - 2026-09-10
 
 ### ✨ Ajouté — règles d'accès de la plateforme
