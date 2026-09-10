@@ -13,6 +13,8 @@ interface LayoutProps {
   title?: string;
   description?: string;
   requireAuth?: boolean;
+  /** Sans effet depuis que l'onboarding est facultatif ; conservé pour les
+   *  pages qui le passent encore (connexion, inscription…). */
   skipOnboarding?: boolean;
 }
 
@@ -21,11 +23,11 @@ const Layout: React.FC<LayoutProps> = ({
   title,
   description,
   requireAuth = false,
-  skipOnboarding = false,
+  skipOnboarding: _skipOnboarding = false,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
-  const { user, authReady, isAuthenticated, profileReady } = useAppStore();
+  const { authReady, isAuthenticated } = useAppStore();
 
   // Authentification : attendre que Supabase ait terminé l'initialisation
   // (INITIAL_SESSION reçu) avant de décider de rediriger
@@ -41,14 +43,9 @@ const Layout: React.FC<LayoutProps> = ({
       return;
     }
 
-    // Session valide mais profil encore en cours de résolution
-    if (!user) return;
-
-    // Vérifier l'onboarding uniquement quand le profil est résolu
-    if (profileReady && !user.companyProfile && !skipOnboarding && router.pathname !== '/onboarding') {
-      router.push('/onboarding');
-    }
-  }, [requireAuth, user, authReady, isAuthenticated, profileReady, skipOnboarding, router]);
+    // L'onboarding n'est plus imposé : le profil d'entreprise se complète
+    // quand la personne le décide, depuis son écran.
+  }, [requireAuth, authReady, isAuthenticated, router]);
 
 
   const pageTitle = title ? `${title} - ${APP_CONFIG.name}` : APP_CONFIG.name;

@@ -71,24 +71,19 @@ export const OkrShell: React.FC<OkrShellProps> = ({
   contentPadding,
 }) => {
   const router = useRouter();
-  const { user, authReady, isAuthenticated, profileReady, experimentalFeatures } = useAppStore();
+  const { user, authReady, isAuthenticated, experimentalFeatures } = useAppStore();
 
-  // Gating auth + onboarding (aligné sur Layout)
+  /*
+   * Seule l'authentification est exigée. L'onboarding, profil d'entreprise
+   * compris, est facultatif : quelqu'un qui crée un compte pour conserver un
+   * bilan ne doit pas se heurter à un questionnaire avant d'entrer.
+   */
   useEffect(() => {
     if (!authReady) return;
     if (!isAuthenticated) {
       router.replace(urlConnexion(router.asPath));
-      return;
     }
-    if (!user) return;
-    if (profileReady && router.pathname !== '/onboarding') {
-      if (!user.companyProfile) {
-        router.push('/onboarding?module=okr');
-      } else if (!user.settings?.onboarding?.okr) {
-        router.push('/onboarding?module=okr');
-      }
-    }
-  }, [authReady, isAuthenticated, user, profileReady, router]);
+  }, [authReady, isAuthenticated, router]);
 
   const sections: SidebarSection[] = useMemo(
     () =>

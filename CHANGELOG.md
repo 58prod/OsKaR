@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.8.0] - 2026-09-10
+
+### ✨ Ajouté — le domaine d'activité, tout de suite
+- **Première étape de l'onboarding : « Quel est votre domaine d'activité ? »**
+  Une seule question, la grande liste des maquettes, et un lien « Plus tard ».
+- **La liste des secteurs des maquettes** (`src/lib/secteurs.ts`) : 14 familles,
+  95 activités, extraites de `vision.html` plutôt que recopiées. Le profil
+  d'entreprise l'utilise aussi, à la place de son champ de texte libre : le
+  secteur choisi veut désormais dire la même chose partout. Cinq tests la
+  comparent à la maquette.
+
+### 🔧 Modifié
+- **L'onboarding devient facultatif.** Le profil d'entreprise n'est plus exigé
+  pour entrer dans l'espace OKR ni ailleurs : quelqu'un qui crée un compte pour
+  conserver un bilan n'a plus de questionnaire sur son chemin. Il se complète
+  quand la personne le décide, depuis son écran.
+
 ## [2.7.1] - 2026-09-10
 
 ### 🔧 Corrigé — cohérence du parcours d'inscription

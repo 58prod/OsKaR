@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Building2, LogOut, User as UserIcon, Target, CheckCircle2, ArrowRight } from 'lucide-react';
 import Head from 'next/head';
 import { CompanyProfileForm } from '@/components/ui/CompanyProfileForm';
+import { ChoixSecteur } from '@/components/ui/ChoixSecteur';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AppShell } from '@/components/layout/AppShell';
@@ -16,7 +17,7 @@ import { isSupabaseConfigured } from '@/lib/supabaseClient';
 import { Status } from '@/types';
 import type { CompanyProfile } from '@/types';
 
-type OnboardingStep = 'profile' | 'welcome' | 'ambition';
+type OnboardingStep = 'secteur' | 'profile' | 'welcome' | 'ambition';
 
 const OnboardingPage: React.FC = () => {
   const router = useRouter();
@@ -24,7 +25,8 @@ const OnboardingPage: React.FC = () => {
   const createAmbition = useCreateAmbition();
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [step, setStep] = useState<OnboardingStep>('profile');
+  const [step, setStep] = useState<OnboardingStep>('secteur');
+  const [secteur, setSecteur] = useState('');
   const initialised = useRef(false);
 
   // Module ciblé par l'onboarding (seul OKR est actif pour l'instant)
@@ -50,7 +52,9 @@ const OnboardingPage: React.FC = () => {
     // Détermine l'étape initiale une seule fois (sans repositionner ensuite)
     if (!initialised.current) {
       initialised.current = true;
-      setStep(user.companyProfile ? 'welcome' : 'profile');
+      const secteurConnu = user.companyProfile?.industry;
+      if (secteurConnu) setSecteur(secteurConnu);
+      setStep(secteurConnu ? 'welcome' : 'secteur');
     }
   }, [authReady, isAuthenticated, profileReady, user, router, moduleId]);
 
@@ -67,6 +71,30 @@ const OnboardingPage: React.FC = () => {
       </>
     );
   }
+
+  /**
+   * Enregistre le domaine d'activité seul. Le reste du profil d'entreprise
+   * n'est plus exigé pour entrer : il se complète plus tard, dans son écran.
+   */
+  const handleSecteurSubmit = async () => {
+    if (!secteur) return;
+    setIsSaving(true);
+    setError(null);
+    const profil = { ...(user?.companyProfile ?? {}), industry: secteur } as CompanyProfile;
+    try {
+      if (isSupabaseConfigured() && user?.id) {
+        const updated = await AuthService.updateCompanyProfile(user.id, profil);
+        setUser(AuthService.profileToUser(updated));
+      } else {
+        updateCompanyProfile(profil);
+      }
+      setStep('welcome');
+    } catch (err: any) {
+      setError(`Erreur : ${err?.message ?? 'le secteur n’a pas pu être enregistré.'}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleCompanyProfileSubmit = async (companyProfile: CompanyProfile) => {
     setIsSaving(true);
@@ -190,9 +218,9 @@ const OnboardingPage: React.FC = () => {
     },
   };
 
-  const stepOrder: OnboardingStep[] = ['profile', 'welcome', 'ambition'];
+  const stepOrder: OnboardingStep[] = ['secteur', 'welcome', 'ambition'];
   const stepMeta = [
-    { id: 'profile', label: 'Profil entreprise' },
+    { id: 'secteur', label: 'Votre activité' },
     { id: 'welcome', label: 'Bienvenue OKR' },
     { id: 'ambition', label: 'Première ambition' },
   ];
@@ -229,7 +257,64 @@ const OnboardingPage: React.FC = () => {
         })}
       </ol>
 
-      {/* Étape 1 : profil entreprise (porte d'entrée globale obligatoire) */}
+      {/* Étape 1 : le domaine d'activité, seul et rapide. Tout le reste attend. */}
+      {step === 'secteur' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-xl"
+        >
+          <div className="flex items-center gap-4 mb-8">
+            <div className="bg-navy rounded-2xl p-3.5 shrink-0">
+              <Building2 className="h-8 w-8 text-teal" aria-hidden />
+            </div>
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-navy">Quel est votre domaine d&rsquo;activité&nbsp;?</h1>
+              <p className="text-muted mt-1">
+                Une seule question, pour adapter les conseils à votre métier.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-card border border-line shadow-card p-6">
+            <label htmlFor="onboarding-secteur" className="block text-sm font-semibold text-ink mb-2">
+              Votre secteur
+            </label>
+            <ChoixSecteur id="onboarding-secteur" value={secteur} onChange={setSecteur} />
+
+            {error && (
+              <p role="alert" className="mt-3 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3 mt-6">
+              <button
+                type="button"
+                onClick={handleSecteurSubmit}
+                disabled={!secteur || isSaving}
+                className="inline-flex items-center gap-2 px-5 py-3 bg-teal text-navy-dark text-sm font-bold rounded-lg hover:bg-teal-dark transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isSaving ? 'Enregistrement…' : 'Continuer →'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep('welcome')}
+                disabled={isSaving}
+                className="text-sm font-medium text-muted underline hover:text-navy transition-colors disabled:opacity-50"
+              >
+                Plus tard
+              </button>
+            </div>
+            <p className="text-xs text-muted mt-4">
+              Vous pourrez le changer à tout moment dans votre profil d&rsquo;entreprise.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Profil d'entreprise complet — facultatif, atteignable depuis son écran */}
       {step === 'profile' && (
         <>
           <motion.div
@@ -247,7 +332,7 @@ const OnboardingPage: React.FC = () => {
                 <p className="text-muted mt-1 max-w-2xl">
                   Ce profil d'entreprise est utilisé par les{' '}
                   <strong className="text-navy">5 piliers</strong> d'OSKAR pour personnaliser vos
-                  recommandations. Vous ne le renseignez qu'une seule fois.
+                  recommandations. Il est facultatif et se complète quand vous voulez.
                 </p>
               </div>
             </div>

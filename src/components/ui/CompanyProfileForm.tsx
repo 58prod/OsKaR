@@ -1,4 +1,5 @@
 import React from 'react';
+import { SECTEURS } from '@/lib/secteurs';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Building2, Users, Target, AlertCircle, Loader2 } from 'lucide-react';
@@ -111,15 +112,27 @@ export const CompanyProfileForm: React.FC<CompanyProfileFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="profil-secteur" className="block text-sm font-medium text-gray-700 mb-2">
                   Secteur d'activité *
                 </label>
-                <input
-                  type="text"
-                  placeholder="Ex: SaaS, E-commerce, Consulting..."
+                {/* Même liste que l'onboarding et que les maquettes : le secteur
+                    choisi doit vouloir dire la même chose partout. */}
+                <select
+                  id="profil-secteur"
                   className="block w-full rounded-lg border border-line px-3 py-2 text-sm shadow-sm transition-colors focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal"
                   {...register('industry', { required: 'Le secteur d\'activité est requis' })}
-                />
+                >
+                  <option value="">— Sélectionnez votre secteur —</option>
+                  {SECTEURS.map(({ famille, activites }) => (
+                    <optgroup key={famille} label={famille}>
+                      {activites.map((activite) => (
+                        <option key={activite} value={activite}>
+                          {activite}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
                 {errors.industry && (
                   <p className="mt-1 text-sm text-red-600">{errors.industry.message}</p>
                 )}
