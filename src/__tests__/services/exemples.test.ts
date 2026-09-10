@@ -1,5 +1,6 @@
 import { SECTEURS } from '@/lib/secteurs';
 import { exemplesPour, EXEMPLES_PAR_FAMILLE, EXEMPLES_PAR_DEFAUT } from '@/lib/exemples';
+import { FIT_PAR_FAMILLE } from '@/lib/exemplesFit';
 
 /*
  * Règle produit : les exemples proposés doivent parler le langage du métier
@@ -27,6 +28,26 @@ describe('Exemples adaptés au métier', () => {
       // La famille est bien nommée : le test échouerait sur une clé fantaisiste.
       expect(typeof famille).toBe('string');
     });
+  });
+
+  it('a des exemples Fit propres à chaque famille, tous remplis', () => {
+    const familles = Array.from(new Set(SECTEURS.map((s) => s.famille))).filter((f) => f !== 'Autre');
+    const sansFit = familles.filter((f) => !FIT_PAR_FAMILLE[f]);
+    expect(sansFit).toEqual([]);
+
+    const vides = (valeur: unknown, chemin: string): string[] =>
+      typeof valeur === 'string'
+        ? valeur.trim() ? [] : [chemin]
+        : Object.entries(valeur as object).flatMap(([cle, v]) => vides(v, `${chemin}.${cle}`));
+    Object.entries(EXEMPLES_PAR_FAMILLE).forEach(([famille, jeu]) => {
+      expect(vides(jeu.fit, famille)).toEqual([]);
+    });
+  });
+
+  it('donne à un artisan des exemples Fit de chantier', () => {
+    const fit = JSON.stringify(exemplesPour('Plombier').fit).toLowerCase();
+    expect(fit).toContain('chantier');
+    expect(fit).not.toContain('dirigeants de pme');
   });
 
   it('donne les exemples du métier quand une activité est choisie', () => {

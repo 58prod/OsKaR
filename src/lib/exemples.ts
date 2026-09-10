@@ -1,4 +1,5 @@
 import { familleDe } from './secteurs';
+import { FIT_PAR_DEFAUT, FIT_PAR_FAMILLE, type ExemplesFit } from './exemplesFit';
 
 /*
  * Exemples adaptés au métier.
@@ -51,10 +52,15 @@ export interface JeuExemples {
     projection: { ca: string; clients: string; offre: string; organisation: string };
     valeurs: { nom: string; traduction: string }[];
   };
+  /** Repères pour l'atelier Fit, écrits à part dans `exemplesFit.ts`. */
+  fit: ExemplesFit;
 }
 
+/** Un jeu avant qu'on lui rattache ses exemples Fit. */
+type JeuSansFit = Omit<JeuExemples, 'fit'>;
+
 /** Sans secteur choisi : les exemples d'origine, volontairement passe-partout. */
-export const EXEMPLES_PAR_DEFAUT: JeuExemples = {
+const JEU_PAR_DEFAUT: JeuSansFit = {
   objectifs: [
     { libelle: 'Doubler le CA', titre: "Doubler mon chiffre d'affaires", cible: '2', unite: 'M€ de CA' },
     { libelle: "Structurer l'équipe", titre: "Recruter et structurer l'équipe", cible: '5', unite: 'collaborateurs' },
@@ -95,9 +101,11 @@ export const EXEMPLES_PAR_DEFAUT: JeuExemples = {
   },
 };
 
+export const EXEMPLES_PAR_DEFAUT: JeuExemples = { ...JEU_PAR_DEFAUT, fit: FIT_PAR_DEFAUT };
+
 /* Un jeu par famille de la liste des secteurs. Les clés sont les intitulés
  * exacts de `secteurs.ts` : un test vérifie qu'aucune famille n'est oubliée. */
-export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
+const JEUX_PAR_FAMILLE: Record<string, JeuSansFit> = {
   'Artisanat & bâtiment': {
     objectifs: [
       { libelle: 'Plus de chantiers', titre: 'Augmenter le nombre de chantiers signés', cible: '60', unite: 'chantiers' },
@@ -631,8 +639,16 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = {
     },
   },
 
-  Autre: EXEMPLES_PAR_DEFAUT,
+  Autre: JEU_PAR_DEFAUT,
 };
+
+/** Chaque jeu complété de ses exemples Fit ; « Autre » reste le jeu générique. */
+export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = Object.fromEntries(
+  Object.entries(JEUX_PAR_FAMILLE).map(([famille, jeu]) => [
+    famille,
+    jeu === JEU_PAR_DEFAUT ? EXEMPLES_PAR_DEFAUT : { ...jeu, fit: FIT_PAR_FAMILLE[famille] ?? FIT_PAR_DEFAUT },
+  ])
+);
 
 /**
  * Le jeu d'exemples correspondant à une activité.

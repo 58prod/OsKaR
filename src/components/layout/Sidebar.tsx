@@ -88,7 +88,7 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
     label: 'Les 5 Piliers',
     items: [
       { accent: 'vision', href: '/vision', aussi: ['/app/vision'], label: 'OsKaR Vision', icon: Eye },
-      { accent: 'fit', href: '/fit', label: 'OsKaR Fit', icon: LineChart },
+      { accent: 'fit', href: '/fit', aussi: ['/app/fit'], label: 'OsKaR Fit', icon: LineChart },
       { accent: 'finance', href: '/finance', label: 'OsKaR Finance', icon: TargetIcon },
       { accent: 'okr', href: '/okr', aussi: ['/app/okr'], label: 'OsKaR OKR', icon: CheckSquare },
       { accent: 'team', href: '/team', label: 'OsKaR Team', icon: Users },

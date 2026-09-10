@@ -10,6 +10,34 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.14.0] - 2026-09-10
+
+### ✨ Ajouté — atelier Fit, d'après la maquette
+Transposition de `plateforme/fit.html` et `plateforme/fit-atelier.html`, avec
+la même méthode que Vision : maquettes servies, styles calculés relevés puis
+comparés à l'application.
+
+- **Atelier `/app/fit`** : cinq étapes dans la barre (offre, différenciation,
+  concurrence, signaux, diagnostic), colonne de conseils à droite (340 px,
+  accents teal sur voile vert Fit), tableau des concurrents, questions à trois
+  choix en cartouches. Le diagnostic reprend à l'identique le barème de la
+  maquette (score sur 17, seuils 13 / 8 / 4) et son export PDF.
+- **Exemples par métier** : tous les exemples de l'atelier (champs et encart
+  « Exemple » des conseils) s'adaptent aux 14 familles de métiers, exemples de
+  la maquette par défaut (`src/lib/exemplesFit.ts`).
+- **Accès** : première étape avec un compte gratuit, la suite dans les formules,
+  comme les autres ateliers.
+- **Page `/fit`** : refaite d'après `fit.html` (bandeau, repères, encart
+  « Ce module complète OsKaR Vision », profil et appel à l'action). L'ancienne
+  page renvoyait vers le Potentiel Produit, toujours accessible depuis le menu.
+- **Données** : table `ateliers` (une ligne par personne et par pilier, pour
+  Fit, puis Finance et Team). Migration `20260910_create_ateliers.sql`, à
+  exécuter dans Supabase.
+
+### 🎨 Modifié
+- Pastilles d'étapes des pages de pilier : point de 6 px à la couleur du
+  pilier et écart de 10,5 px, comme `.cta-step-pill` dans `oskar.css`.
+
 ## [2.13.0] - 2026-09-10
 
 ### 🎨 Modifié — largeurs et couleurs relevées sur la maquette servie

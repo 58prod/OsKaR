@@ -28,43 +28,49 @@ import { useAppStore } from '@/store/useAppStore';
  *                 (degrade navy, rayon 18.5px, padding 32)
  *   titre appel   20.5px / 700 / blanc
  *   sous-titre    15px / 400 / interligne 1.5 / blanc 60 %
- *   pastille      14px / 400 / blanc 75 % sur blanc 10 %, rayon 23px, 4/12
+ *   pastille      14px / 400 / blanc 75 % sur blanc 10 %, rayon 23px, 4/12,
+ *                 point de 6px couleur du pilier a 5px du texte, ecart 10.5px
  *   bouton        17px / 700 / blanc sur couleur du pilier, rayon 14px, 16/28
  */
 
 export type Pilier = 'vision' | 'fit' | 'finance' | 'okr' | 'team';
 
 /** Classes ecrites en toutes lettres : Tailwind ne resout pas les noms construits. */
-const COULEURS: Record<Pilier, { texte: string; fond: string; icone: string; pastilleBord: string }> = {
+const COULEURS: Record<Pilier, { texte: string; fond: string; icone: string; pastilleBord: string; point: string }> = {
   vision: {
     texte: 'text-vision',
     fond: 'bg-vision hover:bg-vision-dark',
     icone: 'bg-vision-light text-vision-dark',
     pastilleBord: 'border-vision/20',
+    point: 'bg-vision',
   },
   fit: {
     texte: 'text-fit',
     fond: 'bg-fit hover:bg-fit-dark',
     icone: 'bg-fit-light text-fit-dark',
     pastilleBord: 'border-fit/20',
+    point: 'bg-fit',
   },
   finance: {
     texte: 'text-finance',
     fond: 'bg-finance hover:bg-finance-dark',
     icone: 'bg-finance-light text-finance-dark',
     pastilleBord: 'border-finance/20',
+    point: 'bg-finance',
   },
   okr: {
     texte: 'text-okr',
     fond: 'bg-okr hover:bg-okr-dark',
     icone: 'bg-okr-light text-okr-dark',
     pastilleBord: 'border-okr/20',
+    point: 'bg-okr',
   },
   team: {
     texte: 'text-team',
     fond: 'bg-team hover:bg-team-dark',
     icone: 'bg-team-light text-team-dark',
     pastilleBord: 'border-team/20',
+    point: 'bg-team',
   },
 };
 
@@ -218,12 +224,13 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
               <h2 className="text-20.5 font-bold text-white mb-1.5">{ctaTitre}</h2>
               <p className="text-15 leading-[1.5] text-white/60 mb-6">{ctaSousTitre}</p>
 
-              <ol className="flex flex-wrap gap-2 mb-7">
+              <ol className="flex flex-wrap gap-[10.5px] mb-7">
                 {etapes.map((etape) => (
                   <li
                     key={etape}
-                    className="text-14 text-white/75 bg-white/10 rounded-[23px] px-3 py-1"
+                    className="inline-flex items-center gap-[5px] text-14 text-white/75 bg-white/10 rounded-[23px] px-3 py-1"
                   >
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.point}`} aria-hidden />
                     {etape}
                   </li>
                 ))}
