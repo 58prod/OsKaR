@@ -24,8 +24,10 @@ export default function Document() {
         />
 
         {/* Favicons */}
-        <link rel="icon" type="image/png" href="/images/oskar/logo-oskar2.png" />
-        <link rel="apple-touch-icon" href="/images/oskar/logo-oskar2.png" />
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />

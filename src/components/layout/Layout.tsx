@@ -56,7 +56,6 @@ const Layout: React.FC<LayoutProps> = ({
         <title>{pageTitle}</title>
         <meta name="description" content={description || APP_CONFIG.description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <div className="min-h-screen bg-gray-50 flex flex-col">

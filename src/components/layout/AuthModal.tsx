@@ -109,7 +109,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab 
     >
       <div className="bg-white rounded-2xl w-[420px] max-w-[95vw] shadow-auth-modal overflow-hidden animate-slide-up">
         <div className="relative bg-gradient-to-br from-navy-dark to-navy px-7 pt-7 pb-5 text-center">
-          <Image src="/images/oskar/logo-oskar.png" alt="Oskar" width={120} height={28} className="h-7 w-auto mx-auto mb-3.5 brightness-0 invert" />
+          <Image src="/images/oskar/logo-oskar-blanc.png" alt="Oskar" width={140} height={28} className="h-7 w-auto mx-auto mb-3.5" />
           <h2 id="auth-modal-title" className="text-xl font-extrabold text-white mb-1">
             {tab === 'login' ? 'Bon retour !' : 'Rejoignez Oskar'}
           </h2>

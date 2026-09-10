@@ -10,6 +10,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.16.1] - 2026-09-10
+
+### 🐛 Corrigé — favicon et logo de la fenêtre de connexion
+- **Favicon déformé** : il pointait vers `logo-oskar2.png`, une image de
+  1976 × 1528 px que le navigateur écrasait en carré. Remplacé par des icônes
+  carrées tirées du cercle du logo, fond transparent : `favicon.ico` (16, 32,
+  48 px), `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`
+  (180 px, fond blanc) et `icon-192x192.png` / `icon-512x512.png` pour le
+  manifeste. L'ancien favicon (logo « OSKAR » réduit à 48 px) et les icônes
+  violettes d'OKaRina sont supprimés ; le manifeste s'appelle « Oskar ».
+- **Logo en rectangle blanc** dans la fenêtre de connexion : le filtre
+  `brightness-0 invert` blanchissait aussi le fond blanc opaque du PNG.
+  Nouveau fichier `logo-oskar-blanc.png` (logo blanc, point teal conservé,
+  fond transparent), affiché sans filtre.
+
 ## [2.16.0] - 2026-09-10
 
 ### ✨ Ajouté — compte de démonstration
