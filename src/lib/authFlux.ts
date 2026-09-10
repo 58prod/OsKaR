@@ -65,3 +65,21 @@ export function messageNouveauMotDePasse(msg: string | undefined): string {
   if (m.includes('Failed to fetch') || m.includes('NetworkError')) return 'Impossible de joindre le serveur. Vérifiez votre connexion internet.';
   return 'Une erreur est survenue lors de la mise à jour du mot de passe. Veuillez réessayer.';
 }
+
+/** Domaine des comptes de démonstration : « oskar » se connecte comme « oskar@demo.oskar ». */
+export const DOMAINE_DEMO = 'demo.oskar';
+
+/**
+ * Le champ de connexion accepte une adresse email ou un simple identifiant de
+ * démonstration (« oskar ») : sans « @ », on complète avec le domaine de démo.
+ */
+export function identifiantVersEmail(saisie: string): string {
+  const v = saisie.trim();
+  return v.includes('@') ? v : `${v.toLowerCase()}@${DOMAINE_DEMO}`;
+}
+
+/** Une adresse email valide, ou un identifiant simple (lettres, chiffres, . _ -). */
+export function identifiantValide(saisie: string): boolean {
+  const v = saisie.trim();
+  return v.includes('@') ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : /^[a-z0-9._-]+$/i.test(v);
+}

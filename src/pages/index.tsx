@@ -203,11 +203,11 @@ const HomePage: React.FC = () => {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Bientôt', href: '/vision' },
-            { id: '02', name: 'OSKAR Market Fit', desc: 'Validez le potentiel et trouvez vos Early Adopters.', icon: LineChart, status: 'Disponible', href: '/diagnostic-produit' },
-            { id: '03', name: 'OSKAR Finance', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Bientôt', href: '/finance' },
-            { id: '04', name: 'OSKAR OKR', desc: 'Alignez stratégie et exécution.', icon: CheckSquare, status: 'Disponible', href: '/app/okr/dashboard' },
-            { id: '05', name: 'OSKAR Team', desc: 'Renforcez la cohésion de votre organisation.', icon: Users, status: 'Disponible', href: '/app/outils' },
+            { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Disponible', href: '/vision' },
+            { id: '02', name: 'OSKAR Market Fit', desc: 'Vérifiez que votre offre répond à un vrai besoin marché.', icon: LineChart, status: 'Disponible', href: '/fit' },
+            { id: '03', name: 'OSKAR Finance', desc: 'Pilotez vos indicateurs financiers clés.', icon: TargetIcon, status: 'Disponible', href: '/finance' },
+            { id: '04', name: 'OSKAR OKR', desc: 'Alignez stratégie et exécution.', icon: CheckSquare, status: 'Disponible', href: '/okr' },
+            { id: '05', name: 'OSKAR Team', desc: 'Renforcez la cohésion de votre organisation.', icon: Users, status: 'Bientôt', href: '/team' },
           ].map((pillar) => (
             <div
               key={pillar.id}

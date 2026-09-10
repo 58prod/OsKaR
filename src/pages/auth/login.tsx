@@ -12,11 +12,12 @@ import { AuthService } from '@/services/auth';
 import { supabase } from '@/lib/supabaseClient';
 import { useAppStore } from '@/store/useAppStore';
 import { GOOGLE_AUTH_ENABLED } from '@/constants';
-import { APRES_CONNEXION, destinationSure, messageConnexion } from '@/lib/authFlux';
+import { APRES_CONNEXION, destinationSure, identifiantValide, identifiantVersEmail, messageConnexion } from '@/lib/authFlux';
 
 // Schéma de validation
 const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
+  // Une adresse email, ou l'identifiant d'un compte de démonstration (« oskar »).
+  email: z.string().refine(identifiantValide, 'Email invalide'),
   password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 });
 
@@ -61,7 +62,7 @@ const LoginPage: React.FC = () => {
       // Appel direct à signInWithPassword — pas de signOut() avant.
       // Le SDK Supabase gère le remplacement de session automatiquement.
       const { error: authError } = await supabase.auth.signInWithPassword({
-        email: data.email,
+        email: identifiantVersEmail(data.email),
         password: data.password,
       });
 
@@ -140,7 +141,9 @@ const LoginPage: React.FC = () => {
                   </div>
                   <input
                     {...register('email')}
-                    type="email"
+                    type="text"
+                    inputMode="email"
+                    autoComplete="username"
                     id="email"
                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="vous@exemple.com"

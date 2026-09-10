@@ -10,6 +10,24 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.16.0] - 2026-09-10
+
+### ✨ Ajouté — compte de démonstration
+- **Script `supabase/demo/compte_demo.sql`** : crée le compte « oskar » / mot
+  de passe « oskar2026 », formule illimitée active, et le remplit de données
+  crédibles (Menuiserie Durand, 12 personnes : ateliers Vision, Market Fit et
+  Finance, OKR 2026 avec le 3e trimestre, résultats clés, actions, bilan de
+  maturité et bilan Potentiel Produit calculés avec les algorithmes de l'app).
+  Relançable : il supprime puis recrée le compte, ce qui remet la démo à zéro.
+- **Connexion par identifiant** : le champ de connexion (page et fenêtre)
+  accepte un simple identifiant ; sans « @ », il est complété en
+  `<identifiant>@demo.oskar`.
+
+### 🎨 Modifié
+- **Page d'accueil** : statuts et liens des piliers à jour — Vision, Market
+  Fit, Finance et OKR « Disponible » vers leurs pages de présentation, Team
+  « Bientôt ».
+
 ## [2.15.1] - 2026-09-10
 
 ### 🎨 Modifié — écriture du nom et profil des pages de pilier

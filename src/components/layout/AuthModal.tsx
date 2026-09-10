@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabaseClient';
 import { AuthService } from '@/services/auth';
-import { APRES_CONNEXION, messageConnexion, messageInscription } from '@/lib/authFlux';
+import { APRES_CONNEXION, identifiantValide, identifiantVersEmail, messageConnexion, messageInscription } from '@/lib/authFlux';
 
 export type AuthModalTab = 'login' | 'register';
 
@@ -20,7 +20,8 @@ interface AuthModalProps {
 }
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
+  // Une adresse email, ou l'identifiant d'un compte de démonstration (« oskar »).
+  email: z.string().refine(identifiantValide, 'Email invalide'),
   password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
 });
 type LoginForm = z.infer<typeof loginSchema>;
@@ -68,7 +69,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialTab 
 
   const handleLogin = useCallback(async (data: LoginForm) => {
     setLoading(true); setError(null);
-    const { error: authError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
+    const { error: authError } = await supabase.auth.signInWithPassword({ email: identifiantVersEmail(data.email), password: data.password });
     if (authError) {
       setError(messageConnexion(authError.message));
       setLoading(false); return;
@@ -174,7 +175,7 @@ const LoginPanel: React.FC<LoginPanelProps> = ({ form, onSubmit, loading, onSwit
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <div>
         <label htmlFor="auth-login-email" className={labelCls}>Email</label>
-        <input id="auth-login-email" type="email" autoComplete="email" placeholder="vous@entreprise.fr" className={inputCls} {...register('email')} aria-invalid={!!errors.email} aria-describedby={errors.email ? 'auth-login-email-err' : undefined} />
+        <input id="auth-login-email" type="text" inputMode="email" autoComplete="username" placeholder="vous@entreprise.fr" className={inputCls} {...register('email')} aria-invalid={!!errors.email} aria-describedby={errors.email ? 'auth-login-email-err' : undefined} />
         {errors.email && <p id="auth-login-email-err" className={errorCls}>{errors.email.message}</p>}
       </div>
       <div>
