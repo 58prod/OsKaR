@@ -22,42 +22,46 @@ describe('Product Fit Scoring — Phase 1 (P × U × F uniquement)', () => {
     expect((result as any).dimensionsAverage).toBeUndefined();
   });
 
-  test('Eternity preset — Claire identifiée comme cible prioritaire (504 pts)', () => {
-    const eternity = PRESET_CASES.find((p) => p.id === 'eternity');
-    expect(eternity).toBeDefined();
-    if (!eternity) return;
+  // Les trois exemples sont calibres pour illustrer trois resultats differents :
+  // c'est ce qui les rend pedagogiques, donc c'est ce qu'on verrouille ici.
+  test('Exemple Facturation — Lea prioritaire, besoin fort', () => {
+    const facturation = PRESET_CASES.find((p) => p.id === 'facturation');
+    expect(facturation).toBeDefined();
+    if (!facturation) return;
 
-    const analysis = calculateProductFitAnalysis(eternity.project);
+    const analysis = calculateProductFitAnalysis(facturation.project);
     expect(analysis.personasResults.length).toBe(3);
     expect(analysis.priorityPersona).not.toBeNull();
-    expect(analysis.priorityPersona?.personaName).toContain('Claire');
-    expect(analysis.priorityPersona?.rawScore).toBe(9 * 8 * 7); // 504
-    expect(analysis.globalPotentialScore).toBe(50.4);
+    expect(analysis.priorityPersona?.personaName).toContain('Léa');
+    expect(analysis.priorityPersona?.rawScore).toBe(9 * 9 * 9); // 729
+    expect(analysis.globalPotentialScore).toBe(72.9);
+    expect(analysis.verdictTone).toBe('success');
     // Pas de dimensionsSummary en Phase 1
     expect((analysis as any).dimensionsSummary).toBeUndefined();
   });
 
-  test('ETAPE preset — Sophie identifiée comme cible prioritaire (648 pts)', () => {
-    const etape = PRESET_CASES.find((p) => p.id === 'etape');
-    expect(etape).toBeDefined();
-    if (!etape) return;
+  test('Exemple Covoiturage — Julien prioritaire, besoin reel a preciser', () => {
+    const covoiturage = PRESET_CASES.find((p) => p.id === 'covoiturage');
+    expect(covoiturage).toBeDefined();
+    if (!covoiturage) return;
 
-    const analysis = calculateProductFitAnalysis(etape.project);
-    expect(analysis.priorityPersona?.personaName).toContain('Sophie');
-    expect(analysis.priorityPersona?.rawScore).toBe(9 * 9 * 8); // 648
-    expect(analysis.globalPotentialScore).toBe(64.8);
-    expect(analysis.verdictTone).toBe('info'); // 64.8 < 65 → prometteur mais pas champion
+    const analysis = calculateProductFitAnalysis(covoiturage.project);
+    expect(analysis.priorityPersona?.personaName).toContain('Julien');
+    expect(analysis.priorityPersona?.rawScore).toBe(8 * 7 * 9); // 504
+    expect(analysis.globalPotentialScore).toBe(50.4);
+    expect(analysis.verdictTone).toBe('info');
   });
 
-  test('Hemotion preset — Thomas identifié comme cible prioritaire (567 pts)', () => {
-    const hemotion = PRESET_CASES.find((p) => p.id === 'hemotion');
-    expect(hemotion).toBeDefined();
-    if (!hemotion) return;
+  test('Exemple Recettes — Camille prioritaire, sympathique mais pas indispensable', () => {
+    const recettes = PRESET_CASES.find((p) => p.id === 'recettes');
+    expect(recettes).toBeDefined();
+    if (!recettes) return;
 
-    const analysis = calculateProductFitAnalysis(hemotion.project);
-    expect(analysis.priorityPersona?.personaName).toContain('Thomas');
-    expect(analysis.priorityPersona?.rawScore).toBe(9 * 9 * 7); // 567
-    expect(analysis.globalPotentialScore).toBe(56.7);
+    const analysis = calculateProductFitAnalysis(recettes.project);
+    expect(analysis.priorityPersona?.personaName).toContain('Camille');
+    expect(analysis.priorityPersona?.rawScore).toBe(7 * 5 * 6); // 210
+    expect(analysis.globalPotentialScore).toBe(21);
+    expect(analysis.verdictTone).toBe('warning');
     expect(analysis.actionRecommendations.length).toBeGreaterThan(0);
   });
 

@@ -28,7 +28,7 @@ const TON_COULEURS: Record<ProductFitAnalysis['verdictTone'], { bg: string; c: s
   success: { bg: '#e6faf7', c: '#00806e', barre: '#00d4b4' },
   info: { bg: '#e0f2fe', c: '#0369a1', barre: '#0ea5e9' },
   warning: { bg: '#fffbeb', c: '#b45309', barre: '#f59e0b' },
-  danger: { bg: '#fef2f2', c: '#b91c1c', barre: '#ef4444' },
+  danger: { bg: '#fff0ea', c: '#e2653f', barre: '#e2653f' }, // corail OsKaR
 };
 
 export const ProductFitSynthesis: React.FC<ProductFitSynthesisProps> = ({ analysis }) => {

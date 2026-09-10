@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React from 'react';
 import type { PersonaEvaluation } from '@/lib/productFit/types';
 import { calculatePersonaScore } from '@/lib/productFit/scoring';
 
@@ -12,6 +11,11 @@ import { calculatePersonaScore } from '@/lib/productFit/scoring';
  * toutes lettres. Les trois questions remplacent les libellés « Intensité du
  * Problème (P) », « Degré d'Urgence (U) » et « Fréquence (F) » : ici on demande
  * ce qu'on veut savoir, sans formule à décoder.
+ *
+ * Ordre de la carte : qui est cette personne, quel est son problème et comment
+ * elle fait aujourd'hui, puis seulement les trois notes. On décrit avant de
+ * noter — les deux champs de contexte étaient auparavant repliés en bas de
+ * carte, là où ils n'aidaient plus personne.
  */
 
 interface PersonaFormCardProps {
@@ -21,28 +25,32 @@ interface PersonaFormCardProps {
   onChange: (updated: PersonaEvaluation) => void;
 }
 
-/** Les trois questions, dans l'ordre où on les pose. */
+/**
+ * Les trois questions, dans l'ordre où on les pose.
+ * Couleurs prises dans la charte OsKaR : corail, ambre du pilier Finance,
+ * turquoise de la marque — du plus chaud au plus froid.
+ */
 const QUESTIONS = [
   {
     champ: 'problemIntensity' as const,
     question: 'Ce problème la gêne-t-il beaucoup ?',
     min: 'Un peu',
     max: 'Énormément',
-    couleur: '#ef4444',
+    couleur: '#e2653f', // corail foncé
   },
   {
     champ: 'urgency' as const,
     question: 'Doit-elle le régler tout de suite ?',
     min: 'Ça peut attendre',
     max: "C'est urgent",
-    couleur: '#f59e0b',
+    couleur: '#f59e0b', // ambre, couleur du pilier Finance
   },
   {
     champ: 'frequency' as const,
     question: 'Rencontre-t-elle ce problème souvent ?',
     min: 'Rarement',
     max: 'Tous les jours',
-    couleur: '#0ea5e9',
+    couleur: '#00b89c', // turquoise OsKaR
   },
 ];
 
@@ -55,8 +63,6 @@ export const PersonaFormCard: React.FC<PersonaFormCardProps> = ({
   isPriority,
   onChange,
 }) => {
-  const [detailsOuverts, setDetailsOuverts] = useState(false);
-
   // La note vient du calcul officiel : la recopier ici la ferait diverger de
   // celle du panneau de résultats.
   const note = calculatePersonaScore(persona).scoreOn10;
@@ -128,6 +134,36 @@ export const PersonaFormCard: React.FC<PersonaFormCardProps> = ({
         </div>
       </div>
 
+      {/* Son problème, et ce qu'elle fait en attendant */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5">
+        <div>
+          <label htmlFor={`probleme-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
+            Quel est son problème ?
+          </label>
+          <input
+            id={`probleme-${index}`}
+            type="text"
+            value={persona.keyPainPoint || ''}
+            onChange={(e) => modifier('keyPainPoint', e.target.value)}
+            placeholder="Elle perd 3 heures par semaine"
+            className={CHAMP_TEXTE}
+          />
+        </div>
+        <div>
+          <label htmlFor={`aujourdhui-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
+            Comment fait-elle aujourd&rsquo;hui ?
+          </label>
+          <input
+            id={`aujourdhui-${index}`}
+            type="text"
+            value={persona.alternativeSolution || ''}
+            onChange={(e) => modifier('alternativeSolution', e.target.value)}
+            placeholder="À la main, sur un tableur"
+            className={CHAMP_TEXTE}
+          />
+        </div>
+      </div>
+
       {/* Les trois questions */}
       <div className="space-y-4">
         {QUESTIONS.map(({ champ, question, min, max, couleur }) => {
@@ -161,55 +197,6 @@ export const PersonaFormCard: React.FC<PersonaFormCardProps> = ({
             </div>
           );
         })}
-      </div>
-
-      {/* Précisions facultatives */}
-      <div className="mt-4 pt-4 border-t border-line">
-        <button
-          type="button"
-          onClick={() => setDetailsOuverts(!detailsOuverts)}
-          aria-expanded={detailsOuverts}
-          className="flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-navy transition-colors"
-        >
-          En dire plus
-          <span className="text-xs font-normal">(facultatif)</span>
-          {detailsOuverts ? (
-            <ChevronUp className="h-3.5 w-3.5" aria-hidden />
-          ) : (
-            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-          )}
-        </button>
-
-        {detailsOuverts && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3 animate-fade-in">
-            <div>
-              <label htmlFor={`gene-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
-                Qu&rsquo;est-ce qui la bloque ?
-              </label>
-              <input
-                id={`gene-${index}`}
-                type="text"
-                value={persona.keyPainPoint || ''}
-                onChange={(e) => modifier('keyPainPoint', e.target.value)}
-                placeholder="Elle perd 3 heures par semaine"
-                className={CHAMP_TEXTE}
-              />
-            </div>
-            <div>
-              <label htmlFor={`aujourdhui-${index}`} className="block text-sm font-semibold text-ink mb-1.5">
-                Comment fait-elle aujourd&rsquo;hui ?
-              </label>
-              <input
-                id={`aujourdhui-${index}`}
-                type="text"
-                value={persona.alternativeSolution || ''}
-                onChange={(e) => modifier('alternativeSolution', e.target.value)}
-                placeholder="À la main, sur un tableur"
-                className={CHAMP_TEXTE}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </article>
   );

@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.4.4] - 2026-09-10
+
+### 🎨 Modifié
+- **Potentiel Produit — nouveaux exemples.** Les trois cas métier laissent place
+  à des produits que tout le monde connaît : une application de facturation, un
+  covoiturage domicile-travail et une application de recettes. Ils sont calibrés
+  pour donner trois résultats différents — besoin fort, besoin à préciser,
+  produit sympathique dont personne n'a vraiment besoin — de sorte qu'en les
+  parcourant on comprend ce que mesure l'outil.
+- **Couleurs de la charte** sur les curseurs (corail, ambre du pilier Finance,
+  turquoise OsKaR) et sur la barre de résultat, à la place du rouge et du bleu
+  génériques.
+- **« Quel est son problème ? » et « Comment fait-elle aujourd'hui ? »** passent
+  juste après le prénom et la situation, et ne sont plus repliés en bas de
+  carte : on décrit la personne avant de la noter. Le premier champ s'appelait
+  « Qu'est-ce qui la bloque ? ».
+
 ## [2.4.3] - 2026-09-10
 
 ### 🎨 Modifié

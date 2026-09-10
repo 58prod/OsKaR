@@ -2,158 +2,158 @@ import type { PresetCase } from './types';
 
 /**
  * Exemples prêts à charger, pour comprendre l'outil sans rien saisir.
- * Chacun décrit un produit et trois personnes à qui il pourrait servir.
+ *
+ * Trois produits que tout le monde connaît, choisis pour montrer trois
+ * résultats différents : un besoin fort, un besoin réel mais à préciser, et un
+ * produit sympathique dont personne n'a vraiment besoin. En les parcourant, on
+ * comprend ce que mesure l'outil sans avoir à lire une explication.
  */
 export const PRESET_CASES: PresetCase[] = [
   {
-    id: 'eternity',
-    name: 'Eternity \u23F3',
-    tagline: 'Garder la mémoire des grands-parents',
+    id: 'facturation',
+    name: 'Facturation 🧾',
+    tagline: 'Un besoin fort',
     description:
-      "Une application pour recueillir et transmettre les récits de vie des aînés, avant qu'il ne soit trop tard.",
+      "Une application qui prépare les factures des indépendants en deux clics, à partir des heures travaillées.",
     project: {
-      projectName: 'Eternity',
-      pitch:
-        "Aider les familles à garder la mémoire de leurs proches, grâce à des questions audio et un livre souvenir créé automatiquement.",
-      sector: 'Famille et transmission',
+      projectName: 'Ma facturation',
+      pitch: 'Créer et envoyer ses factures en deux clics, sans tableur ni comptable.',
+      sector: 'Outils pour indépendants',
       personas: [
         {
-          id: 'eternity-p1',
-          name: 'Claire, 45 ans',
-          role: 'Mère de famille, ses parents vieillissent',
+          id: 'facturation-p1',
+          name: 'Léa, 34 ans',
+          role: 'Graphiste indépendante, une dizaine de clients',
           description:
-            "Elle voit ses parents décliner et craint de perdre leur histoire, faute de temps pour poser les bonnes questions.",
-          problemIntensity: 9,
-          urgency: 8,
-          frequency: 7,
-          keyPainPoint: "Le temps passe et les souvenirs s'effacent.",
-          alternativeSolution: "Des messages vocaux éparpillés et des albums photo incomplets.",
-        },
-        {
-          id: 'eternity-p2',
-          name: 'Jean, 75 ans',
-          role: "Grand-père à la retraite",
-          description:
-            "Il veut laisser une trace à ses petits-enfants, mais la page blanche et la technique le freinent.",
-          problemIntensity: 7,
-          urgency: 4,
-          frequency: 4,
-          keyPainPoint: "Il ne sait pas par où commencer.",
-          alternativeSolution: "Des cahiers commencés, jamais terminés.",
-        },
-        {
-          id: 'eternity-p3',
-          name: 'Marc, 55 ans',
-          role: "Passionné d'histoire familiale",
-          description:
-            "Il collectionne les dates et les arbres généalogiques, et cherche des anecdotes qui donnent vie à ses recherches.",
-          problemIntensity: 6,
-          urgency: 4,
-          frequency: 8,
-          keyPainPoint: "Il a des dates, mais aucune voix ni anecdote.",
-          alternativeSolution: "Des logiciels de généalogie austères.",
-        },
-      ],
-    },
-  },
-  {
-    id: 'etape',
-    name: 'ETAPE \uD83E\uDDED',
-    tagline: 'Changer de métier sans se perdre',
-    description:
-      "Un accompagnement pas à pas pour préparer sa reconversion et trouver sa voie sereinement.",
-    project: {
-      projectName: 'ETAPE',
-      pitch:
-        "Aider ceux qui veulent changer de métier à valider leur projet, lever leurs doutes et passer à l'action.",
-      sector: 'Formation et reconversion',
-      personas: [
-        {
-          id: 'etape-p1',
-          name: 'Sophie, 38 ans',
-          role: 'Responsable marketing, en poste mais lassée',
-          description:
-            "Elle ne trouve plus de sens à son travail, mais son salaire la retient.",
+            "Elle facture chaque mois plusieurs clients et y passe ses dimanches, avec la crainte permanente d'un oubli.",
           problemIntensity: 9,
           urgency: 9,
-          frequency: 8,
-          keyPainPoint: "Peur du vide et absence de plan clair.",
-          alternativeSolution: "Des bilans de compétences trop théoriques.",
+          frequency: 9,
+          keyPainPoint: 'Elle passe un dimanche par mois sur ses factures et oublie parfois des relances.',
+          alternativeSolution: 'Un tableur et un modèle Word recopié à chaque fois.',
         },
         {
-          id: 'etape-p2',
-          name: 'David, 47 ans',
-          role: 'Ancien manager, en arrêt de travail',
+          id: 'facturation-p2',
+          name: 'Marc, 52 ans',
+          role: 'Plombier, quelques devis par semaine',
           description:
-            "Après un épuisement professionnel, il a besoin de reprendre confiance à son rythme.",
-          problemIntensity: 10,
-          urgency: 6,
-          frequency: 6,
-          keyPainPoint: "Il a perdu confiance et craint de rechuter.",
-          alternativeSolution: "Un suivi psychologique et du coaching individuel.",
-        },
-        {
-          id: 'etape-p3',
-          name: 'Lucas, 25 ans',
-          role: 'Premier emploi, déjà déçu',
-          description:
-            "Déçu par sa première expérience, il s'interroge sur la suite.",
+            "Il rédige ses devis à la main le soir. C'est fastidieux, mais il a ses habitudes et cela lui convient.",
           problemIntensity: 6,
-          urgency: 4,
+          urgency: 5,
           frequency: 5,
-          keyPainPoint: "Il ne sait pas vers quel métier aller.",
-          alternativeSolution: "Des conseils glanés en ligne et entre amis.",
+          keyPainPoint: 'Il perd du temps le soir à recopier ses devis.',
+          alternativeSolution: 'Un carnet et une calculatrice.',
+        },
+        {
+          id: 'facturation-p3',
+          name: 'Chloé, 28 ans',
+          role: 'Salariée, vend ses créations le week-end',
+          description:
+            "Elle établit trois ou quatre factures par an. Le sujet ne l'occupe pas beaucoup.",
+          problemIntensity: 4,
+          urgency: 2,
+          frequency: 3,
+          keyPainPoint: "Elle ne sait jamais quelles mentions faire figurer sur une facture.",
+          alternativeSolution: 'Un modèle trouvé en ligne.',
         },
       ],
     },
   },
   {
-    id: 'hemotion',
-    name: 'Hemotion 🚑',
-    tagline: 'Les gestes qui sauvent, à portée de main',
+    id: 'covoiturage',
+    name: 'Covoiturage 🚗',
+    tagline: 'Un besoin réel, à préciser',
     description:
-      "Kits de premiers secours ultra-compacts (format canette), application d'urgence interactive et formations pour démocratiser les gestes qui sauvent.",
+      "Une application pour partager ses trajets domicile-travail entre collègues d'une même zone d'activité.",
     project: {
-      projectName: 'Hemotion',
-      pitch:
-        "Rendre le secourisme accessible, compact et instinctif grâce à des kits d'urgence nomades et une application de guidage pas-à-pas.",
-      sector: 'Santé et secourisme',
+      projectName: 'Trajets partagés',
+      pitch: 'Partager ses trajets domicile-travail avec des collègues qui font la même route.',
+      sector: 'Mobilité du quotidien',
       personas: [
         {
-          id: 'hemotion-p1',
-          name: 'Thomas, 32 ans',
-          role: 'Randonneur, souvent loin de tout',
+          id: 'covoiturage-p1',
+          name: 'Julien, 29 ans',
+          role: '45 minutes de route matin et soir',
           description:
-            "Évolue souvent en milieu isolé où les secours mettent du temps à arriver. Angoisse d'une blessure grave (hémorragie, fracture, plaie) sans matériel adapté.",
-          problemIntensity: 9, // une blessure grave loin des secours
-          urgency: 9,          // il repart bientôt
-          frequency: 7,        // il sort régulièrement
-          keyPainPoint: "Trousses classiques trop encombrantes, mal organisées et inadaptées aux urgences vitales.",
-          alternativeSolution: "Trousse à pharmacie basique bricolée ou rien par manque de place.",
-        },
-        {
-          id: 'hemotion-p2',
-          name: 'Julie, 35 ans',
-          role: 'Mère de deux jeunes enfants',
-          description:
-            "Veut protéger son foyer contre les accidents domestiques (étouffement, brûlure, chute) mais panique sur les gestes à effectuer.",
-          problemIntensity: 9,
+            "Il fait le trajet seul chaque jour et voit le carburant peser lourd sur son budget.",
+          problemIntensity: 8,
           urgency: 7,
-          frequency: 6,
-          keyPainPoint: "Peur de paniquer et de ne pas savoir quoi faire en attendant le 15.",
-          alternativeSolution: "Boîte à pharmacie désordonnée avec des produits souvent périmés.",
+          frequency: 9,
+          keyPainPoint: 'Le carburant lui coûte 200 € par mois pour aller travailler.',
+          alternativeSolution: 'Il y va seul en voiture, faute de mieux.',
         },
         {
-          id: 'hemotion-p3',
-          name: 'Stéphane, 48 ans',
-          role: "Responsable de la sécurité dans une PME",
+          id: 'covoiturage-p2',
+          name: 'Amina, 45 ans',
+          role: 'Sans voiture, mal desservie par le bus',
           description:
-            "Doit équiper les véhicules de service et former les équipes avec du matériel moderne et attrayant.",
+            "Elle dépend des horaires de bus et arrive parfois en retard, mais elle a fini par s'organiser.",
+          problemIntensity: 8,
+          urgency: 6,
+          frequency: 6,
+          keyPainPoint: 'Deux bus et une correspondance pour vingt kilomètres.',
+          alternativeSolution: 'Le bus, et un collègue qui la dépanne de temps en temps.',
+        },
+        {
+          id: 'covoiturage-p3',
+          name: 'Paul, 38 ans',
+          role: 'Aime conduire seul le matin',
+          description:
+            "Il apprécie ce moment à lui et n'a aucune envie de le partager, même si le trajet est long.",
+          problemIntensity: 3,
+          urgency: 2,
+          frequency: 8,
+          keyPainPoint: 'Aucun, il tient à son moment de calme.',
+          alternativeSolution: 'Sa voiture, et la radio.',
+        },
+      ],
+    },
+  },
+  {
+    id: 'recettes',
+    name: 'Recettes 🥗',
+    tagline: 'Sympathique, mais pas indispensable',
+    description:
+      "Une application qui propose des recettes à partir de ce qu'il reste dans le réfrigérateur.",
+    project: {
+      projectName: 'Que faire à manger ?',
+      pitch: "Proposer une recette avec ce qu'il reste dans le frigo, pour éviter de jeter.",
+      sector: 'Cuisine du quotidien',
+      personas: [
+        {
+          id: 'recettes-p1',
+          name: 'Camille, 31 ans',
+          role: 'Cuisine tous les soirs après le travail',
+          description:
+            "Elle manque d'idées en fin de semaine et jette parfois des légumes oubliés, sans que cela lui gâche la vie.",
           problemIntensity: 7,
           urgency: 5,
+          frequency: 6,
+          keyPainPoint: "Elle ne sait pas quoi faire à manger et finit par commander.",
+          alternativeSolution: 'Une recherche rapide sur internet.',
+        },
+        {
+          id: 'recettes-p2',
+          name: 'Hugo, 24 ans',
+          role: 'Étudiant, petit budget',
+          description:
+            "Il mange souvent la même chose. Cela lui convient, même s'il aimerait varier.",
+          problemIntensity: 5,
+          urgency: 3,
           frequency: 5,
-          keyPainPoint: "Matériel d'entreprise austère que personne n'ouvre, formation oubliée au bout de 6 mois.",
-          alternativeSolution: "Armoires à pharmacie imposantes et formations obligatoires classiques.",
+          keyPainPoint: 'Des pâtes, encore des pâtes.',
+          alternativeSolution: 'Des vidéos de cuisine, regardées rarement.',
+        },
+        {
+          id: 'recettes-p3',
+          name: 'Martine, 60 ans',
+          role: 'Cuisine depuis toujours',
+          description: "Elle sait quoi faire avec un fond de frigo et n'a besoin de personne.",
+          problemIntensity: 2,
+          urgency: 1,
+          frequency: 3,
+          keyPainPoint: 'Aucun.',
+          alternativeSolution: 'Son expérience et ses livres de cuisine.',
         },
       ],
     },
