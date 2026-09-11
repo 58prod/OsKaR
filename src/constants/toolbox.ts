@@ -117,6 +117,7 @@ export const TOOLS: ToolDefinition[] = [
     participants: "Toute l'équipe",
     gradient: 'linear-gradient(135deg, #b45309, #fbbf24)',
     icon: Star,
+    cta: 'Lancer le ROTI',
   },
   {
     type: 'daily-standup',
@@ -139,6 +140,7 @@ export const TOOLS: ToolDefinition[] = [
     participants: '3 – 15 participants',
     gradient: 'linear-gradient(135deg, #4338ca, #818cf8)',
     icon: Smile,
+    cta: 'Lancer le Team Mood',
   },
   {
     type: 'idea-box',
@@ -185,6 +187,7 @@ export const TOOLS: ToolDefinition[] = [
     participants: "Toute l'équipe",
     gradient: 'linear-gradient(135deg, #be185d, #f472b6)',
     icon: PartyPopper,
+    cta: 'Lancer la récré',
   },
   {
     type: 'competences',

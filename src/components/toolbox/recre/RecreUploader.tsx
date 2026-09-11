@@ -4,7 +4,8 @@ import { ImagePlus, Loader2, Send, X } from 'lucide-react';
 interface RecreUploaderProps {
   myName: string;
   myColor: string;
-  onAddPhotos: (files: File[]) => Promise<void>;
+  /** Renvoie les noms des fichiers qui n'ont pas pu être envoyés. */
+  onAddPhotos: (files: File[]) => Promise<string[]>;
 }
 
 interface Pending {
@@ -17,6 +18,7 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
   const inputRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<Pending[]>([]);
   const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState<string[]>([]);
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
@@ -34,9 +36,12 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
   const handleSend = async () => {
     if (pending.length === 0) return;
     setSending(true);
+    setFailed([]);
     try {
-      await onAddPhotos(pending.map((p) => p.file));
-      setPending([]);
+      const notSent = await onAddPhotos(pending.map((p) => p.file));
+      // On garde dans la liste les photos refusées, pour que l'auteur voie lesquelles.
+      setPending((prev) => prev.filter((p) => notSent.includes(p.file.name)));
+      setFailed(notSent);
     } finally {
       setSending(false);
     }
@@ -75,6 +80,13 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
             e.target.value = '';
           }}
         />
+
+        {failed.length > 0 && (
+          <p role="alert" className="rounded-lg bg-danger-50 px-3 py-2 text-xs leading-relaxed text-danger-700">
+            {failed.length > 1 ? `${failed.length} photos n'ont pas pu être lues` : "Cette photo n'a pas pu être lue"}
+            {' '}(format non pris en charge, HEIC par exemple). Essayez une photo en JPEG ou PNG, ou une capture d&apos;écran.
+          </p>
+        )}
 
         {pending.length > 0 && (
           <ul className="flex flex-col gap-2">

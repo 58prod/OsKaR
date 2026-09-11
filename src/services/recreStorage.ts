@@ -69,7 +69,9 @@ export async function uploadRecrePhoto(code: string, photoId: string, file: File
 
   if (error) {
     console.error('❌ Upload photo « récré » échoué, repli base64 :', error.message);
-    return readAsDataURL(blob);
+    // La photo voyage alors dans le message temps réel, dont la taille est
+    // limitée : on la réduit franchement pour qu'elle arrive chez tout le monde.
+    return readAsDataURL(await downscaleImage(file, 640, 0.6));
   }
 
   const { data } = supabase.storage.from(RECRE_BUCKET).getPublicUrl(path);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pause, Play, RotateCcw, Target } from 'lucide-react';
+import { Eye, Pause, Play, RotateCcw, Target } from 'lucide-react';
 import { formatTime, type RecreState } from './recreLogic';
 
 interface RecreToolbarProps {
@@ -10,6 +10,7 @@ interface RecreToolbarProps {
   onToggleChrono: () => void;
   onResetChrono: () => void;
   onDurationChange: (seconds: number) => void;
+  onStartReveal: () => void;
   onReset: () => void;
 }
 
@@ -35,9 +36,11 @@ function parseDurationInput(raw: string): number | null {
  * Planning Poker).
  */
 export const RecreToolbar: React.FC<RecreToolbarProps> = ({
-  state, isFacilitator, remainingSec, onThemeChange, onToggleChrono, onResetChrono, onDurationChange, onReset,
+  state, isFacilitator, remainingSec, onThemeChange, onToggleChrono, onResetChrono, onDurationChange,
+  onStartReveal, onReset,
 }) => {
   const { chrono } = state;
+  const [confirmReset, setConfirmReset] = useState(false);
   const [chronoEditing, setChronoEditing] = useState(false);
   const [chronoDraft, setChronoDraft] = useState('');
 
@@ -77,13 +80,58 @@ export const RecreToolbar: React.FC<RecreToolbarProps> = ({
       )}
 
       {isFacilitator && (
-        <button
-          type="button"
-          onClick={onReset}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        <>
+          <button
+            type="button"
+            onClick={onStartReveal}
+            disabled={state.photos.length === 0 || !!state.reveal}
+            title={state.photos.length === 0 ? 'Il faut au moins une photo sur le board' : 'Montrer les photos une à une à toute l’équipe'}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#ec4899] px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-[#db2777] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Eye className="h-4 w-4" aria-hidden /> Mode révélation
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmReset(true)}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            <RotateCcw className="h-4 w-4" aria-hidden /> Réinitialiser
+          </button>
+        </>
+      )}
+
+      {confirmReset && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="recre-confirm-reset-title"
+          className="fixed inset-0 z-[210] flex items-center justify-center bg-navy/60 p-6"
         >
-          <RotateCcw className="h-4 w-4" aria-hidden /> Réinitialiser
-        </button>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-card-hover">
+            <h2 id="recre-confirm-reset-title" className="text-base font-bold text-navy">
+              Réinitialiser la récré ?
+            </h2>
+            <p className="mt-2 text-sm text-muted">
+              Toutes les photos seront retirées du board pour tout le monde. Le thème est conservé.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmReset(false)}
+                className="rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => { onReset(); setConfirmReset(false); }}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-danger-600 px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-danger-700"
+              >
+                <RotateCcw className="h-4 w-4" aria-hidden /> Réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Minuteur */}

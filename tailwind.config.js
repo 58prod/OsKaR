@@ -176,6 +176,9 @@ module.exports = {
         'slide-up': 'slideUp 0.3s ease-out',
         'bounce-gentle': 'bounceGentle 2s infinite',
         wobble: 'wobble 0.7s ease-in-out infinite',
+        // « En mode récré ! » : auteur dévoilé et confettis (maquette recre.html).
+        pop: 'pop 0.3s cubic-bezier(.34,1.56,.64,1)',
+        'confetti-fall': 'confettiFall 1.2s linear forwards',
       },
       keyframes: {
         fadeIn: {
@@ -194,6 +197,14 @@ module.exports = {
           '0%, 100%': { transform: 'rotate(0deg)' },
           '25%': { transform: 'rotate(-3deg)' },
           '75%': { transform: 'rotate(3deg)' },
+        },
+        pop: {
+          '0%': { transform: 'scale(.7)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        confettiFall: {
+          '0%': { transform: 'translateY(-20px) rotate(0deg)', opacity: '1' },
+          '100%': { transform: 'translateY(110vh) rotate(720deg)', opacity: '0' },
         },
       },
     },

@@ -20,13 +20,16 @@ export function useToolPage(toolType: ToolType) {
   const [identity, setIdentity] = useState<ToolIdentity | null>(null);
 
   useEffect(() => {
-    if (!router.isReady || code) return;
+    if (!router.isReady) return;
     const q = router.query.s;
     const fromUrl = typeof q === 'string' ? q.trim().toUpperCase() : '';
     if (fromUrl) {
-      setCode(fromUrl);
-      setIsCreating(false);
-    } else {
+      // Suit aussi un changement de code en cours de route (« Rejoindre avec un code »).
+      if (fromUrl !== code) {
+        setCode(fromUrl);
+        setIsCreating(false);
+      }
+    } else if (!code) {
       const generated = generateSessionCode(toolType);
       setCode(generated);
       setIsCreating(true);

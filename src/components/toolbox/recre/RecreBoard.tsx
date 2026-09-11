@@ -9,8 +9,10 @@ interface RecreBoardProps {
   onDeletePhoto: (photoId: string) => void;
 }
 
-/** Galerie « polaroid » des photos déposées, avec compteur de « j'aime ». Les
- * photos restent anonymes sur le board (pas de nom affiché). */
+/** Galerie « polaroid » des photos déposées, avec compteur de « j'aime ».
+ * Chaque photo garde ses proportions (rien n'est rogné). Les photos restent
+ * anonymes sur le board tant que leur auteur n'a pas été dévoilé en mode
+ * révélation. */
 export const RecreBoard: React.FC<RecreBoardProps> = ({ state, myId, onToggleLike, onDeletePhoto }) => {
   const [zoom, setZoom] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -37,15 +39,17 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({ state, myId, onToggleLik
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-6" aria-live="polite">
+      <ul className="columns-[190px] gap-6" aria-live="polite">
         {state.photos.map((photo, i) => {
           const liked = photo.likedBy.includes(myId);
           const count = photo.likedBy.length;
+          const authorShown = state.authorsShown.includes(photo.id);
           return (
             <li
               key={photo.id}
-              className="rounded-md bg-white p-2.5 pb-3 shadow-card transition-transform hover:z-10 hover:scale-[1.03]"
-              style={{ transform: `rotate(${tiltFor(i)}deg)` }}
+              className="relative mb-6 break-inside-avoid rounded-md bg-white p-2.5 pb-3 shadow-card transition-transform rotate-[var(--tilt)] hover:z-10 hover:scale-[1.03]"
+              // Inclinaison via variable : le zoom au survol (hover:scale) s'y ajoute.
+              style={{ '--tilt': `${tiltFor(i)}deg` } as React.CSSProperties}
             >
               <button
                 type="button"
@@ -54,7 +58,12 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({ state, myId, onToggleLik
                 aria-label="Agrandir la photo"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.url} alt="Photo partagée sur le board" className="aspect-square w-full object-cover" />
+                <img
+                  src={photo.url}
+                  alt="Photo partagée sur le board"
+                  loading="lazy"
+                  className="mx-auto block h-auto max-h-[340px] w-auto max-w-full"
+                />
               </button>
               <div className="mt-2 flex items-center gap-2">
                 <button
@@ -68,6 +77,12 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({ state, myId, onToggleLik
                   <Heart className="h-3.5 w-3.5" style={{ fill: liked ? '#ec4899' : 'none' }} aria-hidden />
                   {count > 0 && count}
                 </button>
+                {authorShown && (
+                  <span className="inline-flex min-w-0 items-center gap-1 text-[11px] font-bold text-muted">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: photo.authorColor }} aria-hidden />
+                    <span className="truncate">{photo.authorName}</span>
+                  </span>
+                )}
                 {photo.authorId === myId && (
                   <button
                     type="button"

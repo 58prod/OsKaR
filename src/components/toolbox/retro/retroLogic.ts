@@ -80,6 +80,11 @@ export interface RetroState {
   pastActions: RetroPastAction[];
   /** Jour de la rétrospective en cours (AAAA-MM-JJ). */
   retroDate: string;
+  /**
+   * Notes « À démarrer » retirées de la liste des actions par l'animateur :
+   * elles restent sur le tableau, mais ne sont pas suivies comme actions.
+   */
+  dismissedActions: string[];
   chrono: ToolChrono;
 }
 
@@ -103,6 +108,7 @@ export const INITIAL_RETRO_STATE: RetroState = {
   actionMeta: {},
   pastActions: [],
   retroDate: '',
+  dismissedActions: [],
   chrono: initialChrono(RETRO_DEFAULT_DURATION_SEC),
 };
 
@@ -118,12 +124,22 @@ export function normalizeRetroState(raw: Partial<RetroState> | null | undefined)
     actionMeta: raw?.actionMeta ?? {},
     pastActions: raw?.pastActions ?? [],
     retroDate: raw?.retroDate ?? '',
+    dismissedActions: raw?.dismissedActions ?? [],
   };
 }
 
-/** Notes révélées du quadrant « À démarrer » = actions de la rétro. */
+/** Notes révélées du quadrant « À démarrer » = actions de la rétro (sauf celles retirées). */
 export function retroActions(state: RetroState): BoardNote[] {
-  return state.notes.filter((n) => n.revealed && n.category === 'start');
+  const dismissed = new Set(state.dismissedActions ?? []);
+  return state.notes.filter((n) => n.revealed && n.category === 'start' && !dismissed.has(n.id));
+}
+
+/** Tri par échéance : la plus proche d'abord, les actions sans échéance à la fin. */
+export function byDeadline<T extends { deadline: string }>(a: T, b: T): number {
+  if (!a.deadline && !b.deadline) return 0;
+  if (!a.deadline) return 1;
+  if (!b.deadline) return -1;
+  return a.deadline.localeCompare(b.deadline);
 }
 
 /**
@@ -149,6 +165,7 @@ export function startNewRetro(state: RetroState, today: string = todayISO()): Re
     ...state,
     notes: [],
     actionMeta: {},
+    dismissedActions: [],
     pastActions: [...archived, ...state.pastActions],
     retroDate: today,
     chrono: resetChronoState(state.chrono),
@@ -375,4 +392,116 @@ export function buildRetroSummary(state: RetroState): string {
     });
   }
   return txt;
+}
+
+/* ── Opérations partagées ─────────────────────────────────────────────────── */
+
+/**
+ * Opérations de la rétro, diffusées à tous les participants qui les
+ * appliquent avec `retroReducer`. Chaque opération porte tout ce qu'il faut
+ * (identifiants explicites, date du jour) pour donner le même résultat sur
+ * chaque écran : deux ajouts simultanés ne s'écrasent plus.
+ */
+export type RetroOp =
+  | { t: 'addNote'; note: RetroNote; today: string }
+  | { t: 'deleteNote'; id: string }
+  | { t: 'reveal'; ids: string[] }
+  | { t: 'unreveal'; authorId: string }
+  | { t: 'move'; id: string; category: string }
+  | { t: 'movePile'; pileId: string; category: string }
+  | { t: 'pile'; id: string; targetId: string }
+  | { t: 'pileOnto'; pileId: string; targetId: string }
+  | { t: 'unpile'; id: string }
+  | { t: 'like'; id: string; voterId: string; liked: boolean }
+  | { t: 'actionMeta'; id: string; patch: Partial<RetroActionMeta> }
+  | { t: 'pastAction'; id: string; patch: Partial<RetroActionMeta> }
+  | { t: 'deletePastAction'; id: string }
+  | { t: 'dismissAction'; id: string }
+  | { t: 'restoreActions' }
+  | { t: 'importActions'; actions: RetroPastAction[] }
+  | { t: 'chrono'; chrono: ToolChrono }
+  | { t: 'newRetro'; today: string }
+  | { t: 'reset'; today: string };
+
+/** Insère en gardant l'ordre des identifiants (horodatés) : même ordre partout. */
+function insertById<T extends { id: string }>(list: T[], item: T): T[] {
+  if (list.some((x) => x.id === item.id)) return list;
+  const i = list.findIndex((x) => x.id > item.id);
+  return i < 0 ? [...list, item] : [...list.slice(0, i), item, ...list.slice(i)];
+}
+
+export function retroReducer(raw: RetroState, op: RetroOp): RetroState {
+  const state = normalizeRetroState(raw);
+  switch (op.t) {
+    case 'addNote':
+      return { ...state, retroDate: state.retroDate || op.today, notes: insertById(state.notes, op.note) };
+    case 'deleteNote': {
+      const actionMeta = { ...state.actionMeta };
+      delete actionMeta[op.id];
+      return { ...state, notes: state.notes.filter((n) => n.id !== op.id), actionMeta };
+    }
+    case 'reveal': {
+      const ids = new Set(op.ids);
+      return { ...state, notes: state.notes.map((n) => (ids.has(n.id) ? { ...n, revealed: true } : n)) };
+    }
+    case 'unreveal':
+      return {
+        ...state,
+        notes: state.notes.map((n) => (n.authorId === op.authorId && n.revealed
+          ? { ...n, revealed: false, likedBy: [], retained: false, pileId: undefined }
+          : n)),
+      };
+    case 'move':
+      return {
+        ...state,
+        notes: state.notes.map((n) => (n.id === op.id && n.revealed
+          ? { ...n, category: op.category, pileId: undefined }
+          : n)),
+      };
+    case 'movePile':
+      return { ...state, notes: movePile(state.notes, op.pileId, op.category) };
+    case 'pile':
+      return { ...state, notes: pileNotes(state.notes, op.id, op.targetId) };
+    case 'pileOnto':
+      return { ...state, notes: mergePile(state.notes, op.pileId, op.targetId) };
+    case 'unpile':
+      return { ...state, notes: unpileNote(state.notes, op.id) };
+    case 'like':
+      return {
+        ...state,
+        notes: state.notes.map((n) => {
+          if (n.id !== op.id || !n.revealed) return n;
+          // Idempotent : recevoir deux fois le même vote ne change rien.
+          if (op.liked === n.likedBy.includes(op.voterId)) return n;
+          const others = n.likedBy.filter((x) => x !== op.voterId);
+          return { ...n, likedBy: op.liked ? [...others, op.voterId] : others };
+        }),
+      };
+    case 'actionMeta': {
+      const prev = state.actionMeta[op.id] ?? { resp: '', deadline: '', done: false };
+      return { ...state, actionMeta: { ...state.actionMeta, [op.id]: { ...prev, ...op.patch } } };
+    }
+    case 'pastAction':
+      return {
+        ...state,
+        pastActions: state.pastActions.map((a) => (a.id === op.id ? { ...a, ...op.patch } : a)),
+      };
+    case 'deletePastAction':
+      return { ...state, pastActions: state.pastActions.filter((a) => a.id !== op.id) };
+    case 'dismissAction':
+      return state.dismissedActions.includes(op.id)
+        ? state : { ...state, dismissedActions: [...state.dismissedActions, op.id] };
+    case 'restoreActions':
+      return { ...state, dismissedActions: [] };
+    case 'importActions':
+      return { ...state, pastActions: mergeImportedActions(state.pastActions, op.actions).actions };
+    case 'chrono':
+      return { ...state, chrono: op.chrono };
+    case 'newRetro':
+      return startNewRetro(state, op.today);
+    case 'reset':
+      return { ...INITIAL_RETRO_STATE, retroDate: op.today };
+    default:
+      return state;
+  }
 }

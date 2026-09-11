@@ -4,6 +4,7 @@ import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
 import { RecreToolbar } from '@/components/toolbox/recre/RecreToolbar';
 import { RecreUploader } from '@/components/toolbox/recre/RecreUploader';
 import { RecreBoard } from '@/components/toolbox/recre/RecreBoard';
+import { RecreReveal } from '@/components/toolbox/recre/RecreReveal';
 import { useRecreSession } from '@/components/toolbox/recre/useRecreSession';
 
 const EnModeRecrePage: React.FC = () => {
@@ -33,16 +34,26 @@ const EnModeRecrePage: React.FC = () => {
         onToggleChrono={actions.toggleChrono}
         onResetChrono={actions.resetChrono}
         onDurationChange={actions.setDuration}
+        onStartReveal={actions.startReveal}
         onReset={actions.reset}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         <RecreUploader
           myName={me?.name ?? identity?.name ?? ''}
           myColor={me?.color ?? identity?.color ?? '#94a3b8'}
           onAddPhotos={actions.addPhotos}
         />
         <RecreBoard state={state} myId={myId} onToggleLike={actions.toggleLike} onDeletePhoto={actions.removePhoto} />
+        <RecreReveal
+          state={state}
+          myId={myId}
+          isFacilitator={isFacilitator}
+          onLike={actions.toggleLike}
+          onShowAuthor={actions.showAuthor}
+          onNext={actions.nextPhoto}
+          onClose={actions.closeReveal}
+        />
       </div>
     </ToolPageShell>
   );

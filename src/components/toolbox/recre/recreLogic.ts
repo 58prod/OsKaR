@@ -28,16 +28,36 @@ export interface RecreChrono {
   durationSec: number;
 }
 
+/**
+ * Mode révélation (maquette `recre.html`) : l'animateur montre les photos
+ * une à une, en grand, à toute l'équipe, qui devine l'auteur avant qu'il ne
+ * soit dévoilé.
+ */
+export interface RecreReveal {
+  /** Ordre de passage (identifiants de photos, mélangés au lancement). */
+  queue: string[];
+  /** Position dans la file. */
+  index: number;
+  /** L'auteur de la photo en cours est-il dévoilé ? */
+  authorShown: boolean;
+}
+
 export interface RecreState {
   /** Thème / consigne de la séance (saisi par l'animateur). */
   theme: string;
   photos: RecrePhoto[];
   chrono: RecreChrono;
+  /** Révélation en cours (null : on est sur le board). */
+  reveal: RecreReveal | null;
+  /** Photos dont l'auteur a été dévoilé : leur nom s'affiche sur le board. */
+  authorsShown: string[];
 }
 
 export const INITIAL_RECRE_STATE: RecreState = {
   theme: '',
   photos: [],
+  reveal: null,
+  authorsShown: [],
   chrono: {
     running: false,
     endsAt: null,
@@ -65,4 +85,116 @@ export function formatTime(totalSec: number): string {
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+/** Complète un état ancien (séances créées avant le mode révélation). */
+export function normalizeRecreState(raw: Partial<RecreState> | null | undefined): RecreState {
+  return {
+    ...INITIAL_RECRE_STATE,
+    ...(raw ?? {}),
+    photos: raw?.photos ?? [],
+    reveal: raw?.reveal ?? null,
+    authorsShown: raw?.authorsShown ?? [],
+  };
+}
+
+/** Mélange (Fisher-Yates) ; `random` injectable pour les tests. */
+export function shuffle<T>(list: T[], random: () => number = Math.random): T[] {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/** Photo en cours de révélation, en ignorant celles supprimées entre-temps. */
+export function currentRevealPhoto(state: RecreState): { photo: RecrePhoto; position: number; total: number } | null {
+  if (!state.reveal) return null;
+  const queue = state.reveal.queue.filter((id) => state.photos.some((p) => p.id === id));
+  const id = state.reveal.queue[state.reveal.index];
+  const photo = state.photos.find((p) => p.id === id);
+  if (!photo) return null;
+  return { photo, position: queue.indexOf(id) + 1, total: queue.length };
+}
+
+/**
+ * Opérations de la récré, diffusées à tous et appliquées par `recreReducer` :
+ * deux personnes qui envoient leurs photos au même moment ne s'écrasent plus.
+ */
+export type RecreOp =
+  | { t: 'addPhoto'; photo: RecrePhoto }
+  | { t: 'removePhoto'; id: string }
+  | { t: 'like'; id: string; voterId: string; liked: boolean }
+  | { t: 'theme'; theme: string }
+  | { t: 'chrono'; chrono: RecreChrono }
+  | { t: 'startReveal'; queue: string[] }
+  | { t: 'showAuthor' }
+  /** `from` : position de départ, pour qu'un même clic reçu deux fois n'avance qu'une fois. */
+  | { t: 'nextPhoto'; from: number }
+  | { t: 'closeReveal' }
+  | { t: 'reset' };
+
+export function recreReducer(raw: RecreState, op: RecreOp): RecreState {
+  const state = normalizeRecreState(raw);
+  switch (op.t) {
+    case 'addPhoto': {
+      if (state.photos.some((p) => p.id === op.photo.id)) return state;
+      // Insertion dans l'ordre des identifiants (horodatés) : même ordre partout.
+      const i = state.photos.findIndex((p) => p.id > op.photo.id);
+      const photos = i < 0 ? [...state.photos, op.photo]
+        : [...state.photos.slice(0, i), op.photo, ...state.photos.slice(i)];
+      return { ...state, photos };
+    }
+    case 'removePhoto':
+      return { ...state, photos: state.photos.filter((p) => p.id !== op.id) };
+    case 'like':
+      return {
+        ...state,
+        photos: state.photos.map((p) => {
+          if (p.id !== op.id) return p;
+          // Idempotent : recevoir deux fois le même vote ne change rien.
+          if (op.liked === p.likedBy.includes(op.voterId)) return p;
+          const others = p.likedBy.filter((x) => x !== op.voterId);
+          return { ...p, likedBy: op.liked ? [...others, op.voterId] : others };
+        }),
+      };
+    case 'theme':
+      return { ...state, theme: op.theme };
+    case 'chrono':
+      return { ...state, chrono: op.chrono };
+    case 'startReveal':
+      return {
+        ...state,
+        chrono: state.chrono.running
+          ? { ...state.chrono, running: false, endsAt: null, remainingSec: chronoRemaining(state.chrono) }
+          : state.chrono,
+        reveal: op.queue.length ? { queue: op.queue, index: 0, authorShown: false } : null,
+      };
+    case 'showAuthor': {
+      const current = currentRevealPhoto(state);
+      if (!state.reveal || !current) return state;
+      return {
+        ...state,
+        reveal: { ...state.reveal, authorShown: true },
+        authorsShown: state.authorsShown.includes(current.photo.id)
+          ? state.authorsShown : [...state.authorsShown, current.photo.id],
+      };
+    }
+    case 'nextPhoto': {
+      if (!state.reveal || state.reveal.index !== op.from) return state;
+      // Passe les photos supprimées entre-temps ; au bout de la file, on revient au board.
+      let index = state.reveal.index + 1;
+      while (index < state.reveal.queue.length
+        && !state.photos.some((p) => p.id === state.reveal!.queue[index])) index++;
+      if (index >= state.reveal.queue.length) return { ...state, reveal: null };
+      return { ...state, reveal: { ...state.reveal, index, authorShown: false } };
+    }
+    case 'closeReveal':
+      return { ...state, reveal: null };
+    case 'reset':
+      return { ...INITIAL_RECRE_STATE, theme: state.theme, chrono: { ...state.chrono, running: false, endsAt: null, remainingSec: state.chrono.durationSec } };
+    default:
+      return state;
+  }
 }

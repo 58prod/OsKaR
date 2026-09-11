@@ -10,6 +10,44 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.25.0] - 2026-09-11
+
+### ✨ Ajouté — « En mode récré ! » : mode révélation (maquette `recre.html`)
+- L'animateur lance le **mode révélation** : les photos passent une à une,
+  en grand, dans un ordre mélangé, sur l'écran de toute l'équipe. On devine
+  l'auteur, l'animateur le dévoile (**confettis** à sa couleur), chacun peut
+  aimer la photo, puis « Photo suivante » / « Terminer ».
+- Sur le board, le nom de l'auteur apparaît sous les photos déjà dévoilées.
+  Relancer la révélation reprend avec les photos pas encore dévoilées.
+- « Réinitialiser » demande désormais confirmation.
+
+### ✨ Ajouté — rétrospective
+- **Retirer un ticket** de la liste « Actions à démarrer » (la note reste
+  sur le tableau), avec « Rétablir ».
+- **Trier les actions par échéance** (séance en cours et suivi des rétros
+  précédentes ; les actions sans échéance en dernier).
+
+### ✨ Ajouté — boîte à outils
+- **Rejoindre une session avec son code** depuis la fenêtre d'entrée
+  (« Vous avez déjà un code de session ? ») : le code est vérifié (existe,
+  même outil) ; « 7K2P » suffit, le préfixe est ajouté.
+
+### 🔧 Corrigé
+- **Photos de la récré rognées** : elles gardent leurs proportions (portrait
+  comme paysage), sur le board comme en révélation.
+- **Ajouts simultanés perdus** (rétro et récré) : chaque geste est diffusé
+  comme une opération appliquée par tous (`reducer` / `dispatch` dans
+  `useToolSession`), au lieu de l'état complet où le dernier qui écrit
+  gagne. Vérifié : 20 notes ajoutées en même temps par deux participants,
+  20 notes chez chacun. Les gestes faits avant la fin de la connexion sont
+  mis en attente puis rejoués (ils étaient effacés par l'état de la base).
+- Photo illisible (HEIC sur ordinateur) : message clair au lieu d'un échec
+  silencieux ; si le stockage refuse l'envoi, la photo de repli est réduite
+  pour passer dans le temps réel.
+- Fenêtre d'entrée : « Rejoindre le En mode récré ! », « le Boîte à
+  idées »… → le nom de l'outil sert de titre. Boutons des cartes : « Lancer
+  la récré », « Lancer le ROTI », « Lancer le Team Mood ».
+
 ## [2.24.0] - 2026-09-11
 
 ### ✨ Ajouté — rétrospective : enchaîner sur « En mode récré ! »

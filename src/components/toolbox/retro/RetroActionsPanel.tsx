@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
-  CalendarDays, CheckCircle2, ClipboardList, Circle, FileDown, FileUp, Trash2, UserRound,
+  ArrowDownUp, CalendarDays, CheckCircle2, ClipboardList, Circle, FileDown, FileUp, Trash2, UserRound,
 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import type { BoardNote } from '@/components/toolbox/shared/boardNotes';
 import {
-  formatRetroDate, todayISO, type RetroActionMeta, type RetroPastAction,
+  byDeadline, formatRetroDate, todayISO, type RetroActionMeta, type RetroPastAction,
 } from './retroLogic';
 import { RetroPanelCollapse } from './RetroPanelTab';
 
@@ -17,6 +17,10 @@ interface RetroActionsPanelProps {
   onMetaChange: (id: string, patch: Partial<RetroActionMeta>) => void;
   onPastChange: (id: string, patch: Partial<RetroActionMeta>) => void;
   onPastDelete: (id: string) => void;
+  /** Nombre de notes « À démarrer » retirées de la liste (restées sur le tableau). */
+  dismissedCount: number;
+  onDismiss: (id: string) => void;
+  onRestore: () => void;
   onExport: () => void;
   /** Ajoute les actions d'un fichier CSV ; renvoie le nombre d'actions ajoutées. */
   onImport: (csv: string) => number;
@@ -33,9 +37,16 @@ const EMPTY_META: RetroActionMeta = { resp: '', deadline: '', done: false };
  */
 export const RetroActionsPanel: React.FC<RetroActionsPanelProps> = ({
   actions, actionMeta, pastActions, isFacilitator,
-  onMetaChange, onPastChange, onPastDelete, onExport, onImport, onCollapse,
+  onMetaChange, onPastChange, onPastDelete, dismissedCount, onDismiss, onRestore,
+  onExport, onImport, onCollapse,
 }) => {
   const toast = useToast();
+  // Tri propre à chaque écran : chacun peut regarder la liste comme il veut.
+  const [sortByDeadline, setSortByDeadline] = useState(false);
+  const metaOf = (id: string) => actionMeta[id] ?? EMPTY_META;
+  const shownActions = sortByDeadline
+    ? [...actions].sort((a, b) => byDeadline(metaOf(a.id), metaOf(b.id)))
+    : actions;
   const fileRef = useRef<HTMLInputElement>(null);
   const activeCount = actions.filter((a) => !actionMeta[a.id]?.done).length
     + pastActions.filter((a) => !a.done).length;
@@ -65,6 +76,20 @@ export const RetroActionsPanel: React.FC<RetroActionsPanelProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">
+        {actions.length + pastActions.length > 1 && (
+          <button
+            type="button"
+            onClick={() => setSortByDeadline((v) => !v)}
+            aria-pressed={sortByDeadline}
+            className={`mb-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs font-semibold transition-colors ${
+              sortByDeadline ? 'border-[#6366f1] bg-[#eef2ff] text-[#6366f1]' : 'border-line text-muted hover:bg-surface hover:text-navy'
+            }`}
+          >
+            <ArrowDownUp className="h-3.5 w-3.5" aria-hidden />
+            {sortByDeadline ? 'Triées par échéance' : 'Trier par échéance'}
+          </button>
+        )}
+
         <SectionTitle label="Cette rétrospective" count={actions.length} highlight />
         {actions.length === 0 ? (
           <p className="px-2 pb-3 text-center text-xs text-muted">
@@ -72,24 +97,50 @@ export const RetroActionsPanel: React.FC<RetroActionsPanelProps> = ({
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {actions.map((a) => (
+            {shownActions.map((a) => (
               <ActionCard
                 key={a.id}
                 text={a.text}
                 authorName={a.authorName}
                 authorColor={a.authorColor}
-                meta={actionMeta[a.id] ?? EMPTY_META}
+                meta={metaOf(a.id)}
                 isFacilitator={isFacilitator}
                 onChange={(patch) => onMetaChange(a.id, patch)}
+                onDelete={() => onDismiss(a.id)}
+                deleteLabel="Retirer de la liste (la note reste sur le tableau)"
               />
             ))}
           </ul>
+        )}
+        {isFacilitator && dismissedCount > 0 && (
+          <p className="mt-2 text-center text-[11px] text-muted">
+            {dismissedCount} ticket{dismissedCount > 1 ? 's' : ''} retiré{dismissedCount > 1 ? 's' : ''} de la liste ·{' '}
+            <button type="button" onClick={onRestore} className="font-semibold text-[#6366f1] hover:underline">
+              Rétablir
+            </button>
+          </p>
         )}
 
         {pastActions.length > 0 && (
           <div className="mt-5">
             <SectionTitle label="Suivi des rétros précédentes" count={pastActions.filter((a) => !a.done).length} />
-            {pastDates.map((date) => {
+            {sortByDeadline ? (
+              <ul className="flex flex-col gap-2">
+                {[...pastActions].sort(byDeadline).map((a) => (
+                  <ActionCard
+                    key={a.id}
+                    text={a.text}
+                    authorName={a.authorName}
+                    authorColor={a.authorColor}
+                    meta={a}
+                    retroLabel={a.retroDate ? `Rétro du ${formatRetroDate(a.retroDate)}` : 'Action importée'}
+                    isFacilitator={isFacilitator}
+                    onChange={(patch) => onPastChange(a.id, patch)}
+                    onDelete={() => onPastDelete(a.id)}
+                  />
+                ))}
+              </ul>
+            ) : pastDates.map((date) => {
               const group = pastActions
                 .filter((a) => a.retroDate === date)
                 .sort((a, b) => Number(a.done) - Number(b.done));
@@ -179,13 +230,17 @@ const ActionCard: React.FC<{
   isFacilitator: boolean;
   onChange: (patch: Partial<RetroActionMeta>) => void;
   onDelete?: () => void;
-}> = ({ text, authorName, authorColor, meta, isFacilitator, onChange, onDelete }) => {
+  deleteLabel?: string;
+  /** Rétro d'origine, affichée quand la liste est triée par échéance. */
+  retroLabel?: string;
+}> = ({ text, authorName, authorColor, meta, isFacilitator, onChange, onDelete, deleteLabel = 'Supprimer du suivi', retroLabel }) => {
   const late = !meta.done && !!meta.deadline && meta.deadline < todayISO();
   return (
     <li
       className={`rounded-lg border border-l-[3px] border-line p-2.5 ${meta.done ? 'opacity-55' : ''}`}
       style={{ borderLeftColor: meta.done ? '#22c55e' : '#6366f1' }}
     >
+      {retroLabel && <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">{retroLabel}</p>}
       <p className={`text-sm leading-snug text-navy ${meta.done ? 'line-through' : ''}`}>{text}</p>
       <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-muted">
         {authorName && (
@@ -198,9 +253,9 @@ const ActionCard: React.FC<{
           <button
             type="button"
             onClick={onDelete}
-            aria-label={`Supprimer l'action « ${text} »`}
-            title="Supprimer du suivi"
-            className="ml-auto rounded p-0.5 text-line transition-colors hover:text-danger-600"
+            aria-label={`${deleteLabel} : « ${text} »`}
+            title={deleteLabel}
+            className="ml-auto rounded p-0.5 text-muted/50 transition-colors hover:text-danger-600"
           >
             <Trash2 className="h-3 w-3" aria-hidden />
           </button>

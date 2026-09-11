@@ -102,6 +102,9 @@ const RetrospectivePage: React.FC = () => {
             onMetaChange={actions.setActionMeta}
             onPastChange={actions.setPastAction}
             onPastDelete={actions.deletePastAction}
+            dismissedCount={state.dismissedActions.filter((id) => state.notes.some((n) => n.id === id && n.revealed && n.category === 'start')).length}
+            onDismiss={actions.dismissAction}
+            onRestore={actions.restoreActions}
             onExport={actions.exportActions}
             onImport={actions.importActions}
             onCollapse={() => setActionsOpen(false)}

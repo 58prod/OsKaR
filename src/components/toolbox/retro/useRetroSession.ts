@@ -1,34 +1,34 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
 import { useFacilitator } from '@/hooks/useFacilitator';
-import {
-  buildNote, moveNote, notesOf, removeNote, revealAll, revealNext,
-  toggleLike, unrevealAll, downloadTextFile,
-} from '@/components/toolbox/shared/boardNotes';
+import { buildNote, notesOf, downloadTextFile } from '@/components/toolbox/shared/boardNotes';
 import {
   chronoRemaining, resetChronoState, toggleChronoState, withDuration,
 } from '@/components/toolbox/shared/toolChrono';
 import {
   INITIAL_RETRO_STATE, allActions, buildActionsCsv, buildRetroSummary, mergeImportedActions,
-  mergePile, movePile, normalizeRetroState, parseActionsCsv, pileNotes, retroActions,
-  startNewRetro, todayISO, unpileNote,
-  type RetroActionMeta, type RetroCategoryKey, type RetroNote, type RetroState,
+  normalizeRetroState, parseActionsCsv, retroActions, retroReducer, todayISO,
+  type RetroActionMeta, type RetroCategoryKey, type RetroOp,
 } from './retroLogic';
 
-/** Orchestration métier de la Rétrospective d'équipe au-dessus du socle temps réel. */
+/**
+ * Orchestration métier de la Rétrospective d'équipe au-dessus du socle temps
+ * réel, en mode « opérations » : chaque geste est diffusé comme une opération
+ * (voir `retroReducer`), si bien que dix personnes peuvent ajouter leurs
+ * notes en même temps sans qu'aucune ne se perde.
+ */
 export function useRetroSession(code: string | null, identity: ToolIdentity | null) {
-  const session = useToolSession<RetroState>({
+  const session = useToolSession({
     toolType: 'retrospective',
     code,
     identity,
     initialState: INITIAL_RETRO_STATE,
+    reducer: retroReducer,
   });
-  const { setState: setRawState, isHost } = session;
+  const { isHost } = session;
+  const send = session.dispatch as (op: RetroOp) => void;
   // Les séances créées avant le suivi des actions n'ont pas tous les champs.
   const state = useMemo(() => normalizeRetroState(session.state), [session.state]);
-  const setState = useCallback((updater: (prev: RetroState) => RetroState) => {
-    setRawState((p) => updater(normalizeRetroState(p)));
-  }, [setRawState]);
   const { isFacilitator, toggleFacilitator } = useFacilitator(isHost);
   const myId = identity?.id ?? '';
 
@@ -46,89 +46,71 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
 
   const addNote = useCallback((category: RetroCategoryKey, text: string) => {
     if (!identity || !text.trim()) return;
-    const note = buildNote(identity, category, text);
-    setState((p) => ({ ...p, retroDate: p.retroDate || todayISO(), notes: [...p.notes, note] }));
-  }, [identity, setState]);
+    send({ t: 'addNote', note: buildNote(identity, category, text), today: todayISO() });
+  }, [identity, send]);
 
-  const deleteNote = useCallback((id: string) => {
-    setState((p) => {
-      const meta = { ...p.actionMeta };
-      delete meta[id];
-      return { ...p, notes: removeNote(p.notes, id) as RetroNote[], actionMeta: meta };
-    });
-  }, [setState]);
+  const deleteNote = useCallback((id: string) => send({ t: 'deleteNote', id }), [send]);
 
   const revealMyNext = useCallback(() => {
-    setState((p) => ({ ...p, notes: revealNext(p.notes, myId) as RetroNote[] }));
-  }, [setState, myId]);
+    const next = state.notes.find((n) => n.authorId === myId && !n.revealed);
+    if (next) send({ t: 'reveal', ids: [next.id] });
+  }, [state.notes, myId, send]);
 
   const revealMyAll = useCallback(() => {
-    setState((p) => ({ ...p, notes: revealAll(p.notes, myId) as RetroNote[] }));
-  }, [setState, myId]);
+    const ids = state.notes.filter((n) => n.authorId === myId && !n.revealed).map((n) => n.id);
+    if (ids.length) send({ t: 'reveal', ids });
+  }, [state.notes, myId, send]);
 
-  const unrevealMine = useCallback(() => {
-    setState((p) => {
-      const mine = new Set(p.notes.filter((n) => n.authorId === myId).map((n) => n.id));
-      let notes = unrevealAll(p.notes, myId) as RetroNote[];
-      mine.forEach((id) => { notes = unpileNote(notes, id); });
-      return { ...p, notes };
-    });
-  }, [setState, myId]);
+  const unrevealMine = useCallback(() => send({ t: 'unreveal', authorId: myId }), [send, myId]);
 
   const moveToCategory = useCallback((id: string, category: RetroCategoryKey) => {
-    setState((p) => ({ ...p, notes: unpileNote(moveNote(p.notes, id, category) as RetroNote[], id) }));
-  }, [setState]);
+    send({ t: 'move', id, category });
+  }, [send]);
 
   const movePileTo = useCallback((pileId: string, category: RetroCategoryKey) => {
-    setState((p) => ({ ...p, notes: movePile(p.notes, pileId, category) }));
-  }, [setState]);
+    send({ t: 'movePile', pileId, category });
+  }, [send]);
 
-  const pileOn = useCallback((id: string, targetId: string) => {
-    setState((p) => ({ ...p, notes: pileNotes(p.notes, id, targetId) }));
-  }, [setState]);
+  const pileOn = useCallback((id: string, targetId: string) => send({ t: 'pile', id, targetId }), [send]);
 
   const pileOnto = useCallback((pileId: string, targetId: string) => {
-    setState((p) => ({ ...p, notes: mergePile(p.notes, pileId, targetId) }));
-  }, [setState]);
+    send({ t: 'pileOnto', pileId, targetId });
+  }, [send]);
 
-  const unpile = useCallback((id: string) => {
-    setState((p) => ({ ...p, notes: unpileNote(p.notes, id) }));
-  }, [setState]);
+  const unpile = useCallback((id: string) => send({ t: 'unpile', id }), [send]);
 
   const like = useCallback((id: string) => {
-    setState((p) => ({ ...p, notes: toggleLike(p.notes, id, myId) as RetroNote[] }));
-  }, [setState, myId]);
+    const note = state.notes.find((n) => n.id === id);
+    if (!note) return;
+    send({ t: 'like', id, voterId: myId, liked: !note.likedBy.includes(myId) });
+  }, [state.notes, myId, send]);
 
   const setActionMeta = useCallback((id: string, patch: Partial<RetroActionMeta>) => {
-    setState((p) => {
-      const prev = p.actionMeta[id] ?? { resp: '', deadline: '', done: false };
-      return { ...p, actionMeta: { ...p.actionMeta, [id]: { ...prev, ...patch } } };
-    });
-  }, [setState]);
+    send({ t: 'actionMeta', id, patch });
+  }, [send]);
 
   const setPastAction = useCallback((id: string, patch: Partial<RetroActionMeta>) => {
-    setState((p) => ({
-      ...p,
-      pastActions: p.pastActions.map((a) => (a.id === id ? { ...a, ...patch } : a)),
-    }));
-  }, [setState]);
+    send({ t: 'pastAction', id, patch });
+  }, [send]);
 
-  const deletePastAction = useCallback((id: string) => {
-    setState((p) => ({ ...p, pastActions: p.pastActions.filter((a) => a.id !== id) }));
-  }, [setState]);
+  const deletePastAction = useCallback((id: string) => send({ t: 'deletePastAction', id }), [send]);
+
+  /** Retire une note « À démarrer » de la liste des actions ; elle reste sur le tableau. */
+  const dismissAction = useCallback((id: string) => send({ t: 'dismissAction', id }), [send]);
+  const restoreActions = useCallback(() => send({ t: 'restoreActions' }), [send]);
 
   const toggleChrono = useCallback(() => {
     setNow(Date.now());
-    setState((p) => ({ ...p, chrono: toggleChronoState(p.chrono) }));
-  }, [setState]);
+    send({ t: 'chrono', chrono: toggleChronoState(state.chrono) });
+  }, [state.chrono, send]);
 
   const resetChrono = useCallback(() => {
-    setState((p) => ({ ...p, chrono: resetChronoState(p.chrono) }));
-  }, [setState]);
+    send({ t: 'chrono', chrono: resetChronoState(state.chrono) });
+  }, [state.chrono, send]);
 
   const setDuration = useCallback((seconds: number) => {
-    setState((p) => ({ ...p, chrono: withDuration(seconds) }));
-  }, [setState]);
+    send({ t: 'chrono', chrono: withDuration(seconds) });
+  }, [send]);
 
   const exportSummary = useCallback(() => {
     downloadTextFile('retrospective.txt', buildRetroSummary(state));
@@ -138,27 +120,18 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     downloadTextFile(`actions-retro-${todayISO()}.csv`, buildActionsCsv(allActions(state)));
   }, [state]);
 
-  /** Ajoute à l'historique les actions d'un fichier exporté ; renvoie le nombre ajouté. */
+  /** Ajoute au suivi les actions d'un fichier exporté ; renvoie le nombre ajouté. */
   const importActions = useCallback((csv: string): number => {
-    const imported = parseActionsCsv(csv);
-    let added = 0;
-    setState((p) => {
-      const merged = mergeImportedActions(p.pastActions, imported);
-      added = merged.added;
-      return { ...p, pastActions: merged.actions };
-    });
+    const { added, actions } = mergeImportedActions(state.pastActions, parseActionsCsv(csv));
+    if (added > 0) send({ t: 'importActions', actions: actions.slice(state.pastActions.length) });
     return added;
-  }, [setState]);
+  }, [state.pastActions, send]);
 
   /** Vide les cases pour une nouvelle rétro ; les actions passent dans le suivi. */
-  const newRetro = useCallback(() => {
-    setState((p) => startNewRetro(p));
-  }, [setState]);
+  const newRetro = useCallback(() => send({ t: 'newRetro', today: todayISO() }), [send]);
 
   /** Efface tout, suivi des actions compris. */
-  const reset = useCallback(() => {
-    setState(() => ({ ...INITIAL_RETRO_STATE, retroDate: todayISO() }));
-  }, [setState]);
+  const reset = useCallback(() => send({ t: 'reset', today: todayISO() }), [send]);
 
   return {
     state,
@@ -173,7 +146,7 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     actions: {
       addNote, deleteNote, revealMyNext, revealMyAll, unrevealMine,
       moveToCategory, movePileTo, pileOn, pileOnto, unpile, like,
-      setActionMeta, setPastAction, deletePastAction,
+      setActionMeta, setPastAction, deletePastAction, dismissAction, restoreActions,
       toggleChrono, resetChrono, setDuration,
       exportSummary, exportActions, importActions, newRetro, reset,
     },
