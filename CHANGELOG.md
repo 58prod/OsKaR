@@ -10,6 +10,25 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.17.0] - 2026-09-11
+
+### ✨ Ajouté — Espace coachs
+- **Page `/coachs`**, d'après la maquette `coachs.html`, libre et sans compte :
+  bannière, raisons d'intégrer Oskar, parcours client en 4 temps, tableau
+  « qui fait quoi » par pilier, kit de conviction, annuaire (fiches
+  d'illustration), formulaire de candidature, questions fréquentes. Accent
+  corail propre à l'espace.
+- **Entrée « Espace coachs »** dans le menu (rubrique Ressources), icône corail.
+- **Candidature à l'annuaire enregistrée** dans la nouvelle table
+  `candidatures_coachs` (migration `20260911_create_candidatures_coachs.sql`,
+  à exécuter dans Supabase). Dépôt ouvert à tous, aucune lecture depuis l'app.
+- **Kit de conviction**, trois documents A4 imprimables (s'ouvrent dans un
+  nouvel onglet) : one-pager (bloc « Votre coach » modifiable dans la page),
+  grille de restitution du diagnostic (2 pages), générateur de proposition
+  (3 formats préchargés, document composé en direct).
+- Deck, fiche « 5 piliers » et argumentaire : cartes affichées « Bientôt
+  disponible », les PDF n'existent pas encore.
+
 ## [2.16.2] - 2026-09-11
 
 ### 🎨 Modifié — pages de présentation des piliers
