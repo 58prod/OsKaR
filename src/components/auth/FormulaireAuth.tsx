@@ -157,6 +157,13 @@ export const FormulaireAuth: React.FC<FormulaireAuthProps> = ({
         setChargement(false);
         return;
       }
+      // Prévient l'équipe du nouveau compte. `keepalive` : l'appel survit au
+      // changement de page qui suit ; un échec ne gêne pas l'inscription.
+      fetch('/api/notifier-inscription', {
+        method: 'POST',
+        keepalive: true,
+        headers: { Authorization: `Bearer ${resultat.session.access_token}` },
+      }).catch(() => {});
       setConnecte(true);
     } catch (err: any) {
       setErreur(messageInscription(err?.message));

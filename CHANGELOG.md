@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.28.0] - 2026-09-11
+
+### ✨ Ajouté — email à chaque nouveau compte
+- Dès qu'un compte est créé, un email part vers contact@oskar-coach.fr
+  (`INSCRIPTIONS_EMAIL` pour changer) : nom, entreprise, email, lien vers la
+  fiche dans l'administration ; « Répondre » écrit à la personne.
+- Route `/api/notifier-inscription` : l'identité est relue auprès de Supabase
+  à partir du jeton de session, et seul un compte créé depuis moins de
+  15 minutes déclenche l'envoi.
+
 ## [2.27.1] - 2026-09-11
 
 ### 🔧 Corrigé — Planning Poker
