@@ -55,7 +55,10 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
       />
     </div>
   ) : (
-    <div className="flex flex-1 flex-col overflow-hidden bg-surface">
+    // `relative` : les éléments en position absolue des panneaux (textes réservés
+    // aux lecteurs d'écran, bulles…) restent dans l'outil au lieu d'allonger la
+    // page, ce qui la ferait défiler et montrerait une bande vide en bas.
+    <div className="relative flex flex-1 flex-col overflow-hidden bg-surface">
       <ToolHeader
         title={title}
         sessionCode={code}

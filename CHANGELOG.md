@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.27.1] - 2026-09-11
+
+### 🔧 Corrigé — Planning Poker
+- La page défilait et montrait une bande blanche en bas (et rognait le bloc
+  dessin) : les textes réservés aux lecteurs d'écran des emojis et des
+  couleurs, en position absolue, s'échappaient du panneau et allongeaient la
+  page à 1 346 px. Ils restent désormais dans leur panneau ; le cadre commun
+  des outils (`ToolPageShell`) les contient aussi, pour tous les outils.
+- Trait du dessin plus fin ; bloc emojis réduit à 3 lignes visibles, cadre de
+  dessin à 160 px, encadré « Les résultats s'affichent… » plus compact.
+
 ## [2.27.0] - 2026-09-11
 
 ### ✨ Ajouté — Planning Poker : dessiner son propre emoji

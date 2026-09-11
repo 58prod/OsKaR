@@ -4,7 +4,7 @@ import { DESSIN_TAILLE, POKER_ACCENT, cadreDuDessin } from './pokerLogic';
 
 /** Résolution interne du cadre de dessin (px), affiché à la largeur du panneau. */
 const COTE = 256;
-const TRAIT = 10;
+const TRAIT = 6;
 const COULEURS = [
   { valeur: '#1a1a2e', nom: 'Noir' },
   { valeur: '#1e2d7d', nom: 'Bleu nuit' },
@@ -108,10 +108,10 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
         onPointerUp={lever}
         onPointerCancel={lever}
         aria-label="Cadre de dessin : dessinez votre emoji"
-        className="block aspect-square w-full cursor-crosshair touch-none rounded-lg border-[1.5px] border-dashed border-line bg-white"
+        className="mx-auto block h-[160px] w-[160px] cursor-crosshair touch-none rounded-lg border-[1.5px] border-dashed border-line bg-white"
       />
 
-      <div className="mt-2.5 flex items-center justify-between gap-2" role="radiogroup" aria-label="Couleur du crayon">
+      <div className="mt-2 flex items-center justify-between gap-2" role="radiogroup" aria-label="Couleur du crayon">
         {COULEURS.map((c) => (
           <button
             key={c.valeur}
@@ -120,7 +120,7 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
             aria-checked={couleur === c.valeur}
             title={c.nom}
             onClick={() => setCouleur(c.valeur)}
-            className={`h-7 w-7 rounded-full border-2 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
+            className={`relative h-6 w-6 rounded-full border-2 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
               couleur === c.valeur ? 'scale-110 border-navy' : 'border-white shadow-[0_0_0_1px_#e2e4f0]'
             }`}
             style={{ background: c.valeur }}
@@ -130,7 +130,7 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
         ))}
       </div>
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-2.5 flex gap-2">
         <button
           type="button"
           onClick={effacer}

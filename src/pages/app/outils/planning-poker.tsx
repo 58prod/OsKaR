@@ -50,7 +50,7 @@ const PlanningPokerPage: React.FC = () => {
         </div>
 
         <aside
-          className="flex w-[320px] shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-line bg-surface p-5"
+          className="relative flex w-[320px] shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-line bg-surface p-5"
           aria-label="Résultats et réactions"
         >
           <PokerResults results={results} revealed={state.revealed} />

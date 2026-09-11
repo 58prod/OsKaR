@@ -17,8 +17,8 @@ const CONSENSUS_UI: Record<Exclude<ConsensusLevel, 'none'>, { label: string; cla
 export const PokerResults: React.FC<PokerResultsProps> = ({ results, revealed }) => {
   if (!revealed) {
     return (
-      <div className="rounded-card border-[1.5px] border-dashed border-line bg-white p-9 text-center text-sm text-muted">
-        <Eye className="mx-auto mb-3 h-9 w-9 opacity-20" aria-hidden />
+      <div className="rounded-card border-[1.5px] border-dashed border-line bg-white px-5 py-5 text-center text-sm text-muted">
+        <Eye className="mx-auto mb-2 h-7 w-7 opacity-20" aria-hidden />
         Les résultats s'affichent après la révélation des cartes.
       </div>
     );
