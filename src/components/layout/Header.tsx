@@ -28,6 +28,7 @@ import { AuthService } from '@/services/auth';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 import { cn } from '@/utils';
 import { useSubscription } from '@/hooks/useSubscription';
+import { ouvrirConnexion } from '@/store/useConnexion';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -296,14 +297,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMobileMenuOpen }) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => router.push('/auth/login')}
+                  onClick={() => ouvrirConnexion('login')}
                 >
                   Connexion
                 </Button>
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => router.push('/auth/register')}
+                  onClick={() => ouvrirConnexion('register')}
                 >
                   Inscription
                 </Button>

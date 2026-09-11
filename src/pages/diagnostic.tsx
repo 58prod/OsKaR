@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { AlertCircle, AlertTriangle, Check } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
+import { ouvrirConnexion, type OngletAuth } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { PillarCard } from '@/components/diagnostic/PillarCard';
 import { SynthesisPanel } from '@/components/diagnostic/SynthesisPanel';
@@ -33,9 +33,6 @@ const DiagnosticPage: React.FC = () => {
   const authReady = useAppStore((s) => s.authReady);
   const toast = useToast();
   const createDiagnostic = useCreateDiagnostic();
-
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<AuthModalTab>('register');
 
   // Rouvrir un bilan enregistré, appelé depuis « Mes bilans » (?bilan=<id>).
   const bilanDemande = typeof router.query.bilan === 'string' ? router.query.bilan : null;
@@ -72,7 +69,7 @@ const DiagnosticPage: React.FC = () => {
       .catch(() => toast.error('Ce bilan n’a pas pu être rouvert.'));
   }, [bilanDemande, toast]);
 
-  const openAuth = useCallback((tab: AuthModalTab) => { setAuthTab(tab); setAuthOpen(true); }, []);
+  const openAuth = useCallback((tab: OngletAuth) => ouvrirConnexion(tab), []);
 
   const setSlider = useCallback((id: PillarId, value: number) => {
     setState((prev) => ({ ...prev, [id]: { ...prev[id], slider: value, touched: true } }));
@@ -327,8 +324,6 @@ const DiagnosticPage: React.FC = () => {
         onSubmit={handleEmailSubmit}
         onClose={() => setEmailPromptOpen(false)}
       />
-
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} />
     </AppShell>
   );
 };

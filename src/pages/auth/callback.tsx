@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
-import { Loader2, AlertCircle } from 'lucide-react';
-import Layout from '@/components/layout/Layout';
+import { Loader2 } from 'lucide-react';
+import { CadrePageAuth, Carte, EnTeteCarte, MessageErreur } from '@/components/auth/CarteAuth';
 import { AuthService } from '@/services/auth';
 import { useAppStore } from '@/store/useAppStore';
 import { APRES_CONNEXION } from '@/lib/authFlux';
@@ -59,49 +58,28 @@ const AuthCallbackPage: React.FC = () => {
   }, [router, setUser]);
 
   return (
-    <Layout title="Authentification..." skipOnboarding>
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-md w-full text-center"
-        >
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            {error ? (
-              <>
-                <div className="flex justify-center mb-4">
-                  <div className="bg-red-100 rounded-full p-3">
-                    <AlertCircle className="h-8 w-8 text-red-600" />
-                  </div>
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  Erreur d'authentification
-                </h1>
-                <p className="text-gray-600 mb-4">{error}</p>
-                <p className="text-sm text-gray-500">
-                  Redirection vers la page de connexion...
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-center mb-4">
-                  <Loader2 className="h-12 w-12 text-primary-600 animate-spin" />
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  Authentification en cours...
-                </h1>
-                <p className="text-gray-600">
-                  Veuillez patienter pendant que nous finalisons votre connexion.
-                </p>
-              </>
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </Layout>
+    <CadrePageAuth titreOnglet="Authentification | Oskar">
+      <Carte>
+        <EnTeteCarte
+          titre={error ? 'Erreur d’authentification' : 'Authentification en cours…'}
+          sousTitre={
+            error
+              ? 'Redirection vers la page de connexion…'
+              : 'Veuillez patienter pendant que nous finalisons votre connexion.'
+          }
+        />
+        <div className="p-7">
+          {error ? (
+            <MessageErreur>{error}</MessageErreur>
+          ) : (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-8 w-8 text-teal animate-spin" aria-label="Connexion en cours" />
+            </div>
+          )}
+        </div>
+      </Carte>
+    </CadrePageAuth>
   );
 };
 
 export default AuthCallbackPage;
-

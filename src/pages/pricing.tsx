@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAppStore } from '@/store/useAppStore';
+import { ouvrirConnexion } from '@/store/useConnexion';
 import { useSubscription, useSubscriptionPlans } from '@/hooks/useSubscription';
 import { PricingCard } from '@/components/pricing/PricingCard';
 
@@ -151,7 +152,7 @@ export default function PricingPage() {
               Rejoignez des centaines d'entrepreneurs qui utilisent Oskar pour atteindre leurs objectifs
             </p>
             <button
-              onClick={() => router.push(user ? '/app/okr' : '/auth/register')}
+              onClick={() => (user ? router.push('/app/okr') : ouvrirConnexion('register'))}
               className="bg-teal text-navy-dark px-8 py-4 rounded-lg font-bold text-lg hover:bg-teal-dark transition-colors duration-200 shadow-lg"
             >
               {user ? 'Accéder à mes OKR' : 'Commencer gratuitement'}

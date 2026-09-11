@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Loader2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
+import { ouvrirConnexion, type OngletAuth } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { EtapeVerrouillee } from '@/components/okr/EtapeVerrouillee';
 import { BTN_OUTLINE, BTN_PRIMARY } from '@/components/okr/okrFlux';
@@ -89,12 +89,11 @@ const FitAtelierPage: React.FC = () => {
     fusionnerFit
   );
 
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<AuthModalTab>('register');
-  const ouvrirAuth = useCallback((tab: AuthModalTab) => {
-    setAuthTab(tab);
-    setAuthOpen(true);
-  }, []);
+  // Après connexion, on revient à l'étape que la personne voulait faire.
+  const ouvrirAuth = useCallback(
+    (tab: OngletAuth) => ouvrirConnexion(tab, etape === 'offre' ? '/app/fit' : `/app/fit?etape=${etape}`),
+    [etape]
+  );
 
   const allerA = useCallback(
     async (e: EtapeFit) => {
@@ -240,12 +239,6 @@ const FitAtelierPage: React.FC = () => {
           </>
         )}
       </AppShell>
-      <AuthModal
-        open={authOpen}
-        onClose={() => setAuthOpen(false)}
-        initialTab={authTab}
-        redirectTo={etape === 'offre' ? '/app/fit' : `/app/fit?etape=${etape}`}
-      />
     </>
   );
 };

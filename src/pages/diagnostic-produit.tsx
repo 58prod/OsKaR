@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { AlertCircle, AlertTriangle, Check } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { AuthModal, type AuthModalTab } from '@/components/layout/AuthModal';
+import { ouvrirConnexion, type OngletAuth } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { EmailPromptModal } from '@/components/diagnostic/EmailPromptModal';
 import { PresetSelector } from '@/components/productFit/PresetSelector';
@@ -41,12 +41,7 @@ const DiagnosticProduitPage: React.FC = () => {
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [project, setProject] = useState<ProductFitProject>(() => EMPTY_PROJECT);
 
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<AuthModalTab>('register');
-  const openAuth = useCallback((tab: AuthModalTab) => {
-    setAuthTab(tab);
-    setAuthOpen(true);
-  }, []);
+  const openAuth = useCallback((tab: OngletAuth) => ouvrirConnexion(tab), []);
 
   const analysis = useMemo(() => calculateProductFitAnalysis(project), [project]);
 
@@ -300,8 +295,6 @@ const DiagnosticProduitPage: React.FC = () => {
           onSubmit={envoyerSynthese}
           onClose={() => setEmailOuvert(false)}
         />
-
-        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} />
       </AppShell>
     </>
   );

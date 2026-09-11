@@ -10,6 +10,31 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.22.0] - 2026-09-11
+
+### ✨ Modifié — connexion harmonisée
+- **Une seule fenêtre de connexion pour toute l'app**, comme dans les
+  maquettes : le menu (« Se connecter »), les pages de pilier, la boîte à
+  outils, les tarifs, l'accueil, les diagnostics et les ateliers l'ouvrent
+  sans changer de page (`ouvrirConnexion()`, store `useConnexion`). Elle est
+  montée une fois dans `_app.tsx` au lieu d'être recopiée dans 7 pages. Les
+  ateliers ramènent toujours à l'étape en cours après connexion.
+- **« Mot de passe oublié ? » dans la fenêtre**, placé comme sur la maquette :
+  un volet demande l'email (repris de la saisie) et envoie le lien sans
+  quitter la page.
+- **Pages /auth/* au même habillage que la fenêtre** : connexion, inscription
+  et mot de passe oublié affichent le même formulaire (`FormulaireAuth`) ;
+  nouveau mot de passe, validation du lien et retour OAuth reprennent la
+  même carte (`CarteAuth`). Plus de fond dégradé ni de couleurs d'origine.
+  Les pages restent pour les arrivées par adresse (page protégée, invitation,
+  session expirée, lien d'email).
+- **Inscription en page** : les champs de la maquette (prénom, nom, email
+  professionnel, organisation, mot de passe) remplacent nom complet,
+  fonction et confirmation.
+- Après connexion, la fenêtre attend que la session soit prise en compte
+  avant de changer de page (délai de secours de 4 s), comme le faisait déjà
+  la page de connexion.
+
 ## [2.21.0] - 2026-09-11
 
 ### ✨ Ajouté — lien « mot de passe oublié » sur le domaine du site

@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   UserCheck,
 } from 'lucide-react';
+import { ouvrirConnexion } from '@/store/useConnexion';
 
 /*
  * Menu latéral Oskar — transposition de la sidebar de `plateforme/oskar.css` :
@@ -117,10 +118,17 @@ export const DEFAULT_SECTIONS: SidebarSection[] = [
   },
 ];
 
+// Comme dans les maquettes, « Se connecter » ouvre la fenêtre de connexion ;
+// l'adresse reste pour l'ouverture dans un nouvel onglet.
 const DEFAULT_FOOTER: SidebarNavItem = {
   href: '/auth/login',
   label: 'Se connecter',
   icon: LogIn,
+  onClick: (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    ouvrirConnexion('login');
+  },
 };
 
 /**

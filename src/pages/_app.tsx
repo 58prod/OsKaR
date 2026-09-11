@@ -8,6 +8,7 @@ import { QueryProvider } from '@/providers/QueryProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ui/Toast';
 import { CookieBanner } from '@/components/ui/CookieBanner';
+import { AuthModal } from '@/components/layout/AuthModal';
 import { useToastStore } from '@/hooks/useToast';
 import '@/styles/globals.css';
 
@@ -117,6 +118,8 @@ export default function App({ Component, pageProps }: AppProps) {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         <Component {...pageProps} />
+        {/* Fenêtre de connexion unique, ouverte de partout avec ouvrirConnexion(). */}
+        <AuthModal />
         <ToastContainer toasts={toasts} onClose={removeToast} />
         <CookieBanner />
       </QueryProvider>

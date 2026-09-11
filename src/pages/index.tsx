@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import {
@@ -24,7 +24,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { AppShell } from '@/components/layout/AppShell';
-import { AuthModal } from '@/components/layout/AuthModal';
+import { ouvrirConnexion } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAppStore } from '@/store/useAppStore';
 
@@ -39,13 +39,7 @@ const RADAR_DATA = [
 const HomePage: React.FC = () => {
   const router = useRouter();
   const { authReady, isAuthenticated } = useAppStore();
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('register');
-
-  const openAuth = (tab: 'login' | 'register' = 'register') => {
-    setAuthTab(tab);
-    setAuthOpen(true);
-  };
+  const openAuth = (tab: 'login' | 'register' = 'register') => ouvrirConnexion(tab);
 
   const topbarActions = !authReady ? null : isAuthenticated ? (
     <>
@@ -275,8 +269,6 @@ const HomePage: React.FC = () => {
           Démarrer le bilan gratuit →
         </button>
       </section>
-
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialTab={authTab} />
     </AppShell>
   );
 };

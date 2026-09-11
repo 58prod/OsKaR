@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { ouvrirConnexion } from '@/store/useConnexion';
 import { ArrowRight, Clock, MessageCircle, Plus, Users, ShieldCheck, Sparkles } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
@@ -9,7 +9,6 @@ import { useAppStore } from '@/store/useAppStore';
 import { TOOLS, getRetentionLabel, type ToolDefinition } from '@/constants/toolbox';
 
 const ToolboxPage: React.FC = () => {
-  const router = useRouter();
   const { authReady, isAuthenticated } = useAppStore();
   const retention = getRetentionLabel();
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -18,7 +17,7 @@ const ToolboxPage: React.FC = () => {
     <UserMenu />
   ) : (
     <button
-      onClick={() => router.push('/auth/login')}
+      onClick={() => ouvrirConnexion('login')}
       className="px-4 py-2 text-sm font-semibold text-navy hover:text-navy-light transition-colors"
     >
       Connexion

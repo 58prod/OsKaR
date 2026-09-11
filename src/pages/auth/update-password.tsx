@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Lock, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Layout from '@/components/layout/Layout';
-import Button from '@/components/ui/Button';
+import { CLS, CadrePageAuth, Carte, EnTeteCarte, MessageErreur, MessageInfo } from '@/components/auth/CarteAuth';
 import { AuthService } from '@/services/auth';
 import { useAppStore } from '@/store/useAppStore';
 import { APRES_CONNEXION, messageNouveauMotDePasse } from '@/lib/authFlux';
 
 // Schéma de validation
-const updatePasswordSchema = z.object({
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Les mots de passe ne correspondent pas',
-  path: ['confirmPassword'],
-});
+const updatePasswordSchema = z
+  .object({
+    password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Les mots de passe ne correspondent pas',
+    path: ['confirmPassword'],
+  });
 
 type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
 
+/** Choix du nouveau mot de passe, après le lien reçu par email (voir /auth/confirm). */
 const UpdatePasswordPage: React.FC = () => {
   const router = useRouter();
   const { authReady, isAuthenticated } = useAppStore();
@@ -62,149 +63,75 @@ const UpdatePasswordPage: React.FC = () => {
   };
 
   return (
-    <Layout title="Nouveau mot de passe" skipOnboarding>
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-md w-full"
-        >
-          {/* En-tête */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="bg-gradient-to-r from-primary-600 to-indigo-600 rounded-full p-3">
-                <Lock className="h-8 w-8 text-white" />
-              </div>
+    <CadrePageAuth titreOnglet="Nouveau mot de passe | Oskar">
+      <Carte>
+        <EnTeteCarte titre="Nouveau mot de passe" sousTitre="Choisissez un nouveau mot de passe sécurisé" />
+        <div className="p-7">
+          {success && <MessageInfo>Mot de passe mis à jour ! Redirection vers votre espace…</MessageInfo>}
+          {error && <MessageErreur>{error}</MessageErreur>}
+
+          {lienInvalide && !success && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+              <p className="font-semibold text-amber-900">Ce lien de réinitialisation est invalide ou a expiré.</p>
+              <p className="text-amber-800 mt-1">
+                <Link href="/auth/forgot-password" className="font-semibold underline">
+                  Demandez un nouveau lien
+                </Link>{' '}
+                pour choisir votre mot de passe.
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Nouveau mot de passe
-            </h1>
-            <p className="text-gray-600">
-              Choisissez un nouveau mot de passe sécurisé
+          )}
+
+          {!success && !lienInvalide && (
+            <form method="post" onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+              <div>
+                <label htmlFor="password" className={CLS.intitule}>
+                  Nouveau mot de passe
+                </label>
+                <input
+                  {...register('password')}
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                  className={CLS.champ}
+                  placeholder="6 caractères min."
+                />
+                {errors.password && <p className={CLS.erreur}>{errors.password.message}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className={CLS.intitule}>
+                  Confirmer le mot de passe
+                </label>
+                <input
+                  {...register('confirmPassword')}
+                  type="password"
+                  id="confirmPassword"
+                  autoComplete="new-password"
+                  className={CLS.champ}
+                  placeholder="••••••••"
+                />
+                {errors.confirmPassword && <p className={CLS.erreur}>{errors.confirmPassword.message}</p>}
+              </div>
+
+              <button type="submit" disabled={isLoading} className={CLS.bouton}>
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+                {isLoading ? 'Mise à jour…' : 'Mettre à jour le mot de passe →'}
+              </button>
+            </form>
+          )}
+
+          {!success && (
+            <p className={`${CLS.note} mt-4`}>
+              <Link href="/auth/login" className={CLS.lien}>
+                Retour à la connexion
+              </Link>
             </p>
-          </div>
-
-          {/* Carte */}
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            {/* Message de succès */}
-            {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg"
-              >
-                <div className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-green-800">Mot de passe mis à jour !</p>
-                    <p className="text-sm text-green-700 mt-1">
-                      Redirection vers votre espace...
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Message d'erreur */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start"
-              >
-                <AlertCircle className="h-5 w-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-800">{error}</p>
-              </motion.div>
-            )}
-
-            {lienInvalide && !success && (
-              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-sm font-medium text-amber-900">Ce lien de réinitialisation est invalide ou a expiré.</p>
-                <p className="text-sm text-amber-800 mt-1">
-                  <Link href="/auth/forgot-password" className="font-medium underline">Demandez un nouveau lien</Link>
-                  {' '}pour choisir votre mot de passe.
-                </p>
-              </div>
-            )}
-
-            {!success && !lienInvalide && (
-              <form method="post" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Nouveau mot de passe */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nouveau mot de passe
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      {...register('password')}
-                      type="password"
-                      id="password"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  {errors.password && (
-                    <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                  )}
-                </div>
-
-                {/* Confirmation */}
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirmer le mot de passe
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      {...register('confirmPassword')}
-                      type="password"
-                      id="confirmPassword"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
-                  )}
-                </div>
-
-                {/* Bouton de mise à jour */}
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  className="w-full"
-                  disabled={isLoading}
-                  leftIcon={isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-5 w-5" />}
-                >
-                  {isLoading ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
-                </Button>
-              </form>
-            )}
-
-            {/* Lien retour connexion */}
-            {!success && (
-              <div className="mt-6 text-center">
-                <Link
-                  href="/auth/login"
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  Retour à la connexion
-                </Link>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </Layout>
+          )}
+        </div>
+      </Carte>
+    </CadrePageAuth>
   );
 };
 
 export default UpdatePasswordPage;
-

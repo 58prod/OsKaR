@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
-import { Loader2, AlertCircle } from 'lucide-react';
-import Layout from '@/components/layout/Layout';
+import { Loader2 } from 'lucide-react';
+import { CLS, CadrePageAuth, Carte, EnTeteCarte, MessageErreur } from '@/components/auth/CarteAuth';
 import { AuthService } from '@/services/auth';
 import { useAppStore } from '@/store/useAppStore';
 import { destinationApresLien, messageLienEmail, typeLienEmail } from '@/lib/authFlux';
@@ -52,44 +51,30 @@ const ConfirmationLienPage: React.FC = () => {
   }, [destination, isAuthenticated, router]);
 
   return (
-    <Layout title="Validation du lien" skipOnboarding>
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-md w-full text-center"
-        >
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            {erreur ? (
-              <>
-                <div className="flex justify-center mb-4">
-                  <div className="bg-red-100 rounded-full p-3">
-                    <AlertCircle className="h-8 w-8 text-red-600" />
-                  </div>
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Lien non valide</h1>
-                <p className="text-gray-600 mb-6">{erreur}</p>
-                <Link
-                  href="/auth/forgot-password"
-                  className="inline-block font-medium text-primary-600 hover:text-primary-700 underline"
-                >
+    <CadrePageAuth titreOnglet="Validation du lien | Oskar">
+      <Carte>
+        <EnTeteCarte
+          titre={erreur ? 'Lien non valide' : 'Validation du lien…'}
+          sousTitre={erreur ? 'Ce lien ne peut plus servir' : 'Veuillez patienter quelques secondes'}
+        />
+        <div className="p-7">
+          {erreur ? (
+            <>
+              <MessageErreur>{erreur}</MessageErreur>
+              <p className={CLS.note}>
+                <Link href="/auth/forgot-password" className={CLS.lien}>
                   Demander un nouveau lien
                 </Link>
-              </>
-            ) : (
-              <>
-                <div className="flex justify-center mb-4">
-                  <Loader2 className="h-12 w-12 text-primary-600 animate-spin" />
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Validation du lien…</h1>
-                <p className="text-gray-600">Veuillez patienter quelques secondes.</p>
-              </>
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </Layout>
+              </p>
+            </>
+          ) : (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-8 w-8 text-teal animate-spin" aria-label="Validation en cours" />
+            </div>
+          )}
+        </div>
+      </Carte>
+    </CadrePageAuth>
   );
 };
 

@@ -9,6 +9,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { BTN_OUTLINE, BTN_PRIMARY } from '@/components/okr/okrFlux';
 import { useAppStore } from '@/store/useAppStore';
+import { ouvrirConnexion } from '@/store/useConnexion';
 
 /*
  * Page de presentation d'un pilier ("module").
@@ -173,10 +174,10 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
     <UserMenu />
   ) : (
     <>
-      <button type="button" onClick={() => router.push('/auth/login')} className={BTN_OUTLINE}>
+      <button type="button" onClick={() => ouvrirConnexion('login')} className={BTN_OUTLINE}>
         Connexion
       </button>
-      <button type="button" onClick={() => router.push('/auth/register')} className={BTN_PRIMARY}>
+      <button type="button" onClick={() => ouvrirConnexion('register')} className={BTN_PRIMARY}>
         Commencer gratuitement →
       </button>
     </>

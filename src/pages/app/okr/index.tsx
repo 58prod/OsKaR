@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Plus, Loader2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { AuthModal } from '@/components/layout/AuthModal';
+import { ouvrirConnexion } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { OkrTabs } from '@/components/okr/OkrTabs';
 import { EtapeObjectifs } from '@/components/okr/EtapeObjectifs';
@@ -123,12 +123,9 @@ const OkrPage: React.FC = () => {
     setDemandeNouvelle((n) => n + 1);
   };
 
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('register');
-  const ouvrirAuth = (tab: 'login' | 'register') => {
-    setAuthTab(tab);
-    setAuthOpen(true);
-  };
+  // Après connexion, on revient à l'étape que la personne voulait faire, pas au début.
+  const ouvrirAuth = (tab: 'login' | 'register') =>
+    ouvrirConnexion(tab, etape === 'annee' ? '/app/okr' : `/app/okr?etape=${etape}`);
 
   const libelles: Record<Etape, string> = {
     annee: 'Mes 3 objectifs annuels',
@@ -233,13 +230,6 @@ const OkrPage: React.FC = () => {
           </>
         )}
       </AppShell>
-      {/* On revient à l'étape que la personne voulait faire, pas au début. */}
-      <AuthModal
-        open={authOpen}
-        onClose={() => setAuthOpen(false)}
-        initialTab={authTab}
-        redirectTo={etape === 'annee' ? '/app/okr' : `/app/okr?etape=${etape}`}
-      />
     </>
   );
 };
