@@ -1,13 +1,9 @@
+import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/toolChrono';
+
+export { chronoRemaining, formatTime } from '@/components/toolbox/shared/toolChrono';
+
 /** État partagé d'une session Planning Poker (synchronisé via Realtime). */
-export interface PokerChrono {
-  running: boolean;
-  /** Timestamp (ms) de fin quand le chrono tourne, sinon null. */
-  endsAt: number | null;
-  /** Secondes restantes quand le chrono est en pause / à l'arrêt. */
-  remainingSec: number;
-  /** Durée configurée (secondes) pour un reset. */
-  durationSec: number;
-}
+export type PokerChrono = ToolChrono;
 
 export type SuiteKey = 'fibonacci' | 'tshirt' | 'custom';
 
@@ -17,8 +13,19 @@ export interface PokerState {
   suite: string[];
   /** participantId -> valeur votée. */
   votes: Record<string, string>;
+  /**
+   * Prénom et couleur de chaque votant de la manche : une personne dont la
+   * connexion décroche reste affichée avec son vote au lieu de disparaître.
+   */
+  voterNames: Record<string, { name: string; color: string }>;
   revealed: boolean;
   chrono: PokerChrono;
+  /**
+   * Numéro de la manche de vote, augmenté à chaque « Réinitialiser » et à
+   * chaque changement de suite. Un vote parti avant une remise à zéro porte
+   * l'ancien numéro : il est ignoré au lieu de réapparaître.
+   */
+  round: number;
 }
 
 export const SUITES: Record<'fibonacci' | 'tshirt', string[]> = {
@@ -31,9 +38,80 @@ export const INITIAL_POKER_STATE: PokerState = {
   suiteKey: 'fibonacci',
   suite: [...SUITES.fibonacci],
   votes: {},
+  voterNames: {},
   revealed: false,
-  chrono: { running: false, endsAt: null, remainingSec: 120, durationSec: 120 },
+  chrono: initialChrono(120),
+  round: 0,
 };
+
+/** Complète un état enregistré avant l'ajout d'un champ (sessions déjà ouvertes). */
+export function normalizePokerState(raw: Partial<PokerState> | null | undefined): PokerState {
+  const s = raw ?? {};
+  return {
+    ...INITIAL_POKER_STATE,
+    ...s,
+    suite: Array.isArray(s.suite) && s.suite.length ? s.suite : [...SUITES.fibonacci],
+    votes: s.votes && typeof s.votes === 'object' ? s.votes : {},
+    voterNames: s.voterNames && typeof s.voterNames === 'object' ? s.voterNames : {},
+    chrono: s.chrono ?? INITIAL_POKER_STATE.chrono,
+    round: typeof s.round === 'number' ? s.round : 0,
+  };
+}
+
+/* ── Opérations partagées ─────────────────────────────────────────────────── */
+
+/**
+ * Opérations du Planning Poker, diffusées à tous les participants qui les
+ * appliquent avec `pokerReducer` : dix personnes peuvent voter dans la même
+ * seconde sans qu'aucun vote n'en efface un autre. Toutes sont idempotentes
+ * (les rejouer ne change rien), condition du socle `useToolSession`.
+ */
+export type PokerOp =
+  | { t: 'vote'; round: number; voterId: string; value: string; name?: string; color?: string }
+  | { t: 'story'; story: string }
+  /** Nouvelle manche (`round` = manche courante + 1) : votes effacés. */
+  | { t: 'newRound'; round: number; suiteKey?: SuiteKey; suite?: string[]; chrono?: PokerChrono }
+  /** Révélation : fige les votes vus par celui qui révèle, identiques pour tous. */
+  | { t: 'reveal'; round: number; votes: Record<string, string>; chrono: PokerChrono }
+  | { t: 'chrono'; chrono: PokerChrono };
+
+export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
+  const state = normalizePokerState(raw);
+  switch (op.t) {
+    case 'vote':
+      if (op.round !== state.round || state.revealed) return state;
+      if (state.votes[op.voterId] === op.value) return state;
+      return {
+        ...state,
+        votes: { ...state.votes, [op.voterId]: op.value },
+        voterNames: op.name
+          ? { ...state.voterNames, [op.voterId]: { name: op.name, color: op.color ?? '#1e2d7d' } }
+          : state.voterNames,
+      };
+    case 'story':
+      return state.story === op.story ? state : { ...state, story: op.story };
+    case 'newRound':
+      // Déjà appliquée (rejeu) ou dépassée par une remise à zéro plus récente.
+      if (op.round <= state.round) return state;
+      return {
+        ...state,
+        round: op.round,
+        votes: {},
+        voterNames: {},
+        revealed: false,
+        suiteKey: op.suiteKey ?? state.suiteKey,
+        suite: op.suite ?? state.suite,
+        chrono: op.chrono ?? state.chrono,
+      };
+    case 'reveal':
+      if (op.round !== state.round || state.revealed) return state;
+      return { ...state, votes: { ...op.votes }, revealed: true, chrono: op.chrono };
+    case 'chrono':
+      return { ...state, chrono: op.chrono };
+    default:
+      return state;
+  }
+}
 
 /** Une valeur est-elle un emoji (donc exclue de la moyenne) ? */
 function isEmoji(str: string): boolean {
@@ -85,21 +163,6 @@ export function computeResults(votes: Record<string, string>): PokerResults {
     .map(([value, count]) => ({ value, count }));
 
   return { average, consensus, distribution, voteCount: vals.length };
-}
-
-/** Secondes restantes effectives selon l'état du chrono. */
-export function chronoRemaining(chrono: PokerChrono, now: number = Date.now()): number {
-  if (chrono.running && chrono.endsAt) {
-    return Math.max(0, Math.round((chrono.endsAt - now) / 1000));
-  }
-  return chrono.remainingSec;
-}
-
-/** Format mm:ss. */
-export function formatTime(totalSec: number): string {
-  const m = Math.floor(totalSec / 60);
-  const s = totalSec % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 /** Catalogue d'émojis pour les réactions (repris des maquettes). */

@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.26.2] - 2026-09-11
+
+### 🔧 Corrigé — Planning Poker : plus aucun vote perdu
+- Chaque vote renvoyait tout l'état de la partie : deux personnes votant dans
+  la même seconde s'effaçaient l'une l'autre. Le poker passe en mode
+  « opérations », comme la rétro et la récré : chaque vote est diffusé seul.
+  Essai réel : 8 votes envoyés dans la même milliseconde, 8 reçus.
+- Manches numérotées : un vote parti juste avant « Réinitialiser » ou un
+  changement de suite est ignoré au lieu de réapparaître.
+- La révélation fige les votes vus par celui qui révèle, identiques sur
+  tous les écrans ; l'auto-révélation en fin de chrono est faite par
+  l'animateur, même quand l'hôte a quitté la séance.
+- Une personne dont la connexion décroche reste affichée « hors ligne »
+  avec son vote (le compteur affichait « 9 / 1 votes »).
+- « Réinitialiser » demande confirmation et remet le chrono à sa durée,
+  comme dans la maquette `planning-poker.html`.
+
 ## [2.26.1] - 2026-09-11
 
 ### 💄 Modifié — Espace coachs

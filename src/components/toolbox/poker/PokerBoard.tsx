@@ -4,7 +4,8 @@ import type { PokerState } from './pokerLogic';
 
 interface PokerBoardProps {
   state: PokerState;
-  participants: ToolParticipant[];
+  /** En ligne, plus les votants dont la connexion a décroché (`online: false`). */
+  participants: (ToolParticipant & { online?: boolean })[];
   myId: string;
   isFacilitator: boolean;
   onVote: (value: string) => void;
@@ -91,6 +92,7 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
                     'min-w-[130px] rounded-xl border-[1.5px] bg-white p-4 text-center shadow-card transition-all',
                     voted ? 'border-success-500 bg-success-50' : 'border-line',
                     isMe ? '!border-teal' : '',
+                    p.online === false ? 'opacity-60' : '',
                   ].join(' ')}
                 >
                   <div
@@ -104,6 +106,9 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
                     {p.name}
                     {p.isHost && (
                       <span className="ml-1 block text-[11px] font-bold text-warning-700">animateur</span>
+                    )}
+                    {p.online === false && (
+                      <span className="ml-1 block text-[11px] font-semibold text-muted">hors ligne</span>
                     )}
                   </div>
                   <div className="mt-1 text-xs text-muted">

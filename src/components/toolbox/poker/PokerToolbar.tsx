@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Play, Pause, RotateCcw, Eye, Trash2 } from 'lucide-react';
+import { formatTime, parseDurationInput } from '@/components/toolbox/shared/toolChrono';
 import type { SuiteKey } from './pokerLogic';
-import { formatTime } from './pokerLogic';
 
 interface PokerToolbarProps {
   isFacilitator: boolean;
@@ -21,22 +21,6 @@ interface PokerToolbarProps {
   onReset: () => void;
 }
 
-/** Parse une saisie de durée (« mm:ss », « m:ss » ou un entier = minutes) en secondes, ou null si invalide. */
-function parseDurationInput(raw: string): number | null {
-  const t = raw.trim();
-  if (!t) return null;
-  if (t.includes(':')) {
-    const [mStr, sStr = '0'] = t.split(':');
-    const m = parseInt(mStr, 10);
-    const s = parseInt(sStr, 10);
-    if (Number.isNaN(m) || Number.isNaN(s)) return null;
-    return m * 60 + s;
-  }
-  const n = parseInt(t, 10);
-  if (Number.isNaN(n)) return null;
-  return n * 60;
-}
-
 /** Barre de contrôle (chrono synchronisé + actions animateur). */
 export const PokerToolbar: React.FC<PokerToolbarProps> = (props) => {
   const {
@@ -46,6 +30,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = (props) => {
   } = props;
 
   const [customRaw, setCustomRaw] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
   // Champ chrono unique : éditable à l'arrêt (saisie mm:ss), lecture seule pendant le décompte.
   const [chronoEditing, setChronoEditing] = useState(false);
   const [chronoDraft, setChronoDraft] = useState('');
@@ -113,7 +98,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = (props) => {
           </button>
           <button
             type="button"
-            onClick={onReset}
+            onClick={() => setConfirmReset(true)}
             className="inline-flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
           >
             <Trash2 className="h-4 w-4" aria-hidden /> Réinitialiser
@@ -121,6 +106,42 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = (props) => {
           <span className="text-sm text-white/70" aria-live="polite">
             <strong className="text-white">{voteCount}</strong> / {totalCount} votes
           </span>
+        </div>
+      )}
+
+      {/* Confirmation de la maquette (modal « Réinitialiser les votes ? »). */}
+      {confirmReset && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="poker-confirm-reset-title"
+          className="fixed inset-0 z-[210] flex items-center justify-center bg-navy/60 p-6"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmReset(false); }}
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-card-hover">
+            <h2 id="poker-confirm-reset-title" className="text-base font-bold text-navy">
+              Réinitialiser les votes ?
+            </h2>
+            <p className="mt-2 text-sm text-muted">
+              Tous les votes en cours seront effacés. Les participants devront voter à nouveau sur cette story.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmReset(false)}
+                className="rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => { onReset(); setConfirmReset(false); }}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-danger-600 px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-danger-700"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden /> Réinitialiser
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
