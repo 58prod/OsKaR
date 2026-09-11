@@ -69,7 +69,7 @@ const HomePage: React.FC = () => {
     <AppShell
       title="Accueil"
       topbarTitle="Bienvenue sur OSKAR"
-      topbarSubtitle="Plateforme de productivité"
+      topbarSubtitle="Votre vision. Vos objectifs. Vos actions."
       topbarActions={topbarActions}
     >
       {/* Hero Section */}

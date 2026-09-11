@@ -225,7 +225,7 @@ const DiagnosticPage: React.FC = () => {
     <AppShell
       title="Diagnostic"
       topbarTitle="Bienvenue sur OSKAR"
-      topbarSubtitle="Plateforme de productivité"
+      topbarSubtitle="Votre vision. Vos objectifs. Vos actions."
       topbarActions={
         !authReady ? null : isAuthenticated ? (
           <UserMenu />

@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.22.1] - 2026-09-11
+
+### 🔧 Modifié — accroche de la barre du haut
+- « Bienvenue sur OSKAR » est désormais suivi de « Votre vision. Vos
+  objectifs. Vos actions. », même style que l'ancien sous-titre, sur
+  l'accueil, les deux diagnostics et les 5 pages de pilier (remplace
+  « Plateforme de productivité » et « — productivité max »).
+
 ## [2.22.0] - 2026-09-11
 
 ### ✨ Modifié — connexion harmonisée

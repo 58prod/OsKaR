@@ -191,7 +191,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
       <AppShell
         title={nom}
         topbarTitle="Bienvenue sur OSKAR"
-        topbarSubtitle="— productivité max"
+        topbarSubtitle="Votre vision. Vos objectifs. Vos actions."
         topbarActions={topbarActions}
       >
         {/* Bannière du module */}
