@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, NotebookPen, X } from 'lucide-react';
 import type { BoardNote } from '@/components/toolbox/shared/boardNotes';
 import { RETRO_CATEGORIES, getRetroCategory, type RetroCategoryKey } from './retroLogic';
+import { RetroPanelCollapse } from './RetroPanelTab';
 
 interface RetroPrepPanelProps {
   myName: string;
@@ -12,6 +13,7 @@ interface RetroPrepPanelProps {
   onRevealNext: () => void;
   onRevealAll: () => void;
   onUnreveal: () => void;
+  onCollapse: () => void;
 }
 
 /**
@@ -19,7 +21,7 @@ interface RetroPrepPanelProps {
  * gérer sa file d'attente puis révéler ses notes une à une (ou toutes).
  */
 export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
-  myName, myColor, myNotes, onAddNote, onDeleteNote, onRevealNext, onRevealAll, onUnreveal,
+  myName, myColor, myNotes, onAddNote, onDeleteNote, onRevealNext, onRevealAll, onUnreveal, onCollapse,
 }) => {
   const [category, setCategory] = useState<RetroCategoryKey>('plus');
   const [text, setText] = useState('');
@@ -35,9 +37,12 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
   return (
     <aside className="flex w-[300px] shrink-0 flex-col overflow-hidden border-r border-line bg-white" aria-label="Ma préparation">
       <div className="border-b border-line px-4 py-3">
-        <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
-          <NotebookPen className="h-4 w-4" aria-hidden /> Ma préparation
-        </p>
+        <div className="flex items-center">
+          <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
+            <NotebookPen className="h-4 w-4" aria-hidden /> Ma préparation
+          </p>
+          <span className="ml-auto"><RetroPanelCollapse side="left" onClose={onCollapse} /></span>
+        </div>
         <p className="mt-1 flex items-center gap-2 text-sm font-bold text-navy">
           <span className="h-2.5 w-2.5 rounded-full" style={{ background: myColor }} aria-hidden />
           {myName}

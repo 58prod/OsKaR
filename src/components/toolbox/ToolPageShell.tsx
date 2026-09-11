@@ -16,6 +16,10 @@ interface ToolPageShellProps {
   onToggleFacilitator: () => void;
   onJoin: (name: string) => void;
   onShare: () => void;
+  /** Rétention propre à l'outil, affichée à l'entrée dans la session. */
+  retentionLabel?: string;
+  /** Précision sur le code, affichée à l'entrée dans la session. */
+  codeHint?: string;
   children: React.ReactNode;
 }
 
@@ -27,7 +31,7 @@ interface ToolPageShellProps {
  * - en-tête (logo, titre, toggle animateur, invitation) + contenu de l'outil.
  */
 export const ToolPageShell: React.FC<ToolPageShellProps> = ({
-  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, children,
+  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, children,
 }) => {
   const { collapsed, toggle } = useSidebarCollapsed();
   const { authReady, isAuthenticated } = useAppStore();
@@ -46,6 +50,8 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
         sessionCode={code}
         isCreating={isCreating}
         onJoin={onJoin}
+        retentionLabel={retentionLabel}
+        codeHint={codeHint}
       />
     </div>
   ) : (

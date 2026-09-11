@@ -78,9 +78,9 @@ export function useToolSession<TState>(
     if (!code) return;
     if (snapshotTimer.current) clearTimeout(snapshotTimer.current);
     snapshotTimer.current = setTimeout(() => {
-      void ToolSessionService.saveSnapshot(code, next as any);
+      void ToolSessionService.saveSnapshot(code, next as any, toolType);
     }, TOOLBOX_CONFIG.snapshotDebounceMs);
-  }, [code]);
+  }, [code, toolType]);
 
   const setState = useCallback((updater: TState | ((prev: TState) => TState)) => {
     const next = typeof updater === 'function'

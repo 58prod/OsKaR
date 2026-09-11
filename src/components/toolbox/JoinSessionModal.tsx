@@ -10,6 +10,10 @@ interface JoinSessionModalProps {
   /** true si l'utilisateur crée la session (facilitateur). */
   isCreating: boolean;
   onJoin: (name: string) => void;
+  /** Rétention propre à l'outil (ex: « 1 an » pour la Rétrospective). */
+  retentionLabel?: string;
+  /** Précision affichée sous le code (ex: code d'équipe permanent). */
+  codeHint?: string;
 }
 
 /**
@@ -21,6 +25,8 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
   sessionCode,
   isCreating,
   onJoin,
+  retentionLabel,
+  codeHint,
 }) => {
   const [name, setName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,6 +67,7 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
             {sessionCode}
           </span>
         </div>
+        {codeHint && <p className="mt-2 text-xs leading-relaxed text-muted">{codeHint}</p>}
 
         <form onSubmit={submit} className="mt-5">
           <label htmlFor="join-name" className="block text-sm font-semibold text-navy">
@@ -91,7 +98,7 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
 
         <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
           <Clock className="h-3.5 w-3.5" aria-hidden />
-          Données conservées {getRetentionLabel()}, puis supprimées automatiquement.
+          Données conservées {retentionLabel ?? getRetentionLabel()} après la dernière activité, puis supprimées automatiquement.
         </p>
       </div>
     </div>

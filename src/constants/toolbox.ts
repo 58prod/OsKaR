@@ -17,6 +17,15 @@ export const TOOLBOX_CONFIG = {
    */
   sessionRetentionHours: 24,
 
+  /**
+   * Exceptions à la rétention par outil. La Rétrospective sert de salle
+   * permanente à une équipe : on y revient à chaque rétro avec le même code
+   * pour suivre les actions d'une séance à l'autre.
+   */
+  sessionRetentionHoursByTool: {
+    retrospective: 365 * 24,
+  } as Partial<Record<string, number>>,
+
   /** Longueur de la partie aléatoire du code de session (ex: « POKER-7K2P »). */
   sessionCodeLength: 4,
 
@@ -24,9 +33,19 @@ export const TOOLBOX_CONFIG = {
   snapshotDebounceMs: 800,
 };
 
+/** Rétention (heures) d'un outil, ou la valeur commune à défaut. */
+export function getRetentionHours(toolType?: string): number {
+  return (toolType && TOOLBOX_CONFIG.sessionRetentionHoursByTool[toolType])
+    || TOOLBOX_CONFIG.sessionRetentionHours;
+}
+
 /** Durée de rétention formatée pour l'affichage utilisateur (ex: « 24 heures »). */
-export function getRetentionLabel(): string {
-  const h = TOOLBOX_CONFIG.sessionRetentionHours;
+export function getRetentionLabel(toolType?: string): string {
+  const h = getRetentionHours(toolType);
+  if (h % (365 * 24) === 0) {
+    const years = h / (365 * 24);
+    return years === 1 ? '1 an' : `${years} ans`;
+  }
   if (h % 24 === 0) {
     const days = h / 24;
     return days === 1 ? '24 heures' : `${days} jours`;
@@ -35,8 +54,8 @@ export function getRetentionLabel(): string {
 }
 
 /** Date d'expiration calculée à partir de la rétention configurée. */
-export function getSessionExpiryISO(from: Date = new Date()): string {
-  const ms = TOOLBOX_CONFIG.sessionRetentionHours * 60 * 60 * 1000;
+export function getSessionExpiryISO(from: Date = new Date(), toolType?: string): string {
+  const ms = getRetentionHours(toolType) * 60 * 60 * 1000;
   return new Date(from.getTime() + ms).toISOString();
 }
 

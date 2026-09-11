@@ -86,7 +86,7 @@ export const ToolSessionService = {
         tool_type: toolType,
         host_id: hostId,
         state,
-        expires_at: getSessionExpiryISO(),
+        expires_at: getSessionExpiryISO(new Date(), toolType),
       })
       .select()
       .single();
@@ -121,11 +121,11 @@ export const ToolSessionService = {
    * Enregistre un instantané de l'état partagé (pour retardataires / refresh).
    * Prolonge également l'expiration sur activité.
    */
-  async saveSnapshot(code: string, state: any): Promise<void> {
+  async saveSnapshot(code: string, state: any, toolType?: ToolType): Promise<void> {
     if (!isSupabaseConfigured()) return;
     const { error } = await supabase
       .from('tool_sessions')
-      .update({ state, expires_at: getSessionExpiryISO() })
+      .update({ state, expires_at: getSessionExpiryISO(new Date(), toolType) })
       .eq('code', code.trim().toUpperCase());
 
     if (error) {

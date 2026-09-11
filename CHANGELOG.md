@@ -10,6 +10,40 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.23.0] - 2026-09-11
+
+### ✨ Ajouté — rétrospective : suivi des actions d'une rétro à l'autre
+- **Code d'équipe permanent** : une séance de Rétrospective est conservée
+  1 an après sa dernière activité (au lieu de 24 h pour les autres outils).
+  L'équipe rouvre le même lien à chaque rétro. Aucune migration : la date
+  d'expiration est calculée par l'app, par outil
+  (`TOOLBOX_CONFIG.sessionRetentionHoursByTool`).
+- **« Nouvelle rétro »** (remplace « Réinitialiser ») : vide les cases pour
+  tout le monde. Les actions de la séance passent dans le suivi avec leur
+  responsable, leur échéance et leur statut. « Tout effacer, suivi compris »
+  reste disponible dans la fenêtre de confirmation.
+- **Suivi des rétros précédentes** dans le panneau « Actions à démarrer »,
+  groupé par date de rétro : l'animateur met à jour le responsable,
+  l'échéance, « fait », ou supprime l'action ; une échéance dépassée est
+  signalée en rouge.
+- **Export des actions en CSV** (s'ouvre dans Excel), **réimportable** dans
+  une autre rétro, sans doublon.
+
+### 🔧 Corrigé — rétrospective
+- Le responsable et l'échéance saisis par l'animateur sont désormais
+  **visibles par tous les participants** (ils ne s'affichaient que chez
+  l'animateur).
+- **Les cases très remplies défilent** : au-delà d'une douzaine de notes, le
+  reste était coupé et invisible.
+
+### ✨ Ajouté — rétrospective : tableaux chargés
+- Les cases « + » et « – », toujours les plus remplies, occupent la colonne
+  la plus large ; les notes sont plus compactes.
+- **Tas de notes** (comme la maquette `retro.html`) : glisser une note sur
+  une autre les empile ; un clic ouvre le tas, d'où l'on peut sortir une note.
+- Les panneaux « Ma préparation » et « Actions » se replient en onglets
+  étroits pour laisser toute la place au tableau.
+
 ## [2.22.1] - 2026-09-11
 
 ### 🔧 Modifié — accroche de la barre du haut
