@@ -4,7 +4,7 @@
 
 OsKaR transforme vos ambitions en résultats concrets grâce à une approche guidée multi-entités et un accompagnement IA personnalisé basé sur votre profil d'entreprise.
 
-🌐 **Application déployée :** [https://recette-okarina.netlify.app](https://recette-okarina.netlify.app)
+🌐 **Application déployée :** [https://oskar-coach.fr](https://oskar-coach.fr)
 
 ## 🎉 Nouveautés v2.0 - Migration Supabase
 
@@ -266,7 +266,7 @@ yarn start
 
 ### Déploiement
 
-**🌐 Application en ligne :** [https://recette-okarina.netlify.app](https://recette-okarina.netlify.app)
+**🌐 Application en ligne :** [https://oskar-coach.fr](https://oskar-coach.fr)
 
 Le projet est optimisé pour un déploiement serveur sur :
 - **Netlify** (actuellement déployé)

@@ -331,7 +331,7 @@ export default function PropositionPage() {
           </div>
 
           <div className={k('doc-foot')}>
-            <span>Proposition établie sur la base du diagnostic Oskar · hasenso.fr/oskar</span>
+            <span>Proposition établie sur la base du diagnostic Oskar · oskar-coach.fr</span>
             <span>{ouRepli(s.date)}</span>
           </div>
         </div>

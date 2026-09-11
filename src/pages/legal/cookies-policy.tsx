@@ -318,8 +318,8 @@ const CookiesPolicyPage: React.FC = () => {
           <CardContent className="prose max-w-none">
             <p>Pour toute question concernant notre utilisation des cookies :</p>
             <ul>
-              <li>Email : <strong>privacy@okarina.com</strong></li>
-              <li>Email général : <strong>contact@okarina.com</strong></li>
+              <li>Email : <strong>privacy@oskar-coach.fr</strong></li>
+              <li>Email général : <strong>contact@oskar-coach.fr</strong></li>
             </ul>
           </CardContent>
         </Card>

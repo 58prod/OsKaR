@@ -37,7 +37,7 @@ export function telechargerPdfFit(atelier: AtelierFit): void {
   doc.text('Diagnostic Market Fit', M, 27);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('hasenso.fr/oskar', W - M, 13, { align: 'right' });
+  doc.text('oskar-coach.fr', W - M, 13, { align: 'right' });
 
   let y = 48;
 
@@ -91,7 +91,7 @@ export function telechargerPdfFit(atelier: AtelierFit): void {
   // Pied de page
   doc.setTextColor(150, 150, 160);
   doc.setFontSize(8);
-  doc.text('OSKAR — Hasenso · hasenso.fr/oskar', M, 290);
+  doc.text('OSKAR — Hasenso · oskar-coach.fr', M, 290);
   doc.text(new Date().toLocaleDateString('fr-FR'), W - M, 290, { align: 'right' });
 
   doc.save('oskar-fit-diagnostic.pdf');

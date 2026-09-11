@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Palette OsKaR (hasenso.fr/oskar)
+        // Palette OsKaR (oskar-coach.fr)
         navy: {
           DEFAULT: '#1e2d7d',
           dark: '#151f5e',

@@ -312,7 +312,7 @@ function diaposClient({ coach, contact, client }: Contexte): React.ReactNode[] {
         Gratuit, sans inscription, dix minutes. Nous en lisons les résultats ensemble lors de la restitution.
       </p>
       <div className={k('sl-cta')}>
-        <div className={k('sl-url')}>hasenso.fr/oskar</div>
+        <div className={k('sl-url')}>oskar-coach.fr</div>
         <div className={k('sl-coach')}>
           <div className={k('sl-coach-k')}>Votre coach</div>
           <div className={k('sl-coach-nom')}>{coach || 'Prénom Nom'}</div>

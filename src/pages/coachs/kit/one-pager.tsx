@@ -123,7 +123,7 @@ export default function OnePagerPage() {
               <h3>Le diagnostic est gratuit et sans inscription.</h3>
               <p>Dix minutes pour savoir où concentrer votre énergie les six prochains mois.</p>
             </div>
-            <div className={k('doc-cta-url')}>hasenso.fr/oskar</div>
+            <div className={k('doc-cta-url')}>oskar-coach.fr</div>
           </div>
 
           <div className={k('doc-coach')}>
@@ -142,7 +142,7 @@ export default function OnePagerPage() {
         </div>
 
         <div className={k('doc-foot')}>
-          <span>OSKAR — un cadre de management en 5 piliers · hasenso.fr/oskar</span>
+          <span>OSKAR — un cadre de management en 5 piliers · oskar-coach.fr</span>
           <span>Document remis par votre coach</span>
         </div>
       </div>

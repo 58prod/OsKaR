@@ -79,7 +79,7 @@ export default function FicheCinqPiliersPage() {
         ))}
 
         <div className={k('doc-foot')}>
-          <span>OSKAR — Les 5 piliers · hasenso.fr/oskar</span>
+          <span>OSKAR — Les 5 piliers · oskar-coach.fr</span>
           <span>Recto — 1 / 2</span>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function FicheCinqPiliersPage() {
               <h3>Reprenez le pilier choisi ensemble.</h3>
               <p>Vos réponses restent dans la plateforme : vous les retrouvez à la prochaine séance.</p>
             </div>
-            <div className={k('doc-cta-url')}>hasenso.fr/oskar</div>
+            <div className={k('doc-cta-url')}>oskar-coach.fr</div>
           </div>
 
           <div className={k('doc-coach')}>

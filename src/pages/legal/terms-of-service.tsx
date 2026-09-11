@@ -46,7 +46,7 @@ const TermsOfServicePage: React.FC = () => {
           </CardHeader>
           <CardContent className="prose max-w-none">
             <ul>
-              <li><strong>Service</strong> : L'application web Oskar accessible à l'adresse okarina.com</li>
+              <li><strong>Service</strong> : L'application web Oskar accessible à l'adresse oskar-coach.fr</li>
               <li><strong>Utilisateur</strong> : Toute personne utilisant le Service</li>
               <li><strong>Compte</strong> : Espace personnel de l'Utilisateur sur le Service</li>
               <li><strong>Contenu</strong> : Toutes les données créées par l'Utilisateur (objectifs, ambitions, etc.)</li>
@@ -303,8 +303,8 @@ const TermsOfServicePage: React.FC = () => {
           <CardContent className="prose max-w-none">
             <p>Pour toute question concernant ces CGU :</p>
             <ul>
-              <li>Email : <strong>legal@okarina.com</strong></li>
-              <li>Email général : <strong>contact@okarina.com</strong></li>
+              <li>Email : <strong>legal@oskar-coach.fr</strong></li>
+              <li>Email général : <strong>contact@oskar-coach.fr</strong></li>
             </ul>
           </CardContent>
         </Card>

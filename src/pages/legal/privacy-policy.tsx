@@ -46,7 +46,7 @@ const PrivacyPolicyPage: React.FC = () => {
           </CardHeader>
           <CardContent className="prose max-w-none">
             <p><strong>Oskar</strong></p>
-            <p>Email : contact@okarina.com</p>
+            <p>Email : contact@oskar-coach.fr</p>
             <p>
               Pour toute question concernant vos données personnelles, vous pouvez nous contacter à l'adresse
               ci-dessus.
@@ -251,7 +251,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
             <h3>Comment exercer vos droits ?</h3>
             <p>
-              Pour exercer vos droits, contactez-nous à : <strong>privacy@okarina.com</strong>
+              Pour exercer vos droits, contactez-nous à : <strong>privacy@oskar-coach.fr</strong>
               <br />
               Nous répondrons dans un délai maximum de 30 jours.
             </p>
@@ -307,8 +307,8 @@ const PrivacyPolicyPage: React.FC = () => {
           <CardContent className="prose max-w-none">
             <p>Pour toute question concernant cette politique de confidentialité :</p>
             <ul>
-              <li>Email : <strong>privacy@okarina.com</strong></li>
-              <li>Email général : <strong>contact@okarina.com</strong></li>
+              <li>Email : <strong>privacy@oskar-coach.fr</strong></li>
+              <li>Email général : <strong>contact@oskar-coach.fr</strong></li>
             </ul>
           </CardContent>
         </Card>

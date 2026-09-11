@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.19.1] - 2026-09-11
+
+### 🔧 Modifié — adresse du site : oskar-coach.fr
+- Documents du kit coach (one-pager, fiche « les 5 piliers », deck,
+  proposition) et PDF du diagnostic Market Fit : `hasenso.fr/oskar` devient
+  `oskar-coach.fr`.
+- Pages légales (CGU, confidentialité, cookies) : domaine du service et
+  adresses email passent de `okarina.com` à `oskar-coach.fr` (contact@,
+  privacy@, legal@ — boîtes à créer).
+- README : lien de démonstration.
+
 ## [2.19.0] - 2026-09-11
 
 ### ✨ Ajouté — Deck et fiche « les 5 piliers » (kit coach)
