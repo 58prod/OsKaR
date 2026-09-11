@@ -2,6 +2,9 @@ import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/tool
 
 export { chronoRemaining, formatTime } from '@/components/toolbox/shared/toolChrono';
 
+/** Couleur de l'outil (celle de sa carte dans la boîte à outils). */
+export const POKER_ACCENT = '#5b21b6';
+
 /** État partagé d'une session Planning Poker (synchronisé via Realtime). */
 export type PokerChrono = ToolChrono;
 
@@ -165,9 +168,29 @@ export function computeResults(votes: Record<string, string>): PokerResults {
   return { average, consensus, distribution, voteCount: vals.length };
 }
 
-/** Catalogue d'émojis pour les réactions (repris des maquettes). */
+/**
+ * Catalogue d'émojis pour les réactions, du plus courant au plus farfelu :
+ * les réactions de tous les jours en haut du panneau, puis celles qui
+ * parlent d'estimation, puis tout le reste.
+ */
 export const EMOJI_CATALOG = [
-  '🔥', '👏', '❤️', '👍', '🎉', '😂', '🚀', '💯', '😍', '⭐',
-  '🙌', '💪', '😎', '🤔', '😅', '🥳', '🤩', '👀', '🎯', '✅',
-  '⚡', '💡', '🤝', '🙏', '🤯', '🐛', '🦄', '🍕', '☕', '🏆',
+  // Les plus utilisés
+  '👍', '👏', '🔥', '😂', '❤️', '🎉', '🚀', '💯', '🤔', '😮',
+  '🙌', '😍', '👀', '😅', '🥳', '💪', '😎', '🤩', '✅', '⭐',
+  '🤯', '🙏', '🤝', '💡', '🎯', '😬', '🫶', '🥹', '👎', '😴',
+  // Pour estimer
+  '🐌', '🐢', '🐇', '⚡', '🐘', '🐭', '🧱', '🪶', '⏳', '⏰',
+  '🤏', '🙉', '🤷', '❓', '♾️', '🧮', '📏', '🎲', '🃏', '♠️',
+  '🐛', '🔧', '🧩', '🏗️', '🧨', '💣', '🪤', '🕳️', '🌋', '🧯',
+  // Pour rire
+  '🦄', '🐙', '🦖', '🥷', '🧙', '🤖', '👽', '👻', '🤡', '💩',
+  '🦆', '🐸', '🦥', '🦩', '🦔', '🐳', '🐧', '🦒', '🐒', '🙈',
+  '🫠', '🫡', '🤌', '🥸', '🤓', '😇', '🤪', '😵‍💫', '😱', '🥶',
+  '🥵', '🤠', '🧠', '💀', '👾', '🐉', '🦸', '🧞', '🧜', '🫥',
+  // Pour se motiver
+  '🏆', '🥇', '💎', '🔑', '🌈', '✨', '🎊', '🪄', '🍾', '🎸',
+  '🎤', '🕺', '💃', '🏄', '🧗', '🏋️', '🛼', '🪁', '🎳', '🥊',
+  // Pour la pause
+  '☕', '🍕', '🍩', '🧁', '🍰', '🍿', '🥐', '🧀', '🌮', '🥑',
+  '🍫', '🍪', '🧃', '🍺', '🍷', '🥨', '🍜', '🌶️', '🍉', '🍦',
 ];

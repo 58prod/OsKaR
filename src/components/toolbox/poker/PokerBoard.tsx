@@ -7,41 +7,17 @@ interface PokerBoardProps {
   /** En ligne, plus les votants dont la connexion a décroché (`online: false`). */
   participants: (ToolParticipant & { online?: boolean })[];
   myId: string;
-  isFacilitator: boolean;
   onVote: (value: string) => void;
-  onStoryChange: (story: string) => void;
 }
 
-export const PokerBoard: React.FC<PokerBoardProps> = ({
-  state,
-  participants,
-  myId,
-  isFacilitator,
-  onVote,
-  onStoryChange,
-}) => {
+/** Cartes de vote et participants (la story est dans la barre du haut). */
+export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myId, onVote }) => {
   const { suite, suiteKey, votes, revealed } = state;
   const myVote = votes[myId];
   const isTshirt = suiteKey === 'tshirt';
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      {/* Story bar */}
-      <div className="flex items-center gap-3 border-b border-line bg-white px-6 py-3">
-        <label htmlFor="poker-story" className="shrink-0 text-xs font-bold uppercase tracking-wide text-muted">
-          Story ›
-        </label>
-        <input
-          id="poker-story"
-          type="text"
-          value={state.story}
-          onChange={(e) => onStoryChange(e.target.value)}
-          readOnly={!isFacilitator}
-          placeholder={isFacilitator ? 'Décrivez la fonctionnalité à estimer…' : 'En attente de la story…'}
-          className="flex-1 bg-transparent text-lg font-semibold text-navy outline-none placeholder:font-normal placeholder:text-line read-only:cursor-default"
-        />
-      </div>
-
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
         {/* Vote zone */}
         <section aria-labelledby="vote-title">

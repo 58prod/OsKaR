@@ -25,14 +25,15 @@ const PlanningPokerPage: React.FC = () => {
       onShare={handleShare}
     >
       <PokerToolbar
-        isFacilitator={isFacilitator}
-        running={state.chrono.running}
+        story={state.story}
+        chrono={state.chrono}
         remainingSec={remainingSec}
-        durationSec={state.chrono.durationSec}
+        isFacilitator={isFacilitator}
         revealed={state.revealed}
         voteCount={Object.keys(state.votes).length}
         totalCount={participants.length}
         suiteKey={state.suiteKey}
+        onStoryChange={actions.setStory}
         onToggleChrono={actions.toggleChrono}
         onResetChrono={actions.resetChrono}
         onDurationChange={actions.setDuration}
@@ -44,14 +45,7 @@ const PlanningPokerPage: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden">
         <div id="poker-board-area" className="flex flex-1 overflow-hidden">
-          <PokerBoard
-            state={state}
-            participants={participants}
-            myId={myId}
-            isFacilitator={isFacilitator}
-            onVote={actions.vote}
-            onStoryChange={actions.setStory}
-          />
+          <PokerBoard state={state} participants={participants} myId={myId} onVote={actions.vote} />
         </div>
 
         <aside

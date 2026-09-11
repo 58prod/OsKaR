@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.26.3] - 2026-09-11
+
+### 💄 Modifié — Planning Poker aligné sur la rétro et la récré
+- Barre du haut blanche, comme les outils validés : la story à estimer y
+  prend place (comme le thème de la récré), puis le compteur de votes, les
+  commandes de l'animateur (suite, Révéler, Réinitialiser) et le minuteur
+  partagé (`ChronoControls`) à la couleur de l'outil, violet `#5b21b6`.
+  L'ancienne barre bleu nuit et la barre de story séparée disparaissent.
+- Réactions : 140 emojis au lieu de 30, des plus courants (👍 👏 🔥 😂 ❤️ 🎉)
+  aux plus farfelus, avec une série pour estimer (🐌 🐘 🧱 ⏳ 🃏…).
+
 ## [2.26.2] - 2026-09-11
 
 ### 🔧 Corrigé — Planning Poker : plus aucun vote perdu

@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { Play, Pause, RotateCcw, Eye, Trash2 } from 'lucide-react';
-import { formatTime, parseDurationInput } from '@/components/toolbox/shared/toolChrono';
-import type { SuiteKey } from './pokerLogic';
+import { Eye, Layers, Trash2 } from 'lucide-react';
+import { ChronoControls } from '@/components/toolbox/shared/ChronoControls';
+import type { ToolChrono } from '@/components/toolbox/shared/toolChrono';
+import { POKER_ACCENT, type SuiteKey } from './pokerLogic';
 
 interface PokerToolbarProps {
-  isFacilitator: boolean;
-  running: boolean;
+  story: string;
+  chrono: ToolChrono;
   remainingSec: number;
-  durationSec: number;
+  isFacilitator: boolean;
   revealed: boolean;
   voteCount: number;
   totalCount: number;
   suiteKey: SuiteKey;
+  onStoryChange: (story: string) => void;
   onToggleChrono: () => void;
   onResetChrono: () => void;
   onDurationChange: (seconds: number) => void;
@@ -21,95 +23,116 @@ interface PokerToolbarProps {
   onReset: () => void;
 }
 
-/** Barre de contrôle (chrono synchronisé + actions animateur). */
-export const PokerToolbar: React.FC<PokerToolbarProps> = (props) => {
-  const {
-    isFacilitator, running, remainingSec, durationSec, revealed, voteCount, totalCount,
-    suiteKey, onToggleChrono, onResetChrono, onDurationChange, onSuiteChange,
-    onApplyCustom, onReveal, onReset,
-  } = props;
-
+/**
+ * Barre supérieure du Planning Poker, sur le modèle de la rétro et de la
+ * récré : la story à estimer (éditable par l'animateur, comme le thème de la
+ * récré), le compteur de votes, les commandes de l'animateur et le minuteur
+ * partagé aux couleurs de l'outil.
+ */
+export const PokerToolbar: React.FC<PokerToolbarProps> = ({
+  story, chrono, remainingSec, isFacilitator, revealed, voteCount, totalCount, suiteKey,
+  onStoryChange, onToggleChrono, onResetChrono, onDurationChange, onSuiteChange, onApplyCustom, onReveal, onReset,
+}) => {
   const [customRaw, setCustomRaw] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
-  // Champ chrono unique : éditable à l'arrêt (saisie mm:ss), lecture seule pendant le décompte.
-  const [chronoEditing, setChronoEditing] = useState(false);
-  const [chronoDraft, setChronoDraft] = useState('');
-
-  const commitChrono = () => {
-    setChronoEditing(false);
-    const sec = parseDurationInput(chronoDraft);
-    if (sec != null) onDurationChange(sec);
-  };
-
-  const ratio = durationSec > 0 ? remainingSec / durationSec : 1;
-  const dispClass =
-    ratio <= 0.1 ? 'text-danger-600 border-danger-300 bg-danger-50 animate-pulse'
-    : ratio <= 0.25 ? 'text-warning-600 border-warning-400 bg-warning-50'
-    : 'text-navy border-line bg-surface';
 
   return (
-    <div className="flex flex-wrap items-center gap-3 bg-navy-dark px-6 py-3">
-      {isFacilitator && (
-        <div className="flex items-center gap-2" role="group" aria-label="Suite de votes">
-          <label htmlFor="suite-select" className="text-xs font-semibold uppercase tracking-wide text-white/55">
-            Suite
-          </label>
-          <select
-            id="suite-select"
-            value={suiteKey}
-            onChange={(e) => onSuiteChange(e.target.value as SuiteKey)}
-            className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-navy outline-none focus:border-teal focus-visible:ring-2 focus-visible:ring-teal"
-          >
-            <option value="fibonacci">Fibonacci (1,2,3,5,8,13,?)</option>
-            <option value="tshirt">T-Shirts (XS,S,M,L,XL,?)</option>
-            <option value="custom">Personnalisé…</option>
-          </select>
-          {suiteKey === 'custom' && (
-            <form
-              onSubmit={(e) => { e.preventDefault(); onApplyCustom(customRaw); }}
-              className="flex items-center gap-1.5"
+    <div
+      className="flex flex-wrap items-center gap-3 border-b border-line bg-white px-6 py-3"
+      style={{ '--tool-accent': POKER_ACCENT } as React.CSSProperties}
+    >
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
+        <Layers className="h-4 w-4" style={{ color: POKER_ACCENT }} aria-hidden /> Story
+      </span>
+
+      {isFacilitator ? (
+        <label className="min-w-[220px] flex-1">
+          <span className="sr-only">Story à estimer</span>
+          <input
+            type="text"
+            value={story}
+            onChange={(e) => onStoryChange(e.target.value)}
+            placeholder="Décrivez la fonctionnalité à estimer…"
+            className="w-full bg-transparent text-base font-semibold text-navy outline-none placeholder:font-normal placeholder:text-line"
+          />
+        </label>
+      ) : (
+        <span className="min-w-[220px] flex-1 truncate text-base font-semibold text-navy">
+          {story || <span className="font-normal text-muted">En attente de la story…</span>}
+        </span>
+      )}
+
+      <p className="shrink-0 text-sm text-muted" aria-live="polite">
+        <strong className="text-navy">{voteCount}</strong> / {totalCount} vote{totalCount > 1 ? 's' : ''}
+      </p>
+
+      <div className="ml-auto flex flex-wrap items-center gap-2.5">
+        {isFacilitator && (
+          <>
+            <label className="sr-only" htmlFor="poker-suite">Suite de votes</label>
+            <select
+              id="poker-suite"
+              value={suiteKey}
+              onChange={(e) => onSuiteChange(e.target.value as SuiteKey)}
+              className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-navy outline-none focus:border-[var(--tool-accent)]"
             >
-              <label htmlFor="suite-custom" className="sr-only">Valeurs personnalisées (séparées par des virgules)</label>
-              <input
-                id="suite-custom"
-                type="text"
-                value={customRaw}
-                onChange={(e) => setCustomRaw(e.target.value)}
-                placeholder="Ex : 0,1,2,4,8,?"
-                className="w-40 rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-navy outline-none focus:border-teal"
-              />
-              <button type="submit" className="rounded-lg bg-teal px-3 py-1.5 text-sm font-bold text-navy-dark hover:bg-teal-dark">
-                OK
-              </button>
-            </form>
-          )}
-        </div>
-      )}
+              <option value="fibonacci">Fibonacci (1,2,3,5,8,13,?)</option>
+              <option value="tshirt">T-Shirts (XS,S,M,L,XL,?)</option>
+              <option value="custom">Personnalisé…</option>
+            </select>
+            {suiteKey === 'custom' && (
+              <form
+                onSubmit={(e) => { e.preventDefault(); onApplyCustom(customRaw); }}
+                className="flex items-center gap-1.5"
+              >
+                <label htmlFor="poker-suite-custom" className="sr-only">Valeurs personnalisées (séparées par des virgules)</label>
+                <input
+                  id="poker-suite-custom"
+                  type="text"
+                  value={customRaw}
+                  onChange={(e) => setCustomRaw(e.target.value)}
+                  placeholder="Ex : 0,1,2,4,8,?"
+                  className="w-40 rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-navy outline-none focus:border-[var(--tool-accent)]"
+                />
+                <button
+                  type="submit"
+                  className="rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface"
+                >
+                  Appliquer
+                </button>
+              </form>
+            )}
+            <button
+              type="button"
+              onClick={onReveal}
+              disabled={revealed || voteCount === 0}
+              title={voteCount === 0 ? 'Il faut au moins un vote' : 'Montrer les cartes à toute l’équipe'}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-navy px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Eye className="h-4 w-4" aria-hidden /> Révéler
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmReset(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden /> Réinitialiser
+            </button>
+          </>
+        )}
 
-      {isFacilitator && (
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onReveal}
-            disabled={revealed || voteCount === 0}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-sm font-bold text-navy transition-colors hover:bg-teal-light disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Eye className="h-4 w-4" aria-hidden /> Révéler
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirmReset(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-          >
-            <Trash2 className="h-4 w-4" aria-hidden /> Réinitialiser
-          </button>
-          <span className="text-sm text-white/70" aria-live="polite">
-            <strong className="text-white">{voteCount}</strong> / {totalCount} votes
-          </span>
-        </div>
-      )}
+        <ChronoControls
+          chrono={chrono}
+          remainingSec={remainingSec}
+          isFacilitator={isFacilitator}
+          accent={POKER_ACCENT}
+          idPrefix="poker"
+          onToggle={onToggleChrono}
+          onReset={onResetChrono}
+          onDurationChange={onDurationChange}
+        />
+      </div>
 
-      {/* Confirmation de la maquette (modal « Réinitialiser les votes ? »). */}
       {confirmReset && (
         <div
           role="dialog"
@@ -144,57 +167,6 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = (props) => {
           </div>
         </div>
       )}
-
-      {/* Chrono */}
-      <div className="ml-auto flex items-center gap-2.5">
-        {isFacilitator && !running ? (
-          <>
-            <label htmlFor="chrono-time" className="sr-only">
-              Durée du compte à rebours (minutes:secondes)
-            </label>
-            <input
-              id="chrono-time"
-              type="text"
-              inputMode="numeric"
-              value={chronoEditing ? chronoDraft : formatTime(remainingSec)}
-              onFocus={() => { setChronoDraft(formatTime(remainingSec)); setChronoEditing(true); }}
-              onChange={(e) => setChronoDraft(e.target.value)}
-              onBlur={commitChrono}
-              onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-              className={`w-[88px] rounded-lg border px-3 py-1.5 text-center font-mono text-lg font-bold tracking-widest outline-none focus:border-teal ${dispClass}`}
-            />
-          </>
-        ) : (
-          <output
-            className={`min-w-[88px] rounded-lg border px-3 py-1.5 text-center font-mono text-lg font-bold tracking-widest ${dispClass}`}
-            aria-label="Temps restant"
-          >
-            {formatTime(remainingSec)}
-          </output>
-        )}
-        {isFacilitator && (
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={onToggleChrono}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors ${
-                running ? 'border-teal bg-teal text-navy-dark' : 'border-line bg-surface text-navy hover:bg-white'
-              }`}
-            >
-              {running ? <Pause className="h-4 w-4" aria-hidden /> : <Play className="h-4 w-4" aria-hidden />}
-              {running ? 'Pause' : 'Démarrer'}
-            </button>
-            <button
-              type="button"
-              onClick={onResetChrono}
-              aria-label="Réinitialiser le chrono"
-              className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-navy hover:bg-white"
-            >
-              <RotateCcw className="h-4 w-4" aria-hidden />
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
