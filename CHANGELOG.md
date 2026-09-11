@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.25.1] - 2026-09-11
+
+### 🔧 Corrigé — photos de la récré enfin stockées
+- L'envoi des photos dans le bucket `recre-photos` était refusé
+  (« new row violates row-level security policy ») même après la migration
+  des policies : l'option `upsert` exige une policy SELECT, volontairement
+  absente. Envoi sans écrasement (identifiants uniques) : les photos sont
+  désormais stockées et lues par leur URL publique.
+
 ## [2.25.0] - 2026-09-11
 
 ### ✨ Ajouté — « En mode récré ! » : mode révélation (maquette `recre.html`)

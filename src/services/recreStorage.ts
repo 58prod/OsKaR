@@ -64,7 +64,11 @@ export async function uploadRecrePhoto(code: string, photoId: string, file: File
   const path = `${code.trim().toUpperCase()}/${photoId}.jpg`;
   const { error } = await supabase.storage.from(RECRE_BUCKET).upload(path, blob, {
     contentType: 'image/jpeg',
-    upsert: true,
+    // Pas d'écrasement : chaque photo a un identifiant unique, et `upsert`
+    // exige en plus une policy SELECT sur storage.objects, volontairement
+    // absente (elle permettrait de lister tout le bucket). Avec upsert, Supabase
+    // refuse l'envoi (« new row violates row-level security policy »).
+    upsert: false,
   });
 
   if (error) {
