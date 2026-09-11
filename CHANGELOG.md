@@ -10,6 +10,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.19.2] - 2026-09-11
+
+### 🔧 Modifié — adresse du site dans les maquettes archivées
+- `docs/inspiration` (maquettes de référence) : `hasenso.fr/oskar` devient
+  `oskar-coach.fr`, comme dans l'application.
+
 ## [2.19.1] - 2026-09-11
 
 ### 🔧 Modifié — adresse du site : oskar-coach.fr
