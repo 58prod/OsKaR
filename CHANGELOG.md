@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.16.2] - 2026-09-11
+
+### 🎨 Modifié — pages de présentation des piliers
+- **Team au même format que les autres piliers** : plus de liseré rose au-dessus
+  des cartes, dégradé et pastilles de l'appel à l'action identiques, icônes dans
+  la teinte foncée du pilier.
+- **Contenu de Team** : l'atelier en 6 étapes de la maquette est abandonné. La
+  page annonce désormais des conseils au dirigeant (13 conseils en 5 familles,
+  10 documents prêts à l'emploi), toujours « Bientôt disponible ». Le bouton
+  s'intitule « Voir les conseils » (nouvelle option `ctaLibelle` de
+  `ModuleLanding`).
+- **Durées revues d'après le contenu réel des ateliers** : Vision ~1h30 → ~1h,
+  Market Fit ~2h → ~1h, Finance ~90 min → ~1h (plus rapide chiffres en main).
+- **Vision** : 7 étapes au lieu de 8, comme la barre de l'atelier (le
+  récapitulatif n'est pas une étape, pas plus que la synthèse de Finance).
+- **Market Fit** : « diagnostic FIT » devient « diagnostic Market Fit ».
+
 ## [2.16.1] - 2026-09-10
 
 ### 🐛 Corrigé — favicon et logo de la fenêtre de connexion

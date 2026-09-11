@@ -8,9 +8,9 @@ const ETAPES = ['Revenus', 'Coûts & Marge', 'Rentabilité', 'Décisions'] as co
 const REPERES: Repere[] = [
   {
     icon: Clock,
-    valeur: '~90 min',
+    valeur: '~1h',
     libelle: 'Durée estimée',
-    texte: 'À votre rythme, en une ou plusieurs sessions.',
+    texte: 'Plus rapide si vous avez sous la main votre chiffre d’affaires et vos charges.',
   },
   {
     icon: CheckSquare,

@@ -8,7 +8,7 @@ const ETAPES = ['Offre', 'Différenciation', 'Concurrence', 'Signaux', 'Diagnost
 const REPERES: Repere[] = [
   {
     icon: Clock,
-    valeur: '~2h',
+    valeur: '~1h',
     libelle: 'Durée estimée',
     texte: 'À votre rythme, en une ou plusieurs sessions.',
   },
@@ -16,13 +16,13 @@ const REPERES: Repere[] = [
     icon: CheckSquare,
     valeur: '4 étapes',
     libelle: 'Parcours structuré',
-    texte: 'Offre · Différenciation · Concurrence · Signaux',
+    texte: 'Offre · Différenciation · Concurrence · Signaux, puis votre diagnostic',
   },
   {
     icon: FileText,
     valeur: 'PDF',
     libelle: 'Export inclus',
-    texte: 'Téléchargez votre diagnostic FIT à la fin de l’atelier.',
+    texte: 'Téléchargez votre diagnostic Market Fit à la fin de l’atelier.',
   },
 ];
 

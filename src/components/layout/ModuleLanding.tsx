@@ -36,9 +36,12 @@ import { useAppStore } from '@/store/useAppStore';
  *   appel         degrade navy, rayon 18.5, padding 32 ; texte a gauche, bouton
  *                 a droite (ecart 27.5) ; pastilles 14px, point 6px du pilier ;
  *                 bouton 17px / 700 rayon 14, padding 16/28
- *   Team          liseré haut rose 3px sur les cartes, degrade #1a2570, pastilles
- *                 blanc 18 % ; bouton grise et badge « Bientot disponible » quand
- *                 l'atelier n'existe pas encore (repris pour tout atelier absent)
+ *   indisponible  bouton grise et badge « Bientot disponible » quand l'atelier
+ *                 n'existe pas encore (repris de team.html pour tout atelier absent)
+ *
+ * Team suit le meme format que les autres piliers : les particularites de
+ * team.html (liseré rose sur les cartes, degrade #1a2570, pastilles blanc 18 %)
+ * ont ete retirees le 2026-09-11 a la demande de Christophe.
  */
 
 export type Pilier = 'vision' | 'fit' | 'finance' | 'okr' | 'team';
@@ -76,8 +79,7 @@ const COULEURS: Record<Pilier, { texte: string; valeur: string; icone: string; b
   team: {
     texte: 'text-team',
     valeur: 'text-team',
-    // team.html redefinit --team-dark a #be185d.
-    icone: 'bg-team-light text-[#be185d]',
+    icone: 'bg-team-light text-team-dark',
     bouton: 'bg-team hover:bg-team-dark',
     point: 'bg-team',
   },
@@ -119,6 +121,8 @@ interface ModuleLandingProps {
   /** Vrai tant que l'atelier n'existe pas : bouton grise et badge « Bientot disponible ». */
   ctaIndisponible?: boolean;
   ctaMentionIndispo?: string;
+  /** Texte du bouton, « Démarrer l’atelier » par défaut. */
+  ctaLibelle?: string;
   /** Destination du bouton quand l'atelier existe. */
   ctaHref?: string;
   /** Bloc libre insere entre les reperes et le bloc final (Fit, Finance). */
@@ -155,6 +159,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
   ctaSousTitre,
   ctaIndisponible = false,
   ctaMentionIndispo = 'Bientôt disponible',
+  ctaLibelle = 'Démarrer l’atelier',
   ctaHref,
   children,
 }) => {
@@ -162,7 +167,6 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
   const { authReady, isAuthenticated } = useAppStore();
   const { secteur, choisirSecteur, enregistre } = useSecteurChoisi();
   const c = COULEURS[pilier];
-  const team = pilier === 'team';
 
   // Boutons de la barre du haut : `.btn-outline` puis `.btn-primary`, comme la maquette.
   const topbarActions = !authReady ? null : isAuthenticated ? (
@@ -211,12 +215,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
         {/* Les repères */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-[18.5px] mb-7">
           {reperes.map(({ icon: Icon, valeur, libelle, texte }) => (
-            <div
-              key={libelle}
-              className={`bg-white rounded-2xl border border-line px-[22px] py-[23px] shadow-card ${
-                team ? 'border-t-[3px] border-t-team' : ''
-              }`}
-            >
+            <div key={libelle} className="bg-white rounded-2xl border border-line px-[22px] py-[23px] shadow-card">
               <div className={`w-10 h-10 rounded-[11.5px] ${c.icone} flex items-center justify-center mb-3`}>
                 <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden />
               </div>
@@ -256,13 +255,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
             )}
           </div>
 
-          <div
-            className={`rounded-[18.5px] p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-[27.5px] ${
-              team
-                ? 'bg-[linear-gradient(135deg,#1a2570_0%,#1e2d7d_100%)]'
-                : 'bg-[linear-gradient(135deg,#151f5e,#1e2d7d)]'
-            }`}
-          >
+          <div className="rounded-[18.5px] p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-[27.5px] bg-[linear-gradient(135deg,#151f5e,#1e2d7d)]">
             <div>
               <h2 className="text-20.5 font-bold text-white mb-1.5">{ctaTitre}</h2>
               <p className="text-15 leading-[1.5] text-white/60">{ctaSousTitre}</p>
@@ -270,9 +263,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
                 {etapes.map((etape) => (
                   <li
                     key={etape}
-                    className={`inline-flex items-center gap-[5px] text-14 rounded-[23px] px-3 py-1 ${
-                      team ? 'bg-white/[0.18] text-white' : 'bg-white/10 text-white/75'
-                    }`}
+                    className="inline-flex items-center gap-[5px] text-14 rounded-[23px] px-3 py-1 bg-white/10 text-white/75"
                   >
                     <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.point}`} aria-hidden />
                     {etape}
@@ -292,7 +283,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
                 aria-disabled="true"
                 className="inline-flex items-center gap-2.5 shrink-0 whitespace-nowrap px-7 py-4 rounded-xl text-16 font-bold bg-[#d1d5db] text-[#9ca3af] cursor-not-allowed"
               >
-                Démarrer l’atelier <Fleche className="w-5 h-5" />
+                {ctaLibelle} <Fleche className="w-5 h-5" />
               </span>
             ) : (
               <button
@@ -300,7 +291,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
                 onClick={ctaHref ? () => router.push(ctaHref) : undefined}
                 className={`inline-flex items-center gap-[10.5px] shrink-0 whitespace-nowrap px-7 py-4 rounded-[14px] text-17 font-bold text-white transition-all hover:-translate-y-0.5 ${c.bouton}`}
               >
-                Démarrer l’atelier <Fleche className="w-[18px] h-[18px]" />
+                {ctaLibelle} <Fleche className="w-[18px] h-[18px]" />
               </button>
             )}
           </div>
