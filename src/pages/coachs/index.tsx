@@ -138,7 +138,12 @@ const RAISONS = [
   },
 ];
 
-const PARCOURS = [
+const PARCOURS: {
+  titre: string;
+  texte: string;
+  quand: React.ReactNode;
+  lien?: { href: string; libelle: string };
+}[] = [
   {
     titre: 'Le diagnostic est posé',
     texte:
@@ -159,6 +164,7 @@ const PARCOURS = [
     titre: 'Vous bâtissez le plan d’actions',
     texte:
       'Ensemble, vous posez la feuille de route jusqu’à la fin de l’année : les chantiers, leur ordre, et les points de coaching à caler dans l’agenda.',
+    lien: { href: '/coachs/kit/calendrier', libelle: 'Le calendrier des ateliers →' },
     quand: 'Séance 1 ou 2',
   },
   {
@@ -282,6 +288,22 @@ const KIT: DocumentKit[] = [
     href: '/coachs/kit/proposition',
     action: 'Ouvrir · remplir',
     icone: <path d="M12 2l2.9 6.3 6.6.8-4.9 4.6 1.3 6.8L12 17.3 6.1 20.5l1.3-6.8L2.5 9.1l6.6-.8z" />,
+  },
+  {
+    titre: 'Calendrier des ateliers',
+    format: 'A4 paysage',
+    texte:
+      'Le programme de l’année en un tableau : vous choisissez le mois de lancement, ateliers, suivis et rituels d’équipe se placent seuls.',
+    href: '/coachs/kit/calendrier',
+    action: 'Ouvrir · remplir',
+    icone: (
+      <>
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </>
+    ),
   },
   {
     titre: 'Argumentaire express',
@@ -542,6 +564,16 @@ export default function EspaceCoachsPage() {
             </div>
             <h3 className="text-15.5 font-bold text-navy mb-1.5">{etape.titre}</h3>
             <p className="text-14 leading-[1.6] text-muted">{etape.texte}</p>
+            {etape.lien && (
+              <a
+                href={etape.lien.href}
+                target="_blank"
+                rel="noopener"
+                className="block mt-2 text-14 font-bold text-coral-dark hover:underline"
+              >
+                {etape.lien.libelle}
+              </a>
+            )}
             <span className="inline-block mt-2.5 text-11.5 font-bold uppercase tracking-[0.05em] bg-surface border border-line text-muted px-2.5 py-[3px] rounded-[20px]">
               {etape.quand}
             </span>

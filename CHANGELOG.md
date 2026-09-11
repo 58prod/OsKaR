@@ -10,6 +10,26 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.18.0] - 2026-09-11
+
+### ✨ Ajouté — Calendrier des ateliers (kit coach)
+- **`/coachs/kit/calendrier`**, reprise de `timeline.html` au format des
+  documents du kit (A4 paysage, accent corail) : on choisit l'organisation,
+  le mois de lancement et l'année ; ateliers, suivis et rituels d'équipe se
+  placent sur les douze mois.
+- **Contenu mis à jour sur l'app** : durées des pages de pilier (Vision,
+  Market Fit, Finance ~1h ; OKR ~45 min), étapes actuelles des ateliers,
+  « Market Fit », rétro de la boîte à outils. Suivis ramenés à 1h.
+- **Règle corrigée** : plus de suivi OKR le mois du lancement, avant
+  l'atelier OKR.
+- Le détail des cases, au survol dans l'original, passe en légende sous le
+  tableau (lisible sur tablette et à l'impression). Lancement proposé par
+  défaut : le mois prochain.
+- Carte « Calendrier des ateliers » dans le kit et lien depuis l'étape 3 du
+  parcours (« Vous bâtissez le plan d'actions »).
+- La partie « Réunir pour Réussir » (niveaux et tarifs du partenaire) n'est
+  pas reprise, faute de place dans une page publique.
+
 ## [2.17.0] - 2026-09-11
 
 ### ✨ Ajouté — Espace coachs
