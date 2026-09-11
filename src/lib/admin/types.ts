@@ -1,4 +1,5 @@
 import type { PilierCoach } from '@/lib/coachs/candidature';
+import type { ObjetDemande } from '@/lib/tarifs/formules';
 
 /*
  * Ce que l'administration manipule, tel que les fonctions `admin_*` de la
@@ -75,6 +76,33 @@ export interface CandidatureAdmin {
   labelRpr: boolean;
   approche: string | null;
   statut: StatutCandidature;
+  notes: string | null;
+  creeLe: Date;
+  traiteeLe: Date | null;
+}
+
+export type StatutDemande = 'nouvelle' | 'contactee' | 'activee' | 'abandonnee';
+
+export const STATUTS_DEMANDE: { id: StatutDemande; libelle: string; pluriel: string }[] = [
+  { id: 'nouvelle', libelle: 'Nouvelle', pluriel: 'Nouvelles' },
+  { id: 'contactee', libelle: 'Contactée', pluriel: 'Contactées' },
+  { id: 'activee', libelle: 'Formule activée', pluriel: 'Activées' },
+  { id: 'abandonnee', libelle: 'Sans suite', pluriel: 'Sans suite' },
+];
+
+/** Une demande de formule (page Tarifs), migration 20260911_create_demandes_formule. */
+export interface DemandeAdmin {
+  id: string;
+  prenom: string;
+  nom: string;
+  email: string;
+  entreprise: string;
+  objet: ObjetDemande;
+  comptes: number | null;
+  message: string | null;
+  /** La personne était connectée en faisant sa demande. */
+  aUnCompte: boolean;
+  statut: StatutDemande;
   notes: string | null;
   creeLe: Date;
   traiteeLe: Date | null;

@@ -15,6 +15,7 @@ import {
   LogIn,
   ChevronLeft,
   UserCheck,
+  Tag,
 } from 'lucide-react';
 import { ouvrirConnexion } from '@/store/useConnexion';
 
@@ -113,6 +114,7 @@ export const DEFAULT_SECTIONS: SidebarSection[] = [
     items: [
       { href: '/app/outils', label: 'Boîte à outils', icon: Wrench },
       { accent: 'coach', href: '/coachs', label: 'Espace coachs', icon: UserCheck },
+      { href: '/pricing', label: 'Tarifs', icon: Tag },
       { href: '/about', label: 'À propos', icon: Info },
     ],
   },

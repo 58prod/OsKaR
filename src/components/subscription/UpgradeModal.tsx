@@ -44,8 +44,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Exports avancés',
             'Analytics détaillés',
           ],
-          suggestedPlan: 'Pro',
-          suggestedPrice: '19€/mois',
+          suggestedPlan: 'Dirigeant',
+          suggestedPrice: '39 € HT/mois',
         };
       case 'users':
         return {
@@ -58,8 +58,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Collaboration avancée',
             'Support prioritaire',
           ],
-          suggestedPlan: currentPlan === 'free' ? 'Pro' : 'Team',
-          suggestedPrice: currentPlan === 'free' ? '19€/mois' : '49€/mois',
+          suggestedPlan: 'Sur mesure',
+          suggestedPrice: 'Sur devis',
         };
       case 'feature':
         return {
@@ -72,8 +72,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Intégrations',
             'Support prioritaire',
           ],
-          suggestedPlan: 'Pro',
-          suggestedPrice: '19€/mois',
+          suggestedPlan: 'Dirigeant',
+          suggestedPrice: '39 € HT/mois',
         };
       default:
         return {
@@ -86,8 +86,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Analytics avancés',
             'Intégrations',
           ],
-          suggestedPlan: 'Pro',
-          suggestedPrice: '19€/mois',
+          suggestedPlan: 'Dirigeant',
+          suggestedPrice: '39 € HT/mois',
         };
     }
   };
@@ -144,7 +144,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="text-lg font-bold">Plan {content.suggestedPlan}</h3>
+                        <h3 className="text-lg font-bold">Formule {content.suggestedPlan}</h3>
                         <Badge className="bg-white bg-opacity-20 text-white border-white border">
                           Recommandé
                         </Badge>
@@ -195,7 +195,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                     className="w-full"
                     rightIcon={<TrendingUp className="h-5 w-5" />}
                   >
-                    Voir les plans
+                    Voir les formules
                   </Button>
                   <Button
                     onClick={onClose}
@@ -209,7 +209,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
                 {/* Note */}
                 <p className="mt-4 text-xs text-center text-gray-500">
-                  14 jours d'essai gratuit • Annulation à tout moment
+                  Sans engagement au mois • 390 € HT à l'année, 2 mois offerts
                 </p>
               </div>
             </motion.div>

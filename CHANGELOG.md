@@ -10,6 +10,33 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.26.0] - 2026-09-11
+
+### ✨ Ajouté — page Tarifs refaite (`/pricing`)
+- Trois formules : **Gratuit**, **Dirigeant** (39 € HT/mois ou 390 € HT/an,
+  2 mois offerts, par entreprise) et **Sur mesure** (plusieurs comptes pour
+  une même entreprise, licence pour les réseaux et groupements).
+- Bascule mois / année, tableau comparatif, FAQ (TVA, engagement, paiement,
+  collaborateurs gratuits), renvoi vers l'Espace coachs. Habillage Oskar
+  (bannière navy, accent turquoise), à la place des cartes génériques qui
+  lisaient les plans Free / Pro / Team / Unlimited en base.
+- Ce que chaque formule ouvre suit `src/lib/acces.ts` ; les prix vivent dans
+  `src/lib/tarifs/formules.ts`.
+- **Formulaire « Demander la formule »** tant que Stripe n'est pas branché :
+  table `demandes_formule` (migration `20260911_create_demandes_formule.sql`,
+  à exécuter) et email à contact@oskar-coach.fr (`DEMANDES_EMAIL` pour changer).
+- Administration : écran **Demandes de formule** (`/admin/demandes`), statut
+  et notes internes, compteur des nouvelles demandes dans le menu.
+- Entrée « Tarifs » dans le menu (Ressources).
+
+### 🔧 Corrigé
+- La fenêtre de passage à la formule payante annonçait 19 € et 49 €/mois et
+  « 14 jours d'essai gratuit » : alignée sur la grille (39 € HT/mois, sur
+  devis pour plusieurs comptes).
+
+### 🗑️ Retiré
+- `PricingCard`, qui ne servait plus qu'à l'ancienne page.
+
 ## [2.25.1] - 2026-09-11
 
 ### 🔧 Corrigé — photos de la récré enfin stockées

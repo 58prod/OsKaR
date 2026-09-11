@@ -3,8 +3,10 @@ import type {
   BilanAdmin,
   CandidatureAdmin,
   CompteAdmin,
+  DemandeAdmin,
   FicheCompte,
   StatutCandidature,
+  StatutDemande,
   TypeBilanAdmin,
 } from '@/lib/admin/types';
 
@@ -82,6 +84,24 @@ export function versCandidature(r: Ligne): CandidatureAdmin {
   };
 }
 
+export function versDemande(r: Ligne): DemandeAdmin {
+  return {
+    id: r.id,
+    prenom: r.prenom,
+    nom: r.nom,
+    email: r.email,
+    entreprise: r.entreprise,
+    objet: r.objet,
+    comptes: nombre(r.comptes),
+    message: r.message ?? null,
+    aUnCompte: !!r.user_id,
+    statut: r.statut as StatutDemande,
+    notes: r.notes ?? null,
+    creeLe: new Date(r.created_at),
+    traiteeLe: date(r.traitee_le),
+  };
+}
+
 export function versFiche(r: Ligne): FicheCompte {
   return {
     vision: r.vision ?? null,
@@ -128,6 +148,15 @@ export class AdminService {
 
   static async majCandidature(id: string, statut: StatutCandidature, notes: string): Promise<void> {
     await appeler('admin_maj_candidature', { p_id: id, p_statut: statut, p_notes: notes });
+  }
+
+  /** Migration 20260911_create_demandes_formule. */
+  static async demandes(): Promise<DemandeAdmin[]> {
+    return ((await appeler<Ligne[]>('admin_demandes_formule')) ?? []).map(versDemande);
+  }
+
+  static async majDemande(id: string, statut: StatutDemande, notes: string): Promise<void> {
+    await appeler('admin_maj_demande_formule', { p_id: id, p_statut: statut, p_notes: notes });
   }
 
   /** `jusquAu` au format du champ date : 2026-12-31 (dernier jour inclus). */

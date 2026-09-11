@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/useAppStore';
 import { AdminService } from '@/services/db/admin';
-import type { StatutCandidature } from '@/lib/admin/types';
+import type { StatutCandidature, StatutDemande } from '@/lib/admin/types';
 
 /*
  * Données de l'administration. Chaque requête ne part que pour un
@@ -67,6 +67,26 @@ export function useMajCandidature() {
     mutationFn: ({ id, statut, notes }: { id: string; statut: StatutCandidature; notes: string }) =>
       AdminService.majCandidature(id, statut, notes),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'candidatures'] }),
+  });
+}
+
+export function useDemandesAdmin(actif: boolean) {
+  return useQuery({
+    queryKey: ['admin', 'demandes'],
+    queryFn: () => AdminService.demandes(),
+    enabled: actif,
+    staleTime: 60 * 1000,
+    // Avant la migration, la fonction n'existe pas : inutile d'insister.
+    retry: false,
+  });
+}
+
+export function useMajDemande() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, statut, notes }: { id: string; statut: StatutDemande; notes: string }) =>
+      AdminService.majDemande(id, statut, notes),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'demandes'] }),
   });
 }
 
