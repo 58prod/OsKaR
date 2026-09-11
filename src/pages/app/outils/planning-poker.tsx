@@ -5,6 +5,7 @@ import { PokerToolbar } from '@/components/toolbox/poker/PokerToolbar';
 import { PokerBoard } from '@/components/toolbox/poker/PokerBoard';
 import { PokerResults } from '@/components/toolbox/poker/PokerResults';
 import { PokerReactions } from '@/components/toolbox/poker/PokerReactions';
+import { PokerDessin } from '@/components/toolbox/poker/PokerDessin';
 import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
 
 const PlanningPokerPage: React.FC = () => {
@@ -54,6 +55,7 @@ const PlanningPokerPage: React.FC = () => {
         >
           <PokerResults results={results} revealed={state.revealed} />
           <PokerReactions onReact={actions.react} />
+          <PokerDessin onSend={actions.reactDrawing} />
         </aside>
       </div>
     </ToolPageShell>

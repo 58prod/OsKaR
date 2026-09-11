@@ -1,6 +1,9 @@
 import {
+  DESSIN_POIDS_MAX,
   INITIAL_POKER_STATE,
+  cadreDuDessin,
   computeResults,
+  estDessinValide,
   normalizePokerState,
   pokerReducer,
   type PokerOp,
@@ -89,6 +92,28 @@ describe('Planning Poker — votants hors ligne', () => {
     const s = appliquer([{ t: 'vote', round: 0, voterId: 'alice', value: '3', name: 'Alice', color: '#f59e0b' }]);
     expect(s.voterNames.alice).toEqual({ name: 'Alice', color: '#f59e0b' });
     expect(appliquer([{ t: 'newRound', round: 1 }], s).voterNames).toEqual({});
+  });
+});
+
+describe('Planning Poker — emoji dessiné', () => {
+  it('n’accepte qu’une petite image PNG', () => {
+    expect(estDessinValide('data:image/png;base64,iVBORw0KGgo=')).toBe(true);
+    expect(estDessinValide('data:image/svg+xml;base64,PHN2Zz4=')).toBe(false);
+    expect(estDessinValide('javascript:alert(1)')).toBe(false);
+    expect(estDessinValide(`data:image/png;base64,${'A'.repeat(DESSIN_POIDS_MAX)}`)).toBe(false);
+    expect(estDessinValide(42)).toBe(false);
+  });
+
+  it('recadre sur le dessin, même tracé petit dans un coin', () => {
+    const cote = 100;
+    const alpha = new Uint8Array(cote * cote);
+    for (let y = 80; y < 90; y++) for (let x = 85; x < 95; x++) alpha[y * cote + x] = 255;
+    const cadre = cadreDuDessin(alpha, cote)!;
+    expect(cadre.taille).toBe(26);
+    expect(cadre.x + cadre.taille).toBeLessThanOrEqual(cote);
+    expect(cadre.x).toBeLessThanOrEqual(85);
+    expect(cadre.y).toBeLessThanOrEqual(80);
+    expect(cadreDuDessin(new Uint8Array(cote * cote), cote)).toBeNull();
   });
 });
 

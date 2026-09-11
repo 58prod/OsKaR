@@ -5,9 +5,9 @@ import { useToast } from '@/hooks/useToast';
 import {
   chronoRemaining, resetChronoState, toggleChronoState, withDuration,
 } from '@/components/toolbox/shared/toolChrono';
-import { shootEmojis, launchFireworks } from './flyingEmoji';
+import { shootDrawing, shootEmojis, launchFireworks } from './flyingEmoji';
 import {
-  INITIAL_POKER_STATE, SUITES, computeResults, normalizePokerState, pokerReducer,
+  INITIAL_POKER_STATE, SUITES, computeResults, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
 
@@ -26,6 +26,9 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   const onSignal = useCallback((payload: any) => {
     if (payload?.type === 'emoji' && typeof payload.emoji === 'string') {
       shootEmojis(payload.emoji);
+    }
+    if (payload?.type === 'dessin' && estDessinValide(payload.src)) {
+      shootDrawing(payload.src);
     }
   }, []);
 
@@ -153,6 +156,15 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     sendSignal({ type: 'emoji', emoji });
   }, [sendSignal]);
 
+  const reactDrawing = useCallback((src: string) => {
+    if (!estDessinValide(src)) {
+      toast.warning('Ce dessin est trop détaillé pour être envoyé. Essayez plus simple.');
+      return;
+    }
+    shootDrawing(src);
+    sendSignal({ type: 'dessin', src });
+  }, [sendSignal, toast]);
+
   return {
     state,
     participants: players,
@@ -163,6 +175,6 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     remainingSec,
     results,
     myId,
-    actions: { vote, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react },
+    actions: { vote, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
   };
 }

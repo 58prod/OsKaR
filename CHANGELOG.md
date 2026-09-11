@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.27.0] - 2026-09-11
+
+### ✨ Ajouté — Planning Poker : dessiner son propre emoji
+- Sous les réactions, un cadre blanc « Mon emoji » : on dessine au doigt ou
+  à la souris (6 couleurs), puis « Envoyer » — le dessin s'envole sur l'écran
+  de toute l'équipe, comme un emoji. « Effacer » pour recommencer.
+- Le dessin est recadré sur ce qui a été tracé et réduit en PNG transparent
+  de 96 px (quelques Ko). À la réception, seule une petite image PNG est
+  affichée ; tout autre contenu est ignoré.
+
 ## [2.26.3] - 2026-09-11
 
 ### 💄 Modifié — Planning Poker aligné sur la rétro et la récré

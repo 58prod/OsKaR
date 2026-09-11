@@ -4,6 +4,26 @@
  * Animations API, puis les retire. Aucun état conservé.
  */
 export function shootEmojis(emoji: string): void {
+  shoot(() => {
+    const el = document.createElement('div');
+    el.textContent = emoji;
+    el.style.cssText = 'font-size:2.4rem;line-height:1;';
+    return el;
+  });
+}
+
+/** Même envol pour un emoji dessiné à la main (petite image PNG transparente). */
+export function shootDrawing(src: string): void {
+  shoot(() => {
+    const el = document.createElement('img');
+    el.src = src;
+    el.alt = '';
+    el.style.cssText = 'width:56px;height:56px;';
+    return el;
+  });
+}
+
+function shoot(make: () => HTMLElement): void {
   if (typeof document === 'undefined') return;
 
   const board = document.getElementById('poker-board-area');
@@ -23,11 +43,12 @@ export function shootEmojis(emoji: string): void {
 
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
-      const el = document.createElement('div');
-      el.textContent = emoji;
+      const el = make();
       el.setAttribute('aria-hidden', 'true');
-      el.style.cssText =
-        'position:fixed;pointer-events:none;z-index:500;font-size:2.4rem;line-height:1;user-select:none;';
+      el.style.position = 'fixed';
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '500';
+      el.style.userSelect = 'none';
 
       const startX = sourceRect.left + sourceRect.width / 2 + (Math.random() - 0.5) * 30;
       const startY = sourceRect.top + sourceRect.height / 2 + (Math.random() - 0.5) * 20;

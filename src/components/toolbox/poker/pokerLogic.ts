@@ -168,6 +168,49 @@ export function computeResults(votes: Record<string, string>): PokerResults {
   return { average, consensus, distribution, voteCount: vals.length };
 }
 
+/** Côté (px) de l'image envoyée pour un emoji dessiné à la main. */
+export const DESSIN_TAILLE = 96;
+/** Au-delà, l'image reçue est refusée (un dessin de 96 px pèse quelques Ko). */
+export const DESSIN_POIDS_MAX = 60_000;
+
+/**
+ * Un dessin reçu d'un autre participant est-il bien une petite image PNG ?
+ * Le signal vient du réseau : on n'affiche rien d'autre.
+ */
+export function estDessinValide(src: unknown): src is string {
+  return typeof src === 'string'
+    && src.length <= DESSIN_POIDS_MAX
+    && /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(src);
+}
+
+/**
+ * Cadre carré (avec une marge) autour des pixels dessinés, pour que l'emoji
+ * remplisse l'image même si on a dessiné petit dans un coin. `alpha` est le
+ * canal de transparence de chaque pixel, ligne par ligne ; null si rien n'est dessiné.
+ */
+export function cadreDuDessin(
+  alpha: ArrayLike<number>,
+  cote: number,
+): { x: number; y: number; taille: number } | null {
+  let minX = cote; let minY = cote; let maxX = -1; let maxY = -1;
+  for (let y = 0; y < cote; y++) {
+    for (let x = 0; x < cote; x++) {
+      if (alpha[y * cote + x] > 0) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return null;
+  const taille = Math.min(cote, Math.max(maxX - minX, maxY - minY) + 1 + 16);
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const borne = (v: number) => Math.round(Math.max(0, Math.min(cote - taille, v - taille / 2)));
+  return { x: borne(cx), y: borne(cy), taille };
+}
+
 /**
  * Catalogue d'émojis pour les réactions, du plus courant au plus farfelu :
  * les réactions de tous les jours en haut du panneau, puis celles qui
