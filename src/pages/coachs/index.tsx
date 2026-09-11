@@ -213,16 +213,15 @@ interface DocumentKit {
   format: string;
   texte: string;
   icone: React.ReactNode;
-  /** Page du kit à ouvrir dans un nouvel onglet ; absent tant que le document n'existe pas. */
-  href?: string;
-  action?: string;
+  /** Page du kit, ouverte dans un nouvel onglet. */
+  href: string;
+  action: string;
   phare?: boolean;
 }
 
 /*
- * Le deck, la fiche « 5 piliers » et l'argumentaire sont des PDF que la
- * maquette propose au téléchargement mais qui n'existent pas encore : leur
- * carte reste affichée avec la mention « Bientôt disponible ».
+ * L'« Argumentaire express » de la maquette n'a plus sa propre carte : il
+ * figure en annexe du deck de présentation.
  */
 const KIT: DocumentKit[] = [
   {
@@ -243,8 +242,11 @@ const KIT: DocumentKit[] = [
   },
   {
     titre: 'Deck de présentation',
-    format: '8 slides',
-    texte: 'À projeter chez le client ou en visio. Le problème, la méthode, les 5 piliers, un exemple de radar, la suite.',
+    format: '8 slides + annexe',
+    texte:
+      'À projeter chez le client ou en visio : le constat, la méthode, les 5 piliers, un exemple de radar, la suite. En annexe, pour vous : le pitch, cinq accroches et six objections.',
+    href: '/coachs/kit/deck',
+    action: 'Ouvrir · présenter',
     icone: (
       <>
         <rect x="2" y="4" width="20" height="13" rx="2" />
@@ -273,6 +275,8 @@ const KIT: DocumentKit[] = [
     format: 'Recto-verso',
     texte:
       'À laisser au client après la séance. Un pilier par bloc : à quoi il sert, ce qu’il produit, en combien de temps.',
+    href: '/coachs/kit/fiche-5-piliers',
+    action: 'Ouvrir · imprimer',
     icone: (
       <>
         <rect x="3" y="4" width="18" height="16" rx="2" />
@@ -303,15 +307,6 @@ const KIT: DocumentKit[] = [
         <line x1="8" y1="2" x2="8" y2="6" />
         <line x1="3" y1="10" x2="21" y2="10" />
       </>
-    ),
-  },
-  {
-    titre: 'Argumentaire express',
-    format: '1 page',
-    texte:
-      'Le pitch en 30 secondes, cinq accroches selon le profil du dirigeant, et une réponse tenable aux six objections les plus fréquentes.',
-    icone: (
-      <path d="M21 11.5a8.4 8.4 0 01-9 8.4 8.5 8.5 0 01-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 013.6 8 8.5 8.5 0 0112 3.1h.5A8.5 8.5 0 0121 11z" />
     ),
   },
 ];
@@ -657,27 +652,17 @@ export default function EspaceCoachsPage() {
             </div>
             <h3 className="text-16 leading-[1.35] font-bold text-navy">{d.titre}</h3>
             <p className="text-14 leading-[1.6] text-muted flex-1">{d.texte}</p>
-            {d.href ? (
-              <a
-                href={d.href}
-                target="_blank"
-                rel="noopener"
-                className="inline-flex items-center gap-[7px] mt-0.5 text-14 font-bold text-coral-dark hover:underline"
-              >
-                <Ico className="w-[15px] h-[15px] shrink-0" trait={2}>
-                  {TELECHARGER}
-                </Ico>
-                {d.action}
-              </a>
-            ) : (
-              <span className="inline-flex items-center gap-[7px] mt-0.5 text-14 font-bold text-muted">
-                <Ico className="w-[15px] h-[15px] shrink-0" trait={2}>
-                  <circle cx="12" cy="12" r="9" />
-                  <polyline points="12 7 12 12 15.5 14" />
-                </Ico>
-                Bientôt disponible
-              </span>
-            )}
+            <a
+              href={d.href}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-[7px] mt-0.5 text-14 font-bold text-coral-dark hover:underline"
+            >
+              <Ico className="w-[15px] h-[15px] shrink-0" trait={2}>
+                {TELECHARGER}
+              </Ico>
+              {d.action}
+            </a>
           </div>
         ))}
       </div>

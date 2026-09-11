@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.19.0] - 2026-09-11
+
+### ✨ Ajouté — Deck et fiche « les 5 piliers » (kit coach)
+- **`/coachs/kit/deck`** : 8 diapositives 16:9 (le constat, la méthode, les
+  5 piliers, ce que ça change, un exemple de radar, le déroulé, la suite),
+  personnalisées avec le nom du client et du coach. Bouton « Présenter » :
+  plein écran, flèches / espace / clic pour avancer, Échap pour sortir.
+  Impression : une diapositive par page.
+- **Argumentaire express intégré au deck**, en annexe réservée au coach
+  (pitch en 30 secondes, cinq accroches par profil de dirigeant, six
+  objections) : exclu de la projection, imprimé seulement sur demande.
+- **`/coachs/kit/fiche-5-piliers`** : A4 recto-verso à laisser au client,
+  un bloc par pilier (à quoi il sert, ce qu'il produit, durée, étapes)
+  d'après les pages de pilier de l'app ; rythme de l'année et bloc « Votre
+  coach » modifiable au verso.
+- Données des piliers partagées dans `src/lib/coachs/piliers.ts`.
+
+### 🗑️ Retiré
+- Carte « Argumentaire express » du kit (son contenu est dans le deck) et
+  mention « Bientôt disponible » : les 6 documents du kit sont en ligne.
+
 ## [2.18.0] - 2026-09-11
 
 ### ✨ Ajouté — Calendrier des ateliers (kit coach)

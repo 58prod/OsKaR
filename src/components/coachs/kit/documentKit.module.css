@@ -410,6 +410,181 @@
 .cal-leg-t span { font-weight: 500; color: var(--text-muted); }
 .cal-leg-d { font-size: 7.5pt; color: var(--text-muted); line-height: 1.4; }
 
+/* Boutons de la barre d'impression */
+.print-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.btn-clair {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: 10.5px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 600;
+  background: rgba(255,255,255,.08); color: #fff; border: 1.5px solid rgba(255,255,255,.28);
+  transition: background .15s;
+}
+.btn-clair:hover { background: rgba(255,255,255,.16); }
+.cal-case {
+  display: flex; align-items: center; gap: 8px; height: 40px; cursor: pointer; user-select: none;
+  font-size: 13.5px; font-weight: 500; color: var(--text);
+}
+.cal-case input { width: 16px; height: 16px; accent-color: var(--coral-dark); cursor: pointer; }
+
+/* ══ Deck de présentation — diapositives 16:9 ══ */
+
+.deck { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 22px 20px 40px; }
+.slide {
+  position: relative; overflow: hidden; box-sizing: border-box; flex-shrink: 0;
+  width: 297mm; height: 167.06mm;
+  padding: 13mm 16mm 15mm;
+  background: #fff; color: var(--text);
+  box-shadow: 0 6px 28px rgba(30,45,125,.16);
+  display: flex; flex-direction: column;
+  page: deck;
+}
+@page deck { size: 297mm 167.06mm; margin: 0; }
+.slide.sombre { background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, #2a3d99 100%); color: #fff; }
+.slide.annexe { background: #fffaf7; }
+.sl-halo {
+  position: absolute; right: -40mm; top: -40mm; width: 130mm; height: 130mm; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,160,137,.22) 0%, transparent 70%); pointer-events: none;
+}
+.sl-halo2 {
+  position: absolute; right: 40mm; bottom: -35mm; width: 80mm; height: 80mm; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,160,137,.12) 0%, transparent 70%); pointer-events: none;
+}
+.sl-contenu { position: relative; z-index: 1; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.sl-pied {
+  position: absolute; left: 16mm; right: 16mm; bottom: 5.5mm; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 8pt; color: var(--text-muted);
+}
+.sl-pied img { height: 13px; width: auto; }
+.slide.sombre .sl-pied { color: rgba(255,255,255,.5); }
+.sl-logo { height: 26px; width: auto; align-self: flex-start; }
+
+.sl-eyebrow { font-size: 9pt; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--coral-dark); margin-bottom: 3mm; }
+.slide.sombre .sl-eyebrow { color: var(--coral); }
+.sl-titre { font-size: 24pt; font-weight: 800; color: var(--navy); line-height: 1.2; margin-bottom: 5mm; }
+.sl-titre span { color: var(--coral-dark); }
+.slide.sombre .sl-titre { color: #fff; }
+.slide.sombre .sl-titre span { color: var(--coral); }
+.sl-titre.grand { font-size: 30pt; }
+.sl-lede { font-size: 12.5pt; color: var(--text-muted); line-height: 1.55; max-width: 210mm; }
+.slide.sombre .sl-lede { color: rgba(255,255,255,.72); }
+/* Centre le bloc dans l'espace laissé sous le titre. */
+.sl-bas { margin-top: auto; margin-bottom: auto; }
+
+.sl-grille { display: grid; gap: 5mm; }
+.sl-g2 { grid-template-columns: 1fr 1fr; }
+.sl-g3 { grid-template-columns: repeat(3, 1fr); }
+.sl-g4 { grid-template-columns: repeat(4, 1fr); }
+.sl-g5 { grid-template-columns: repeat(5, 1fr); gap: 3.5mm; }
+.sl-carte { border: 1px solid var(--border); border-radius: 10px; padding: 5mm; background: #fff; }
+.sl-carte-n { font-size: 9pt; font-weight: 800; letter-spacing: .1em; color: var(--coral-dark); margin-bottom: 2mm; }
+.sl-carte-t { font-size: 14pt; font-weight: 700; color: var(--navy); line-height: 1.3; margin-bottom: 1.5mm; }
+.sl-carte-p { font-size: 11pt; color: var(--text-muted); line-height: 1.5; }
+
+.sl-pilier {
+  border: 1px solid var(--border); border-top: 4px solid var(--navy); border-radius: 9px;
+  padding: 4mm 3.5mm; display: flex; flex-direction: column; gap: 2mm; background: #fff;
+}
+.sl-pilier-nom { font-size: 13pt; font-weight: 800; }
+.sl-pilier-q { font-size: 9.5pt; font-style: italic; color: var(--text-muted); line-height: 1.45; flex: 1; }
+.sl-pilier-out { font-size: 9.5pt; font-weight: 600; color: var(--text); line-height: 1.4; border-top: 1px solid var(--border); padding-top: 2mm; }
+
+.sl-deux { display: grid; grid-template-columns: 1.05fr 1fr; gap: 10mm; align-items: center; flex: 1; min-height: 0; }
+.sl-radar { width: 100%; max-height: 98mm; }
+.sl-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3.5mm; }
+.sl-liste li { position: relative; padding-left: 7mm; font-size: 11.5pt; line-height: 1.5; color: var(--text); }
+.sl-liste li::before {
+  content: ''; position: absolute; left: 0; top: 2.2mm;
+  width: 3mm; height: 3mm; border-radius: 50%; background: var(--coral);
+}
+.sl-liste b { color: var(--navy); }
+.sl-liste.grande { gap: 6mm; }
+.sl-liste.grande li { font-size: 14pt; padding-left: 8mm; }
+.sl-liste.grande li::before { top: 2.6mm; width: 3.5mm; height: 3.5mm; }
+.sl-note { font-size: 8.5pt; font-style: italic; color: var(--text-muted); margin-top: 4mm; }
+
+.sl-etape-n {
+  width: 8mm; height: 8mm; border-radius: 2mm; background: var(--navy); color: #fff;
+  font-size: 10pt; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 3mm;
+}
+.sl-quand {
+  display: inline-block; margin-top: 3mm; padding: 1mm 3mm; border-radius: 20px;
+  font-size: 7.5pt; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--text-muted); background: var(--bg); border: 1px solid var(--border);
+}
+.sl-bandeau {
+  margin-top: 5mm; border-radius: 10px; padding: 4mm 6mm;
+  background: var(--navy); color: rgba(255,255,255,.8); font-size: 11pt; line-height: 1.5;
+}
+.sl-bandeau b { color: var(--coral); }
+
+.sl-cta { margin-top: auto; display: flex; align-items: stretch; gap: 8mm; }
+.sl-url {
+  align-self: center; font-size: 15pt; font-weight: 800; color: var(--navy-dark); background: var(--coral);
+  padding: 4mm 7mm; border-radius: 3mm; white-space: nowrap;
+}
+.sl-coach { border: 1.5px dashed var(--coral); border-radius: 10px; padding: 4mm 6mm; min-width: 90mm; }
+.sl-coach-k { font-size: 8pt; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--coral); margin-bottom: 1mm; }
+.sl-coach-nom { font-size: 14pt; font-weight: 700; color: #fff; }
+.sl-coach-l { font-size: 10pt; color: rgba(255,255,255,.65); line-height: 1.45; }
+.sl-couv-bas { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 10mm; }
+.sl-couv-pour { font-size: 13pt; color: rgba(255,255,255,.72); line-height: 1.5; }
+.sl-couv-pour b { color: #fff; font-weight: 700; }
+
+/* Annexe coach : argumentaire */
+.sl-badge {
+  align-self: flex-start; display: inline-flex; margin-bottom: 3mm; padding: 1mm 3.5mm; border-radius: 20px;
+  font-size: 8pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--coral-dark); background: var(--coral-light); border: 1px solid rgba(255,160,137,.5);
+}
+.sl-pitch {
+  background: var(--navy); color: rgba(255,255,255,.85); border-radius: 10px;
+  padding: 5mm 6mm; font-size: 12pt; line-height: 1.55; margin-bottom: 5mm;
+}
+.sl-pitch b { color: var(--coral); font-weight: 700; }
+.sl-acc-p { font-size: 8pt; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--coral-dark); margin-bottom: 1.5mm; }
+.sl-acc-q { font-size: 10pt; font-weight: 600; color: var(--navy); line-height: 1.45; flex: 1; }
+.sl-acc-v { font-size: 8.5pt; font-weight: 600; color: var(--text-muted); margin-top: 2mm; }
+.sl-acc { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 9px; padding: 4mm; background: #fff; }
+.sl-obj-q { font-size: 11pt; font-weight: 700; color: var(--navy); margin-bottom: 1.5mm; }
+.sl-obj-r { font-size: 9.5pt; color: var(--text-muted); line-height: 1.45; }
+
+/* Mode présentation plein écran */
+.plein {
+  position: fixed; inset: 0; z-index: 1000;
+  background: #0b1030; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.plein-diapo .slide { box-shadow: none; }
+.plein-barre {
+  position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; cursor: default;
+  background: rgba(255,255,255,.08); border-radius: 20px; padding: 4px 10px;
+  font-size: 13px; color: rgba(255,255,255,.7);
+}
+.plein-barre button {
+  background: none; border: none; color: #fff; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 13px; padding: 4px 8px; border-radius: 12px;
+}
+.plein-barre button:hover { background: rgba(255,255,255,.12); }
+
+/* ══ Fiche « les 5 piliers » — A4 recto-verso ══ */
+
+.fp-pilier {
+  border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: 9px;
+  padding: 11px 14px 12px; margin-bottom: 11px; break-inside: avoid;
+}
+.fp-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 3px; }
+.fp-nom { font-size: 13pt; font-weight: 800; }
+.fp-num { font-size: 8pt; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); margin-right: 7px; }
+.fp-duree { font-size: 8pt; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+.fp-q { font-size: 9.5pt; font-style: italic; color: var(--text-muted); margin-bottom: 8px; }
+.fp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fp-lbl { font-size: 7.5pt; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
+.fp-txt { font-size: 9.5pt; color: var(--text); line-height: 1.5; }
+.fp-pilier .doc-list li { font-size: 9pt; padding-bottom: 3px; }
+.fp-etapes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.fp-etape { font-size: 7.5pt; font-weight: 600; color: var(--navy); background: #f0f2ff; border-radius: 20px; padding: 2px 8px; }
+
 /* ── Impression ── */
 @page { size: A4; margin: 0; }
 @media print {
@@ -428,4 +603,11 @@
   .doc-page.flow { height: auto; min-height: 0; overflow: visible; page-break-after: auto; break-after: auto; }
   .cal-controls { display: none; }
   .paysage.paysage { width: 100%; height: 210mm; min-height: 0; }
+  /* Une diapositive par page ; un saut avant chaque diapositive visible
+     évite une page blanche quand l'annexe est masquée. */
+  .deck { display: block; padding: 0; }
+  .slide { box-shadow: none; }
+  .slide + .slide { break-before: page; page-break-before: always; }
+  .sans-annexe .annexe { display: none; }
+  .plein { display: none; }
 }

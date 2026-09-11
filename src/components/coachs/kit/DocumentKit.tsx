@@ -24,10 +24,12 @@ interface DocumentKitProps {
   /** Texte de la barre d'impression ; le nom du document passe en <strong>. */
   nom: string;
   consigne: string;
+  /** Boutons supplémentaires, placés avant « Imprimer ». */
+  actions?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export const DocumentKit: React.FC<DocumentKitProps> = ({ titreOnglet, nom, consigne, children }) => (
+export const DocumentKit: React.FC<DocumentKitProps> = ({ titreOnglet, nom, consigne, actions, children }) => (
   <>
     <Head>
       <title>{titreOnglet}</title>
@@ -37,9 +39,12 @@ export const DocumentKit: React.FC<DocumentKitProps> = ({ titreOnglet, nom, cons
         <div className={k('print-bar-txt')}>
           <strong>{nom}</strong> — {consigne}
         </div>
-        <button type="button" className={k('imprimer')} onClick={() => window.print()}>
-          Imprimer / Enregistrer en PDF
-        </button>
+        <div className={k('print-actions')}>
+          {actions}
+          <button type="button" className={k('imprimer')} onClick={() => window.print()}>
+            Imprimer / Enregistrer en PDF
+          </button>
+        </div>
       </div>
       {children}
     </div>
