@@ -10,6 +10,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.26.1] - 2026-09-11
+
+### 💄 Modifié — Espace coachs
+- Le surtitre du bandeau « Ce qu’Oskar ne fera jamais » devient
+  « Ce qu’Oskar ne fait pas ».
+
 ## [2.26.0] - 2026-09-11
 
 ### ✨ Ajouté — page Tarifs refaite (`/pricing`)

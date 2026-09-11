@@ -536,7 +536,7 @@ export default function EspaceCoachsPage() {
           aria-hidden
         />
         <div className="relative z-[1]">
-          <p className="text-12 font-bold uppercase tracking-[1.8px] text-coral mb-3">Ce qu’Oskar ne fera jamais</p>
+          <p className="text-12 font-bold uppercase tracking-[1.8px] text-coral mb-3">Ce qu’Oskar ne fait pas</p>
           <p className="text-29 font-extrabold text-white">
             Un outil ne remplace pas
             <br />
