@@ -1,3 +1,4 @@
+import type { EmailOtpType } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import type { User } from '@/types';
 
@@ -292,6 +293,20 @@ export class AuthService {
 
     if (error) {
       console.error('Erreur lors de la demande de reset:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Valider un lien reçu par email (jeton `token_hash` des modèles Supabase) :
+   * ouvre la session correspondante, par exemple celle de récupération.
+   */
+  static async verifierLienEmail(tokenHash: string, type: EmailOtpType) {
+    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+
+    if (error) {
+      // Lien expiré ou déjà utilisé : cas normal, affiché à la personne, pas un bug.
+      console.warn('Lien email refusé :', error.message);
       throw error;
     }
   }

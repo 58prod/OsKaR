@@ -10,6 +10,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.21.0] - 2026-09-11
+
+### ✨ Ajouté — lien « mot de passe oublié » sur le domaine du site
+- **Page `/auth/confirm`** : elle valide elle-même le jeton reçu par email
+  (`token_hash`, via `verifyOtp`) puis mène au choix du nouveau mot de passe.
+  Le lien de l'email pointe ainsi vers `oskar-coach.fr` au lieu de passer par
+  `supabase.co`, ce qui envoyait le premier email en spam chez Gmail (SPF,
+  DKIM et DMARC étaient pourtant tous valides). Lien expiré ou invalide :
+  message en français et lien pour en redemander un.
+- **Modèle d'email en français** `supabase/templates/reset-password.html`,
+  à coller dans Supabase > Authentication > Emails > Templates > Reset
+  password, **une fois cette version en ligne**. Projet Supabase partagé : le
+  modèle vaut aussi pour l'app d'Eric.
+
 ## [2.20.0] - 2026-09-11
 
 ### ✨ Ajouté — Administration (d'après `plateforme/admin.html`)

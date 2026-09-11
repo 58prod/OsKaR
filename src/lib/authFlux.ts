@@ -4,6 +4,8 @@
  * Supabase (qui arrivent en anglais).
  */
 
+import type { EmailOtpType } from '@supabase/supabase-js';
+
 /** Destination par défaut après connexion ou inscription : le pilier OKR. */
 export const APRES_CONNEXION = '/app/okr';
 
@@ -25,6 +27,38 @@ export function urlConnexion(depuis?: string, erreur?: string): string {
   if (erreur) params.set('error', erreur);
   const q = params.toString();
   return q ? `/auth/login?${q}` : '/auth/login';
+}
+
+/* ── Liens reçus par email ── */
+
+/*
+ * Les modèles d'email Supabase pointent vers /auth/confirm avec `token_hash`
+ * et `type` : le lien reste sur le domaine du site au lieu de passer par
+ * supabase.co, ce dont les messageries se méfient (voir
+ * supabase/templates/reset-password.html).
+ */
+
+const TYPES_LIEN: EmailOtpType[] = ['recovery', 'signup', 'invite', 'magiclink', 'email_change', 'email'];
+
+/** Le type de lien lu dans l'adresse, s'il fait partie de ceux que Supabase connaît. */
+export function typeLienEmail(valeur: unknown): EmailOtpType | null {
+  return typeof valeur === 'string' && (TYPES_LIEN as string[]).includes(valeur) ? (valeur as EmailOtpType) : null;
+}
+
+/**
+ * Où aller une fois le lien validé. Un lien de réinitialisation mène toujours
+ * au choix du nouveau mot de passe, quel que soit le paramètre `next` ; les
+ * autres suivent `next` s'il est interne, sinon l'espace.
+ */
+export function destinationApresLien(type: EmailOtpType, next?: unknown): string {
+  if (type === 'recovery') return '/auth/update-password';
+  return destinationSure(next) ?? APRES_CONNEXION;
+}
+
+export function messageLienEmail(msg: string | undefined): string {
+  const m = msg ?? '';
+  if (m.includes('Failed to fetch') || m.includes('NetworkError')) return 'Impossible de joindre le serveur. Vérifiez votre connexion internet.';
+  return 'Ce lien est invalide ou a expiré. Demandez-en un nouveau.';
 }
 
 /* ── Messages ── */
