@@ -8,6 +8,7 @@ import { RetroBoard } from '@/components/toolbox/retro/RetroBoard';
 import { RetroActionsPanel } from '@/components/toolbox/retro/RetroActionsPanel';
 import { useRetroSession } from '@/components/toolbox/retro/useRetroSession';
 import { RetroPanelTab } from '@/components/toolbox/retro/RetroPanelTab';
+import { RetroRecreLink } from '@/components/toolbox/retro/RetroRecreLink';
 import { getRetentionLabel } from '@/constants/toolbox';
 
 const RetrospectivePage: React.FC = () => {
@@ -78,16 +79,19 @@ const RetrospectivePage: React.FC = () => {
           />
         )}
 
-        <RetroBoard
-          notes={state.notes}
-          myId={myId}
-          onMove={actions.moveToCategory}
-          onMovePile={actions.movePileTo}
-          onPile={actions.pileOn}
-          onPileOnto={actions.pileOnto}
-          onUnpile={actions.unpile}
-          onLike={actions.like}
-        />
+        <div className="relative flex flex-1 overflow-hidden">
+          <RetroBoard
+            notes={state.notes}
+            myId={myId}
+            onMove={actions.moveToCategory}
+            onMovePile={actions.movePileTo}
+            onPile={actions.pileOn}
+            onPileOnto={actions.pileOnto}
+            onUnpile={actions.unpile}
+            onLike={actions.like}
+          />
+          {code && <RetroRecreLink retroCode={code} />}
+        </div>
 
         {actionsOpen ? (
           <RetroActionsPanel

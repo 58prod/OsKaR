@@ -3,6 +3,7 @@ import {
   parseActionsCsv, pileNotes, mergePile, unpileNote, startNewRetro,
   type RetroNote, type RetroState,
 } from '@/components/toolbox/retro/retroLogic';
+import { derivedSessionCode } from '@/services/toolSession';
 
 function note(id: string, category: string, extra: Partial<RetroNote> = {}): RetroNote {
   return {
@@ -73,5 +74,15 @@ describe('Rétrospective — tas de notes', () => {
   it("n'empile pas une note masquée", () => {
     const notes = [note('1', 'plus'), note('2', 'plus', { revealed: false })];
     expect(pileNotes(notes, '1', '2')).toBe(notes);
+  });
+});
+
+describe('Rétrospective — enchaîner sur la récré', () => {
+  it("donne le même salon de récré à toute l'équipe, un nouveau à chaque rétro", () => {
+    const a = derivedSessionCode('en-mode-recre', 'RETRO-ESSAI|2026-09-11');
+    expect(a).toMatch(/^RECRE-[A-HJ-KM-NP-Z2-9]{4}$/);
+    expect(derivedSessionCode('en-mode-recre', 'RETRO-ESSAI|2026-09-11')).toBe(a);
+    expect(derivedSessionCode('en-mode-recre', 'RETRO-ESSAI|2026-09-25')).not.toBe(a);
+    expect(derivedSessionCode('en-mode-recre', 'RETRO-AUTRE|2026-09-11')).not.toBe(a);
   });
 });

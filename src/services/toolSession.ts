@@ -40,6 +40,27 @@ export function generateSessionCode(toolType: ToolType): string {
   return `${prefix}-${suffix}`;
 }
 
+/**
+ * Code de session déduit d'une graine : tous ceux qui partent de la même
+ * graine tombent sur le même code, sans rien avoir à se transmettre. Sert à
+ * enchaîner deux outils (ex: la récré après la rétro) dans un même salon.
+ */
+export function derivedSessionCode(toolType: ToolType, seed: string): string {
+  const prefix = CODE_PREFIX[toolType] ?? 'OSKAR';
+  // FNV-1a 32 bits : stable et suffisant pour répartir sur l'alphabet.
+  let h = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  let suffix = '';
+  for (let i = 0; i < TOOLBOX_CONFIG.sessionCodeLength; i++) {
+    suffix += CODE_ALPHABET[h % CODE_ALPHABET.length];
+    h = Math.floor(h / CODE_ALPHABET.length);
+  }
+  return `${prefix}-${suffix}`;
+}
+
 /** Indique si une session est expirée au regard de la rétention configurée. */
 export function isExpired(row: Pick<ToolSessionRow, 'expires_at'>): boolean {
   return new Date(row.expires_at).getTime() < Date.now();

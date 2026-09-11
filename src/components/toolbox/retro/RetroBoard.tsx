@@ -93,7 +93,10 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
             </header>
 
             <ul
-              className="flex min-h-0 flex-1 flex-wrap content-start items-start gap-1.5 overflow-y-auto p-3"
+              className={`flex min-h-0 flex-1 flex-wrap content-start items-start gap-1.5 overflow-y-auto p-3 ${
+                // Laisse la place au lien « En mode récré ! » posé en bas à droite.
+                cat.key === 'question' ? 'pb-14' : ''
+              }`}
               aria-live="polite"
             >
               {boardItems(catNotes).map((item) => (item.kind === 'note' ? (

@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.24.0] - 2026-09-11
+
+### ✨ Ajouté — rétrospective : enchaîner sur « En mode récré ! »
+- Lien « Enchaîner sur « En mode récré ! » » en bas à droite du tableau,
+  visible par tous. Le code de la récré est déduit du code de la rétro et du
+  jour (`derivedSessionCode`) : toute l'équipe arrive dans le même salon sans
+  se passer de lien, et chaque rétro ouvre une récré neuve.
+
 ## [2.23.0] - 2026-09-11
 
 ### ✨ Ajouté — rétrospective : suivi des actions d'une rétro à l'autre
