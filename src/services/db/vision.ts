@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { ATELIER_VIDE, type AtelierVision } from '@/lib/vision/types';
+import { fusionnerVision, type AtelierVision } from '@/lib/vision/types';
 
 /*
  * Persistance de l'atelier Vision : une ligne par personne, mise à jour au fil
@@ -24,7 +24,7 @@ export class VisionService {
       throw error;
     }
     if (!data) return null;
-    return fusionner((data as { contenu: unknown }).contenu);
+    return fusionnerVision((data as { contenu: unknown }).contenu);
   }
 
   /**
@@ -41,20 +41,6 @@ export class VisionService {
       throw error;
     }
   }
-}
-
-/** Complète un contenu enregistré avec les champs que l'atelier vide définit. */
-function fusionner(contenu: unknown): AtelierVision {
-  const brut = (contenu ?? {}) as Partial<AtelierVision>;
-  return {
-    ...ATELIER_VIDE,
-    ...brut,
-    projection: { ...ATELIER_VIDE.projection, ...(brut.projection ?? {}) },
-    valeurs: brut.valeurs?.length ? brut.valeurs : ATELIER_VIDE.valeurs,
-    objectifs: brut.objectifs?.length ? brut.objectifs : ATELIER_VIDE.objectifs,
-    cibles: brut.cibles ?? [],
-    acteurs: brut.acteurs ?? [],
-  };
 }
 
 export default VisionService;

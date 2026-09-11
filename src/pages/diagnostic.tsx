@@ -102,9 +102,9 @@ const DiagnosticPage: React.FC = () => {
   const knownEmail = (isAuthenticated && user?.email) ? user.email : currentEmail;
 
   // Enregistre le bilan rattaché à l'email, puis envoie le PDF par email (Resend).
-  const sendPdf = useCallback((email: string, result: AnalysisResult) => {
+  const sendPdf = useCallback((email: string, result: AnalysisResult, accepteRecontact = false) => {
     createDiagnostic.mutate(
-      { userId: user?.id ?? null, email, scores: result, responses: state },
+      { userId: user?.id ?? null, email, scores: result, responses: state, accepteRecontact },
       {
         onSuccess: async () => {
           setCurrentEmail(email);
@@ -182,7 +182,7 @@ const DiagnosticPage: React.FC = () => {
   }, [state, knownEmail, sendPdf, toast]);
 
   // Soumission de la modale email (restauration, enregistrement invité ou envoi PDF)
-  const handleEmailSubmit = useCallback(async (email: string) => {
+  const handleEmailSubmit = useCallback(async (email: string, accepteRecontact = false) => {
     // Restauration : on récupère le dernier bilan associé à cet email
     if (emailPromptMode === 'restore') {
       setRestoring(true);
@@ -206,13 +206,13 @@ const DiagnosticPage: React.FC = () => {
 
     // PDF : enregistrement + envoi email
     if (emailPromptMode === 'pdf') {
-      sendPdf(email, result);
+      sendPdf(email, result, accepteRecontact);
       return;
     }
 
     // Enregistrement simple rattaché à cet email
     createDiagnostic.mutate(
-      { userId: user?.id ?? null, email, scores: result, responses: state },
+      { userId: user?.id ?? null, email, scores: result, responses: state, accepteRecontact },
       {
         onSuccess: () => {
           setCurrentEmail(email);
@@ -316,6 +316,7 @@ const DiagnosticPage: React.FC = () => {
           emailPromptMode === 'restore' ? 'Restaurer' : emailPromptMode === 'pdf' ? 'Envoyer' : 'Enregistrer'
         }
         defaultEmail={user?.email ?? currentEmail ?? ''}
+        demanderConsentement={emailPromptMode !== 'restore'}
         loading={
           emailPromptMode === 'restore'
             ? restoring

@@ -63,6 +63,13 @@ export const FormulaireCandidature: React.FC = () => {
     setEtat('envoi');
     try {
       await CandidaturesCoachsService.deposer(c, user?.id ?? null);
+      // Prévient l'équipe par email. La candidature est déjà enregistrée :
+      // un échec d'envoi ne doit ni bloquer ni alarmer la personne.
+      fetch('/api/notifier-candidature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(c),
+      }).catch(() => {});
       setEtat('envoyee');
       requestAnimationFrame(() => message.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
     } catch {

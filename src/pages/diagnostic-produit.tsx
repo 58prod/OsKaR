@@ -52,10 +52,11 @@ const DiagnosticProduitPage: React.FC = () => {
 
   /* ── Conserver le bilan : le projet fait office de réponses, l'analyse de scores ── */
   const conserver = useCallback(
-    async (email: string | null) => {
+    async (email: string | null, accepteRecontact = false) => {
       await enregistrerBilan.mutateAsync({
         userId: user?.id ?? null,
         email,
+        accepteRecontact,
         type: 'produit',
         scores: analysis as unknown as AnalysisResult,
         responses: project as unknown as DiagnosticState,
@@ -100,7 +101,7 @@ const DiagnosticProduitPage: React.FC = () => {
   const [avisEnvoi, setAvisEnvoi] = useState('');
 
   const envoyerSynthese = useCallback(
-    async (email: string) => {
+    async (email: string, accepteRecontact = false) => {
       setEnvoiEnCours(true);
       try {
         const res = await fetch('/api/send-product-fit', {
@@ -120,7 +121,7 @@ const DiagnosticProduitPage: React.FC = () => {
         // Comme sur le Diagnostic : on garde le bilan rattaché à cet email,
         // pour que la personne le retrouve si elle crée un compte ensuite.
         try {
-          await conserver(email);
+          await conserver(email, accepteRecontact);
         } catch {
           /* l'envoi a réussi : un échec d'enregistrement ne doit pas alarmer */
         }
@@ -294,6 +295,7 @@ const DiagnosticProduitPage: React.FC = () => {
           description="Indiquez votre email pour recevoir votre bilan en PDF. Aucun compte n'est nécessaire."
           submitLabel="Envoyer"
           defaultEmail={user?.email ?? ''}
+          demanderConsentement
           loading={envoiEnCours}
           onSubmit={envoyerSynthese}
           onClose={() => setEmailOuvert(false)}

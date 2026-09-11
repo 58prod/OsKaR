@@ -1,7 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Sidebar, type SidebarSection, type SidebarNavItem } from './Sidebar';
+import { Sidebar, DEFAULT_SECTIONS, type SidebarSection, type SidebarNavItem } from './Sidebar';
+import { useSectionAdmin } from '@/components/admin/sectionAdmin';
 import { Topbar } from './Topbar';
 import { openCookieSettings } from '@/components/ui/CookieBanner';
 import { useAppStore } from '@/store/useAppStore';
@@ -43,6 +44,10 @@ export const AppShell: React.FC<AppShellProps> = ({
   const { authReady, isAuthenticated } = useAppStore();
   const { collapsed: sidebarCollapsed, toggle: handleToggle } = useSidebarCollapsed();
 
+  // Les administrateurs voient une section de plus sous le menu habituel.
+  const sectionAdmin = useSectionAdmin();
+  const sectionsMenu = sections ?? (sectionAdmin ? [...DEFAULT_SECTIONS, sectionAdmin] : undefined);
+
   // Pied de sidebar : si non fourni par l'appelant, on déduit de l'auth.
   // - utilisateur connecté (ou état en cours de résolution) : masqué (null)
   // - visiteur : on laisse le Sidebar afficher son lien « Se connecter » par défaut (undefined)
@@ -58,7 +63,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         {description && <meta name="description" content={description} />}
       </Head>
       <div className="min-h-screen bg-surface text-ink font-sans">
-        <Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} sections={sections} footerItem={resolvedFooterItem} />
+        <Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} sections={sectionsMenu} footerItem={resolvedFooterItem} />
         <div
           className="oskar-main flex flex-col min-h-screen transition-[margin] duration-250"
           style={{ marginLeft: 'var(--oskar-sidebar)' }}

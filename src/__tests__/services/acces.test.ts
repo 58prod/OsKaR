@@ -36,6 +36,13 @@ describe("Niveau d'accès", () => {
     expect(niveauAcces(true, abonnement('pro', 'expired'))).toBe('gratuit');
     expect(niveauAcces(true, abonnement('pro', 'cancelled'))).toBe('gratuit');
   });
+
+  it('une formule offerte donne accès jusqu’à sa date de fin, pas au-delà', () => {
+    const jusqua = (decalage: number) =>
+      ({ ...abonnement('unlimited'), expiresAt: new Date(Date.now() + decalage) } as Subscription);
+    expect(niveauAcces(true, jusqua(24 * 60 * 60 * 1000))).toBe('abonne');
+    expect(niveauAcces(true, jusqua(-1000))).toBe('gratuit');
+  });
 });
 
 describe("Accès aux étapes d'un atelier", () => {

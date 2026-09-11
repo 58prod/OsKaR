@@ -43,7 +43,7 @@ export type AccentPilier = 'vision' | 'fit' | 'finance' | 'okr' | 'team';
  * « Espace coachs » a son propre accent, corail, et son icône reste corail
  * même inactive (`.nav-item.coach` dans oskar.css, fond actif à 14 %).
  */
-type AccentMenu = AccentPilier | 'coach';
+type AccentMenu = AccentPilier | 'coach' | 'admin';
 
 const ACCENTS: Record<AccentMenu | 'defaut', { fond: string; texte: string; liseré: string }> = {
   vision: { fond: 'bg-vision/[0.12]', texte: 'text-vision', liseré: 'before:bg-vision' },
@@ -52,6 +52,8 @@ const ACCENTS: Record<AccentMenu | 'defaut', { fond: string; texte: string; lise
   okr: { fond: 'bg-okr/[0.12]', texte: 'text-okr', liseré: 'before:bg-okr' },
   team: { fond: 'bg-team/[0.12]', texte: 'text-team', liseré: 'before:bg-team' },
   coach: { fond: 'bg-coral/[0.14]', texte: 'text-coral', liseré: 'before:bg-coral' },
+  // Administration (admin.html) : actif turquoise, icône bleu clair au repos.
+  admin: { fond: 'bg-teal/[0.12]', texte: 'text-teal', liseré: 'before:bg-teal' },
   defaut: { fond: 'bg-teal/[0.12]', texte: 'text-teal', liseré: 'before:bg-teal' },
 };
 
@@ -60,6 +62,8 @@ export interface SidebarNavItem {
   label: string;
   icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
   badge?: string;
+  /** Pastille corail pour un compteur (`.nav-count` de admin.html) ; turquoise sinon. */
+  badgeTon?: 'teal' | 'coral';
   /** Vrai si l'entrée ne doit s'allumer que sur sa page, pas sur ses sous-pages. */
   exact?: boolean;
   /** Couleur prise quand l'entrée est active ; turquoise par défaut. */
@@ -83,7 +87,7 @@ interface SidebarProps {
   footerItem?: SidebarNavItem | null;
 }
 
-const DEFAULT_SECTIONS: SidebarSection[] = [
+export const DEFAULT_SECTIONS: SidebarSection[] = [
   {
     label: 'Navigation',
     items: [
@@ -157,16 +161,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <>
         <Icon
           className={`icone-fine h-5 w-5 shrink-0 ${
-            item.accent === 'coach' ? 'text-coral opacity-100' : actif ? 'opacity-100' : 'opacity-80'
+            item.accent === 'coach'
+              ? 'text-coral opacity-100'
+              : item.accent === 'admin' && !actif
+                ? 'text-[#c7cdf5] opacity-100'
+                : actif
+                  ? 'opacity-100'
+                  : 'opacity-80'
           }`}
           aria-hidden
         />
         <span className="oskar-nav-label">{item.label}</span>
-        {item.badge && (
-          <span className="oskar-nav-label ml-auto bg-teal text-navy-dark text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-            {item.badge}
-          </span>
-        )}
+        {item.badge &&
+          (item.badgeTon === 'coral' ? (
+            <span className="oskar-nav-label ml-auto bg-coral text-navy-dark text-11.5 font-extrabold min-w-[20px] h-5 px-1.5 rounded-[10px] inline-flex items-center justify-center leading-none">
+              {item.badge}
+            </span>
+          ) : (
+            <span className="oskar-nav-label ml-auto bg-teal text-navy-dark text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              {item.badge}
+            </span>
+          ))}
       </>
     );
 

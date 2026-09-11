@@ -56,6 +56,8 @@ export interface DiagnosticPayload {
   responses: DiagnosticState;
   /** Type de bilan ; « organisation » par défaut. */
   type?: TypeBilan;
+  /** La personne a coché « J'accepte qu'Oskar me recontacte ». */
+  accepteRecontact?: boolean;
 }
 
 /** Type d'un enregistrement, d'après le marqueur posé dans `responses`. */
@@ -100,6 +102,9 @@ export class DiagnosticsService {
     const insertData: DiagnosticInsert = {
       user_id: authUserId,
       email,
+      // Colonne ajoutée par la migration 20260911_administration : envoyée
+      // seulement quand la case est cochée, la valeur par défaut fait le reste.
+      ...(payload.accepteRecontact ? { accepte_recontact: true } : {}),
       scores: payload.scores as unknown as Json,
       responses: {
         ...(payload.responses as unknown as Record<string, unknown>),

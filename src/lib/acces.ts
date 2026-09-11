@@ -33,7 +33,9 @@ export function niveauAcces(
   if (!estConnecte) return 'visiteur';
   if (!abonnement) return 'gratuit';
   const actif = abonnement.status === 'active' || abonnement.status === 'trialing';
-  return actif && abonnement.planType !== 'free' ? 'abonne' : 'gratuit';
+  // Une formule offerte depuis l'administration s'arrête seule à sa date de fin.
+  const echue = !!abonnement.expiresAt && new Date(abonnement.expiresAt).getTime() <= Date.now();
+  return actif && !echue && abonnement.planType !== 'free' ? 'abonne' : 'gratuit';
 }
 
 /** Première étape d'un atelier : offerte à tout compte, même gratuit. */

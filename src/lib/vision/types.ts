@@ -151,6 +151,23 @@ export const ATELIER_VIDE: AtelierVision = {
 };
 
 /**
+ * Complète un contenu enregistré avec les champs que l'atelier vide définit :
+ * un atelier enregistré avant l'ajout d'un champ reste lisible.
+ */
+export function fusionnerVision(contenu: unknown): AtelierVision {
+  const brut = (contenu ?? {}) as Partial<AtelierVision>;
+  return {
+    ...ATELIER_VIDE,
+    ...brut,
+    projection: { ...ATELIER_VIDE.projection, ...(brut.projection ?? {}) },
+    valeurs: brut.valeurs?.length ? brut.valeurs : ATELIER_VIDE.valeurs,
+    objectifs: brut.objectifs?.length ? brut.objectifs : ATELIER_VIDE.objectifs,
+    cibles: brut.cibles ?? [],
+    acteurs: brut.acteurs ?? [],
+  };
+}
+
+/**
  * Le texte de vision assemblé à partir de l'étape 1, tel que la maquette le
  * compose : pourquoi, comment et quoi mis bout à bout. La personne le reprend
  * ensuite à l'étape 6 ; sa version prime dès qu'elle existe.

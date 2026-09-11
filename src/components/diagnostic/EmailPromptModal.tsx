@@ -8,7 +8,12 @@ interface EmailPromptModalProps {
   submitLabel: string;
   defaultEmail?: string;
   loading?: boolean;
-  onSubmit: (email: string) => void;
+  /**
+   * Affiche la case « J'accepte qu'Oskar me recontacte » (RGPD : décochée par
+   * défaut). Sa valeur est passée en second argument de `onSubmit`.
+   */
+  demanderConsentement?: boolean;
+  onSubmit: (email: string, accepteRecontact: boolean) => void;
   onClose: () => void;
 }
 
@@ -23,16 +28,19 @@ export const EmailPromptModal: React.FC<EmailPromptModalProps> = ({
   submitLabel,
   defaultEmail = '',
   loading = false,
+  demanderConsentement = false,
   onSubmit,
   onClose,
 }) => {
   const [email, setEmail] = useState(defaultEmail);
+  const [accepteRecontact, setAccepteRecontact] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setEmail(defaultEmail);
+    setAccepteRecontact(false);
     lastFocusedRef.current = document.activeElement as HTMLElement | null;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -51,7 +59,7 @@ export const EmailPromptModal: React.FC<EmailPromptModalProps> = ({
     e.preventDefault();
     const value = email.trim();
     if (!value) return;
-    onSubmit(value);
+    onSubmit(value, demanderConsentement && accepteRecontact);
   };
 
   return (
@@ -85,6 +93,17 @@ export const EmailPromptModal: React.FC<EmailPromptModalProps> = ({
               className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-sm text-ink placeholder:text-muted/70 outline-none transition-colors focus:border-teal focus:ring-2 focus:ring-teal/20"
             />
           </div>
+          {demanderConsentement && (
+            <label className="flex items-start gap-2.5 mt-3.5 text-[13px] text-ink leading-snug cursor-pointer">
+              <input
+                type="checkbox"
+                checked={accepteRecontact}
+                onChange={(e) => setAccepteRecontact(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-teal cursor-pointer"
+              />
+              <span>J&rsquo;accepte qu&rsquo;Oskar me recontacte au sujet de mon bilan.</span>
+            </label>
+          )}
           <div className="flex items-center justify-end gap-2.5 mt-5">
             <button
               type="button"

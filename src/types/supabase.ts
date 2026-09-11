@@ -455,6 +455,7 @@ export interface Database {
           email: string | null;
           scores: Json;
           responses: Json;
+          accepte_recontact: boolean;
           created_at: string;
         };
         Insert: {
@@ -463,6 +464,7 @@ export interface Database {
           email?: string | null;
           scores?: Json;
           responses?: Json;
+          accepte_recontact?: boolean;
           created_at?: string;
         };
         Update: {
@@ -471,6 +473,7 @@ export interface Database {
           email?: string | null;
           scores?: Json;
           responses?: Json;
+          accepte_recontact?: boolean;
           created_at?: string;
         };
       };

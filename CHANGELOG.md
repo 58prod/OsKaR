@@ -10,6 +10,42 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.20.0] - 2026-09-11
+
+### ✨ Ajouté — Administration (d'après `plateforme/admin.html`)
+- **Section « Administration »** dans le menu, visible des seuls
+  administrateurs (table `admins` : Christophe et Eric), avec le nombre de
+  candidatures coachs en attente.
+- **`/admin` — tableau de bord** : comptes, bilans, ateliers commencés,
+  formules payantes ; nouveaux comptes par semaine ; ateliers par pilier ;
+  parcours du bilan à la formule payante sur 30 jours ; ce qui attend une
+  réponse ; derniers comptes créés.
+- **`/admin/comptes`** : recherche, filtres par formule, pastilles des
+  ateliers. La fiche (volet latéral) montre les étapes remplies de chaque
+  atelier et les bilans, et permet d'**offrir la formule payante jusqu'à une
+  date**, avec un motif (membre fondateur, coach partenaire…), de la
+  prolonger ou de la retirer — sans Stripe.
+- **`/admin/candidatures`** : statut (nouvelle, contactée, validée, refusée),
+  notes internes, lien pour écrire au coach.
+- **`/admin/contacts`** : les personnes qui ont fait un bilan sans compte,
+  filtrées par défaut sur celles qui acceptent d'être recontactées ; export
+  CSV (pour Excel) de ces seules personnes.
+- **Email à chaque nouvelle candidature coach** (`/api/notifier-candidature`),
+  envoyé à contact@oskar-coach.fr ; « Répondre » écrit au candidat.
+- **Case « J'accepte qu'Oskar me recontacte »** (décochée par défaut) dans la
+  fenêtre d'email du Diagnostic et du Potentiel Produit.
+
+### 🔧 Modifié
+- Une formule s'arrête à sa date de fin (`expires_at`) : passée cette date,
+  le compte est traité comme gratuit.
+
+### 🗄️ Base de données — `20260911_administration.sql` (à exécuter)
+- Purement additive : table `admins`, fonctions `est_admin` et `admin_*`
+  (lecture et écriture réservées aux administrateurs, aucune policy ajoutée
+  aux tables existantes), statut « contactee » et colonnes `notes`,
+  `traitee_le` sur `candidatures_coachs`, colonne `accepte_recontact` sur
+  `diagnostics`.
+
 ## [2.19.2] - 2026-09-11
 
 ### 🔧 Modifié — adresse du site dans les maquettes archivées
