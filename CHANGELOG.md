@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.33.1] - 2026-09-13
+
+### 🔧 Corrigé — « Suggérer un outil » envoie bien un email à l'équipe
+- Les suggestions n'arrivaient nulle part : la route `/api/suggest-tool`
+  attendait `SUGGESTIONS_EMAIL` ou `NEXT_PUBLIC_CONTACT_EMAIL`, jamais
+  définies, et répondait « non configuré ». Elles partent désormais à
+  contact@oskar-coach.fr (surchargeable par `SUGGESTIONS_EMAIL`), comme les
+  candidatures coach.
+- Email facultatif dans le formulaire : « Répondre » écrit directement à la
+  personne. Champ piège contre les robots ; saisie bornée et échappée
+  (`src/lib/toolbox/suggestion.ts`, testé).
+
 ## [2.33.0] - 2026-09-13
 
 ### ✨ Modifié — Team Mood aligné sur les autres jeux
