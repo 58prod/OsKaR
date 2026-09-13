@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.32.0] - 2026-09-13
+
+### ✨ Modifié — Daily standup aligné sur les autres jeux
+- Principe affiché dans la page et sur la carte de l'outil : « Un tour de
+  table structuré en 3 questions : ce que j'ai fait, ce que je fais, mes
+  éventuels blocages et autres infos pertinentes », avec les points à
+  aborder rappelés pendant chaque tour.
+- Synchro par opérations (`dailyReducer`) : chaque geste porte la séance et
+  la personne concernée, si bien qu'un « Suivant » cliqué deux fois (ou par
+  deux animateurs) n'avance que d'une personne ; deux démarrages simultanés
+  sont départagés de la même façon sur tous les écrans.
+- Barre blanche commune (`DailyToolbar`) : tour en cours et durée de la
+  séance à gauche ; temps par personne (30 s ajouté), ordre aléatoire et
+  « Arrêter » (avec confirmation) pour l'animateur.
+- Une personne arrivée en retard prend place en fin de tour ; celle dont la
+  connexion décroche reste dans la liste (« hors ligne ») ; « Passer son
+  tour » pour une personne absente.
+- Écran « En pause », statut « À suivre » dans l'ordre de passage, bilan de
+  fin (prises de parole, tours passés, durée totale), raccourcis de
+  l'animateur (Espace = pause, → = suivant).
+
 ## [2.31.0] - 2026-09-13
 
 ### ✨ Modifié — ROTI aligné sur la rétro, la récré et le Planning Poker

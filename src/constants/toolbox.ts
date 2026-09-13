@@ -124,7 +124,7 @@ export const TOOLS: ToolDefinition[] = [
     status: 'live',
     title: 'Daily standup',
     description:
-      "Un tour de table structuré en 3 questions : ce que j'ai fait, ce que je fais, mes blocages. Avec minuteur par personne pour rester dans les temps.",
+      "Un tour de table structuré en 3 questions : ce que j'ai fait, ce que je fais, mes éventuels blocages et autres infos pertinentes. Avec minuteur par personne pour rester dans les temps.",
     duration: '20 min max',
     participants: '3 – 20 participants',
     gradient: 'linear-gradient(135deg, #0369a1, #38bdf8)',

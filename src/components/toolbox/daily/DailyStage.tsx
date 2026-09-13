@@ -1,86 +1,114 @@
-import React from 'react';
-import { Clock, Play, Pause, ChevronRight, Square, CheckCircle2 } from 'lucide-react';
-import { DAILY_DURATIONS, OVERTIME_TAUNTS, formatTime, type DailyState } from './dailyLogic';
+import React, { useEffect } from 'react';
+import { Clock, Play, Pause, ChevronRight, CheckCircle2, SkipForward } from 'lucide-react';
+import {
+  DAILY_ACCENT, DAILY_PRINCIPE, DAILY_QUESTIONS, OVERTIME_TAUNTS, formatTime, type DailyState,
+} from './dailyLogic';
 
 interface DailyStageProps {
   state: DailyState;
   currentName: string;
   nextName: string;
   isSelf: boolean;
+  isNextSelf: boolean;
   remainingSec: number;
+  totalSec: number;
   isFacilitator: boolean;
   canStart: boolean;
   onStart: () => void;
   onPauseResume: () => void;
   onNext: () => void;
   onGo: () => void;
+  onSkip: () => void;
   onStop: () => void;
-  onDurationChange: (sec: number) => void;
 }
+
+const Frame: React.FC<{ children: React.ReactNode; tone?: string }> = ({ children, tone }) => (
+  <div className={`flex flex-1 flex-col items-center justify-center overflow-y-auto p-8 text-center ${tone ?? ''}`}>
+    {children}
+  </div>
+);
+
+/** Les points à aborder pendant son tour. */
+const Questions: React.FC<{ compact?: boolean }> = ({ compact }) => (
+  <ul className={`flex flex-wrap justify-center gap-2 ${compact ? '' : 'mt-5'}`} aria-label="Points à aborder">
+    {DAILY_QUESTIONS.map((q) => (
+      <li
+        key={q.label}
+        className={[
+          'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold',
+          q.extra ? 'border border-dashed border-line bg-white/70 text-muted' : 'border border-line bg-white text-navy shadow-card',
+        ].join(' ')}
+      >
+        <span aria-hidden>{q.emoji}</span> {q.label}
+      </li>
+    ))}
+  </ul>
+);
+
+const primaryBtn =
+  'inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-base font-bold text-white shadow-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40';
 
 /** Zone centrale du Daily : écrans repos / annonce / chrono / fin. */
 export const DailyStage: React.FC<DailyStageProps> = (props) => {
-  const { state, currentName, nextName, isSelf, remainingSec, isFacilitator, canStart } = props;
+  const { state, currentName, nextName, isSelf, isNextSelf, remainingSec, totalSec, isFacilitator, canStart } = props;
   const over = remainingSec < 0;
+  const { phase } = state;
 
-  const Frame: React.FC<{ children: React.ReactNode; tone?: string }> = ({ children, tone }) => (
-    <div className={`flex flex-1 flex-col items-center justify-center p-8 text-center ${tone ?? ''}`}>{children}</div>
-  );
+  // Raccourcis de l'animateur : Espace = pause / reprise, → = suivant / c'est parti.
+  const { onPauseResume, onNext, onGo } = props;
+  useEffect(() => {
+    if (!isFacilitator) return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (el?.closest('input, textarea, select, button, [contenteditable], [role="dialog"]')) return;
+      if (e.key === ' ' && (phase === 'running' || phase === 'paused')) { e.preventDefault(); onPauseResume(); }
+      if (e.key === 'ArrowRight') {
+        if (phase === 'running' || phase === 'paused') onNext();
+        else if (phase === 'next') onGo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isFacilitator, phase, onPauseResume, onNext, onGo]);
 
-  if (state.phase === 'idle') {
+  if (phase === 'idle') {
     return (
       <Frame>
-        <Clock className="mb-4 h-12 w-12 text-teal" aria-hidden />
+        <Clock className="mb-4 h-12 w-12" style={{ color: DAILY_ACCENT }} aria-hidden />
         <h2 className="text-2xl font-bold text-navy">Prêt pour le daily ?</h2>
-        <p className="mt-2 max-w-sm text-muted">
-          Chacun parle à son tour, dans la limite du temps imparti.
-        </p>
+        <p className="mt-2 max-w-lg text-muted">{DAILY_PRINCIPE}</p>
+        <Questions />
+        <p className="mt-4 text-sm text-muted">Chacun parle à son tour, dans la limite du temps imparti.</p>
         {isFacilitator ? (
-          <div className="mt-6 flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label htmlFor="daily-duration" className="text-sm font-semibold text-muted">Temps par personne</label>
-              <select
-                id="daily-duration"
-                value={state.durationSec}
-                onChange={(e) => props.onDurationChange(Number(e.target.value))}
-                className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-navy outline-none focus:border-teal"
-              >
-                {DAILY_DURATIONS.map((d) => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
-                ))}
-              </select>
-            </div>
-            <button
-              type="button"
-              onClick={props.onStart}
-              disabled={!canStart}
-              className="inline-flex items-center gap-2 rounded-xl bg-teal px-8 py-3.5 text-base font-bold text-navy-dark shadow-card transition-colors hover:bg-teal-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40"
-            >
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <button type="button" onClick={props.onStart} disabled={!canStart} className={primaryBtn} style={{ background: DAILY_ACCENT }}>
               <Play className="h-5 w-5" aria-hidden /> Démarrer le daily
             </button>
             {!canStart && <p className="text-sm text-muted">En attente de participants…</p>}
           </div>
         ) : (
-          <p className="mt-6 rounded-lg bg-surface px-4 py-2 text-sm text-muted">
-            En attente du lancement par l'animateur.
+          <p className="mt-6 rounded-lg bg-white px-4 py-2 text-sm text-muted shadow-card">
+            En attente du lancement par l’animateur.
           </p>
         )}
       </Frame>
     );
   }
 
-  if (state.phase === 'done') {
+  if (phase === 'done') {
+    const spoke = state.order.length - state.skipped.length;
     return (
       <Frame>
         <CheckCircle2 className="mb-4 h-14 w-14 text-success-500" aria-hidden />
         <h2 className="text-2xl font-bold text-navy">Daily terminé !</h2>
-        <p className="mt-2 text-muted">Bonne journée à toute l'équipe.</p>
+        <p className="mt-2 text-muted">
+          {spoke} prise{spoke > 1 ? 's' : ''} de parole en <strong className="font-mono text-navy">{formatTime(totalSec)}</strong>
+          {state.skipped.length > 0 && <> · {state.skipped.length} tour{state.skipped.length > 1 ? 's' : ''} passé{state.skipped.length > 1 ? 's' : ''}</>}
+        </p>
+        <p className="mt-1 text-muted">Bonne journée à toute l’équipe.</p>
         {isFacilitator && (
-          <button
-            type="button"
-            onClick={props.onStop}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-          >
+          <button type="button" onClick={props.onStop} className={`mt-6 ${primaryBtn}`} style={{ background: DAILY_ACCENT }}>
             Nouveau daily
           </button>
         )}
@@ -88,21 +116,27 @@ export const DailyStage: React.FC<DailyStageProps> = (props) => {
     );
   }
 
-  if (state.phase === 'next') {
+  if (phase === 'next') {
     return (
       <Frame tone="bg-teal-light">
-        <div className="text-lg font-medium text-muted">C'est au tour de</div>
+        <div className="text-lg font-medium text-muted">{isNextSelf ? 'C’est à vous !' : 'C’est au tour de'}</div>
         <div className="my-2 text-6xl font-black tracking-tight text-navy">{nextName}</div>
         {isFacilitator ? (
-          <button
-            type="button"
-            onClick={props.onGo}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-teal px-8 py-3.5 text-base font-bold text-navy-dark shadow-card transition-colors hover:bg-teal-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-          >
-            <Play className="h-5 w-5" aria-hidden /> C'est parti
-          </button>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={props.onSkip}
+              title="Absent ou rien à signaler"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-3 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              <SkipForward className="h-4 w-4" aria-hidden /> Passer son tour
+            </button>
+            <button type="button" onClick={props.onGo} className={primaryBtn} style={{ background: DAILY_ACCENT }}>
+              <Play className="h-5 w-5" aria-hidden /> C’est parti
+            </button>
+          </div>
         ) : (
-          <p className="mt-6 text-sm text-muted">En attente de l'animateur…</p>
+          <p className="mt-6 text-sm text-muted">En attente de l’animateur…</p>
         )}
       </Frame>
     );
@@ -118,12 +152,13 @@ export const DailyStage: React.FC<DailyStageProps> = (props) => {
   // Pas de transition au passage à 0 (nouveau tour) pour éviter un retour de barre.
   const fillTransition = fillPct <= 0 ? '' : 'transition-[width] duration-1000 ease-linear';
   // Au-delà du double du temps imparti : mode « exagération » (effets + message taquin tournant).
-  const wayOver = state.durationSec > 0 && remainingSec <= -state.durationSec;
+  const wayOver = phase === 'running' && state.durationSec > 0 && remainingSec <= -state.durationSec;
   // Graine par séance (startedAt) + index courant : la rotation ne démarre pas
   // toujours sur le même message pour la première personne d'un daily.
   const tauntLen = OVERTIME_TAUNTS.length;
   const tauntSeed = Math.floor((state.startedAt ?? 0) / 1000) + Math.max(0, state.currentIdx);
   const taunt = OVERTIME_TAUNTS[((tauntSeed % tauntLen) + tauntLen) % tauntLen];
+  const paused = phase === 'paused';
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden p-8 text-center">
@@ -135,7 +170,11 @@ export const DailyStage: React.FC<DailyStageProps> = (props) => {
       />
 
       <div className="relative z-10 flex flex-col items-center">
-        {isSelf ? (
+        {paused ? (
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-warning-100 px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-warning-800">
+            <Pause className="h-4 w-4" aria-hidden /> En pause
+          </div>
+        ) : isSelf ? (
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-navy/10 px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-navy">
             <span aria-hidden>🎙</span> Vous parlez
           </div>
@@ -145,8 +184,8 @@ export const DailyStage: React.FC<DailyStageProps> = (props) => {
         <div className="text-4xl font-black tracking-tight text-navy">{currentName}</div>
         {over && <div className="mt-2 text-lg font-extrabold uppercase tracking-wide text-danger-600">Temps dépassé</div>}
         <output
-          className={`my-4 inline-block font-light tabular-nums ${over ? 'text-danger-600' : 'text-navy'} ${
-            wayOver ? 'animate-wobble' : remainingSec > 0 && remainingSec <= 3 ? 'animate-pulse' : ''
+          className={`my-4 inline-block font-light tabular-nums ${over ? 'text-danger-600' : 'text-navy'} ${paused ? 'opacity-50' : ''} ${
+            wayOver ? 'animate-wobble' : !paused && remainingSec > 0 && remainingSec <= 3 ? 'animate-pulse' : ''
           }`}
           style={{ fontSize: '5.5rem', lineHeight: 1 }}
           aria-label="Temps restant"
@@ -165,31 +204,30 @@ export const DailyStage: React.FC<DailyStageProps> = (props) => {
           </div>
         )}
 
+        <Questions compact />
+
         {isFacilitator && (
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={props.onStop}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-danger-600 shadow-card transition-colors hover:bg-danger-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-            >
-              <Square className="h-4 w-4" aria-hidden /> Arrêter
-            </button>
-            <button
-              type="button"
-              onClick={props.onPauseResume}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-            >
-              {state.phase === 'paused' ? <Play className="h-4 w-4" aria-hidden /> : <Pause className="h-4 w-4" aria-hidden />}
-              {state.phase === 'paused' ? 'Reprendre' : 'Pause'}
-            </button>
-            <button
-              type="button"
-              onClick={props.onNext}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white shadow-card transition-colors hover:bg-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-            >
-              Suivant <ChevronRight className="h-4 w-4" aria-hidden />
-            </button>
-          </div>
+          <>
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={props.onPauseResume}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              >
+                {paused ? <Play className="h-4 w-4" aria-hidden /> : <Pause className="h-4 w-4" aria-hidden />}
+                {paused ? 'Reprendre' : 'Pause'}
+              </button>
+              <button
+                type="button"
+                onClick={props.onNext}
+                className="inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                style={{ background: DAILY_ACCENT }}
+              >
+                {state.currentIdx >= state.order.length - 1 ? 'Terminer' : 'Suivant'} <ChevronRight className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+            <p className="mt-3 text-xs text-muted">Raccourcis : Espace = pause · → = suivant</p>
+          </>
         )}
       </div>
     </div>
