@@ -1,15 +1,16 @@
 import React from 'react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
-import { RevealToolbar } from '@/components/toolbox/RevealToolbar';
+import { MoodToolbar } from '@/components/toolbox/mood/MoodToolbar';
 import { MoodBoard } from '@/components/toolbox/mood/MoodBoard';
-import { MoodRadar } from '@/components/toolbox/mood/MoodRadar';
+import { MoodResults } from '@/components/toolbox/mood/MoodResults';
+import { MoodDiscussion } from '@/components/toolbox/mood/MoodDiscussion';
 import { useMoodSession } from '@/components/toolbox/mood/useMoodSession';
 
 const TeamMoodPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('team-mood');
 
-  const { state, participants, isFacilitator, toggleFacilitator, radarData, globalAvg, myId, myVote, actions } =
+  const { state, participants, isFacilitator, toggleFacilitator, remainingSec, stats, globalAvg, myId, actions } =
     useMoodSession(code, identity);
 
   return (
@@ -23,33 +24,45 @@ const TeamMoodPage: React.FC = () => {
       onJoin={handleJoin}
       onShare={handleShare}
     >
-      <RevealToolbar
+      <MoodToolbar
+        state={state}
+        remainingSec={remainingSec}
         isFacilitator={isFacilitator}
-        revealed={state.revealed}
         voteCount={Object.keys(state.votes).length}
         totalCount={participants.length}
+        onPhaseChange={actions.setPhase}
+        onAnonymousChange={actions.setAnonymous}
+        onToggleChrono={actions.toggleChrono}
+        onResetChrono={actions.resetChrono}
+        onDurationChange={actions.setDuration}
         onReveal={actions.reveal}
         onReset={actions.reset}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      {state.phase === 'discussion' && state.collective ? (
+        <MoodDiscussion
+          stats={stats}
+          globalAvg={globalAvg}
+          state={state}
+          isFacilitator={isFacilitator}
+          onCollectiveChange={actions.setCollective}
+          onCopySummary={actions.copySummary}
+        />
+      ) : (
         <div className="flex flex-1 overflow-hidden">
-          <MoodBoard
-            state={state}
-            participants={participants}
-            myId={myId}
-            myVote={myVote}
-            onVote={actions.vote}
-          />
-        </div>
+          <div className="flex flex-1 overflow-hidden">
+            {/* Nouveau tour : les notes en cours de saisie repartent à zéro. */}
+            <MoodBoard key={state.round} state={state} participants={participants} myId={myId} onVote={actions.vote} />
+          </div>
 
-        <aside
-          className="flex w-[360px] shrink-0 flex-col overflow-hidden border-l border-line bg-surface"
-          aria-label="Résultats du Team Mood"
-        >
-          <MoodRadar radarData={radarData} globalAvg={globalAvg} state={state} participants={participants} />
-        </aside>
-      </div>
+          <aside
+            className="relative flex w-[360px] shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-line bg-surface p-5"
+            aria-label="Résultats du Team Mood"
+          >
+            <MoodResults stats={stats} globalAvg={globalAvg} state={state} participants={participants} />
+          </aside>
+        </div>
+      )}
     </ToolPageShell>
   );
 };

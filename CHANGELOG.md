@@ -10,6 +10,25 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.33.0] - 2026-09-13
+
+### ✨ Modifié — Team Mood aligné sur les autres jeux
+- Synchro par opérations (`moodReducer`) : toute l'équipe peut voter dans
+  la même seconde sans perte ; tours numérotés, révélation qui fige les
+  votes, notes vérifiées à la réception (1 à 10 sur les 5 dimensions).
+- Barre blanche commune (`MoodToolbar`, accent #4338ca) : les deux temps de
+  l'atelier, compteur de votes, « Notes anonymes », « Révéler »,
+  « Réinitialiser » (avec confirmation) et minuteur partagé ; révélation
+  automatique à 00:00. `RevealToolbar`, qui ne servait plus, est supprimé.
+- Notes modifiables jusqu'à la révélation ; votants hors ligne conservés.
+- Résultats enrichis : moral global, radar de l'équipe avec superposition du
+  radar d'une personne au clic, étendue des notes par dimension,
+  « Points à discuter » (moyenne sous 5 ou écart d'au moins 5 points).
+- Nouveau temps « Discussion collective », repris de la maquette : l'équipe
+  s'accorde sur une note par dimension (départ = moyenne des votes, au
+  demi-point), radar moyenne / note collective, « Copier la synthèse ».
+- Option « Notes anonymes » : seules les moyennes de l'équipe sont affichées.
+
 ## [2.32.0] - 2026-09-13
 
 ### ✨ Modifié — Daily standup aligné sur les autres jeux
