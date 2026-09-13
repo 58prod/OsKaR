@@ -6,11 +6,12 @@ import { STAR_COLORS, type RotiResults as Results, type RotiState } from './roti
 interface RotiResultsProps {
   results: Results;
   state: RotiState;
-  participants: ToolParticipant[];
+  /** En ligne, plus les votants dont la connexion a décroché (`online: false`). */
+  participants: (ToolParticipant & { online?: boolean })[];
 }
 
 /** Rangée d'étoiles statiques pour un score donné. */
-const StarRow: React.FC<{ value: number; size: number; color: string }> = ({ value, size, color }) => (
+export const StarRow: React.FC<{ value: number; size: number; color: string }> = ({ value, size, color }) => (
   <span className="inline-flex gap-0.5" aria-hidden>
     {[1, 2, 3, 4, 5].map((i) => (
       <Star
@@ -24,19 +25,20 @@ const StarRow: React.FC<{ value: number; size: number; color: string }> = ({ val
 /** Colonne de résultats ROTI : score moyen, distribution, votes individuels. */
 export const RotiResults: React.FC<RotiResultsProps> = ({ results, state, participants }) => {
   if (!state.revealed) {
-    const votedCount = Object.keys(state.votes).length;
     return (
-      <div className="rounded-card border-[1.5px] border-dashed border-line bg-white p-9 text-center text-sm text-muted">
-        <Eye className="mx-auto mb-3 h-9 w-9 opacity-20" aria-hidden />
-        Les votes sont masqués jusqu'à la révélation.
-        <div className="mt-2 font-semibold text-navy">
-          {votedCount} / {participants.length} {participants.length > 1 ? 'ont voté' : 'a voté'}
-        </div>
+      <div className="rounded-card border-[1.5px] border-dashed border-line bg-white px-5 py-5 text-center text-sm text-muted">
+        <Eye className="mx-auto mb-2 h-7 w-7 opacity-20" aria-hidden />
+        Les notes restent masquées jusqu’à la révélation.
       </div>
     );
   }
 
   const heroColor = STAR_COLORS[results.starIndex] || '#94a3b8';
+  // Ceux qui ont voté d'abord, puis les autres, estompés.
+  const ordered = [
+    ...participants.filter((p) => state.votes[p.id]),
+    ...participants.filter((p) => !state.votes[p.id]),
+  ];
 
   return (
     <div className="flex flex-col gap-3.5" aria-live="polite">
@@ -68,7 +70,7 @@ export const RotiResults: React.FC<RotiResultsProps> = ({ results, state, partic
         <ul className="flex flex-col gap-2">
           {results.distribution.map((d) => (
             <li key={d.star} className="flex items-center gap-2.5">
-              <span className="w-[88px] shrink-0">
+              <span className="w-[72px] shrink-0">
                 <StarRow value={d.star} size={11} color={STAR_COLORS[d.star]} />
               </span>
               <span className="h-3.5 flex-1 overflow-hidden rounded-md bg-surface">
@@ -87,27 +89,29 @@ export const RotiResults: React.FC<RotiResultsProps> = ({ results, state, partic
       <div className="rounded-card border border-line bg-white p-5 shadow-card">
         <div className="mb-3 text-xs font-bold uppercase tracking-wide text-muted">Votes individuels</div>
         <ul className="flex flex-col gap-3">
-          {participants.map((p) => {
+          {ordered.map((p) => {
             const v = state.votes[p.id];
             return (
               <li key={p.id} className={`rounded-xl border border-line p-3 ${v ? '' : 'opacity-50'}`}>
                 <div className="flex items-center gap-2">
                   <span
-                    className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
                     style={{ background: p.color }}
                     aria-hidden
                   >
                     {p.name.charAt(0).toUpperCase()}
                   </span>
-                  <span className="flex-1 text-sm font-bold text-navy">{p.name}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold text-navy">{p.name}</span>
                   {v ? (
-                    <StarRow value={v.star} size={13} color={STAR_COLORS[v.star]} />
+                    <span className="inline-flex" aria-label={`${v.star} sur 5`}>
+                      <StarRow value={v.star} size={13} color={STAR_COLORS[v.star]} />
+                    </span>
                   ) : (
-                    <span className="text-xs italic text-muted">n'a pas voté</span>
+                    <span className="text-xs italic text-muted">n’a pas voté</span>
                   )}
                 </div>
                 {v?.comment && (
-                  <p className="mt-1.5 pl-9 text-sm text-muted">« {v.comment} »</p>
+                  <p className="mt-1.5 break-words pl-9 text-sm italic text-muted">« {v.comment} »</p>
                 )}
               </li>
             );

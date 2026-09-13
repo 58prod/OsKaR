@@ -1,7 +1,7 @@
 import React from 'react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
-import { RevealToolbar } from '@/components/toolbox/RevealToolbar';
+import { RotiToolbar } from '@/components/toolbox/roti/RotiToolbar';
 import { RotiBoard } from '@/components/toolbox/roti/RotiBoard';
 import { RotiResults } from '@/components/toolbox/roti/RotiResults';
 import { useRotiSession } from '@/components/toolbox/roti/useRotiSession';
@@ -9,7 +9,7 @@ import { useRotiSession } from '@/components/toolbox/roti/useRotiSession';
 const RotiPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('roti');
 
-  const { state, participants, isFacilitator, toggleFacilitator, results, myId, myVote, actions } =
+  const { state, participants, isFacilitator, toggleFacilitator, remainingSec, results, myId, actions } =
     useRotiSession(code, identity);
 
   return (
@@ -23,31 +23,36 @@ const RotiPage: React.FC = () => {
       onJoin={handleJoin}
       onShare={handleShare}
     >
-      <RevealToolbar
+      <RotiToolbar
+        session={state.session}
+        chrono={state.chrono}
+        remainingSec={remainingSec}
         isFacilitator={isFacilitator}
         revealed={state.revealed}
         voteCount={Object.keys(state.votes).length}
         totalCount={participants.length}
+        onSessionChange={actions.setSession}
+        onToggleChrono={actions.toggleChrono}
+        onResetChrono={actions.resetChrono}
+        onDurationChange={actions.setDuration}
         onReveal={actions.reveal}
         onReset={actions.reset}
-        resetLabel="Réinitialiser la session"
       />
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-1 overflow-hidden">
+          {/* Nouveau tour : la note et le commentaire en cours de saisie repartent à zéro. */}
           <RotiBoard
+            key={state.round}
             state={state}
             participants={participants}
             myId={myId}
-            myVote={myVote}
-            isFacilitator={isFacilitator}
             onVote={actions.vote}
-            onSessionChange={actions.setSession}
           />
         </div>
 
         <aside
-          className="flex w-[340px] shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-line bg-surface p-5"
+          className="relative flex w-[320px] shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-line bg-surface p-5"
           aria-label="Résultats du ROTI"
         >
           <RotiResults results={results} state={state} participants={participants} />

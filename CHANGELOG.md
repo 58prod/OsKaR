@@ -10,6 +10,25 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.31.0] - 2026-09-13
+
+### ✨ Modifié — ROTI aligné sur la rétro, la récré et le Planning Poker
+- Synchro par opérations (`rotiReducer`) : toute l'équipe peut noter dans la
+  même seconde sans qu'aucun vote ne se perde ; tours numérotés (un vote
+  parti avant « Réinitialiser » est ignoré), révélation qui fige les votes
+  du révélateur, notes et commentaires vérifiés à la réception (1 à 5,
+  200 caractères).
+- Barre blanche commune (`RotiToolbar`) : séance à gauche, compteur de votes,
+  « Révéler » et « Réinitialiser » (avec confirmation) pour l'animateur,
+  minuteur partagé aux couleurs de l'outil (#b45309). À 00:00, les notes
+  sont révélées automatiquement.
+- Chacun peut modifier son vote jusqu'à la révélation ; les votants dont la
+  connexion décroche restent affichés avec leur note (« hors ligne »).
+- Participants en tuiles comme au Planning Poker, notes visibles sur les
+  tuiles après révélation, feux d'artifice pour une séance « Excellente ».
+- Les sessions ROTI déjà ouvertes sont reprises telles quelles
+  (`normalizeRotiState`).
+
 ## [2.30.2] - 2026-09-13
 
 ### 🔧 Corrigé — suppression de compte complète
