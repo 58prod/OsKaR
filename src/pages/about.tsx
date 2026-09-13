@@ -174,7 +174,7 @@ export default function AboutPage() {
         <div className={CARTE}>
           <Liste
             lignes={[
-              'Les données sont hébergées sur Supabase (infrastructure AWS), chiffrées au repos et en transit.',
+              'Les données sont hébergées dans l’Union européenne, chiffrées au repos et en transit.',
               'Les mots de passe sont hachés et ne sont jamais stockés en clair.',
               'Vos données ne sont jamais vendues à des tiers.',
               'Vous pouvez à tout moment consulter, rectifier ou supprimer vos données, conformément au RGPD.',

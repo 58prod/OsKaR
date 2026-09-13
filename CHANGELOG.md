@@ -10,6 +10,22 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.30.2] - 2026-09-13
+
+### 🔧 Corrigé — suppression de compte complète
+- « Supprimer mon compte » appelle la nouvelle fonction SQL
+  `effacer_mon_compte()` (migration `20260913_effacer_mon_compte.sql`) : le
+  compte et ses travaux (par cascade), mais aussi les bilans faits sans compte,
+  les demandes de formule et les candidatures coach à la même adresse.
+- La même migration corrige `action_assignees.assigned_by`, sans règle
+  d'effacement : assigner une action dans l'OKR d'un autre compte empêchait
+  de supprimer le sien. `delete_user()` reste inchangée (app d'Eric) et sert
+  de secours tant que la migration n'est pas exécutée.
+
+### 🔧 Modifié — Confidentialité
+- Données stockées dans l'Union européenne ; durées de conservation réduites
+  au nécessaire (seules les factures restent à 10 ans, durée légale).
+
 ## [2.30.1] - 2026-09-13
 
 ### 🔧 Modifié — prix de la formule Dirigeant

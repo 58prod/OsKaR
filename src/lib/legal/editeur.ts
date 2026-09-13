@@ -31,7 +31,7 @@ export const HEBERGEUR = {
 
 /** Prestataires qui traitent des données pour le compte de HaSenso. */
 export const SOUS_TRAITANTS: { nom: string; role: string }[] = [
-  { nom: 'Supabase', role: 'base de données et connexion aux comptes' },
+  { nom: 'Supabase', role: 'base de données et connexion aux comptes, hébergées dans l’Union européenne' },
   { nom: 'Netlify', role: 'hébergement du site' },
   { nom: 'Resend', role: 'envoi des emails (bilans, confirmations, notifications)' },
   { nom: 'Google (Gemini)', role: 'suggestions par intelligence artificielle, uniquement lorsque vous les demandez' },

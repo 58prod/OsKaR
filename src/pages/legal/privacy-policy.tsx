@@ -61,16 +61,18 @@ export default function ConfidentialitePage() {
         ))}
       </ul>
       <p>
-        Certains de ces prestataires sont établis hors de l’Union européenne, notamment aux États-Unis. Ces transferts
-        sont encadrés par les garanties prévues par le RGPD (clauses contractuelles types de la Commission européenne ou
-        cadre de protection des données UE–États-Unis).
+        <strong>Vos données sont stockées dans l’Union européenne.</strong> Seuls l’envoi des emails, la diffusion du site
+        et les suggestions par intelligence artificielle font appel à des prestataires établis aux États-Unis ; ces
+        transferts sont encadrés par les garanties prévues par le RGPD (clauses contractuelles types de la Commission
+        européenne ou cadre de protection des données UE–États-Unis).
       </p>
 
       <h2>Durée de conservation</h2>
+      <p>Vos données ne sont gardées que le temps nécessaire, et effacées dès qu’elles ne servent plus :</p>
       <ul>
-        <li>Compte et travaux : tant que votre compte existe, puis effacés à sa suppression.</li>
-        <li>Bilans demandés sans compte et demandes de contact : 3 ans après le dernier échange.</li>
-        <li>Factures : 10 ans, comme l’exige la loi.</li>
+        <li>Compte et travaux : tant que votre compte existe ; tout est effacé quand vous le supprimez.</li>
+        <li>Bilans demandés sans compte et demandes de contact : le temps de vous répondre, et au plus 3 ans.</li>
+        <li>Factures, si vous souscrivez la formule payante : 10 ans, durée imposée par la loi à toute entreprise.</li>
       </ul>
 
       <h2>Sécurité</h2>

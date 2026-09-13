@@ -142,10 +142,10 @@ const SettingsPage: React.FC = () => {
     const confirmed = window.confirm(
       '⚠️ ATTENTION : Cette action est irréversible !\n\n' +
       'Toutes vos données seront définitivement supprimées :\n' +
-      '- Objectifs annuels et objectifs trimestriels\n' +
-      '- Key Results et actions\n' +
+      '- Ateliers, bilans et diagnostics\n' +
+      '- Objectifs, Key Results et actions\n' +
       '- Équipes et invitations\n' +
-      '- Historique de progression\n\n' +
+      '- Demandes et historique\n\n' +
       'Voulez-vous vraiment supprimer votre compte ?'
     );
 
@@ -162,77 +162,22 @@ const SettingsPage: React.FC = () => {
     setMessage(null);
 
     try {
-      // Supprimer toutes les données de l'utilisateur dans l'ordre (pour respecter les contraintes FK)
-      console.log('🗑️ Suppression des données utilisateur...');
+      // Effacement complet côté serveur (migration 20260913_effacer_mon_compte) :
+      // compte, travaux par cascade, bilans sans compte, demandes et
+      // candidatures à la même adresse.
+      const { error: erreurEffacement } = await supabase.rpc('effacer_mon_compte');
 
-      // 1. Supprimer les commentaires
-      await supabase.from('comments').delete().eq('user_id', user.id);
-      console.log('✅ Commentaires supprimés');
+      if (erreurEffacement) {
+        // Fonction absente (migration pas encore exécutée) : ancien chemin,
+        // qui efface le compte et, par cascade, les données qui y sont liées.
+        const fonctionAbsente =
+          erreurEffacement.code === 'PGRST202' || /effacer_mon_compte/.test(erreurEffacement.message ?? '');
+        if (!fonctionAbsente) throw erreurEffacement;
 
-      // 2. Supprimer les actions
-      await supabase.from('actions').delete().eq('user_id', user.id);
-      console.log('✅ Actions supprimées');
-
-      // 3. Supprimer les quarterly_key_results (via cascade depuis quarterly_objectives)
-      // Les quarterly_key_results seront supprimés automatiquement via ON DELETE CASCADE
-
-      // 4. Supprimer les quarterly_objectives
-      await supabase.from('quarterly_objectives').delete().eq('user_id', user.id);
-      console.log('✅ Quarterly Objectives supprimés (+ KRs trimestriels via cascade)');
-
-      // 5. Supprimer les key_results (annuels) (via cascade depuis ambitions)
-      // Les key_results seront supprimés automatiquement via ON DELETE CASCADE
-
-      // 6. Supprimer les ambitions
-      await supabase.from('ambitions').delete().eq('user_id', user.id);
-      console.log('✅ Ambitions supprimées (+ KRs annuels via cascade)');
-
-      // 7. Supprimer les partages d'objectifs (partagés par l'utilisateur)
-      await supabase.from('shared_objectives').delete().eq('shared_by', user.id);
-      console.log('✅ Partages créés supprimés');
-
-      // 8. Supprimer les partages d'objectifs (partagés avec l'utilisateur)
-      await supabase.from('shared_objectives').delete().eq('shared_with_user_id', user.id);
-      console.log('✅ Partages reçus supprimés');
-
-      // 9. Supprimer les notifications
-      await supabase.from('notifications').delete().eq('user_id', user.id);
-      console.log('✅ Notifications supprimées');
-
-      // 10. Supprimer les invitations (envoyées)
-      await supabase.from('invitations').delete().eq('invited_by', user.id);
-      console.log('✅ Invitations envoyées supprimées');
-
-      // 11. Supprimer les invitations (reçues)
-      await supabase.from('invitations').delete().eq('email', user.email);
-      console.log('✅ Invitations reçues supprimées');
-
-      // 12. Supprimer les team_members
-      await supabase.from('team_members').delete().eq('user_id', user.id);
-      console.log('✅ Membres d\'équipe supprimés');
-
-      // 13. Supprimer les équipes dont l'utilisateur est propriétaire
-      await supabase.from('teams').delete().eq('owner_id', user.id);
-      console.log('✅ Équipes supprimées');
-
-      // 14. Supprimer l'historique de progression
-      await supabase.from('progress').delete().eq('user_id', user.id);
-      console.log('✅ Historique de progression supprimé');
-
-      // 15. Supprimer l'abonnement
-      await supabase.from('subscriptions').delete().eq('user_id', user.id);
-      console.log('✅ Abonnement supprimé');
-
-      // 16. Supprimer le profil
-      await supabase.from('profiles').delete().eq('id', user.id);
-      console.log('✅ Profil supprimé');
-
-      // 17. Supprimer le compte Supabase Auth
-      const { error } = await supabase.rpc('delete_user');
-
-      if (error) throw error;
-
-      console.log('✅ Compte supprimé avec succès');
+        await supabase.from('invitations').delete().eq('email', user.email);
+        const { error } = await supabase.rpc('delete_user');
+        if (error) throw error;
+      }
 
       // Déconnexion
       await supabase.auth.signOut();
