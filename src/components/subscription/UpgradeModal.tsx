@@ -45,7 +45,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Analytics détaillés',
           ],
           suggestedPlan: 'Dirigeant',
-          suggestedPrice: '39 € HT/mois',
+          suggestedPrice: '29 € HT/mois',
         };
       case 'users':
         return {
@@ -73,7 +73,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Support prioritaire',
           ],
           suggestedPlan: 'Dirigeant',
-          suggestedPrice: '39 € HT/mois',
+          suggestedPrice: '29 € HT/mois',
         };
       default:
         return {
@@ -87,7 +87,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             'Intégrations',
           ],
           suggestedPlan: 'Dirigeant',
-          suggestedPrice: '39 € HT/mois',
+          suggestedPrice: '29 € HT/mois',
         };
     }
   };
@@ -209,7 +209,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
                 {/* Note */}
                 <p className="mt-4 text-xs text-center text-gray-500">
-                  Sans engagement au mois • 390 € HT à l'année, 2 mois offerts
+                  Sans engagement au mois • 290 € HT à l'année, 2 mois offerts
                 </p>
               </div>
             </motion.div>

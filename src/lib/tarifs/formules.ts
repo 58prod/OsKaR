@@ -1,9 +1,10 @@
 /*
  * Les formules d'Oskar et les demandes faites depuis la page Tarifs (/pricing).
  *
- * Grille arrêtée par Christophe le 2026-09-11 :
+ * Grille arrêtée par Christophe le 2026-09-11, prix baissé le 2026-09-13 :
  *   - Gratuit ;
- *   - la formule payante, 39 € HT/mois ou 390 € HT/an, par entreprise ;
+ *   - la formule payante, 29 € HT/mois ou 290 € HT/an, par entreprise
+ *     (39 / 390 € jusqu'à la v2.30.0) ;
  *   - Sur mesure : plusieurs comptes pour une même entreprise, ou licence
  *     pour un réseau ou un groupement.
  *
@@ -12,18 +13,18 @@
  * Règles pures, sans React ni Supabase, pour être testées à part.
  */
 
-export const PRIX_MENSUEL_HT = 39;
-export const PRIX_ANNUEL_HT = 390;
+export const PRIX_MENSUEL_HT = 29;
+export const PRIX_ANNUEL_HT = 290;
 export const TAUX_TVA = 0.2;
 
 export type Periode = 'mensuel' | 'annuel';
 
-/** Mois offerts par le paiement à l'année : (12 × 39 − 390) / 39 = 2. */
+/** Mois offerts par le paiement à l'année : (12 × 29 − 290) / 29 = 2. */
 export function moisOfferts(): number {
   return Math.round((PRIX_MENSUEL_HT * 12 - PRIX_ANNUEL_HT) / PRIX_MENSUEL_HT);
 }
 
-/** Ce que coûte un mois quand on paie à l'année : 32,50 € HT. */
+/** Ce que coûte un mois quand on paie à l'année : 24,17 € HT. */
 export function mensuelALAnnee(): number {
   return PRIX_ANNUEL_HT / 12;
 }

@@ -21,7 +21,7 @@ import {
 
 /*
  * Tarifs — grille arrêtée par Christophe le 2026-09-11 (pas de maquette) :
- *   Gratuit · Dirigeant 39 € HT/mois ou 390 € HT/an par entreprise · Sur mesure
+ *   Gratuit · Dirigeant 29 € HT/mois ou 290 € HT/an par entreprise · Sur mesure
  *   (plusieurs comptes, réseaux et groupements).
  *
  * Remplace la page d'origine, qui lisait les plans Free / Pro / Team /
@@ -185,7 +185,7 @@ export default function TarifsPage() {
   return (
     <AppShell
       title="Tarifs"
-      description="Oskar est gratuit pour commencer. La formule Dirigeant ouvre tous les ateliers pour 39 € HT par mois et par entreprise."
+      description="Oskar est gratuit pour commencer. La formule Dirigeant ouvre tous les ateliers pour 29 € HT par mois et par entreprise."
       topbarTitle={
         <nav aria-label="Fil d’Ariane" className="flex items-center gap-[10.5px] text-15 font-normal text-muted">
           <Link href="/" className="font-medium text-muted hover:text-navy transition-colors">

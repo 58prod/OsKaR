@@ -13,12 +13,13 @@ import { emailNouvelleDemande } from '@/lib/tarifs/notification';
 describe('prix de la formule Dirigeant', () => {
   it('offre deux mois quand on paie à l’année', () => {
     expect(moisOfferts()).toBe(2);
-    expect(mensuelALAnnee()).toBe(32.5);
+    expect(mensuelALAnnee()).toBeCloseTo(24.17, 2);
   });
 
   it('calcule le TTC au centime', () => {
+    expect(ttc(29)).toBe(34.8);
+    expect(ttc(290)).toBe(348);
     expect(ttc(39)).toBe(46.8);
-    expect(ttc(390)).toBe(468);
   });
 
   it('écrit les montants à la française', () => {

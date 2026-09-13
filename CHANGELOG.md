@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.30.1] - 2026-09-13
+
+### 🔧 Modifié — prix de la formule Dirigeant
+- 29 € HT par mois (au lieu de 39 €) et 290 € HT par an (au lieu de 390 €),
+  toujours 2 mois offerts à l'année. Prix centralisés dans
+  `src/lib/tarifs/formules.ts` ; mentions en dur corrigées dans la page
+  Tarifs et la fenêtre de passage à la formule payante.
+
 ## [2.30.0] - 2026-09-13
 
 ### ✨ Ajouté — pages légales réécrites
