@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.29.0] - 2026-09-13
+
+### ✨ Ajouté — page À propos
+- `/about` remplace la page « Bientôt disponible » par une page
+  institutionnelle, sans rien de commercial : ce qu'est Oskar et ses
+  5 piliers, la fiche du responsable (Christophe Grassi), la protection des
+  données (reprise des pages légales) et les contacts officiels (contact@,
+  privacy@, Espace coachs).
+
 ## [2.28.0] - 2026-09-11
 
 ### ✨ Ajouté — email à chaque nouveau compte
