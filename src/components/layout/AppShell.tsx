@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Sidebar, DEFAULT_SECTIONS, type SidebarSection, type SidebarNavItem } from './Sidebar';
 import { useSectionAdmin } from '@/components/admin/sectionAdmin';
 import { Topbar } from './Topbar';
-import { openCookieSettings } from '@/components/ui/CookieBanner';
 import { useAppStore } from '@/store/useAppStore';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { APP_CONFIG } from '@/constants';
@@ -72,13 +71,12 @@ export const AppShell: React.FC<AppShellProps> = ({
           <main className={`flex-1 w-full ${contentMaxWidth} ${contentPadding}`}>{children}</main>
           <footer className={`w-full ${contentMaxWidth} px-[18.5px] min-[600px]:px-[42.5px] py-5 mt-auto border-t border-line`}>
             <nav aria-label="Liens légaux" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-muted">
+              <Link href="/legal/terms-of-service#mentions-legales" className="hover:text-ink transition-colors">Mentions légales</Link>
               <Link href="/legal/privacy-policy" className="hover:text-ink transition-colors">Confidentialité</Link>
               <Link href="/legal/terms-of-service" className="hover:text-ink transition-colors">CGU</Link>
               <Link href="/legal/cookies-policy" className="hover:text-ink transition-colors">Cookies</Link>
               <Link href="/legal/gdpr" className="hover:text-ink transition-colors">Vos droits RGPD</Link>
-              <button type="button" onClick={openCookieSettings} className="hover:text-ink transition-colors">
-                Paramètres des cookies
-              </button>
+              <Link href="/legal/parametres-cookies" className="hover:text-ink transition-colors">Paramètres des cookies</Link>
             </nav>
             {/*
                * Le numéro de version est lu dans package.json à la compilation.

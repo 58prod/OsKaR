@@ -1,378 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Cookie, X, Settings, CheckCircle } from 'lucide-react';
-import { Button } from './Button';
-import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-interface CookiePreferences {
-  necessary: boolean; // Toujours true
-  analytics: boolean;
-  functional: boolean;
-}
+/*
+ * Information cookies.
+ *
+ * Oskar ne dépose que des traceurs strictement nécessaires (session de
+ * connexion, préférences d'affichage) : ils sont exemptés de consentement.
+ * Le bandeau d'origine proposait d'accepter Google Analytics, qui n'a jamais
+ * été chargé ; il est remplacé par un simple message d'information, affiché
+ * une fois (2026-09-13). Détail sur /legal/cookies-policy, réglages sur
+ * /legal/parametres-cookies.
+ */
 
 export const COOKIE_CONSENT_KEY = 'oskar_cookie_consent';
 export const COOKIE_PREFERENCES_KEY = 'oskar_cookie_preferences';
-const COOKIE_CONSENT_DATE_KEY = 'oskar_consent_date';
-const OPEN_COOKIE_SETTINGS_EVENT = 'oskar:open-cookie-settings';
+export const COOKIE_CONSENT_DATE_KEY = 'oskar_consent_date';
 
-/**
- * Rouvre la bannière de cookies (panneau de paramètres) depuis n'importe où
- * (ex : bouton « Paramètres des cookies » d'un pied de page).
- */
+const lire = (cle: string): string | null => {
+  try {
+    return localStorage.getItem(cle);
+  } catch {
+    return null;
+  }
+};
+
+/** Mène à la page « Paramètres des cookies » (liens de pied de page). */
 export const openCookieSettings = () => {
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent(OPEN_COOKIE_SETTINGS_EVENT));
+    window.location.assign('/legal/parametres-cookies');
   }
 };
 
 export const CookieBanner: React.FC = () => {
-  const [showBanner, setShowBanner] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [preferences, setPreferences] = useState<CookiePreferences>({
-    necessary: true,
-    analytics: false,
-    functional: false,
-  });
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Vérifier si l'utilisateur a déjà donné son consentement
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (!consent) {
-      // Attendre 1 seconde avant d'afficher la bannière
-      setTimeout(() => setShowBanner(true), 1000);
-    } else {
-      // Charger les préférences sauvegardées
-      const savedPreferences = localStorage.getItem(COOKIE_PREFERENCES_KEY);
-      if (savedPreferences) {
-        setPreferences(JSON.parse(savedPreferences));
-      }
-    }
+    if (lire(COOKIE_CONSENT_KEY)) return;
+    const minuteur = setTimeout(() => setVisible(true), 1000);
+    return () => clearTimeout(minuteur);
   }, []);
 
-  // Permettre la réouverture du panneau de paramètres depuis un pied de page
-  useEffect(() => {
-    const handleOpen = () => {
-      const savedPreferences = localStorage.getItem(COOKIE_PREFERENCES_KEY);
-      if (savedPreferences) {
-        setPreferences(JSON.parse(savedPreferences));
-      }
-      setShowBanner(true);
-      setShowSettings(true);
-    };
-    window.addEventListener(OPEN_COOKIE_SETTINGS_EVENT, handleOpen);
-    return () => window.removeEventListener(OPEN_COOKIE_SETTINGS_EVENT, handleOpen);
-  }, []);
-
-  const savePreferences = (prefs: CookiePreferences) => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
-    localStorage.setItem(COOKIE_PREFERENCES_KEY, JSON.stringify(prefs));
-    localStorage.setItem(COOKIE_CONSENT_DATE_KEY, new Date().toISOString());
-    
-    // Appliquer les préférences
-    applyPreferences(prefs);
-    
-    setShowBanner(false);
-    setShowSettings(false);
-  };
-
-  const applyPreferences = (prefs: CookiePreferences) => {
-    // Ici, vous pouvez activer/désactiver les cookies selon les préférences
-    // Par exemple, charger Google Analytics seulement si analytics est true
-    
-    if (prefs.analytics) {
-      // Activer Google Analytics
-      console.log('📊 Analytics activés');
-      // window.gtag('consent', 'update', { analytics_storage: 'granted' });
-    } else {
-      console.log('📊 Analytics désactivés');
-      // window.gtag('consent', 'update', { analytics_storage: 'denied' });
+  const fermer = () => {
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
+      localStorage.setItem(COOKIE_CONSENT_DATE_KEY, new Date().toISOString());
+    } catch {
+      /* stockage indisponible : le message réapparaîtra, sans conséquence */
     }
-
-    if (prefs.functional) {
-      console.log('⚙️ Cookies fonctionnels activés');
-    } else {
-      console.log('⚙️ Cookies fonctionnels désactivés');
-    }
+    setVisible(false);
   };
 
-  const handleAcceptAll = () => {
-    const allAccepted: CookiePreferences = {
-      necessary: true,
-      analytics: true,
-      functional: true,
-    };
-    savePreferences(allAccepted);
-  };
-
-  const handleRejectAll = () => {
-    const onlyNecessary: CookiePreferences = {
-      necessary: true,
-      analytics: false,
-      functional: false,
-    };
-    savePreferences(onlyNecessary);
-  };
-
-  const handleSaveCustom = () => {
-    savePreferences(preferences);
-  };
-
-  if (!showBanner) return null;
+  if (!visible) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none">
-        {/* Overlay */}
-        {showSettings && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black bg-opacity-50 pointer-events-auto"
-            onClick={() => setShowSettings(false)}
-          />
-        )}
-
-        {/* Bannière simple */}
-        {!showSettings && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="w-full max-w-6xl mx-4 mb-4 pointer-events-auto"
-            role="region"
-            aria-label="Bandeau de consentement aux cookies"
-          >
-            <Card className="shadow-2xl border-2 border-primary-200">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    <Cookie className="h-8 w-8 text-primary-600" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      🍪 Nous utilisons des cookies
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Nous utilisons des cookies pour améliorer votre expérience, analyser le trafic et
-                      personnaliser le contenu. En cliquant sur "Tout accepter", vous consentez à
-                      l'utilisation de tous les cookies.{' '}
-                      <a
-                        href="/legal/cookies-policy"
-                        className="text-primary-600 hover:underline font-medium"
-                        target="_blank"
-                      >
-                        En savoir plus
-                      </a>
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-3">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={handleAcceptAll}
-                        leftIcon={<CheckCircle className="h-4 w-4" />}
-                      >
-                        Tout accepter
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRejectAll}
-                      >
-                        Refuser tout
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowSettings(true)}
-                        leftIcon={<Settings className="h-4 w-4" />}
-                      >
-                        Personnaliser
-                      </Button>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setShowBanner(false)}
-                    className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
-                    aria-label="Fermer le bandeau cookies"
-                  >
-                    <X className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Panneau de paramètres détaillés */}
-        {showSettings && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="w-full max-w-2xl mx-4 mb-4 pointer-events-auto"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cookie-settings-title"
-          >
-            <Card className="shadow-2xl">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle id="cookie-settings-title" className="flex items-center">
-                    <Settings className="h-5 w-5 mr-2 text-primary-600" />
-                    Paramètres des Cookies
-                  </CardTitle>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                    aria-label="Fermer les paramètres des cookies"
-                  >
-                    <X className="h-5 w-5" aria-hidden="true" />
-                  </button>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                {/* Cookies nécessaires */}
-                <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">
-                      Cookies Strictement Nécessaires
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      Ces cookies sont indispensables au fonctionnement du site. Ils permettent de
-                      sauvegarder vos données et préférences.
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
-                      Toujours actifs
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cookies analytiques */}
-                <div className="flex items-start justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">
-                      Cookies Analytiques
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      Ces cookies nous aident à comprendre comment vous utilisez le site pour
-                      l'améliorer (Google Analytics).
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.analytics}
-                        onChange={(e) =>
-                          setPreferences({ ...preferences, analytics: e.target.checked })
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Cookies fonctionnels */}
-                <div className="flex items-start justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">
-                      Cookies Fonctionnels
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      Ces cookies permettent de mémoriser vos préférences (thème, langue, etc.)
-                      pour améliorer votre expérience.
-                    </p>
-                  </div>
-                  <div className="ml-4">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.functional}
-                        onChange={(e) =>
-                          setPreferences({ ...preferences, functional: e.target.checked })
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Boutons d'action */}
-                <div className="flex justify-end gap-3 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={handleRejectAll}
-                  >
-                    Refuser tout
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={handleSaveCustom}
-                    leftIcon={<CheckCircle className="h-4 w-4" />}
-                  >
-                    Enregistrer mes choix
-                  </Button>
-                </div>
-
-                {/* Liens */}
-                <div className="text-center text-sm text-gray-500 pt-2">
-                  <a
-                    href="/legal/cookies-policy"
-                    className="text-primary-600 hover:underline"
-                    target="_blank"
-                  >
-                    Politique de cookies
-                  </a>
-                  {' • '}
-                  <a
-                    href="/legal/privacy-policy"
-                    className="text-primary-600 hover:underline"
-                    target="_blank"
-                  >
-                    Politique de confidentialité
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+    <div
+      role="region"
+      aria-label="Information sur les cookies"
+      className="fixed bottom-4 left-4 right-4 min-[640px]:right-auto min-[640px]:max-w-[420px] z-50 bg-white border border-line shadow-card-hover rounded-[14px] p-5"
+    >
+      <p className="text-14.5 font-bold text-navy mb-1.5">Des cookies réduits au strict nécessaire</p>
+      <p className="text-13.5 leading-[1.6] text-muted mb-4">
+        Oskar n’utilise que les cookies indispensables à son fonctionnement : aucune publicité, aucune mesure d’audience.
+        Il n’y a rien à accepter.
+      </p>
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={fermer}
+          className="px-4 py-2 rounded-[10px] bg-navy text-white text-14 font-semibold hover:bg-navy-light transition-colors"
+        >
+          J’ai compris
+        </button>
+        <Link href="/legal/cookies-policy" onClick={fermer} className="text-14 font-semibold text-navy underline hover:text-teal-dark">
+          En savoir plus
+        </Link>
       </div>
-    </AnimatePresence>
+    </div>
   );
 };
 
-// Hook pour vérifier si l'utilisateur a consenti
+/** Conservé pour compatibilité : seuls les traceurs nécessaires existent. */
 export const useCookieConsent = () => {
   const [hasConsent, setHasConsent] = useState(false);
-  const [preferences, setPreferences] = useState<CookiePreferences>({
-    necessary: true,
-    analytics: false,
-    functional: false,
-  });
-
-  useEffect(() => {
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-    setHasConsent(!!consent);
-
-    if (consent) {
-      const savedPreferences = localStorage.getItem(COOKIE_PREFERENCES_KEY);
-      if (savedPreferences) {
-        setPreferences(JSON.parse(savedPreferences));
-      }
-    }
-  }, []);
-
-  return { hasConsent, preferences };
+  useEffect(() => setHasConsent(!!lire(COOKIE_CONSENT_KEY)), []);
+  return { hasConsent, preferences: { necessary: true, analytics: false, functional: false } };
 };
-

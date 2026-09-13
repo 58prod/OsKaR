@@ -10,6 +10,24 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.30.0] - 2026-09-13
+
+### ✨ Ajouté — pages légales réécrites
+- Mentions légales et CGU, Confidentialité, Cookies, Vos droits RGPD : textes
+  courts, au minimum légal. Éditeur : HaSenso (SARL à associé unique, RCS
+  Montpellier 933 548 737), directeur de la publication Christophe Grassi,
+  hébergeur Netlify. Informations centralisées dans `src/lib/legal/editeur.ts`.
+- Nouvelle page `/legal/parametres-cookies` : ce qui est enregistré sur
+  l'appareil, et un bouton pour effacer les préférences.
+- Gabarit commun `PageLegale` (onglets entre les cinq pages) ; pied de page
+  avec un lien « Mentions légales ».
+
+### 🔧 Corrigé — information cookies
+- Le bandeau proposait d'accepter Google Analytics, qui n'a jamais été
+  chargé. Oskar ne dépose que des traceurs nécessaires (liste dans
+  `src/lib/legal/traceurs.ts`) : le bandeau devient un message d'information
+  affiché une fois, sans choix à faire.
+
 ## [2.29.0] - 2026-09-13
 
 ### ✨ Ajouté — page À propos
