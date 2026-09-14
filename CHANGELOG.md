@@ -10,6 +10,26 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.38.0] - 2026-09-14
+
+### ✨ Modifié — Rétrospective Speedboat alignée sur les autres jeux
+- Synchro par opérations (`speedboatReducer`) : tickets, placements,
+  déplacements et cœurs simultanés sans perte (vérifié : 8 personnes × 2
+  tickets dans la même milliseconde, 42 opérations reçues, 16/16 tickets) ;
+  si deux personnes déplacent le même ticket, le déplacement le plus récent
+  l'emporte partout, zone comprise ; un ticket placé avant d'être arrivé
+  n'est plus bloqué ; un ticket supprimé ne revient pas ; « Retenir » et
+  cœurs ne s'annulent plus ; pas de vote sur ses propres tickets.
+- Barre blanche commune : compteurs, consignes, « Tickets anonymes », cœurs
+  par personne, export, réinitialisation confirmée, minuteur partagé
+  (10 min par défaut).
+- Scène : déplacement à la souris comme au doigt, sans saut ; la zone de
+  lâcher donne la couleur du ticket ; nouveaux tickets posés là où il reste
+  de la place dans leur zone ; cœurs restants ; suppression par
+  l'animateur en deux clics ; tickets retenus signalés.
+- Mon espace : brouillons modifiables, « Tout placer », cœurs reçus,
+  compteur de caractères.
+
 ## [2.37.0] - 2026-09-14
 
 ### ✨ Modifié — Compétences de l'équipe aligné sur les autres jeux
