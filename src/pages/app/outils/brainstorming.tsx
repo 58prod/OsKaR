@@ -15,7 +15,8 @@ const BrainstormingPage: React.FC = () => {
   } = useBrainstormSession(code, identity);
 
   const me = participants.find((p) => p.id === myId);
-  const revealedCount = state.notes.filter((n) => n.revealed).length;
+  const revealed = state.notes.filter((n) => n.revealed);
+  const votesCount = revealed.reduce((sum, n) => sum + n.likedBy.length, 0);
 
   return (
     <ToolPageShell
@@ -29,11 +30,13 @@ const BrainstormingPage: React.FC = () => {
       onShare={handleShare}
     >
       <BrainstormToolbar
-        chrono={state.chrono}
+        state={state}
         remainingSec={remainingSec}
         isFacilitator={isFacilitator}
-        notesCount={state.notes.length}
-        revealedCount={revealedCount}
+        revealedCount={revealed.length}
+        votesCount={votesCount}
+        onThemeChange={actions.setTheme}
+        onAnonymousChange={actions.setAnonymous}
         onToggleChrono={actions.toggleChrono}
         onResetChrono={actions.resetChrono}
         onDurationChange={actions.setDuration}
@@ -42,7 +45,9 @@ const BrainstormingPage: React.FC = () => {
       />
 
       <div className="flex flex-1 overflow-hidden">
+        {/* Nouvelle séance : le texte en cours de saisie repart à zéro. */}
         <BrainstormPrepPanel
+          key={state.round}
           myName={me?.name ?? identity?.name ?? ''}
           myColor={me?.color ?? identity?.color ?? '#94a3b8'}
           myNotes={myNotes}
@@ -56,12 +61,13 @@ const BrainstormingPage: React.FC = () => {
         <BrainstormCanvas
           notes={state.notes}
           positions={state.positions}
-          theme={state.theme}
           myId={myId}
           isFacilitator={isFacilitator}
-          onThemeChange={actions.setTheme}
+          anonymous={state.anonymous}
           onMove={actions.moveNote}
+          onArrange={actions.arrange}
           onLike={actions.like}
+          onRetain={actions.retain}
           onDelete={actions.deleteNote}
         />
       </div>

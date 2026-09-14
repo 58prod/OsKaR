@@ -128,8 +128,12 @@ function insertById(list: BoardNote[], item: BoardNote): BoardNote[] {
 export type IdeaboxOp =
   /** Nouvelle idée, en brouillon (visible par son auteur seulement). */
   | { t: 'add'; round: number; note: BoardNote }
-  /** Publication de brouillons d'un auteur dans l'espace commun. */
-  | { t: 'publish'; authorId: string; ids: string[] }
+  /**
+   * Publication de brouillons d'un auteur dans l'espace commun. Les idées
+   * voyagent avec : si leur « add » arrive après (messages dans le désordre),
+   * elles sont quand même publiées.
+   */
+  | { t: 'publish'; authorId: string; ids: string[]; notes?: BoardNote[] }
   /** Suppression : son propre brouillon, ou n'importe quelle idée par l'animateur. */
   | { t: 'delete'; id: string; by: string; moderator?: boolean }
   | { t: 'like'; id: string; voterId: string; liked: boolean }
@@ -150,10 +154,16 @@ export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
     }
     case 'publish': {
       const ids = new Set(op.ids);
-      if (!s.notes.some((n) => ids.has(n.id) && n.authorId === op.authorId && !n.revealed)) return s;
+      let notes = s.notes;
+      // Idée pas encore arrivée : on l'ajoute depuis la publication (même auteur seulement).
+      (op.notes ?? []).forEach((raw) => {
+        const recu = sanitizeIdea({ ...raw, revealed: false, likedBy: [], retained: false });
+        if (recu && ids.has(recu.id) && recu.authorId === op.authorId) notes = insertById(notes, recu);
+      });
+      if (!notes.some((n) => ids.has(n.id) && n.authorId === op.authorId && !n.revealed)) return s;
       return {
         ...s,
-        notes: s.notes.map((n) => (ids.has(n.id) && n.authorId === op.authorId ? { ...n, revealed: true } : n)),
+        notes: notes.map((n) => (ids.has(n.id) && n.authorId === op.authorId ? { ...n, revealed: true } : n)),
       };
     }
     case 'delete': {

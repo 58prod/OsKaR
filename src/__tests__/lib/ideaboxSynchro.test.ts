@@ -42,6 +42,18 @@ describe('Boîte à idées — idées simultanées', () => {
     expect(appliquer([...ops, ...ops])).toEqual(appliquer(ops));
   });
 
+  it('publie une idée même si sa publication arrive avant son ajout', () => {
+    const n = idee('m1z-x', 'farid');
+    const pub: IdeaboxOp = { t: 'publish', authorId: 'farid', ids: [n.id], notes: [n] };
+    const desordre = appliquer([pub, ajout(n)]);
+    expect(desordre.notes).toHaveLength(1);
+    expect(desordre.notes[0].revealed).toBe(true);
+    expect(desordre).toEqual(appliquer([ajout(n), pub]));
+    // Une idée d'un autre auteur glissée dans la publication est ignorée.
+    const usurpe: IdeaboxOp = { t: 'publish', authorId: 'hugo', ids: ['m1y'], notes: [idee('m1y', 'farid')] };
+    expect(appliquer([usurpe]).notes).toHaveLength(0);
+  });
+
   it('cumule les votes de toute l’équipe envoyés au même moment', () => {
     const cible = idees[0];
     const votes: IdeaboxOp[] = idees.slice(1).map((n) => ({ t: 'like', id: cible.id, voterId: n.authorId, liked: true }));

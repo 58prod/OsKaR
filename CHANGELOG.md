@@ -10,6 +10,30 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.35.0] - 2026-09-14
+
+### ✨ Modifié — Brainstorming aligné sur les autres jeux
+- Synchro par opérations (`brainstormReducer`) : post-its, révélations,
+  déplacements et cœurs simultanés sans perte ; si deux personnes déplacent
+  le même post-it en même temps, le déplacement le plus récent l'emporte
+  partout ; « Retenir » et les cœurs ne s'annulent plus quand un geste est
+  reçu deux fois.
+- Barre blanche commune : thème de la séance (fixé par l'animateur, comme au
+  Planning Poker et à la récré), compteurs, « Idées anonymes », export,
+  réinitialisation confirmée et minuteur partagé.
+- Canvas : déplacement à la souris comme au doigt (tablette, téléphone), sans
+  saut au lâcher ; défilement quand on zoome ; nouveaux post-its posés là où
+  il reste de la place ; « Ranger par couleur » et « Retenir » pour
+  l'animateur ; idées retenues en tête de l'export.
+- Ma préparation : idées modifiables avant révélation, cœurs reçus,
+  compteur de caractères.
+
+### 🔧 Corrigé — idée révélée avant d'être arrivée
+- Brainstorming et Boîte à idées : si la révélation (ou la publication)
+  d'une idée arrivait avant l'idée elle-même, messages dans le désordre,
+  elle restait bloquée en préparation. L'idée voyage désormais avec sa
+  révélation (constaté à 8 personnes révélant dans la même milliseconde).
+
 ## [2.34.0] - 2026-09-14
 
 ### ✨ Modifié — Boîte à idées alignée sur les autres jeux
