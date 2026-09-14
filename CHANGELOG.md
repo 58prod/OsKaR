@@ -10,6 +10,26 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.36.0] - 2026-09-14
+
+### ✨ Modifié — « Disons-nous les choses » aligné sur les autres jeux
+- Synchro par opérations (`disonsReducer`, même modèle que la Boîte à
+  idées) : cartes, publications et votes simultanés sans perte ; une carte
+  publiée avant d'être arrivée n'est plus bloquée ; une carte supprimée ou
+  effacée ne revient pas par un message en retard ; « Retenir » et cœurs ne
+  s'annulent plus quand un geste est reçu deux fois ; on ne vote pas pour
+  ses propres cartes (vérifié dans les données partagées).
+- Barre blanche commune : compteurs (freins, moteurs, votes), « Cartes
+  anonymes », cœurs par personne, export, réinitialisation confirmée,
+  minuteur partagé (5 min par défaut).
+- Cartes anonymes par défaut dans les nouvelles séances, pour oser nommer
+  les freins (les séances déjà ouvertes gardent les noms) ; l'animateur
+  peut les désactiver.
+- Colonnes : cartes retenues en tête avec leur badge, puis par cœurs ;
+  cœurs restants ; suppression par l'animateur en deux clics.
+- Mon espace : brouillons modifiables, « Tout publier », cœurs reçus et
+  statut « retenue », compteur de caractères ; textes au vouvoiement.
+
 ## [2.35.1] - 2026-09-14
 
 ### 🔧 Corrigé — messages dans le désordre (rétro, brainstorming, boîte à idées)
