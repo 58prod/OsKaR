@@ -1,7 +1,8 @@
 /*
  * Traceurs déposés par Oskar, relevés dans le code le 2026-09-13.
- * Tous sont stockés dans le navigateur (localStorage) et strictement
- * nécessaires : aucun cookie publicitaire ni de mesure d'audience.
+ * Tous sont stockés dans le navigateur (localStorage). Aucun cookie
+ * publicitaire ; depuis le 2026-09-14, une mesure d'audience anonyme,
+ * exemptée de consentement (lib/statistiques/mesure.ts).
  * Ajouter ici toute nouvelle clé : les pages Cookies et Paramètres la lisent.
  */
 
@@ -23,6 +24,13 @@ export const TRACEURS: Traceur[] = [
   { cle: 'oskar.secteur', finalite: 'Adapter les exemples à votre secteur d’activité', effacable: true },
   { cle: 'oskar.okr.trimestre', finalite: 'Rouvrir vos OKR sur le trimestre consulté', effacable: true },
   { cle: 'oskar.tool.', prefixe: true, finalite: 'Vous reconnaître dans les outils d’équipe (prénom, couleur)', effacable: true },
+  {
+    cle: 'oskar.visiteur',
+    finalite: 'Mesurer la fréquentation de façon anonyme (numéro tiré au hasard, renouvelé tous les 13 mois)',
+    effacable: true,
+  },
+  // Pas effaçable avec les préférences : les effacer relancerait la mesure refusée.
+  { cle: 'oskar.mesure.refus', finalite: 'Retenir que vous refusez la mesure de fréquentation', effacable: false },
 ];
 
 /** Libellé affiché d'une clé (préfixe suivi de « … »). */

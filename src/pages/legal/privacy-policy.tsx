@@ -44,11 +44,17 @@ export default function ConfidentialitePage() {
             libelle: 'Vos demandes',
             valeur: 'Coordonnées et message d’une demande de formule ou d’une candidature coach : pour vous répondre.',
           },
+          {
+            libelle: 'Fréquentation',
+            valeur:
+              'Pages consultées, temps passé, site d’origine et type d’appareil, sous un numéro anonyme : pour des statistiques d’ensemble.',
+          },
         ]}
       />
       <p>
-        Ces traitements reposent sur l’exécution du service que vous demandez et, pour les demandes de contact, sur notre
-        intérêt légitime à y répondre. Aucune décision automatisée n’est prise à votre sujet.
+        Ces traitements reposent sur l’exécution du service que vous demandez et, pour les demandes de contact et la mesure
+        de fréquentation, sur notre intérêt légitime à y répondre et à améliorer le site. Aucune décision automatisée n’est
+        prise à votre sujet.
       </p>
 
       <h2>Qui a accès à vos données</h2>
@@ -72,6 +78,7 @@ export default function ConfidentialitePage() {
       <ul>
         <li>Compte et travaux : tant que votre compte existe ; tout est effacé quand vous le supprimez.</li>
         <li>Bilans demandés sans compte et demandes de contact : le temps de vous répondre, et au plus 3 ans.</li>
+        <li>Mesure de fréquentation : 25 mois ; le numéro anonyme de votre navigateur est renouvelé tous les 13 mois.</li>
         <li>Factures, si vous souscrivez la formule payante : 10 ans, durée imposée par la loi à toute entreprise.</li>
       </ul>
 

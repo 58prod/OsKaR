@@ -8,6 +8,19 @@ import type { StatutCandidature, StatutDemande } from '@/lib/admin/types';
  * administrateur : `useEstAdmin` d'abord, le reste ensuite.
  */
 
+/** Fréquentation sur `jours` jours ; les chiffres précédents restent affichés pendant le rechargement. */
+export function useStatistiquesAdmin(actif: boolean, jours: number, hote: string | null) {
+  return useQuery({
+    queryKey: ['admin', 'statistiques', jours, hote],
+    queryFn: () => AdminService.statistiques(jours, hote),
+    enabled: actif,
+    staleTime: 60 * 1000,
+    placeholderData: (precedent) => precedent,
+    // Avant la migration, la fonction n'existe pas : inutile d'insister.
+    retry: false,
+  });
+}
+
 /** L'utilisateur connecté est-il administrateur ? */
 export function useEstAdmin() {
   const { user, authReady, isAuthenticated } = useAppStore();

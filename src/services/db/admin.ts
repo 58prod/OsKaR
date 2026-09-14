@@ -9,6 +9,7 @@ import type {
   StatutDemande,
   TypeBilanAdmin,
 } from '@/lib/admin/types';
+import { versStatistiques, type Statistiques } from '@/lib/statistiques/rapport';
 
 /*
  * Administration : tout passe par les fonctions `admin_*` de la migration
@@ -171,6 +172,12 @@ export class AdminService {
   /** Migration 20260914_admin_supprimer_compte : efface le compte et toutes ses données. */
   static async supprimerCompte(userId: string): Promise<void> {
     await appeler('admin_supprimer_compte', { p_user_id: userId });
+  }
+
+  /** Migration 20260914_statistiques. `hote` null = tous les sites branchés sur la base. */
+  static async statistiques(jours: number, hote: string | null): Promise<Statistiques | null> {
+    const r = await appeler<Ligne | null>('admin_statistiques', { p_jours: jours, p_hote: hote });
+    return r ? versStatistiques(r) : null;
   }
 }
 

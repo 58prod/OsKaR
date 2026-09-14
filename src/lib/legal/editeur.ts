@@ -6,7 +6,7 @@
  * seulement : les pages lisent ces constantes.
  */
 
-export const MISE_A_JOUR = '13 septembre 2026';
+export const MISE_A_JOUR = '14 septembre 2026';
 
 export const EDITEUR = {
   nom: 'HaSenso',

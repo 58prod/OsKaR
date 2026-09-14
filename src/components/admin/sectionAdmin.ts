@@ -1,4 +1,4 @@
-import { CreditCard, LayoutDashboard, Mail, Star, Users } from 'lucide-react';
+import { BarChart3, CreditCard, LayoutDashboard, Mail, Star, Users } from 'lucide-react';
 import type { SidebarSection } from '@/components/layout/Sidebar';
 import { useCandidaturesAdmin, useDemandesAdmin, useEstAdmin } from '@/hooks/useAdmin';
 
@@ -19,6 +19,7 @@ export function useSectionAdmin(): SidebarSection | null {
     label: 'Administration',
     items: [
       { accent: 'admin', href: '/admin', exact: true, label: 'Tableau de bord', icon: LayoutDashboard },
+      { accent: 'admin', href: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
       { accent: 'admin', href: '/admin/comptes', label: 'Comptes', icon: Users },
       {
         accent: 'admin',

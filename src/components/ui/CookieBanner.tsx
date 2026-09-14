@@ -5,7 +5,8 @@ import Link from 'next/link';
  * Information cookies.
  *
  * Oskar ne dépose que des traceurs strictement nécessaires (session de
- * connexion, préférences d'affichage) : ils sont exemptés de consentement.
+ * connexion, préférences d'affichage) et, depuis le 2026-09-14, un numéro
+ * de mesure d'audience anonyme : tous sont exemptés de consentement.
  * Le bandeau d'origine proposait d'accepter Google Analytics, qui n'a jamais
  * été chargé ; il est remplacé par un simple message d'information, affiché
  * une fois (2026-09-13). Détail sur /legal/cookies-policy, réglages sur
@@ -60,8 +61,8 @@ export const CookieBanner: React.FC = () => {
     >
       <p className="text-14.5 font-bold text-navy mb-1.5">Des cookies réduits au strict nécessaire</p>
       <p className="text-13.5 leading-[1.6] text-muted mb-4">
-        Oskar n’utilise que les cookies indispensables à son fonctionnement : aucune publicité, aucune mesure d’audience.
-        Il n’y a rien à accepter.
+        Oskar n’utilise que les cookies indispensables à son fonctionnement et compte ses visites de façon anonyme :
+        aucune publicité, aucun outil tiers. Il n’y a rien à accepter.
       </p>
       <div className="flex items-center gap-4">
         <button

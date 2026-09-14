@@ -7,6 +7,7 @@ import {
   Chargement,
   Erreur,
   FOND_PILIER,
+  Kpi,
   LIGNE_CLIQUABLE,
   Pastilles,
   TD,
@@ -30,20 +31,6 @@ import { PILIERS_ADMIN } from '@/lib/admin/types';
  */
 
 const TENDANCE = 'font-bold text-fit-dark';
-
-const Kpi: React.FC<{ libelle: string; valeur: number; couleur: string; children: React.ReactNode }> = ({
-  libelle,
-  valeur,
-  couleur,
-  children,
-}) => (
-  <div className="relative overflow-hidden bg-white border border-line rounded-card shadow-card pt-5 px-[22px] pb-[18px]">
-    <span className={`absolute left-0 inset-y-0 w-1 ${couleur}`} aria-hidden />
-    <div className="text-12.5 font-bold leading-[1.6] tracking-[.08em] uppercase text-muted mb-2">{libelle}</div>
-    <div className="text-[34px] font-extrabold text-navy leading-none">{valeur}</div>
-    <div className="text-13.5 text-muted mt-2">{children}</div>
-  </div>
-);
 
 const ATraiterLigne: React.FC<{
   icone: React.ReactNode;

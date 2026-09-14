@@ -9,6 +9,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ui/Toast';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { AuthModal } from '@/components/layout/AuthModal';
+import { MesureAudience } from '@/components/MesureAudience';
 import { useToastStore } from '@/hooks/useToast';
 import '@/styles/globals.css';
 
@@ -122,6 +123,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <AuthModal />
         <ToastContainer toasts={toasts} onClose={removeToast} />
         <CookieBanner />
+        {/* Statistiques de fréquentation anonymes (/admin/statistiques). */}
+        <MesureAudience />
       </QueryProvider>
     </ErrorBoundary>
   );

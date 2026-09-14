@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PageLegale } from '@/components/legal/PageLegale';
 import { TRACEURS, correspond, libelleCle, type Traceur } from '@/lib/legal/traceurs';
+import { CLE_REFUS, CLE_VISITEUR } from '@/lib/statistiques/mesure';
 
 /*
  * Paramètres des cookies — remplace le panneau du bandeau d'origine, qui
  * proposait d'activer une mesure d'audience jamais chargée. Montre, pour
- * cet appareil, quels traceurs sont présents et permet d'effacer les
- * préférences (pas la session : on se déconnecte pour cela).
+ * cet appareil, quels traceurs sont présents, permet d'effacer les
+ * préférences (pas la session : on se déconnecte pour cela) et de refuser
+ * la mesure de fréquentation anonyme (2026-09-14).
  */
 
 const clesPresentes = (): string[] => {
@@ -18,6 +20,9 @@ const clesPresentes = (): string[] => {
   }
 };
 
+const BOUTON =
+  'px-4 py-2.5 rounded-[10px] bg-navy text-white text-14.5 font-semibold hover:bg-navy-light transition-colors';
+
 export default function ParametresCookiesPage() {
   const [cles, setCles] = useState<string[] | null>(null);
   const [efface, setEfface] = useState(false);
@@ -26,6 +31,7 @@ export default function ParametresCookiesPage() {
   useEffect(relire, [relire]);
 
   const present = (t: Traceur) => (cles ?? []).some((c) => correspond(t, c));
+  const refusee = (cles ?? []).includes(CLE_REFUS);
 
   const effacer = () => {
     try {
@@ -39,14 +45,28 @@ export default function ParametresCookiesPage() {
     setEfface(true);
   };
 
+  const basculerMesure = () => {
+    try {
+      if (refusee) {
+        localStorage.removeItem(CLE_REFUS);
+      } else {
+        localStorage.setItem(CLE_REFUS, '1');
+        localStorage.removeItem(CLE_VISITEUR);
+      }
+    } catch {
+      /* stockage indisponible : la mesure ne peut de toute façon pas vous reconnaître */
+    }
+    relire();
+  };
+
   return (
     <PageLegale
       titre="Paramètres des cookies"
       description="Ce qu’Oskar enregistre sur votre appareil, et comment l’effacer."
       chapeau={
         <p>
-          Oskar n’utilise aucun traceur optionnel : il n’y a rien à accepter ni à refuser. Voici ce qui est enregistré sur
-          cet appareil.
+          Oskar n’utilise aucun traceur publicitaire. La mesure de fréquentation est anonyme et dispensée de consentement ;
+          vous pouvez tout de même la refuser. Voici ce qui est enregistré sur cet appareil.
         </p>
       }
     >
@@ -72,17 +92,25 @@ export default function ParametresCookiesPage() {
         })}
       </ul>
 
-      <h2>Effacer</h2>
+      <h2>Mesure de fréquentation</h2>
       <p>
-        Ce bouton efface vos préférences d’affichage et votre identité dans les outils d’équipe. Votre session de
-        connexion n’est pas touchée : pour la supprimer, déconnectez-vous.
+        {refusee
+          ? 'Vous avez refusé la mesure : vos visites ne sont pas comptées sur cet appareil.'
+          : 'Vos visites sont comptées de façon anonyme, sans lien avec votre compte. Le refus vaut pour cet appareil et ce navigateur.'}
       </p>
       <div className="flex flex-wrap items-center gap-4">
-        <button
-          type="button"
-          onClick={effacer}
-          className="px-4 py-2.5 rounded-[10px] bg-navy text-white text-14.5 font-semibold hover:bg-navy-light transition-colors"
-        >
+        <button type="button" onClick={basculerMesure} className={BOUTON} aria-pressed={refusee}>
+          {refusee ? 'Accepter à nouveau la mesure' : 'Refuser la mesure de fréquentation'}
+        </button>
+      </div>
+
+      <h2>Effacer</h2>
+      <p>
+        Ce bouton efface vos préférences d’affichage, votre identité dans les outils d’équipe et le numéro de mesure de
+        fréquentation. Votre session de connexion n’est pas touchée : pour la supprimer, déconnectez-vous.
+      </p>
+      <div className="flex flex-wrap items-center gap-4">
+        <button type="button" onClick={effacer} className={BOUTON}>
           Effacer mes préférences
         </button>
         {efface && (

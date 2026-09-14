@@ -10,6 +10,28 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.40.0] - 2026-09-14
+
+### ✨ Ajouté — statistiques de fréquentation
+- Nouvel écran `/admin/statistiques` (menu Administration) : visiteurs,
+  visites, pages vues, temps par visite, taux de départ après une page,
+  évolution par rapport à la période précédente, visites par jour / semaine /
+  mois, pages les plus consultées (vues, visiteurs, temps moyen, entrées),
+  provenance, appareils, heures de visite, nouveaux et habitués, visiteurs
+  des 5 dernières minutes. Périodes : 7 jours, 30 jours, 3 mois, 12 mois.
+- Mesure faite par Oskar lui-même (`components/MesureAudience`), sans outil
+  tiers ni cookie : identifiant anonyme renouvelé tous les 13 mois, aucun lien
+  avec le compte, pas d'adresse IP, données effacées au bout de 25 mois
+  (conditions d'exemption de consentement de la CNIL). Le temps ne compte que
+  lorsque l'onglet est au premier plan.
+- Non comptés : les administrateurs, les pages `/admin`, le poste de
+  développement, les visiteurs qui refusent (nouveau bouton sur
+  `/legal/parametres-cookies`) ou envoient Global Privacy Control / Do Not Track.
+- Pages Cookies, Paramètres des cookies, Confidentialité et bandeau mis à jour.
+- Migration `20260914_statistiques.sql` (table `vues_pages`, fonctions
+  `enregistrer_vue`, `terminer_vue`, `admin_statistiques` ; purement
+  additive) à exécuter dans Supabase.
+
 ## [2.39.0] - 2026-09-14
 
 ### ✨ Ajouté — supprimer un compte depuis l'administration
