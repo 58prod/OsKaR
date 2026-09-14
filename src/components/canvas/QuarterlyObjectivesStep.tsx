@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
 import { Plus, Edit2, Trash2, Target, Calendar, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { useAppStore } from '@/store/useAppStore';
-import { generateId } from '@/utils';
 import type { QuarterlyObjectiveFormData, Quarter } from '@/types';
 import { Status } from '@/types';
 import { QuarterlyObjectiveForm } from '@/components/forms/QuarterlyObjectiveForm';

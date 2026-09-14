@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import type { ActionAssignee, ExternalContact } from '@/types';
+import type { ActionAssignee } from '@/types';
 
 interface AssigneeAvatarProps {
     assignees?: ActionAssignee[];

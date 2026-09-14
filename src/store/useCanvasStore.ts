@@ -8,11 +8,8 @@ import type {
   KeyResultFormData,
   OKRFormData,
   ActionFormData,
-  QuarterlyObjective,
-  QuarterlyKeyResult,
   QuarterlyObjectiveFormData,
   QuarterlyKeyResultFormData,
-  Quarter,
   AIValidation,
 } from '@/types';
 
@@ -286,11 +283,9 @@ export const useCanvasStore = create<CanvasState>()(
         }
       },
 
-
-
       // Actions IA
       validateCurrentStep: async () => {
-        const { currentStep, ambitionData, keyResultsData, okrData, actionsData } = get();
+        const { currentStep, ambitionData } = get();
         const { user } = useAppStore.getState();
         set({ isAIProcessing: true });
 

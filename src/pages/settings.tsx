@@ -24,15 +24,13 @@ const SettingsPage: React.FC = () => {
 
   // États pour le profil
   const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [email] = useState(user?.email || '');
 
   // États pour les notifications
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(false);
   const [weeklyDigest, setWeeklyDigest] = useState(true);
 
   // États pour la confidentialité
-  const [showEmail, setShowEmail] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

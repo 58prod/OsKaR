@@ -8,7 +8,6 @@ import { useAppStore } from '@/store/useAppStore';
 import { useProgressHistory } from '@/hooks/useProgress';
 import { formatDate } from '@/utils';
 import type { QuarterlyKeyResult } from '@/types';
-import { EntityType } from '@/types';
 
 interface ProgressHistoryPanelProps {
   isOpen: boolean;

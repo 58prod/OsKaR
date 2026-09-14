@@ -223,7 +223,7 @@ export const SubscriptionTab: React.FC<SubscriptionTabProps> = ({ userId }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(subscription.plan.features).map(([key, value]) => {
                 let displayValue = value;
-                let displayKey = key.replace(/_/g, ' ');
+                const displayKey = key.replace(/_/g, ' ');
 
                 // Formater les valeurs
                 if (typeof value === 'boolean') {

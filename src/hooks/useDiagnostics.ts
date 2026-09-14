@@ -38,7 +38,6 @@ export function useCreateDiagnostic() {
         queryClient.invalidateQueries({ queryKey: ['diagnostics', record.userId] });
         queryClient.invalidateQueries({ queryKey: ['diagnostics', 'latest', record.userId] });
       }
-      console.log('✅ Diagnostic enregistré:', record.id);
     },
     onError: (error) => {
       console.error('❌ Erreur enregistrement diagnostic:', error);

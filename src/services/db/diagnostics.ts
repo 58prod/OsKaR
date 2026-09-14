@@ -120,7 +120,6 @@ export class DiagnosticsService {
         console.error('❌ Erreur lors de l\'enregistrement du diagnostic (invité):', error);
         throw error;
       }
-      console.log('✅ Diagnostic invité enregistré');
       return {
         id: '',
         userId: null,
@@ -143,7 +142,6 @@ export class DiagnosticsService {
       throw error;
     }
 
-    console.log('✅ Diagnostic enregistré:', data.id);
     return this.rowToRecord(data);
   }
 
@@ -163,9 +161,7 @@ export class DiagnosticsService {
       console.warn('Rattachement des bilans indisponible :', error.message);
       return 0;
     }
-    const nb = typeof data === 'number' ? data : 0;
-    if (nb > 0) console.log(`✅ ${nb} bilan(s) rattaché(s) au compte`);
-    return nb;
+    return typeof data === 'number' ? data : 0;
   }
 
   /**
@@ -265,7 +261,5 @@ export class DiagnosticsService {
       console.error('❌ Erreur lors de la suppression du diagnostic:', error);
       throw error;
     }
-
-    console.log('✅ Diagnostic supprimé:', diagnosticId);
   }
 }

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ProgressService } from '@/services/db';
-import type { Progress, EntityType } from '@/types';
+import type { EntityType } from '@/types';
 
 /**
  * Hook pour récupérer l'historique de progression d'une entité

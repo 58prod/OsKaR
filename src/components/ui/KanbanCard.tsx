@@ -4,13 +4,11 @@ import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import {
   Calendar,
-  Tag,
   AlertTriangle,
   Edit2,
   Trash2,
   Target,
   Clock,
-  User
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

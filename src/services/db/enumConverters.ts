@@ -3,7 +3,7 @@
  * et les enums Supabase (MAJUSCULES)
  */
 
-import type { AmbitionCategory as AppAmbitionCategory, Priority, ActionStatus } from '@/types';
+import type { ActionStatus } from '@/types';
 import type { AmbitionCategory as DbAmbitionCategory, PriorityEnum, ActionStatus as DbActionStatus } from '@/types/supabase';
 
 /**

@@ -161,7 +161,6 @@ export class AmbitionsService {
       throw error;
     }
 
-    console.log('✅ Ambition mise à jour:', data.id);
     return this.rowToAmbition(data);
   }
 
@@ -179,8 +178,6 @@ export class AmbitionsService {
       console.error('❌ Erreur lors de la suppression de l\'ambition:', error);
       throw error;
     }
-
-    console.log('✅ Ambition supprimée:', id);
   }
 
   /**
@@ -202,8 +199,6 @@ export class AmbitionsService {
       console.error('❌ Erreurs lors de la mise à jour de l\'ordre:', errors);
       throw new Error('Erreur lors de la mise à jour de l\'ordre des ambitions');
     }
-
-    console.log('✅ Ordre des ambitions mis à jour');
   }
 }
 

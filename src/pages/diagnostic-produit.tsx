@@ -132,7 +132,7 @@ const DiagnosticProduitPage: React.FC = () => {
         setEnvoiEnCours(false);
       }
     },
-    [analysis, project, toast, conserver]
+    [project, toast, conserver]
   );
 
   const handleSelectPreset = (preset: PresetCase) => {

@@ -9,7 +9,6 @@ import type { Database } from '@/types/supabase';
 import type { Subscription, SubscriptionPlan, SubscriptionUsage } from '@/types';
 
 type SubscriptionRow = Database['public']['Tables']['subscriptions']['Row'];
-type SubscriptionInsert = Database['public']['Tables']['subscriptions']['Insert'];
 type SubscriptionUpdate = Database['public']['Tables']['subscriptions']['Update'];
 type SubscriptionPlanRow = Database['public']['Tables']['subscription_plans']['Row'];
 

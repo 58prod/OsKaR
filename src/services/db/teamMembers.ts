@@ -3,7 +3,6 @@ import type { Database } from '@/types/supabase';
 import type { TeamMember } from '@/types';
 import { TeamRole } from '@/types';
 
-type TeamMemberRow = Database['public']['Tables']['team_members']['Row'];
 type TeamMemberInsert = Database['public']['Tables']['team_members']['Insert'];
 
 const roleToDb = (role: TeamRole): string => {

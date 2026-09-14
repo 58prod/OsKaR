@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ExternalContactsService } from '@/services/db/externalContacts';
-import type { ExternalContact, ExternalContactFormData } from '@/types';
+import type { ExternalContactFormData } from '@/types';
 
 /**
  * Hook pour récupérer tous les contacts externes de l'entreprise
@@ -41,7 +41,6 @@ export function useCreateExternalContact() {
         onSuccess: (newContact) => {
             // Invalider la liste des contacts
             queryClient.invalidateQueries({ queryKey: ['externalContacts', newContact.companyId] });
-            console.log('✅ Contact externe créé:', newContact.id);
         },
         onError: (error) => {
             console.error('❌ Erreur création contact externe:', error);
@@ -63,7 +62,6 @@ export function useUpdateExternalContact() {
         onSuccess: (updatedContact) => {
             // Invalider la liste des contacts
             queryClient.invalidateQueries({ queryKey: ['externalContacts', updatedContact.companyId] });
-            console.log('✅ Contact externe mis à jour:', updatedContact.id);
         },
     });
 }
@@ -76,10 +74,9 @@ export function useDeleteExternalContact() {
 
     return useMutation({
         mutationFn: (contactId: string) => ExternalContactsService.delete(contactId),
-        onSuccess: (_, contactId) => {
+        onSuccess: () => {
             // Invalider toutes les requêtes de contacts
             queryClient.invalidateQueries({ queryKey: ['externalContacts'] });
-            console.log('✅ Contact externe supprimé:', contactId);
         },
     });
 }
@@ -92,7 +89,7 @@ export function useMarkContactAsUsed() {
 
     return useMutation({
         mutationFn: (contactId: string) => ExternalContactsService.markAsUsed(contactId),
-        onSuccess: (_, contactId) => {
+        onSuccess: () => {
             // Invalider pour rafraîchir l'ordre (tri par last_used_at)
             queryClient.invalidateQueries({ queryKey: ['externalContacts'] });
         },

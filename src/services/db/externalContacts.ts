@@ -99,7 +99,6 @@ export class ExternalContactsService {
             throw error;
         }
 
-        console.log('✅ Contact externe créé:', data.id);
         return this.rowToContact(data);
     }
 
@@ -128,7 +127,6 @@ export class ExternalContactsService {
             throw error;
         }
 
-        console.log('✅ Contact externe mis à jour:', data.id);
         return this.rowToContact(data);
     }
 
@@ -145,8 +143,6 @@ export class ExternalContactsService {
             console.error('❌ Erreur lors de la suppression du contact:', error);
             throw error;
         }
-
-        console.log('✅ Contact externe supprimé:', contactId);
     }
 
     /**

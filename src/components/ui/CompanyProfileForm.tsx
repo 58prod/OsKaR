@@ -2,10 +2,9 @@ import React from 'react';
 import { SECTEURS } from '@/lib/secteurs';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { Building2, Users, Target, AlertCircle, Loader2 } from 'lucide-react';
+import { Building2, Target, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
-import { Badge } from './Badge';
 import type { CompanyProfile } from '@/types';
 import { CompanySize, CompanyStage } from '@/types';
 

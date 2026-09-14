@@ -1,7 +1,7 @@
 ﻿import { supabase } from '@/lib/supabaseClient';
 import type { Database } from '@/types/supabase';
 import type { QuarterlyObjective, Quarter } from '@/types';
-import { Priority, Status } from '@/types';
+import { Status } from '@/types';
 
 type QuarterlyObjectiveRow = Database['public']['Tables']['quarterly_objectives']['Row'];
 type QuarterlyObjectiveInsert = Database['public']['Tables']['quarterly_objectives']['Insert'];

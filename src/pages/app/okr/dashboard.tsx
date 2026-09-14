@@ -1,17 +1,16 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import {
   Target,
   TrendingUp,
   Calendar,
-  AlertCircle,
   CheckCircle,
   Clock,
   Plus,
   BarChart3,
   Users,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { OkrShell } from '@/components/layout/OkrShell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -25,11 +24,9 @@ import { useAmbitions } from '@/hooks/useAmbitions';
 import { useQuarterlyObjectives } from '@/hooks/useQuarterlyObjectives';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
 import { useActions } from '@/hooks/useActions';
-import { analyticsService } from '@/services/analytics';
 import { SubscriptionsService } from '@/services/db/subscriptions';
-import { formatDate, formatRelativeDate, getDaysUntilDeadline } from '@/utils';
-import type { DashboardMetrics, ChartData, Action, QuarterlyObjective, QuarterlyKeyResult, Ambition } from '@/types';
-import { CompanySize, CompanyStage } from '@/types';
+import { formatRelativeDate, getDaysUntilDeadline } from '@/utils';
+import type { DashboardMetrics } from '@/types';
 
 const DashboardPage: React.FC = () => {
   const router = useRouter();
@@ -40,11 +37,10 @@ const DashboardPage: React.FC = () => {
   const { data: subscription } = useSubscription(user?.id);
   const { data: ambitions = [], isLoading: ambitionsLoading } = useAmbitions(user?.id);
   const { data: quarterlyObjectives = [], isLoading: objectivesLoading } = useQuarterlyObjectives(user?.id);
-  const { data: quarterlyKeyResults = [], isLoading: keyResultsLoading } = useQuarterlyKeyResultsByUser(user?.id);
+  const { data: quarterlyKeyResults = [] } = useQuarterlyKeyResultsByUser(user?.id);
   const { data: actions = [], isLoading: actionsLoading } = useActions(user?.id);
 
-  const [progressData, setProgressData] = useState<ChartData[]>([]);
-  const [trendAnalysis, setTrendAnalysis] = useState<any>(null);
+  const [trendAnalysis] = useState<any>(null);
 
   // Handler pour créer une nouvelle ambition avec vérification des limites
   const handleCreateAmbition = async () => {

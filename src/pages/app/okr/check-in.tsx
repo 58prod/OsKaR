@@ -12,7 +12,7 @@ import { geminiService } from '@/services/gemini';
 import { AISuggestionsPanel } from '@/components/canvas/AISuggestionsPanel';
 import { getDaysUntilDeadline, formatDate } from '@/utils';
 import type { QuarterlyKeyResult } from '@/types';
-import { ActionStatus, Priority } from '@/types';
+import { Priority } from '@/types';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
 import { useCreateAction } from '@/hooks/useActions';
 

@@ -1,5 +1,5 @@
 import type { EmailOtpType } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import type { User } from '@/types';
 
 export interface SignUpData {
@@ -67,11 +67,12 @@ export class AuthService {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 3. Vérifier si le profil a été créé
-    let { data: profile, error: profileError } = await supabase
+    const { data: profilTrouve, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', authData.user.id)
       .single();
+    let profile = profilTrouve;
 
     // 4. Si le profil n'existe pas (trigger a échoué), le créer manuellement
     if (profileError || !profile) {
@@ -94,7 +95,6 @@ export class AuthService {
         // Ne pas bloquer l'inscription, le profil pourra être créé plus tard
       } else {
         profile = newProfile;
-        console.log('✅ Profil créé manuellement');
       }
     }
 
@@ -119,8 +119,6 @@ export class AuthService {
 
       if (createSubError && createSubError.code !== '23505') {
         console.error('❌ Erreur lors de la création manuelle de l\'abonnement:', createSubError);
-      } else {
-        console.log('✅ Abonnement créé manuellement');
       }
     }
 

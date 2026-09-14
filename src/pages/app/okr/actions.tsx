@@ -9,13 +9,11 @@ import { Button } from '@/components/ui/Button';
 import { Plus, Filter, LayoutGrid, Table, ListChecks } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { useFilters } from '@/hooks/useFilters';
-import { generateId } from '@/utils';
 import type { Action, ActionFormData, ActionStatus } from '@/types';
 import { useAmbitions } from '@/hooks/useAmbitions';
 import { useQuarterlyObjectives } from '@/hooks/useQuarterlyObjectives';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
-import { useActions, useCreateAction, useUpdateAction, useDeleteAction, useUpdateActionStatus, useUpdateActionsOrder, useMoveAction } from '@/hooks/useActions';
-import { useActionAssignees } from '@/hooks/useActionAssignees';
+import { useActions, useCreateAction, useUpdateAction, useDeleteAction, useUpdateActionsOrder, useMoveAction } from '@/hooks/useActions';
 import { useAssignMultiple, useReplaceAllAssignees } from '@/hooks/useActionAssignees';
 
 type ViewMode = 'kanban' | 'table' | 'checklist';
@@ -32,7 +30,6 @@ const ActionsPage: React.FC = () => {
   // React Query - Mutations
   const createAction = useCreateAction();
   const updateActionMutation = useUpdateAction(user?.id);
-  const updateActionStatus = useUpdateActionStatus(user?.id);
   const updateActionsOrder = useUpdateActionsOrder(user?.id);
   const moveAction = useMoveAction(user?.id);
   const deleteActionMutation = useDeleteAction(user?.id);
@@ -56,7 +53,6 @@ const ActionsPage: React.FC = () => {
     filteredActions,
     availableLabels,
     availableYears,
-    filterStats,
   } = useFilters({
     actions,
     ambitions,
@@ -169,11 +165,9 @@ const ActionsPage: React.FC = () => {
   };
 
   const handleActionReorder = async (updates: { id: string; order_index: number }[]) => {
-    console.log('🚀 actions.tsx - handleActionReorder appelé:', updates);
     try {
       // Ne pas attendre la fin de la mutation pour que l'optimistic update fonctionne
       updateActionsOrder.mutate(updates);
-      console.log('✅ actions.tsx - handleActionReorder mutation lancée');
     } catch (error) {
       console.error('❌ actions.tsx - Erreur lors de la réorganisation des actions:', error);
       alert('Erreur lors de la réorganisation des actions');

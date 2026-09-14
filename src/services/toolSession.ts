@@ -159,7 +159,7 @@ export const ToolSessionService = {
     if (!isSupabaseConfigured()) return;
     try {
       await supabase.rpc('cleanup_expired_tool_sessions');
-    } catch (e) {
+    } catch {
       /* best-effort : on ignore les erreurs (droits, fonction absente, etc.) */
     }
   },

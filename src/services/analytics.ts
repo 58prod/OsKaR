@@ -5,7 +5,6 @@ import type {
   Action,
   QuarterlyObjective,
   QuarterlyKeyResult,
-  Progress,
   DashboardMetrics,
   ChartData,
 } from '@/types';

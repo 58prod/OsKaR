@@ -38,7 +38,6 @@ const Layout: React.FC<LayoutProps> = ({
     if (!authReady) return;
 
     if (!isAuthenticated) {
-      console.log('🔄 Redirection vers login (pas de session après initialisation auth)');
       router.replace(urlConnexion(router.asPath));
       return;
     }
@@ -46,7 +45,6 @@ const Layout: React.FC<LayoutProps> = ({
     // L'onboarding n'est plus imposé : le profil d'entreprise se complète
     // quand la personne le décide, depuis son écran.
   }, [requireAuth, authReady, isAuthenticated, router]);
-
 
   const pageTitle = title ? `${title} - ${APP_CONFIG.name}` : APP_CONFIG.name;
 

@@ -9,7 +9,7 @@ import { ActionStatus, Priority, type Action } from '@/types';
 import { formatRelativeDate } from '@/utils';
 import { AlarmClock, CheckCircle2, Flame } from 'lucide-react';
 import { showNudge, scheduleNudge, cancelScheduledNudge } from '@/services/nudges';
-import { addDays, isAfter, isToday, isPast, differenceInCalendarDays } from 'date-fns';
+import { addDays, isToday, isPast, differenceInCalendarDays } from 'date-fns';
 import { useActions, useUpdateAction } from '@/hooks/useActions';
 
 function priorityWeight(p: Priority): number {

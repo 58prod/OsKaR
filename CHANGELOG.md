@@ -10,6 +10,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.38.4] - 2026-09-14
+
+### 🧹 Nettoyé — code mort et bruit (audit du code)
+- 11 fichiers que plus aucune page n'utilisait, ~1 850 lignes : ébauches
+  Stripe (`lib/stripe*.ts`), anciens panneaux du coach IA (`AICoachPanel`,
+  `AICoachPanelV2`), module d'export Excel/PDF jamais branché
+  (`services/export.ts`), `ProtectedRoute`, `ComingSoon`, `useDebounce`,
+  `useSharedObjectives`, `subscriptionLimits`, `lib/productFit/index.ts`.
+- Dépendances inutilisées retirées : `exceljs` (et ses types),
+  `react-cookie-consent`, `cypress` (aucun test Cypress ; commandes
+  `test:e2e` retirées).
+- 80 `console.log` de débogage retirés (certains affichaient le profil
+  d'entreprise et l'identifiant de l'utilisateur dans la console) ; les
+  `console.error` / `console.warn` utiles restent.
+- Imports, variables et états inutilisés retirés ; interfaces vides de
+  `Card` changées en types. Le lint passe de 454 à 307 avertissements (restent
+  surtout des `any` et des apostrophes). Convention ajoutée au lint : un nom
+  commençant par `_` est volontairement inutilisé.
+- Doublon `.env.exemple` (garder `.env.example`) et image `Oskar-frog.jpg`
+  inutilisée supprimés.
+
 ## [2.38.3] - 2026-09-14
 
 ### 🔒 Corrigé — sécurité (audit du code)

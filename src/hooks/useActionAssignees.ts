@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ActionAssigneesService } from '@/services/db/actionAssignees';
-import type { ActionAssignee, ActionAssigneeFormData } from '@/types';
+import type { ActionAssigneeFormData } from '@/types';
 
 /**
  * Hook pour récupérer tous les assignés d'une action
@@ -31,7 +31,6 @@ export function useAssignToUser() {
             queryClient.invalidateQueries({ queryKey: ['actionAssignees', variables.actionId] });
             // Invalider aussi les actions pour rafraîchir l'affichage
             queryClient.invalidateQueries({ queryKey: ['actions'] });
-            console.log('✅ Action affectée à un utilisateur');
         },
     });
 }
@@ -57,7 +56,6 @@ export function useAssignToExternalContact() {
             queryClient.invalidateQueries({ queryKey: ['actionAssignees', variables.actionId] });
             // Invalider aussi les actions
             queryClient.invalidateQueries({ queryKey: ['actions'] });
-            console.log('✅ Action affectée à un contact externe');
         },
     });
 }
@@ -77,7 +75,6 @@ export function useAssignMultiple() {
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['actionAssignees', variables.actionId] });
             queryClient.invalidateQueries({ queryKey: ['actions'] });
-            console.log(`✅ ${variables.assignees.length} personnes affectées`);
         },
     });
 }
@@ -96,7 +93,6 @@ export function useUnassign() {
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['actionAssignees', variables.actionId] });
             queryClient.invalidateQueries({ queryKey: ['actions'] });
-            console.log('✅ Affectation retirée');
         },
     });
 }
@@ -117,7 +113,6 @@ export function useReplaceAllAssignees() {
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['actionAssignees', variables.actionId] });
             queryClient.invalidateQueries({ queryKey: ['actions'] });
-            console.log('✅ Affectations mises à jour');
         },
     });
 }

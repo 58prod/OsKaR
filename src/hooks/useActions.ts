@@ -140,8 +140,6 @@ export function useDeleteAction(userId?: string) {
   });
 }
 
-
-
 /**
  * Hook pour mettre à jour l'ordre des actions (batch)
  */
@@ -150,10 +148,8 @@ export function useUpdateActionsOrder(userId?: string) {
 
   return useMutation({
     mutationFn: async (updates: { id: string; order_index: number }[]) => {
-      console.log('🚀 useUpdateActionsOrder - Début:', { updatesCount: updates.length, userId });
       try {
         const result = await ActionsService.updateOrder(updates, userId!);
-        console.log('✅ useUpdateActionsOrder - Succès');
         return result;
       } catch (error) {
         console.error('❌ useUpdateActionsOrder - Erreur:', error);
@@ -161,8 +157,6 @@ export function useUpdateActionsOrder(userId?: string) {
       }
     },
     onMutate: async (updates) => {
-      console.log('⏳ useUpdateActionsOrder - onMutate:', updates);
-
       // Annuler les requêtes en cours
       await queryClient.cancelQueries({ queryKey: ['actions'] });
 
@@ -200,7 +194,6 @@ export function useUpdateActionsOrder(userId?: string) {
 
       // Rollback en cas d'erreur
       if (context?.previousActions) {
-        console.log('🔄 useUpdateActionsOrder - Rollback vers état précédent');
         queryClient.setQueryData(['actions', userId, undefined], context.previousActions);
       }
 
@@ -209,15 +202,7 @@ export function useUpdateActionsOrder(userId?: string) {
         alert(`Erreur lors de la réorganisation: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
       }
     },
-    onSuccess: (result, updates) => {
-      console.log('✅ useUpdateActionsOrder - onSuccess:', { updatesCount: updates.length });
-    },
-    onSettled: (result, error, updates) => {
-      console.log('🏁 useUpdateActionsOrder - onSettled:', {
-        hasResult: result !== undefined,
-        hasError: !!error,
-        updatesCount: updates.length
-      });
+    onSettled: () => {
       // Rafraîchir les données après la mutation
       queryClient.invalidateQueries({ queryKey: ['actions'] });
     },
@@ -236,16 +221,8 @@ export function useMoveAction(userId?: string) {
       newStatus: ActionStatus;
       orderUpdates: { id: string; order_index: number }[];
     }) => {
-      console.log('🚀 useMoveAction - Début:', {
-        actionId: data.actionId,
-        newStatus: data.newStatus,
-        orderUpdatesCount: data.orderUpdates.length,
-        userId
-      });
-
       try {
         const result = await ActionsService.moveAction(data.actionId, data.newStatus, data.orderUpdates, userId!);
-        console.log('✅ useMoveAction - Succès:', result);
         return result;
       } catch (error) {
         console.error('❌ useMoveAction - Erreur:', error);
@@ -253,8 +230,6 @@ export function useMoveAction(userId?: string) {
       }
     },
     onMutate: async (data) => {
-      console.log('⏳ useMoveAction - onMutate:', data);
-
       // Annuler les requêtes en cours pour toutes les variantes de la query
       await queryClient.cancelQueries({ queryKey: ['actions'] });
 
@@ -305,7 +280,6 @@ export function useMoveAction(userId?: string) {
 
       // Rollback en cas d'erreur
       if (context?.previousActions) {
-        console.log('🔄 useMoveAction - Rollback vers état précédent');
         queryClient.setQueryData(['actions', userId, undefined], context.previousActions);
       }
 
@@ -314,22 +288,7 @@ export function useMoveAction(userId?: string) {
         alert(`Erreur lors du déplacement de l'action: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
       }
     },
-    onSuccess: (result, data) => {
-      console.log('✅ useMoveAction - onSuccess:', {
-        actionId: data.actionId,
-        newStatus: data.newStatus,
-        result
-      });
-      // Ne rien faire ici pour garder l'optimistic update
-      // Le cache a déjà été mis à jour dans onMutate
-    },
-    onSettled: (result, error, data) => {
-      console.log('🏁 useMoveAction - onSettled:', {
-        hasResult: !!result,
-        hasError: !!error,
-        actionId: data.actionId
-      });
-      // Ne PAS invalider pour éviter le refetch qui écrase l'optimistic update
-    },
+    // Pas de onSuccess ni d'invalidation : le cache a déjà été mis à jour dans
+    // onMutate, et un refetch écraserait l'optimistic update.
   });
 }

@@ -39,12 +39,6 @@ export const ActionsTableView: React.FC<ActionsTableViewProps> = ({
     return objective?.title || 'N/A';
   };
 
-  const statusLabels: Record<string, string> = {
-    todo: 'À faire',
-    in_progress: 'En cours',
-    done: 'Terminé',
-  };
-
   const statusColors: Record<string, string> = {
     todo: 'bg-gray-100 text-gray-700',
     in_progress: 'bg-blue-100 text-blue-700',

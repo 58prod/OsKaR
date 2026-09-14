@@ -58,8 +58,6 @@ class ErrorBoundary extends Component<Props, State> {
 
     // Nettoyer le cache React Query et le localStorage corrompu
     if (typeof window !== 'undefined') {
-      console.log('🔄 Nettoyage du cache après erreur...');
-      
       // Recharger la page pour repartir sur une base saine
       window.location.reload();
     }
@@ -68,7 +66,6 @@ class ErrorBoundary extends Component<Props, State> {
   handleGoHome = () => {
     // Nettoyer et rediriger vers l'accueil
     if (typeof window !== 'undefined') {
-      console.log('🏠 Redirection vers l\'accueil...');
       window.location.href = '/';
     }
   };

@@ -110,7 +110,6 @@ const ManagementPage: React.FC = () => {
     filteredQuarterlyObjectives,
     availableLabels,
     availableYears,
-    filterStats,
   } = useFilters({
     actions,
     ambitions,
@@ -316,7 +315,7 @@ const ManagementPage: React.FC = () => {
 
     try {
       // Extraire assignees des données pour les gérer séparément
-      const { assignees, ...actionData } = data;
+      const { assignees: _assignees, ...actionData } = data;
 
       if (editingItem) {
         await updateActionMutation.mutateAsync({
@@ -388,7 +387,7 @@ const ManagementPage: React.FC = () => {
           userId: user.id
         });
       });
-    } catch (e) {
+    } catch {
       const fallback = [
         `D e9composer ${kr.title} en sous- e9tapes`,
         `Bloquer 60 min focus sur ${kr.title}`,

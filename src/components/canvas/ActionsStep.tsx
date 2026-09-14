@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import { Plus, Edit2, Trash2, Zap, Calendar, Clock } from 'lucide-react';
+import { Plus, Edit2, Trash2, Zap, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { useAppStore } from '@/store/useAppStore';
 import { FORM_OPTIONS } from '@/constants';
-import { generateId, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
 import type { ActionFormData } from '@/types';
 import { Priority, ActionStatus } from '@/types';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';

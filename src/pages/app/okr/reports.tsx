@@ -2,13 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { OkrShell } from '@/components/layout/OkrShell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { useAppStore } from '@/store/useAppStore';
 import { useQuarterlyObjectives } from '@/hooks/useQuarterlyObjectives';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
 import { useActions } from '@/hooks/useActions';
-import { FileText, Download, Calendar, TrendingUp, Target, CheckCircle, BarChart3, FileSpreadsheet, FileJson } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { FileText, Download, TrendingUp, Target, CheckCircle, BarChart3, FileJson } from 'lucide-react';
 import { Quarter, ActionStatus } from '@/types';
 import jsPDF from 'jspdf';
 

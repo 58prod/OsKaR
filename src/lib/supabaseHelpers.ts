@@ -26,14 +26,7 @@ export async function withTimeout<T>(
       });
 
       // Course entre la fonction et le timeout
-      const result = await Promise.race([fn(), timeoutPromise]);
-
-      // Si on arrive ici, c'est que ça a marché
-      if (attempt > 0) {
-        console.log(`✅ Succès après ${attempt + 1} tentative(s)`);
-      }
-
-      return result;
+      return await Promise.race([fn(), timeoutPromise]);
     } catch (error: any) {
       lastError = error;
 
@@ -58,8 +51,6 @@ export async function supabaseQuery<T>(
   queryFn: () => Promise<{ data: T | null; error: any }>,
   operationName: string = 'Requête Supabase'
 ): Promise<T> {
-  console.log(`🔄 ${operationName} - Début`);
-
   const result = await withTimeout(async () => {
     const { data, error } = await queryFn();
 
@@ -72,7 +63,6 @@ export async function supabaseQuery<T>(
       throw new Error(`${operationName} - Aucune donnée retournée`);
     }
 
-    console.log(`✅ ${operationName} - Succès`);
     return data;
   }, 30000, 2); // 30s timeout (pour cold start), 2 retries
 
@@ -99,7 +89,6 @@ export async function supabaseRead<T>(
     return data;
   }, 10000, 1);
 }
-
 
 /**
  * Vérifier si Supabase est accessible (health check)
@@ -129,14 +118,8 @@ export async function checkSupabaseHealth(): Promise<boolean> {
  * Utile au démarrage de l'app pour éviter les cold starts
  */
 export async function warmupSupabase(): Promise<void> {
-  console.log('🔥 Warm-up Supabase...');
-
   try {
-    const isHealthy = await checkSupabaseHealth();
-
-    if (isHealthy) {
-      console.log('✅ Supabase est prêt');
-    } else {
+    if (!(await checkSupabaseHealth())) {
       console.warn('⚠️ Supabase pourrait être lent (cold start)');
     }
   } catch (error) {

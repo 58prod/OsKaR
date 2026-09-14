@@ -103,24 +103,14 @@ const OnboardingPage: React.FC = () => {
     try {
       // Sauvegarder dans Supabase si configuré
       if (isSupabaseConfigured() && user?.id) {
-        console.log('💾 Sauvegarde du profil d\'entreprise dans Supabase...');
-        console.log('📊 Données à sauvegarder:', companyProfile);
-        console.log('👤 User ID:', user.id);
-
         const updatedProfile = await AuthService.updateCompanyProfile(user.id, companyProfile);
-
-        console.log('✅ Profil mis à jour:', updatedProfile);
 
         // Mettre à jour l'utilisateur avec le profil complet
         const updatedUser = AuthService.profileToUser(updatedProfile);
         setUser(updatedUser);
 
-        console.log('✅ Profil d\'entreprise sauvegardé dans Supabase');
       } else {
         // Fallback localStorage si Supabase non configuré
-        console.log('💾 Sauvegarde du profil d\'entreprise dans localStorage...');
-        console.log('⚠️ User ID:', user?.id);
-        console.log('⚠️ Supabase configuré:', isSupabaseConfigured());
         updateCompanyProfile(companyProfile);
       }
 

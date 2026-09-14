@@ -17,7 +17,6 @@
 
 3. **Fichiers à commiter**
    - `.env.example`
-   - `.env.exemple`
    - `.gitignore`
 
 ### Configuration actuelle

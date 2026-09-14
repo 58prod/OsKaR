@@ -62,7 +62,7 @@ export const AISuggestionsPanel: React.FC<AISuggestionsPanelProps> = ({
       await navigator?.clipboard?.writeText(original);
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 1200);
-    } catch (e) {
+    } catch {
       // ignore
     }
   };

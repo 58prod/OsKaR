@@ -104,7 +104,6 @@ export class ActionAssigneesService {
             throw error;
         }
 
-        console.log('✅ Action affectée à un utilisateur:', userId);
         return this.rowToAssignee(data);
     }
 
@@ -138,7 +137,6 @@ export class ActionAssigneesService {
             throw error;
         }
 
-        console.log('✅ Action affectée à un contact externe:', externalContactId);
         return this.rowToAssignee(data);
     }
 
@@ -168,7 +166,6 @@ export class ActionAssigneesService {
             throw error;
         }
 
-        console.log(`✅ ${data.length} assignations créées`);
         return (data || []).map((row: ActionAssigneeRow) => this.rowToAssignee(row));
     }
 
@@ -185,8 +182,6 @@ export class ActionAssigneesService {
             console.error('❌ Erreur lors du retrait de l\'affectation:', error);
             throw error;
         }
-
-        console.log('✅ Affectation retirée:', assigneeId);
     }
 
     /**

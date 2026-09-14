@@ -10,7 +10,6 @@ import {
   Building2,
   Edit2,
   Trash2,
-  MoreHorizontal,
   Sparkles,
   Share2,
   RefreshCw,
@@ -28,8 +27,7 @@ import {
   QuarterlyKeyResult,
   Action,
   Quarter,
-  Priority,
-  ActionStatus
+  ActionStatus,
 } from '@/types';
 
 interface HierarchicalTreeViewProps {
@@ -163,13 +161,6 @@ const quarterLabels = {
   // Pastilles : memes couples fond clair / texte fonce que .obj-badge dans
   // okr-objectifs.html, pris dans les jetons Oskar plutot que dans les
   // echelles Tailwind generiques.
-  const priorityColors = {
-    [Priority.LOW]: 'bg-surface text-muted',
-    [Priority.MEDIUM]: 'bg-okr-light text-okr-dark',
-    [Priority.HIGH]: 'bg-finance-light text-finance-dark',
-    [Priority.CRITICAL]: 'bg-[#fee2e2] text-[#dc2626]',
-  };
-
   const statusColors = {
     [ActionStatus.TODO]: 'bg-surface text-muted',
     [ActionStatus.IN_PROGRESS]: 'bg-okr-light text-okr-dark',
@@ -427,7 +418,8 @@ const quarterLabels = {
                                       variant="ghost"
                                       onClick={() => {
                                         const s = new Set(openObjectiveComments);
-                                        s.has(objective.id) ? s.delete(objective.id) : s.add(objective.id);
+                                        if (s.has(objective.id)) s.delete(objective.id);
+                                        else s.add(objective.id);
                                         setOpenObjectiveComments(s);
                                       }}
                                     >
@@ -561,7 +553,8 @@ const quarterLabels = {
                                                     variant="ghost"
                                                     onClick={() => {
                                                       const s = new Set(openKRComments);
-                                                      s.has(kr.id) ? s.delete(kr.id) : s.add(kr.id);
+                                                      if (s.has(kr.id)) s.delete(kr.id);
+                                                      else s.add(kr.id);
                                                       setOpenKRComments(s);
                                                     }}
                                                   >

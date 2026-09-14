@@ -1,13 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
-  Circle,
   Brain,
-  Lightbulb,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import { OkrShell } from '@/components/layout/OkrShell';
 import { Button } from '@/components/ui/Button';
@@ -19,9 +17,8 @@ import AmbitionsAndKeyResultsStep from '@/components/canvas/AmbitionsAndKeyResul
 import { ActionsStep } from '@/components/canvas/ActionsStep';
 import QuarterlyObjectivesStep from '@/components/canvas/QuarterlyObjectivesStep';
 import AISuggestionsPanel from '@/components/canvas/AISuggestionsPanel';
-import { generateId, getCurrentQuarter } from '@/utils';
-import type { Ambition, QuarterlyObjective, QuarterlyKeyResult, Action } from '@/types';
-import { Priority, Status, ActionStatus, CompanySize, CompanyStage } from '@/types';
+import { getCurrentQuarter } from '@/utils';
+import { Priority, Status, ActionStatus } from '@/types';
 import { useAmbitions } from '@/hooks/useAmbitions';
 import { useQuarterlyObjectives } from '@/hooks/useQuarterlyObjectives';
 import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
@@ -31,7 +28,6 @@ import { useCreateQuarterlyObjective } from '@/hooks/useQuarterlyObjectives';
 import { useCreateQuarterlyKeyResult } from '@/hooks/useQuarterlyKeyResults';
 import { useCreateAction } from '@/hooks/useActions';
 
-
 const CanvasPage: React.FC = () => {
   const { user } = useAppStore();
   const {
@@ -39,7 +35,6 @@ const CanvasPage: React.FC = () => {
     steps,
     isCompleted,
     aiValidations,
-    aiSuggestions,
     isAIProcessing,
     goToStep,
     nextStep,
@@ -48,10 +43,10 @@ const CanvasPage: React.FC = () => {
   } = useCanvasStore();
 
   // React Query - Données OKR
-  const { data: ambitions = [], isLoading: ambitionsLoading } = useAmbitions(user?.id);
-  const { data: quarterlyObjectives = [], isLoading: objectivesLoading } = useQuarterlyObjectives(user?.id);
-  const { data: quarterlyKeyResults = [], isLoading: keyResultsLoading } = useQuarterlyKeyResultsByUser(user?.id);
-  const { data: actions = [], isLoading: actionsLoading } = useActions(user?.id);
+  const { isLoading: ambitionsLoading } = useAmbitions(user?.id);
+  const { isLoading: objectivesLoading } = useQuarterlyObjectives(user?.id);
+  const { isLoading: keyResultsLoading } = useQuarterlyKeyResultsByUser(user?.id);
+  const { isLoading: actionsLoading } = useActions(user?.id);
 
   // React Query - Mutations
   const createAmbition = useCreateAmbition();
@@ -60,8 +55,6 @@ const CanvasPage: React.FC = () => {
   const createAction = useCreateAction();
 
   const isLoading = ambitionsLoading || objectivesLoading || keyResultsLoading || actionsLoading;
-
-
 
   const currentStepData = steps.find(step => step.id === currentStep);
   const currentValidation = aiValidations[currentStep];
@@ -117,8 +110,6 @@ const CanvasPage: React.FC = () => {
               {isCompleted && (
                 <Badge variant="success" size="lg">
                   <CheckCircle className="h-4 w-4 mr-1" />
-
-
 
                   Terminé
                 </Badge>
@@ -195,20 +186,14 @@ const CanvasPage: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={async () => {
-                    console.log('🎯 Clic sur le bouton template détecté');
-                    console.log('👤 User:', user);
-
                     if (!user) {
                       console.error('❌ Aucun utilisateur connecté');
                       alert('Vous devez être connecté pour créer un template');
                       return;
                     }
 
-                    console.log('🚀 Début de la création du template SaaS...');
-
                     try {
                       // Créer l'ambition
-                      console.log('📝 Création de l\'ambition...');
                       const ambition = await createAmbition.mutateAsync({
                         ambition: {
                           title: 'SaaS: Accélérer la croissance',
@@ -220,10 +205,8 @@ const CanvasPage: React.FC = () => {
                         },
                         userId: user.id
                       });
-                      console.log('✅ Ambition créée:', ambition);
 
                       // Créer l'objectif trimestriel
-                      console.log('📝 Création de l\'objectif trimestriel...');
                       const objective = await createObjective.mutateAsync({
                         objective: {
                           title: "Augmenter l'ARR",
@@ -235,10 +218,8 @@ const CanvasPage: React.FC = () => {
                         },
                         userId: user.id
                       });
-                      console.log('✅ Objectif créé:', objective);
 
                       // Créer les Key Results
-                      console.log('📝 Création des Key Results...');
                       const kr1 = await createKeyResult.mutateAsync({
                         keyResult: {
                           title: 'Passer de 100 à 200 MQL/mois',
@@ -252,8 +233,6 @@ const CanvasPage: React.FC = () => {
                         userId: user.id
                       });
 
-                      console.log('✅ KR1 créé:', kr1);
-
                       const kr2 = await createKeyResult.mutateAsync({
                         keyResult: {
                           title: 'Augmenter le taux de conversion MQL→Client de 12% à 18%',
@@ -266,10 +245,8 @@ const CanvasPage: React.FC = () => {
                         },
                         userId: user.id
                       });
-                      console.log('✅ KR2 créé:', kr2);
 
                       // Créer les actions
-                      console.log('📝 Création des actions...');
                       await createAction.mutateAsync({
                         action: {
                           title: 'Lancer campagne LinkedIn Ads',
@@ -302,9 +279,7 @@ const CanvasPage: React.FC = () => {
                         },
                         userId: user.id
                       });
-                      console.log('✅ Toutes les actions créées');
 
-                      console.log('🎉 Template SaaS créé avec succès !');
                       alert('Template SaaS créé avec succès !');
                     } catch (error) {
                       console.error('❌ Erreur lors de la création du template:', error);

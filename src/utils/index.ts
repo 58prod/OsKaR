@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { format, formatDistanceToNow, isAfter, isBefore, addDays } from 'date-fns';
+import { format, formatDistanceToNow, isAfter, isBefore } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Priority, Status } from '@/types';
 import { Quarter } from '@/types';
