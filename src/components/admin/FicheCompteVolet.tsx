@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, X } from 'lucide-react';
-import { useFicheCompte, useOffrirFormule, useRetirerFormule } from '@/hooks/useAdmin';
+import { useFicheCompte, useOffrirFormule, useRetirerFormule, useSupprimerCompte } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
+import { useAppStore } from '@/store/useAppStore';
 import { avancementDuCompte } from '@/lib/admin/avancement';
 import {
   MOTIFS_OFFRE,
@@ -159,6 +160,8 @@ export const FicheCompteVolet: React.FC<Props> = ({ compte, onFermer }) => {
                   ))
                 )}
               </Carte>
+
+              <SuppressionCompte key={affiche.id} compte={affiche} formule={formule} onSupprime={onFermer} />
             </div>
           </>
         )}
@@ -317,6 +320,97 @@ const OffreFormule: React.FC<{ compte: CompteAdmin; formule: FormuleCompte }> = 
         membres fondateurs, les coachs partenaires, les tests.
       </p>
     </div>
+  );
+};
+
+/*
+ * Bas de la fiche : suppression définitive. Il faut retaper l'adresse du
+ * compte pour confirmer. La base refuse aussi (message affiché) : soi-même, un
+ * autre administrateur, le compte de démo, un abonnement Stripe en cours.
+ */
+const SuppressionCompte: React.FC<{ compte: CompteAdmin; formule: FormuleCompte; onSupprime: () => void }> = ({
+  compte,
+  formule,
+  onSupprime,
+}) => {
+  const toast = useToast();
+  const moi = useAppStore().user?.id;
+  const supprimer = useSupprimerCompte();
+  const [ouverte, setOuverte] = useState(false);
+  const [saisie, setSaisie] = useState('');
+
+  const empechement =
+    compte.id === moi
+      ? 'C’est votre compte : passez par Paramètres > Supprimer mon compte.'
+      : formule.genre === 'demo'
+        ? 'Compte de démonstration : le script supabase/demo/compte_demo.sql le remet à zéro.'
+        : formule.genre === 'abonne' && compte.stripe
+          ? 'Abonnement Stripe en cours : résiliez-le d’abord dans Stripe.'
+          : null;
+  const confirme = saisie.trim().toLowerCase() === compte.email.toLowerCase();
+
+  const valider = async () => {
+    try {
+      await supprimer.mutateAsync(compte.id);
+      toast.success(`Compte ${compte.email} supprimé, avec toutes ses données.`);
+      onSupprime();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Le compte n’a pas pu être supprimé.');
+    }
+  };
+
+  return (
+    <section className="bg-white border-[1.5px] border-[#f5c2c2] rounded-card px-[22px] py-5 shadow-card">
+      <strong className="block text-16 text-[#b91c1c] font-bold mb-2">Supprimer le compte</strong>
+      <p className={NOTE}>
+        Efface définitivement le compte, ses ateliers, OKR, équipes et bilans, ainsi que les demandes de formule et
+        candidatures faites avec la même adresse. Irréversible.
+      </p>
+
+      {empechement ? (
+        <p className={`${NOTE} mt-3 font-semibold`}>{empechement}</p>
+      ) : !ouverte ? (
+        <button type="button" className={`${BOUTON_RETRAIT} mt-3.5`} onClick={() => setOuverte(true)}>
+          Supprimer ce compte…
+        </button>
+      ) : (
+        <div className="mt-3.5">
+          <label className={LIBELLE} htmlFor={`suppr-${compte.id}`}>
+            Pour confirmer, tapez l&rsquo;adresse du compte : <span className="font-normal break-all">{compte.email}</span>
+          </label>
+          <input
+            id={`suppr-${compte.id}`}
+            type="email"
+            autoComplete="off"
+            value={saisie}
+            onChange={(e) => setSaisie(e.target.value)}
+            className={`${CHAMP} mb-3.5`}
+          />
+          <div className="flex gap-2.5 flex-wrap">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-14.5 font-semibold rounded-[9px] bg-[#b91c1c] text-white transition-colors hover:bg-[#991b1b] disabled:opacity-50"
+              onClick={valider}
+              disabled={!confirme || supprimer.isPending}
+            >
+              {supprimer.isPending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+              Supprimer définitivement
+            </button>
+            <button
+              type="button"
+              className="px-3.5 py-2 text-14.5 font-semibold rounded-[9px] text-muted hover:text-navy"
+              onClick={() => {
+                setOuverte(false);
+                setSaisie('');
+              }}
+              disabled={supprimer.isPending}
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
   );
 };
 

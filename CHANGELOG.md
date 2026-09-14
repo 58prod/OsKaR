@@ -10,6 +10,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.39.0] - 2026-09-14
+
+### ✨ Ajouté — supprimer un compte depuis l'administration
+- Fiche d'un compte (`/admin/comptes`) : bloc « Supprimer le compte » en bas
+  du volet. Il faut retaper l'adresse du compte pour confirmer.
+- Même effacement que « Supprimer mon compte » : profil, ateliers, OKR,
+  équipes, abonnement, bilans, et les demandes de formule et candidatures
+  coach faites avec la même adresse.
+- Refusé par la base (et signalé dans la fiche) : son propre compte, un
+  autre administrateur, le compte de démonstration, un abonnement Stripe en
+  cours.
+- Migration `20260914_admin_supprimer_compte.sql` (fonction
+  `admin_supprimer_compte`, purement additive) à exécuter dans Supabase.
+
 ## [2.38.5] - 2026-09-14
 
 ### ⚡ Accéléré — pages plus légères (audit du code)

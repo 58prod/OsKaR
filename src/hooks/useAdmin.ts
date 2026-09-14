@@ -102,6 +102,15 @@ export function useOffrirFormule() {
   });
 }
 
+/** Les bilans, demandes et candidatures du compte partent avec lui : tout est rechargé. */
+export function useSupprimerCompte() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => AdminService.supprimerCompte(userId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin'] }),
+  });
+}
+
 export function useRetirerFormule() {
   const queryClient = useQueryClient();
   return useMutation({

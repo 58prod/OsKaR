@@ -167,6 +167,11 @@ export class AdminService {
   static async retirerFormule(userId: string): Promise<void> {
     await appeler('admin_retirer_formule', { p_user_id: userId });
   }
+
+  /** Migration 20260914_admin_supprimer_compte : efface le compte et toutes ses données. */
+  static async supprimerCompte(userId: string): Promise<void> {
+    await appeler('admin_supprimer_compte', { p_user_id: userId });
+  }
 }
 
 export default AdminService;

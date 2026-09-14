@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import TableauDeBordAdmin from '@/pages/admin/index';
 import ComptesAdmin from '@/pages/admin/comptes';
 import CandidaturesAdmin from '@/pages/admin/candidatures';
@@ -80,7 +80,10 @@ jest.mock('@/hooks/useAdmin', () => ({
   useMajCandidature: () => ({ mutateAsync: jest.fn(), isPending: false }),
   useOffrirFormule: () => ({ mutateAsync: jest.fn(), isPending: false }),
   useRetirerFormule: () => ({ mutateAsync: jest.fn(), isPending: false }),
+  useSupprimerCompte: () => ({ mutateAsync: mockSupprimer, isPending: false }),
 }));
+
+const mockSupprimer = jest.fn();
 
 describe('Administration', () => {
   it('le tableau de bord affiche les chiffres clés et ce qui attend une réponse', () => {
@@ -114,6 +117,27 @@ describe('Administration', () => {
     expect(screen.getByRole('button', { name: 'Prolonger' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Retirer la formule' })).toBeInTheDocument();
     expect(screen.getByText('Motif : Membre fondateur')).toBeInTheDocument();
+  });
+
+  it('la suppression d’un compte exige de retaper son adresse', async () => {
+    const fermer = jest.fn();
+    render(<FicheCompteVolet compte={mockComptes[0]} onFermer={fermer} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Supprimer ce compte…' }));
+    const bouton = screen.getByRole('button', { name: 'Supprimer définitivement' });
+    expect(bouton).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(/tapez l’adresse du compte/), { target: { value: 'autre@exemple.fr' } });
+    expect(bouton).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(/tapez l’adresse du compte/), { target: { value: ' Sophie@Exemple.fr ' } });
+    expect(bouton).toBeEnabled();
+    fireEvent.click(bouton);
+    expect(mockSupprimer).toHaveBeenCalledWith('c1');
+    await waitFor(() => expect(fermer).toHaveBeenCalled());
+  });
+
+  it('on ne peut pas supprimer son propre compte depuis l’administration', () => {
+    render(<FicheCompteVolet compte={{ ...mockComptes[0], id: 'u1' }} onFermer={jest.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Supprimer ce compte…' })).not.toBeInTheDocument();
+    expect(screen.getByText(/C’est votre compte/)).toBeInTheDocument();
   });
 
   it('les candidatures s’ouvrent sur les nouvelles', () => {
