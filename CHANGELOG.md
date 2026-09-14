@@ -10,6 +10,22 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.37.0] - 2026-09-14
+
+### ✨ Modifié — Compétences de l'équipe aligné sur les autres jeux
+- Synchro par opérations (`skillsReducer`) : toute l'équipe peut se noter
+  dans la même seconde sans qu'aucune note ni aucune fiche ne se perde
+  (vérifié : 8 personnes × 7 compétences dans la même milliseconde) ; une
+  note arrivée avant la fiche la crée ; une note sur une compétence
+  supprimée, ou envoyée avant une réinitialisation, est ignorée.
+- Corrigé : après « Réinitialiser », la fiche de chacun est recréée (l'écran
+  restait bloqué sur « Connexion à la session… »).
+- Barre blanche commune avec minuteur partagé ; suppression d'une
+  compétence confirmée (ses notes sont effacées) ; renommage reçu d'un autre
+  écran bien affiché ; pas de doublon dans la liste.
+- Points clés de l'équipe (forces, axes de progrès, avis très partagés),
+  repris dans l'export ; fiches dans le même ordre sur tous les écrans.
+
 ## [2.36.0] - 2026-09-14
 
 ### ✨ Modifié — « Disons-nous les choses » aligné sur les autres jeux

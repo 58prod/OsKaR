@@ -1,100 +1,96 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
 import { useFacilitator } from '@/hooks/useFacilitator';
+import { useToast } from '@/hooks/useToast';
 import { downloadTextFile } from '@/components/toolbox/shared/boardNotes';
-import { generateId } from '@/utils';
 import {
-  INITIAL_SKILLS_STATE, MAX_SKILLS, MIN_SKILLS, SKILL_NAME_MAX,
-  buildDefaultSkills, buildSkillsSummary,
-  type SkillsState,
+  chronoRemaining, resetChronoState, toggleChronoState, withDuration,
+} from '@/components/toolbox/shared/toolChrono';
+import {
+  INITIAL_SKILLS_STATE, MAX_SKILLS, SKILL_NAME_MAX,
+  buildDefaultSkills, buildSkillsSummary, normalizeSkillsState, skillId, skillsReducer,
+  type SkillsOp, type SkillsState,
 } from './skillsLogic';
 
-/** Orchestration métier de « Compétences de l'équipe » au-dessus du socle temps réel. */
+/**
+ * Orchestration métier de « Compétences de l'équipe » au-dessus du socle
+ * temps réel, en mode « opérations » (voir `skillsReducer`) : chaque note
+ * est diffusée seule, si bien que toute l'équipe peut se noter en même temps.
+ */
 export function useSkillsSession(code: string | null, identity: ToolIdentity | null) {
+  const toast = useToast();
+  const [now, setNow] = useState(() => Date.now());
+
   const session = useToolSession<SkillsState>({
     toolType: 'competences',
     code,
     identity,
     initialState: INITIAL_SKILLS_STATE,
+    reducer: skillsReducer,
   });
-  const { state, setState, isHost, isConnected } = session;
+  const { isHost, isConnected } = session;
+  const send = session.dispatch as (op: SkillsOp) => void;
+  // Les sessions ouvertes avant la synchro par opérations n'ont ni séance ni minuteur.
+  const state = useMemo(() => normalizeSkillsState(session.state), [session.state]);
   const { isFacilitator, toggleFacilitator } = useFacilitator(isHost);
   const myId = identity?.id ?? '';
+  const who = useMemo(
+    () => (identity ? { id: identity.id, name: identity.name, color: identity.color } : null),
+    [identity],
+  );
 
-  // Inscrit ma fiche dans l'état partagé dès la connexion (elle persiste
-  // ensuite, même si je quitte la session, pour conserver mes notes).
+  // Ma fiche existe dès la connexion, et revient après une réinitialisation.
+  const hasMyCard = !!state.people[myId];
   useEffect(() => {
-    if (!isConnected || !identity) return;
-    setState((p) => {
-      if (p.people[identity.id]) return p;
-      return {
-        ...p,
-        people: {
-          ...p.people,
-          [identity.id]: { id: identity.id, name: identity.name, color: identity.color, scores: {} },
-        },
-      };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, identity?.id]);
+    if (!isConnected || !who || hasMyCard) return;
+    send({ t: 'join', round: state.round, person: who });
+  }, [isConnected, who, hasMyCard, state.round, send]);
+
+  useEffect(() => {
+    if (!state.chrono.running) return;
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [state.chrono.running]);
+  const remainingSec = chronoRemaining(state.chrono, now);
 
   const me = useMemo(() => state.people[myId] ?? null, [state.people, myId]);
 
   /** Note (1–10) sur une compétence — chacun ne note que sa propre fiche. */
-  const setScore = useCallback((skillId: string, value: number) => {
-    setState((p) => {
-      const person = p.people[myId];
-      if (!person) return p;
-      const val = Math.max(1, Math.min(10, Math.round(value)));
-      return {
-        ...p,
-        people: { ...p.people, [myId]: { ...person, scores: { ...person.scores, [skillId]: val } } },
-      };
-    });
-  }, [setState, myId]);
+  const setScore = useCallback((id: string, value: number) => {
+    if (who) send({ t: 'score', round: state.round, person: who, skillId: id, value });
+  }, [send, who, state.round]);
 
   const addSkill = useCallback((name: string) => {
     const trimmed = name.trim().slice(0, SKILL_NAME_MAX);
     if (!trimmed) return;
-    setState((p) => {
-      if (p.skills.length >= MAX_SKILLS) return p;
-      if (p.skills.some((s) => s.name.toLowerCase() === trimmed.toLowerCase())) return p;
-      return { ...p, skills: [...p.skills, { id: generateId(), name: trimmed }] };
-    });
-  }, [setState]);
+    if (state.skills.length >= MAX_SKILLS) return;
+    if (state.skills.some((s) => s.name.toLowerCase() === trimmed.toLowerCase())) {
+      toast.warning('Cette compétence est déjà dans la liste.');
+      return;
+    }
+    send({ t: 'skillAdd', skill: { id: skillId(), name: trimmed } });
+  }, [send, state.skills, toast]);
 
-  const renameSkill = useCallback((id: string, name: string) => {
-    const trimmed = name.trim().slice(0, SKILL_NAME_MAX);
-    if (!trimmed) return;
-    setState((p) => ({
-      ...p,
-      skills: p.skills.map((s) => (s.id === id ? { ...s, name: trimmed } : s)),
-    }));
-  }, [setState]);
+  const renameSkill = useCallback((id: string, name: string) => send({ t: 'skillRename', id, name }), [send]);
+  const deleteSkill = useCallback((id: string) => send({ t: 'skillDelete', id }), [send]);
 
-  const deleteSkill = useCallback((id: string) => {
-    setState((p) => {
-      if (p.skills.length <= MIN_SKILLS) return p;
-      const people = Object.fromEntries(
-        Object.entries(p.people).map(([pid, person]) => {
-          if (!(id in person.scores)) return [pid, person];
-          const scores = { ...person.scores };
-          delete scores[id];
-          return [pid, { ...person, scores }];
-        }),
-      );
-      return { skills: p.skills.filter((s) => s.id !== id), people };
-    });
-  }, [setState]);
+  const toggleChrono = useCallback(() => {
+    setNow(Date.now());
+    send({ t: 'chrono', chrono: toggleChronoState(state.chrono) });
+  }, [send, state.chrono]);
+  const resetChrono = useCallback(() => send({ t: 'chrono', chrono: resetChronoState(state.chrono) }), [send, state.chrono]);
+  const setDuration = useCallback((seconds: number) => send({ t: 'chrono', chrono: withDuration(seconds) }), [send]);
 
   const exportSummary = useCallback(() => {
     downloadTextFile('competences-equipe.txt', buildSkillsSummary(state));
   }, [state]);
 
-  /** Réinitialise notes et liste (animateur) — ma fiche est recréée par l'effet. */
+  /** Réinitialise notes et liste (animateur) — chaque fiche est recréée à vide. */
   const reset = useCallback(() => {
-    setState(() => ({ skills: buildDefaultSkills(), people: {} }));
-  }, [setState]);
+    send({ t: 'reset', round: state.round + 1, skills: buildDefaultSkills(), chrono: resetChronoState(state.chrono) });
+    toast.success('Séance réinitialisée');
+  }, [send, state.round, state.chrono, toast]);
 
   return {
     state,
@@ -102,9 +98,12 @@ export function useSkillsSession(code: string | null, identity: ToolIdentity | n
     isFacilitator,
     toggleFacilitator,
     isLoading: session.isLoading,
+    remainingSec,
     myId,
     me,
-    actions: { setScore, addSkill, renameSkill, deleteSkill, exportSummary, reset },
+    actions: {
+      setScore, addSkill, renameSkill, deleteSkill, exportSummary, reset, toggleChrono, resetChrono, setDuration,
+    },
   };
 }
 

@@ -12,7 +12,7 @@ const CompetencesPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('competences');
 
   const {
-    state, isFacilitator, toggleFacilitator, me, actions,
+    state, isFacilitator, toggleFacilitator, remainingSec, me, actions,
   } = useSkillsSession(code, identity);
 
   const people = peopleOf(state);
@@ -30,10 +30,15 @@ const CompetencesPage: React.FC = () => {
       onShare={handleShare}
     >
       <SkillsToolbar
+        chrono={state.chrono}
+        remainingSec={remainingSec}
         peopleCount={people.length}
         completeCount={completeCount}
         skillCount={state.skills.length}
         isFacilitator={isFacilitator}
+        onToggleChrono={actions.toggleChrono}
+        onResetChrono={actions.resetChrono}
+        onDurationChange={actions.setDuration}
         onExport={actions.exportSummary}
         onReset={actions.reset}
       />
