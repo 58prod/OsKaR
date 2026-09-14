@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { emailNouvelInscrit } from '@/lib/auth/notificationInscription';
+import { utilisateurDuJeton } from '@/lib/auth/utilisateurDuJeton';
 
 /*
  * Prévient l'équipe d'un nouveau compte. Appelée par le formulaire
@@ -29,16 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(503).json({ error: "L'envoi d'email n'est pas configuré pour cet environnement." });
   }
 
-  const jeton = req.headers.authorization?.replace(/^Bearer\s+/i, '').trim();
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const cle = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!jeton || !url || !cle) return res.status(401).json({ error: 'Session manquante.' });
-
-  const { data, error: erreurSession } = await createClient(url, cle, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  }).auth.getUser(jeton);
-  const user = data?.user;
-  if (erreurSession || !user?.email) return res.status(401).json({ error: 'Session invalide.' });
+  const user = await utilisateurDuJeton(req);
+  if (!user?.email) return res.status(401).json({ error: 'Session invalide.' });
 
   if (Date.now() - new Date(user.created_at).getTime() > FENETRE_MS) {
     return res.status(409).json({ error: 'Ce compte n’est pas nouveau.' });

@@ -3,6 +3,14 @@ import type { Ambition, CompanyProfile, KeyResult } from '@/types';
 import type { QuarterRetrospectiveInput } from '@/lib/gemini-shared';
 import { AmbitionCategory, CompanySize, CompanyStage } from '@/types';
 
+jest.mock('@/lib/supabaseClient', () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({ data: { session: { access_token: 'jeton-test' } } }),
+    },
+  },
+}));
+
 describe('GeminiService', () => {
   const fetchMock = global.fetch as jest.Mock;
   const originalFetch = global.fetch;
@@ -107,7 +115,7 @@ describe('GeminiService', () => {
         '/api/gemini',
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer jeton-test' },
         })
       );
       expect(getRequestPayload()).toEqual({

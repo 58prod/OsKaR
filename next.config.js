@@ -1,5 +1,42 @@
+const enDev = process.env.NODE_ENV !== 'production';
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tgtgrnuekgsczszdjxqr.supabase.co';
+
+/*
+ * Politique de sécurité du contenu, en mode « rapport seulement » : le
+ * navigateur signale dans sa console ce qu'il aurait bloqué, sans rien bloquer.
+ * Une fois vérifiée en ligne sans signalement, passer l'en-tête en
+ * `Content-Security-Policy` pour qu'elle s'applique.
+ *   - wss:// : temps réel des outils d'équipe (Supabase Realtime) ;
+ *   - fonts.googleapis.com / gstatic.com : police Outfit ;
+ *   - img https: et blob: : photos des outils (stockage Supabase), exports.
+ */
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${enDev ? " 'unsafe-eval'" : ''}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  `connect-src 'self' ${supabase} ${supabase.replace(/^https:/, 'wss:')}${enDev ? ' ws:' : ''}`,
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join('; ');
+
+const enTetesSecurite = [
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+  { key: 'Content-Security-Policy-Report-Only', value: csp },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async headers() {
+    return [{ source: '/:path*', headers: enTetesSecurite }];
+  },
   // Retirer output: 'export' pour utiliser le mode serveur avec Netlify
   trailingSlash: true,
   images: {

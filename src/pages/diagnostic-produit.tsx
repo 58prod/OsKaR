@@ -102,7 +102,8 @@ const DiagnosticProduitPage: React.FC = () => {
         const res = await fetch('/api/send-product-fit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, analysis, project }),
+          // Le serveur recalcule l'analyse à partir du projet.
+          body: JSON.stringify({ email, project }),
         });
         if (!res.ok) {
           let detail = '';

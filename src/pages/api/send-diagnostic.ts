@@ -1,8 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import { generateDiagnosticPdf } from '@/lib/diagnostic/pdf';
-import { fmt, stateLabel } from '@/lib/diagnostic';
+import { buildAnalysis, fmt, stateLabel } from '@/lib/diagnostic';
 import type { AnalysisResult } from '@/lib/diagnostic';
+import { etatDiagnosticDuCorps } from '@/lib/diagnostic/validation';
+import { echapperHtml } from '@/lib/coachs/notification';
+
+/*
+ * Envoi par email du bilan de maturité, avec le PDF en pièce jointe. La route
+ * est libre d'accès (le Diagnostic ne demande pas de compte) : le navigateur
+ * n'envoie que les réponses, et c'est ici que l'analyse est recalculée. Le
+ * message ne contient donc que nos propres textes.
+ */
 
 type ApiResponse = { ok: true } | { error: string };
 
@@ -18,7 +27,7 @@ function getRequestBody(req: NextApiRequest) {
 /** Corps HTML de l'email accompagnant le PDF. */
 function buildEmailHtml(result: AnalysisResult): string {
   const rows = result.recap
-    .map((r) => `<li style="margin:2px 0;">${r.label} — <strong>${fmt(r.score)}/10</strong> (${stateLabel(r.state)})</li>`)
+    .map((r) => `<li style="margin:2px 0;">${echapperHtml(r.label)} —<strong>${fmt(r.score)}/10</strong> (${stateLabel(r.state)})</li>`)
     .join('');
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;max-width:560px;margin:auto;">
@@ -35,8 +44,6 @@ function buildEmailHtml(result: AnalysisResult): string {
     </div>
   </div>
   <br/><br/>`;
-  
-
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
@@ -50,14 +57,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(503).json({ error: "L'envoi d'email n'est pas configuré pour cet environnement." });
   }
 
-  const body = getRequestBody(req) as { email?: string; scores?: AnalysisResult } | null;
-  const email = body?.email?.trim();
-  const scores = body?.scores;
+  const body = getRequestBody(req) as { email?: unknown; responses?: unknown } | null;
+  const email = typeof body?.email === 'string' ? body.email.trim().slice(0, 254) : '';
 
   if (!email || !EMAIL_RE.test(email)) {
     return res.status(400).json({ error: 'Adresse email invalide.' });
   }
-  if (!scores || typeof scores.average !== 'number' || !Array.isArray(scores.recap)) {
+  const etat = etatDiagnosticDuCorps(body?.responses);
+  const scores = etat ? buildAnalysis(etat) : null;
+  if (!scores) {
     return res.status(400).json({ error: 'Bilan invalide ou incomplet.' });
   }
 

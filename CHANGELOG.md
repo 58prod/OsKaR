@@ -10,6 +10,28 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.38.3] - 2026-09-14
+
+### 🔒 Corrigé — sécurité (audit du code)
+- En-têtes de sécurité enfin envoyés sur les pages : ceux de `netlify.toml`
+  ne s'appliquaient qu'aux images et icônes (constaté en ligne). Ils sont
+  désormais posés par `next.config.js` : interdiction d'afficher le site dans
+  une autre page, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HTTPS
+  imposé. La politique de sécurité du contenu (CSP) part en mode « rapport
+  seulement » : elle autorise enfin le temps réel des outils (`wss://`) et la
+  police Outfit, qu'aurait bloqués l'ancienne version de `netlify.toml`
+  (retirée). À passer en mode bloquant après vérification en ligne.
+- Envoi du bilan Diagnostic et du Potentiel Produit par email : ces routes
+  libres d'accès acceptaient une analyse toute faite, envoyée telle quelle à
+  n'importe quelle adresse et sans échappement — de quoi envoyer des liens
+  piégés au nom d'Oskar. Le navigateur n'envoie plus que les réponses (ou le
+  projet), relues et bornées par le serveur, qui recalcule l'analyse ; la
+  saisie est échappée dans le message.
+- Assistant IA (`/api/gemini`) : réservé aux comptes connectés (jeton de
+  session vérifié auprès de Supabase), demandes démesurées refusées. La
+  vérification du jeton est commune avec l'email d'inscription
+  (`lib/auth/utilisateurDuJeton.ts`).
+
 ## [2.38.2] - 2026-09-14
 
 ### 🎨 Corrigé — radar et menu

@@ -1,5 +1,6 @@
 import type { Ambition, CompanyProfile, KeyResult } from '@/types';
 import type { GeminiAction, GeminiPayloadMap, QuarterRetrospectiveInput } from '@/lib/gemini-shared';
+import { supabase } from '@/lib/supabaseClient';
 
 const GEMINI_API_ROUTE = '/api/gemini';
 const DEFAULT_ERROR_MESSAGE = "Le service d'assistance IA est temporairement indisponible.";
@@ -30,10 +31,14 @@ export class GeminiService {
   }
 
   private async request<TResult>(action: GeminiAction, payload: GeminiPayloadMap[GeminiAction]): Promise<TResult> {
+    // La route vérifie la session : on joint le jeton du compte connecté.
+    const { data: session } = await supabase.auth.getSession();
+    const jeton = session?.session?.access_token;
     const response = await fetch(GEMINI_API_ROUTE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(jeton ? { Authorization: `Bearer ${jeton}` } : {}),
       },
       body: JSON.stringify({ action, payload }),
     });

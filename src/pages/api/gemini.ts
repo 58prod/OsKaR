@@ -11,6 +11,10 @@ import {
   type GeminiPayloadMap,
   type QuarterRetrospectiveInput,
 } from '@/lib/gemini-shared';
+import { utilisateurDuJeton } from '@/lib/auth/utilisateurDuJeton';
+
+/** Taille maximale, en caractères, des données jointes à une demande. */
+const TAILLE_MAX_DEMANDE = 20_000;
 
 type GeminiModel = ReturnType<GoogleGenerativeAI['getGenerativeModel']>;
 
@@ -101,6 +105,15 @@ export default async function handler(
 
   if (!body?.action || body.payload === undefined) {
     return res.status(400).json({ error: 'Requête IA invalide.' });
+  }
+
+  // Chaque appel consomme des crédits Gemini : réservé aux comptes connectés,
+  // et une demande démesurée est refusée avant d'atteindre le modèle.
+  if (!(await utilisateurDuJeton(req))) {
+    return res.status(401).json({ error: "Connectez-vous pour utiliser l'assistant IA." });
+  }
+  if (JSON.stringify(body.payload).length > TAILLE_MAX_DEMANDE) {
+    return res.status(413).json({ error: 'Demande trop volumineuse pour l’assistant IA.' });
   }
 
   try {

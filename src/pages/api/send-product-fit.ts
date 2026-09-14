@@ -1,11 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 import { generateProductFitPdf } from '@/lib/productFit/pdf';
-import type { ProductFitAnalysis, ProductFitProject } from '@/lib/productFit/types';
+import { calculateProductFitAnalysis } from '@/lib/productFit/scoring';
+import type { ProductFitAnalysis } from '@/lib/productFit/types';
+import { projetDuCorps } from '@/lib/productFit/validation';
+import { echapperHtml } from '@/lib/coachs/notification';
 
 /*
  * Envoi par email de la synthèse « Potentiel Produit », sur le même modèle que
  * `send-diagnostic` : un PDF en pièce jointe, un résumé dans le corps du message.
+ *
+ * La route est libre d'accès : le navigateur n'envoie que le projet, relu et
+ * borné ici, et l'analyse est recalculée côté serveur. Tout ce que la personne
+ * a saisi est échappé dans le message.
  */
 
 type ApiResponse = { ok: true } | { error: string };
@@ -27,12 +34,12 @@ function buildEmailHtml(analysis: ProductFitAnalysis, nomProjet?: string): strin
   const lignes = analysis.personasResults
     .map(
       (p) =>
-        `<li style="margin:2px 0;">${p.personaName} — <strong>${p.scoreOn10}/10</strong>${
+        `<li style="margin:2px 0;">${echapperHtml(p.personaName)} —<strong>${p.scoreOn10}/10</strong>${
           p.isPriorityTarget ? ' (à viser en premier)' : ''
         }</li>`
     )
     .join('');
-  const titre = nomProjet ? `Potentiel de « ${nomProjet} »` : 'Votre bilan Potentiel Produit';
+  const titre = nomProjet ? `Potentiel de « ${echapperHtml(nomProjet)} »` : 'Votre bilan Potentiel Produit';
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;color:#1f2937;max-width:560px;margin:auto;">
     <div style="background:#1e2d7d;color:#fff;padding:20px 24px;border-radius:12px 12px 0 0;">
@@ -60,21 +67,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(503).json({ error: "L'envoi d'email n'est pas configuré pour cet environnement." });
   }
 
-  const body = getRequestBody(req) as
-    | { email?: string; analysis?: ProductFitAnalysis; project?: ProductFitProject }
-    | null;
-  const email = body?.email?.trim();
-  const analysis = body?.analysis;
+  const body = getRequestBody(req) as { email?: unknown; project?: unknown } | null;
+  const email = typeof body?.email === 'string' ? body.email.trim().slice(0, 254) : '';
 
   if (!email || !EMAIL_RE.test(email)) {
     return res.status(400).json({ error: 'Adresse email invalide.' });
   }
-  if (!analysis || typeof analysis.globalScoreOn10 !== 'number' || !Array.isArray(analysis.personasResults)) {
+  const project = projetDuCorps(body?.project);
+  const analysis = project ? calculateProductFitAnalysis(project) : null;
+  if (!project || !analysis || analysis.personasResults.length === 0) {
     return res.status(400).json({ error: 'Bilan invalide ou incomplet.' });
   }
 
   try {
-    const pdf = Buffer.from(generateProductFitPdf(analysis, body?.project));
+    const pdf = Buffer.from(generateProductFitPdf(analysis, project));
     const resend = new Resend(apiKey);
     const from = process.env.RESEND_FROM_EMAIL || 'Oskar <onboarding@resend.dev>';
 
@@ -82,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       from,
       to: email,
       subject: 'Votre bilan Potentiel Produit Oskar',
-      html: buildEmailHtml(analysis, body?.project?.projectName),
+      html: buildEmailHtml(analysis, project.projectName),
       attachments: [{ filename: 'potentiel-produit-oskar.pdf', content: pdf }],
     });
 

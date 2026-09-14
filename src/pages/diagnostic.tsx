@@ -111,7 +111,8 @@ const DiagnosticPage: React.FC = () => {
             const res = await fetch('/api/send-diagnostic', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, scores: result }),
+              // Le serveur recalcule l'analyse à partir des réponses.
+              body: JSON.stringify({ email, responses: state }),
             });
             if (!res.ok) {
               let detail = '';

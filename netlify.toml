@@ -20,16 +20,19 @@
 # Pas besoin de redirections manuelles avec le plugin Next.js Runtime
 
 # Headers de sécurité
+#
+# Ces en-têtes ne s'appliquent qu'aux fichiers statiques (images, icônes) : les
+# pages Next.js n'en héritent pas (constaté sur oskar-coach.fr le 2026-09-14).
+# Les en-têtes des pages — dont la politique de sécurité (CSP) — sont définis
+# dans next.config.js, à un seul endroit.
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     # Empêcher la mise en cache agressive des pages HTML pour éviter les références vers d'anciens bundles
     Cache-Control = "public, max-age=0, must-revalidate"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://tgtgrnuekgsczszdjxqr.supabase.co;"
 
 
 # Cache des assets statiques
