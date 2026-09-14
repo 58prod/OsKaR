@@ -10,6 +10,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.38.5] - 2026-09-14
+
+### ⚡ Accéléré — pages plus légères (audit du code)
+- Accueil : le radar d'exemple est chargé à la demande ; la bibliothèque de
+  graphiques ne pèse plus sur le premier affichage (365 → 270 ko de
+  JavaScript au premier chargement). Rendu identique.
+- Diagnostic : même traitement pour le radar des 5 piliers
+  (`RadarPiliers`, 376 → 282 ko). Rendu identique.
+- Rapports : le générateur PDF ne se charge qu'au clic sur « Générer »
+  (409 → 281 ko).
+- Speedboat : l'image de fond passe de 2,3 Mo (PNG 2352 px) à 361 ko
+  (JPEG 2200 px, net sur écran haute densité).
+
 ## [2.38.4] - 2026-09-14
 
 ### 🧹 Nettoyé — code mort et bruit (audit du code)

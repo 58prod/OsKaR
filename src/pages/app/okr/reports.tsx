@@ -8,7 +8,6 @@ import { useQuarterlyKeyResultsByUser } from '@/hooks/useQuarterlyKeyResults';
 import { useActions } from '@/hooks/useActions';
 import { FileText, Download, TrendingUp, Target, CheckCircle, BarChart3, FileJson } from 'lucide-react';
 import { Quarter, ActionStatus } from '@/types';
-import jsPDF from 'jspdf';
 
 type ReportType = 'quarterly' | 'annual' | 'custom';
 type ExportFormat = 'pdf' | 'excel' | 'json';
@@ -103,6 +102,9 @@ const ReportsPage: React.FC = () => {
   };
 
   const generatePDFReport = async () => {
+    // Chargé à la demande : le générateur PDF pèse ~130 ko, inutile tant
+    // qu'on ne clique pas sur « Générer ».
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     let yPosition = 20;

@@ -99,7 +99,7 @@ export const SpeedboatScene: React.FC<SpeedboatSceneProps> = ({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/speedboat-bg.png"
+          src="/images/speedboat-bg.jpg"
           alt=""
           draggable={false}
           className="absolute inset-0 h-full w-full select-none object-cover"

@@ -16,25 +16,15 @@ import {
   BarChart3,
   MessageSquare,
 } from 'lucide-react';
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  ResponsiveContainer,
-} from 'recharts';
+import dynamic from 'next/dynamic';
 import { AppShell } from '@/components/layout/AppShell';
 import { ouvrirConnexion } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAppStore } from '@/store/useAppStore';
 
-const RADAR_DATA = [
-  { subject: 'Vision', A: 70 },
-  { subject: 'Market Fit', A: 45 },
-  { subject: 'Finance', A: 55 },
-  { subject: 'OKR', A: 38 },
-  { subject: 'Team', A: 71 },
-];
+// Chargé à la demande : la bibliothèque de graphiques (~90 ko) ne ralentit
+// plus le premier affichage de l'accueil.
+const RadarExemple = dynamic(() => import('@/components/accueil/RadarExemple'), { ssr: false });
 
 const HomePage: React.FC = () => {
   const router = useRouter();
@@ -169,20 +159,7 @@ const HomePage: React.FC = () => {
             <div className="p-8 lg:p-12 flex flex-col items-center justify-center min-h-[400px]">
               <span className="text-[11px] font-bold uppercase tracking-widest text-muted mb-6">Exemple de résultats</span>
               <div className="w-full h-64 lg:h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={RADAR_DATA}>
-                    <PolarGrid stroke="#e2e4f0" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#1e2d7d', fontSize: 11, fontWeight: 600 }} />
-                    <Radar
-                      name="Score"
-                      dataKey="A"
-                      stroke="#1e2d7d"
-                      fill="#00d4b4"
-                      fillOpacity={0.2}
-                      dot={{ r: 4, fill: '#00d4b4', stroke: '#1e2d7d' }}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
+                <RadarExemple />
               </div>
             </div>
           </div>
