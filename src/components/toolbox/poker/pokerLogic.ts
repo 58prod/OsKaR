@@ -211,6 +211,84 @@ export function cadreDuDessin(
   return { x: borne(cx), y: borne(cy), taille };
 }
 
+/** Écart de couleur (sur 255) sous lequel deux pixels comptent pour la même zone. */
+const TOLERANCE_REMPLISSAGE = 100;
+
+/**
+ * Pot de peinture : remplit, dans `pixels` (RGBA ligne par ligne, modifié sur
+ * place), la zone d'un seul tenant qui a la couleur du point (x, y). Les bords
+ * adoucis des traits qui entourent la zone sont repeints par-dessous, pour ne
+ * pas laisser de liseré clair entre le trait et le remplissage.
+ * Renvoie false si rien n'a changé (hors du cadre, ou zone déjà de cette couleur).
+ */
+export function remplirZone(
+  pixels: Uint8ClampedArray,
+  cote: number,
+  x: number,
+  y: number,
+  [r, g, b]: readonly [number, number, number],
+): boolean {
+  const px = Math.floor(x);
+  const py = Math.floor(y);
+  if (px < 0 || py < 0 || px >= cote || py >= cote) return false;
+
+  // Couleurs prémultipliées : un pixel presque transparent ressemble au vide,
+  // quelle que soit sa teinte.
+  const composante = (i: number, c: number) => (pixels[i * 4 + c] * pixels[i * 4 + 3]) / 255;
+  const depart = py * cote + px;
+  const cible = [0, 1, 2].map((c) => composante(depart, c)).concat(pixels[depart * 4 + 3]);
+  const ressemble = (i: number, ref: number[]) =>
+    Math.abs(composante(i, 0) - ref[0]) <= TOLERANCE_REMPLISSAGE
+    && Math.abs(composante(i, 1) - ref[1]) <= TOLERANCE_REMPLISSAGE
+    && Math.abs(composante(i, 2) - ref[2]) <= TOLERANCE_REMPLISSAGE
+    && Math.abs(pixels[i * 4 + 3] - ref[3]) <= TOLERANCE_REMPLISSAGE;
+  if (ressemble(depart, [r, g, b, 255])) return false;
+
+  // 1 = dans la zone, 2 = bord de la zone (trait voisin).
+  const marque = new Uint8Array(cote * cote);
+  marque[depart] = 1;
+  const pile = [depart];
+  while (pile.length > 0) {
+    const i = pile.pop()!;
+    const ix = i % cote;
+    const voisins = [
+      ix > 0 ? i - 1 : -1,
+      ix < cote - 1 ? i + 1 : -1,
+      i >= cote ? i - cote : -1,
+      i < cote * (cote - 1) ? i + cote : -1,
+    ];
+    for (const n of voisins) {
+      if (n < 0 || marque[n]) continue;
+      if (ressemble(n, cible)) {
+        marque[n] = 1;
+        pile.push(n);
+      } else {
+        marque[n] = 2;
+      }
+    }
+  }
+
+  for (let i = 0; i < marque.length; i++) {
+    if (!marque[i]) continue;
+    const o = i * 4;
+    // Dans la zone : la couleur pleine. Au bord : le pixel existant posé sur la couleur.
+    const a = marque[i] === 1 ? 0 : pixels[o + 3] / 255;
+    pixels[o] = Math.round(pixels[o] * a + r * (1 - a));
+    pixels[o + 1] = Math.round(pixels[o + 1] * a + g * (1 - a));
+    pixels[o + 2] = Math.round(pixels[o + 2] * a + b * (1 - a));
+    pixels[o + 3] = 255;
+  }
+  return true;
+}
+
+/** Nombre de dessins envoyés gardés sous le cadre pour les renvoyer en un clic. */
+export const DERNIERS_DESSINS_MAX = 6;
+
+/** Place un dessin en tête des derniers envoyés, sans doublon. */
+export function ajouterAuxDerniers(liste: readonly string[], src: string): string[] {
+  return [src, ...liste.filter((s) => s !== src)].slice(0, DERNIERS_DESSINS_MAX);
+}
+
 /**
  * Catalogue d'émojis pour les réactions, du plus courant au plus farfelu :
  * les réactions de tous les jours en haut du panneau, puis celles qui

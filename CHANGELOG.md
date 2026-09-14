@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.41.0] - 2026-09-14
+
+### ✨ Ajouté — Planning Poker, « Mon emoji » plus facile et plus joli
+- **Annuler** : bouton et raccourci Ctrl+Z / ⌘Z (sans voler celui des champs
+  de saisie). « Tout effacer » s'annule aussi.
+- **Symétrie miroir** : on dessine une moitié, l'autre suit (repère en
+  pointillé au milieu du cadre). Un visage ou un cœur en quelques secondes.
+- **Pot de peinture** : un clic remplit une forme fermée, sans liseré entre le
+  trait et le remplissage.
+- **Trois épaisseurs** (fin, moyen, gros feutre), plus épaisses qu'avant par
+  défaut : le dessin reste lisible une fois réduit chez les autres.
+- **Effet autocollant** appliqué à l'envoi : contour blanc et ombre légère,
+  lisible sur n'importe quel fond.
+- **Renvoyer un de mes dessins** : les 6 derniers dessins envoyés restent sous
+  le cadre et se renvoient d'un clic. Gardés dans le navigateur uniquement,
+  rien n'est stocké côté serveur.
+
 ## [2.40.0] - 2026-09-14
 
 ### ✨ Ajouté — statistiques de fréquentation

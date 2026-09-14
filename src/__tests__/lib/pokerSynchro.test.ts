@@ -1,11 +1,14 @@
 import {
+  DERNIERS_DESSINS_MAX,
   DESSIN_POIDS_MAX,
   INITIAL_POKER_STATE,
+  ajouterAuxDerniers,
   cadreDuDessin,
   computeResults,
   estDessinValide,
   normalizePokerState,
   pokerReducer,
+  remplirZone,
   type PokerOp,
   type PokerState,
 } from '@/components/toolbox/poker/pokerLogic';
@@ -114,6 +117,68 @@ describe('Planning Poker — emoji dessiné', () => {
     expect(cadre.x).toBeLessThanOrEqual(85);
     expect(cadre.y).toBeLessThanOrEqual(80);
     expect(cadreDuDessin(new Uint8Array(cote * cote), cote)).toBeNull();
+  });
+});
+
+describe('Planning Poker — pot de peinture', () => {
+  const cote = 10;
+  const noir = [26, 26, 46] as const;
+  const rose = [236, 72, 153] as const;
+  /** Un carré noir de 6 × 6 (bords de 2 à 7) sur fond transparent. */
+  const carre = () => {
+    const px = new Uint8ClampedArray(cote * cote * 4);
+    for (let y = 2; y <= 7; y++) {
+      for (let x = 2; x <= 7; x++) {
+        if (x === 2 || x === 7 || y === 2 || y === 7) px.set([...noir, 255], (y * cote + x) * 4);
+      }
+    }
+    return px;
+  };
+  const pixel = (px: Uint8ClampedArray, x: number, y: number) => Array.from(px.slice((y * cote + x) * 4, (y * cote + x) * 4 + 4));
+
+  it("remplit l'intérieur d'une forme fermée sans déborder", () => {
+    const px = carre();
+    expect(remplirZone(px, cote, 4.6, 4.2, rose)).toBe(true);
+    expect(pixel(px, 3, 3)).toEqual([...rose, 255]);
+    expect(pixel(px, 6, 6)).toEqual([...rose, 255]);
+    expect(pixel(px, 2, 4)).toEqual([...noir, 255]);
+    expect(pixel(px, 0, 0)).toEqual([0, 0, 0, 0]);
+  });
+
+  it("remplit le fond sans toucher à l'intérieur", () => {
+    const px = carre();
+    remplirZone(px, cote, 0, 0, rose);
+    expect(pixel(px, 9, 9)).toEqual([...rose, 255]);
+    expect(pixel(px, 4, 4)).toEqual([0, 0, 0, 0]);
+  });
+
+  it('ne fait rien sur une zone déjà de cette couleur ou hors du cadre', () => {
+    const px = carre();
+    remplirZone(px, cote, 4, 4, rose);
+    expect(remplirZone(px, cote, 4, 4, rose)).toBe(false);
+    expect(remplirZone(px, cote, -1, 4, rose)).toBe(false);
+    expect(remplirZone(px, cote, 4, cote, rose)).toBe(false);
+  });
+
+  it('repeint sous le bord adouci du trait, sans liseré', () => {
+    const px = carre();
+    px.set([...noir, 128], (4 * cote + 3) * 4); // bord adouci à l'intérieur du carré
+    remplirZone(px, cote, 5, 5, rose);
+    const [r, g, b, a] = pixel(px, 3, 4);
+    expect(a).toBe(255);
+    expect(r).toBeGreaterThan(noir[0]);
+    expect(r).toBeLessThan(rose[0]);
+    expect([g, b]).not.toEqual([rose[1], rose[2]]);
+  });
+});
+
+describe('Planning Poker — mes derniers dessins', () => {
+  it('place le dernier envoyé en tête, sans doublon, dans la limite', () => {
+    const liste = ['a', 'b', 'c', 'd', 'e', 'f'];
+    expect(ajouterAuxDerniers(liste, 'g')).toEqual(['g', 'a', 'b', 'c', 'd', 'e']);
+    expect(ajouterAuxDerniers(liste, 'c')).toEqual(['c', 'a', 'b', 'd', 'e', 'f']);
+    expect(ajouterAuxDerniers(liste, 'g')).toHaveLength(DERNIERS_DESSINS_MAX);
+    expect(ajouterAuxDerniers([], 'a')).toEqual(['a']);
   });
 });
 
