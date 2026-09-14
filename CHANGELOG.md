@@ -10,6 +10,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.42.1] - 2026-09-14
+
+### 🐛 Corrigé — limite de cœurs identique sur tous les écrans
+- Boîte à idées, Disons-nous les choses et Speedboat : quand une personne
+  dépassait sa limite de cœurs pendant que toute l'équipe votait, le cœur
+  refusé dépendait de l'ordre d'arrivée des messages, et deux écrans
+  pouvaient afficher des cœurs différents.
+- Les cœurs sont désormais datés et gardés tels quels ; seuls les premiers
+  cœurs de chacun, par date, comptent, dans la limite fixée par l'animateur.
+  Même résultat partout, et un cœur retiré libère la place aussitôt.
+- Les séances déjà enregistrées gardent leurs cœurs (repris à l'ouverture).
+- Mécanique commune avec la Résolution collective (`toolbox/shared/coeurs`),
+  testée sur tous les ordres d'arrivée possibles.
+
 ## [2.42.0] - 2026-09-14
 
 ### ✨ Ajouté — Résolution collective, un atelier d'intelligence collective

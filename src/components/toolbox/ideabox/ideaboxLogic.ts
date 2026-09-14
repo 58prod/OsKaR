@@ -1,5 +1,8 @@
 import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/toolChrono';
 import type { BoardNote } from '@/components/toolbox/shared/boardNotes';
+import {
+  avecCoeurs, donnerCoeur, normaliserCoeurs, reprendreLikedBy, type CoeursDates,
+} from '@/components/toolbox/shared/coeurs';
 
 /** Logique pure de la Boîte à idées (soumission, votes cœurs, sélection). */
 
@@ -41,6 +44,8 @@ export const VOTE_LIMITS = [
 export interface IdeaboxState {
   /** Idées rangées par identifiant horodaté (la plus ancienne en premier). */
   notes: BoardNote[];
+  /** Cœurs datés ; `likedBy` des idées n'en garde que ceux qui comptent (voir `avecCoeurs`). */
+  likes: CoeursDates;
   /** Idées anonymes : l'auteur n'est pas affiché. */
   anonymous: boolean;
   /** Cœurs par personne, 0 = illimité. */
@@ -60,6 +65,7 @@ export interface IdeaboxState {
 
 export const INITIAL_IDEABOX_STATE: IdeaboxState = {
   notes: [],
+  likes: {},
   anonymous: false,
   voteLimit: 0,
   round: 0,
@@ -100,12 +106,15 @@ export function normalizeIdeaboxState(raw: Partial<IdeaboxState> | null | undefi
   const notes = Array.isArray(s.notes)
     ? s.notes.map(sanitizeIdea).filter((n): n is BoardNote => n !== null)
     : [];
+  const voteLimit = typeof s.voteLimit === 'number' ? s.voteLimit : 0;
+  const likes = reprendreLikedBy(normaliserCoeurs(s.likes), notes);
   return {
     ...INITIAL_IDEABOX_STATE,
     ...s,
-    notes,
+    notes: avecCoeurs(notes, likes, voteLimit),
+    likes,
     anonymous: !!s.anonymous,
-    voteLimit: typeof s.voteLimit === 'number' ? s.voteLimit : 0,
+    voteLimit,
     round: typeof s.round === 'number' ? s.round : 0,
     chrono: s.chrono ?? INITIAL_IDEABOX_STATE.chrono,
     deleted: Array.isArray(s.deleted) ? s.deleted.filter((x): x is string => typeof x === 'string') : [],
@@ -143,7 +152,8 @@ export type IdeaboxOp =
   | { t: 'publish'; authorId: string; ids: string[]; round?: number; notes?: BoardNote[] }
   /** Suppression : son propre brouillon, ou n'importe quelle idée par l'animateur. */
   | { t: 'delete'; id: string; by: string; moderator?: boolean }
-  | { t: 'like'; id: string; voterId: string; liked: boolean }
+  /** Cœur donné ou retiré, daté (`at`) : la limite de cœurs se calcule ensuite, pareil partout. */
+  | { t: 'like'; id: string; voterId: string; liked: boolean; at?: number }
   | { t: 'retain'; id: string; retained: boolean }
   | { t: 'anonymous'; value: boolean }
   | { t: 'voteLimit'; value: number }
@@ -152,6 +162,13 @@ export type IdeaboxOp =
   | { t: 'reset'; round: number; chrono?: ToolChrono };
 
 export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
+  const s = appliquer(raw, op);
+  // Cœurs qui comptent, recalculés après chaque opération (publication, suppression, limite…).
+  const notes = avecCoeurs(s.notes, s.likes, s.voteLimit);
+  return notes === s.notes ? s : { ...s, notes };
+}
+
+function appliquer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
   const s = normalizeIdeaboxState(raw);
   switch (op.t) {
     case 'add': {
@@ -186,17 +203,11 @@ export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
       return { ...s, notes: s.notes.filter((n) => n.id !== op.id), deleted };
     }
     case 'like': {
-      const note = s.notes.find((n) => n.id === op.id);
-      if (!note || !note.revealed || note.authorId === op.voterId || !op.voterId) return s;
-      if (op.liked === note.likedBy.includes(op.voterId)) return s;
-      if (op.liked && s.voteLimit > 0 && votesUsedBy(s.notes, op.voterId) >= s.voteLimit) return s;
-      return {
-        ...s,
-        notes: s.notes.map((n) => (n.id !== op.id ? n : {
-          ...n,
-          likedBy: op.liked ? [...n.likedBy, op.voterId] : n.likedBy.filter((x) => x !== op.voterId),
-        })),
-      };
+      // Rien n'est refusé ici : refuser « le cœur de trop » dépendrait de
+      // l'ordre d'arrivée des messages. La limite s'applique dans `avecCoeurs`.
+      if (!op.voterId || !op.id) return s;
+      const likes = donnerCoeur(s.likes, op.id, op.voterId, op.liked, op.at ?? 0);
+      return likes === s.likes ? s : { ...s, likes };
     }
     case 'retain': {
       const note = s.notes.find((n) => n.id === op.id);
@@ -213,7 +224,7 @@ export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
       return { ...s, chrono: op.chrono };
     case 'reset':
       if (op.round <= s.round) return s;
-      return { ...s, round: op.round, notes: [], deleted: [], chrono: op.chrono ?? s.chrono };
+      return { ...s, round: op.round, notes: [], likes: {}, deleted: [], chrono: op.chrono ?? s.chrono };
     default:
       return s;
   }

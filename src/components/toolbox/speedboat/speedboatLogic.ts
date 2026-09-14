@@ -1,5 +1,8 @@
 import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/toolChrono';
 import type { BoardNote } from '@/components/toolbox/shared/boardNotes';
+import {
+  avecCoeurs, donnerCoeur, normaliserCoeurs, reprendreLikedBy, type CoeursDates,
+} from '@/components/toolbox/shared/coeurs';
 
 /** Logique pure de la Rétrospective Speedboat (voilier vers l'île au trésor). */
 
@@ -80,6 +83,8 @@ export const CARD_POS_MAX = { x: 0.84, y: 0.86 };
 
 export interface SpeedboatState {
   notes: BoardNote[];
+  /** Cœurs datés ; `likedBy` des tickets n'en garde que ceux qui comptent (voir `avecCoeurs`). */
+  likes: CoeursDates;
   /** Positions des cartes placées, indexées par id de note. */
   positions: Record<string, CardPosition>;
   /** Tickets anonymes : l'auteur n'est pas affiché. */
@@ -95,6 +100,7 @@ export interface SpeedboatState {
 
 export const INITIAL_SPEEDBOAT_STATE: SpeedboatState = {
   notes: [],
+  likes: {},
   positions: {},
   anonymous: false,
   voteLimit: 0,
@@ -154,13 +160,16 @@ export function normalizeSpeedboatState(raw: Partial<SpeedboatState> | null | un
       if (p) positions[n.id] = p;
     });
   }
+  const voteLimit = typeof s.voteLimit === 'number' ? s.voteLimit : 0;
+  const likes = reprendreLikedBy(normaliserCoeurs(s.likes), notes);
   return {
     ...INITIAL_SPEEDBOAT_STATE,
     ...s,
-    notes,
+    notes: avecCoeurs(notes, likes, voteLimit),
+    likes,
     positions,
     anonymous: !!s.anonymous,
-    voteLimit: typeof s.voteLimit === 'number' ? s.voteLimit : 0,
+    voteLimit,
     round: typeof s.round === 'number' ? s.round : 0,
     chrono: s.chrono ?? INITIAL_SPEEDBOAT_STATE.chrono,
     deleted: Array.isArray(s.deleted) ? s.deleted.filter((x): x is string => typeof x === 'string') : [],
@@ -233,7 +242,8 @@ export type SpeedboatOp =
   | { t: 'delete'; id: string; by: string; moderator?: boolean }
   /** Déplacement (et changement de zone) : le plus récent l'emporte. */
   | { t: 'move'; id: string; zone: SpeedboatZoneKey; x: number; y: number; at: number }
-  | { t: 'like'; id: string; voterId: string; liked: boolean }
+  /** Cœur donné ou retiré, daté (`at`) : la limite de cœurs se calcule ensuite, pareil partout. */
+  | { t: 'like'; id: string; voterId: string; liked: boolean; at?: number }
   | { t: 'retain'; id: string; retained: boolean }
   | { t: 'anonymous'; value: boolean }
   | { t: 'voteLimit'; value: number }
@@ -242,6 +252,13 @@ export type SpeedboatOp =
   | { t: 'reset'; round: number; chrono?: ToolChrono };
 
 export function speedboatReducer(raw: SpeedboatState, op: SpeedboatOp): SpeedboatState {
+  const s = appliquer(raw, op);
+  // Cœurs qui comptent, recalculés après chaque opération (placement, suppression, limite…).
+  const notes = avecCoeurs(s.notes, s.likes, s.voteLimit);
+  return notes === s.notes ? s : { ...s, notes };
+}
+
+function appliquer(raw: SpeedboatState, op: SpeedboatOp): SpeedboatState {
   const s = normalizeSpeedboatState(raw);
   switch (op.t) {
     case 'add': {
@@ -290,17 +307,11 @@ export function speedboatReducer(raw: SpeedboatState, op: SpeedboatOp): Speedboa
       };
     }
     case 'like': {
-      const note = s.notes.find((n) => n.id === op.id);
-      if (!note || !note.revealed || note.authorId === op.voterId || !op.voterId) return s;
-      if (op.liked === note.likedBy.includes(op.voterId)) return s;
-      if (op.liked && s.voteLimit > 0 && votesUsedBy(s.notes, op.voterId) >= s.voteLimit) return s;
-      return {
-        ...s,
-        notes: s.notes.map((n) => (n.id !== op.id ? n : {
-          ...n,
-          likedBy: op.liked ? [...n.likedBy, op.voterId] : n.likedBy.filter((x) => x !== op.voterId),
-        })),
-      };
+      // Rien n'est refusé ici : refuser « le cœur de trop » dépendrait de
+      // l'ordre d'arrivée des messages. La limite s'applique dans `avecCoeurs`.
+      if (!op.voterId || !op.id) return s;
+      const likes = donnerCoeur(s.likes, op.id, op.voterId, op.liked, op.at ?? 0);
+      return likes === s.likes ? s : { ...s, likes };
     }
     case 'retain': {
       const note = s.notes.find((n) => n.id === op.id);
@@ -317,7 +328,7 @@ export function speedboatReducer(raw: SpeedboatState, op: SpeedboatOp): Speedboa
       return { ...s, chrono: op.chrono };
     case 'reset':
       if (op.round <= s.round) return s;
-      return { ...s, round: op.round, notes: [], positions: {}, deleted: [], chrono: op.chrono ?? s.chrono };
+      return { ...s, round: op.round, notes: [], likes: {}, positions: {}, deleted: [], chrono: op.chrono ?? s.chrono };
     default:
       return s;
   }

@@ -110,6 +110,15 @@ describe('Speedboat — règles, désordre et réinitialisation', () => {
     expect(votesUsedBy(s.notes, 'alice')).toBe(2);
   });
 
+  it('applique la limite de cœurs de la même façon, quel que soit l’ordre d’arrivée', () => {
+    const tickets = ['m4-a', 'm4-b', 'm4-c'].map((id) => ticket(id, 'bruno'));
+    const depart = appliquer([{ t: 'voteLimit', value: 2 }, ...tickets.flatMap((n) => [ajout(n), place(n)])]);
+    const ops = tickets.map((n, i): SpeedboatOp => ({ t: 'like', id: n.id, voterId: 'alice', liked: true, at: i + 1 }));
+    const reference = appliquer(ops, depart);
+    permutations(ops).forEach((ordre) => expect(appliquer(ordre, depart)).toEqual(reference));
+    expect(reference.notes.map((n) => n.likedBy)).toEqual([['alice'], ['alice'], []]);
+  });
+
   it('ne place pas le ticket d’un autre, et un ticket supprimé ne revient jamais', () => {
     expect(appliquer([ajout(b), { t: 'publish', authorId: 'alice', items: [{ id: b.id, pos: { x: 0, y: 0 } }] }]).notes[0].revealed).toBe(false);
     const suppr: SpeedboatOp = { t: 'delete', id: a.id, by: 'chloe', moderator: true };

@@ -95,13 +95,13 @@ describe('Boîte à idées — règles', () => {
     const s = appliquer([
       { t: 'voteLimit', value: 2 },
       ...idees.flatMap((n) => [ajout(n), publie(n)]),
-      ...idees.map((n): IdeaboxOp => ({ t: 'like', id: n.id, voterId: 'alice', liked: true })),
+      ...idees.map((n, i): IdeaboxOp => ({ t: 'like', id: n.id, voterId: 'alice', liked: true, at: i + 1 })),
     ]);
     expect(votesUsedBy(s.notes, 'alice')).toBe(2);
     // En retirant un cœur, on peut le redonner ailleurs.
     const s2 = appliquer([
-      { t: 'like', id: 'm2-a', voterId: 'alice', liked: false },
-      { t: 'like', id: 'm2-c', voterId: 'alice', liked: true },
+      { t: 'like', id: 'm2-a', voterId: 'alice', liked: false, at: 4 },
+      { t: 'like', id: 'm2-c', voterId: 'alice', liked: true, at: 5 },
     ], s);
     expect(s2.notes.find((n) => n.id === 'm2-c')?.likedBy).toEqual(['alice']);
   });
@@ -148,5 +148,56 @@ describe('Boîte à idées — réinitialisation et export', () => {
     const s = normalizeIdeaboxState(ancien);
     expect(s).toMatchObject({ round: 0, anonymous: false, voteLimit: 0 });
     expect(s.notes[0].likedBy).toEqual(['bruno']);
+  });
+});
+
+/** Tous les ordres possibles d'une petite liste de messages. */
+function permutations<T>(list: T[]): T[][] {
+  if (list.length <= 1) return [list];
+  return list.flatMap((x, i) => permutations([...list.slice(0, i), ...list.slice(i + 1)]).map((p) => [x, ...p]));
+}
+
+describe('Boîte à idées — limite de cœurs, toutes les permutations', () => {
+  const idees = ['m8-a', 'm8-b', 'm8-c', 'm8-d'].map((id) => idee(id, 'bruno'));
+  const base = appliquer([{ t: 'voteLimit', value: 3 }, ...idees.flatMap((n) => [ajout(n), publie(n)])]);
+  const coeur = (id: string, at: number, liked = true): IdeaboxOp => ({ t: 'like', id, voterId: 'alice', liked, at });
+
+  /** Le même lot d'opérations donne le même état quel que soit l'ordre d'arrivée. */
+  const memeEtatPartout = (ops: IdeaboxOp[]) => {
+    const reference = appliquer(ops, base);
+    permutations(ops).forEach((ordre) => expect(appliquer(ordre, base)).toEqual(reference));
+    return reference;
+  };
+
+  it('garde les 3 premiers cœurs d’Alice sur tous les écrans, même si le 4e arrive avant', () => {
+    const s = memeEtatPartout([coeur('m8-a', 1), coeur('m8-b', 2), coeur('m8-c', 3), coeur('m8-d', 4)]);
+    expect(s.notes.map((n) => n.likedBy)).toEqual([['alice'], ['alice'], ['alice'], []]);
+    expect(votesUsedBy(s.notes, 'alice')).toBe(3);
+  });
+
+  it('un cœur retiré libère la place, même quand le retrait arrive avant le cœur', () => {
+    const s = memeEtatPartout([coeur('m8-a', 1), coeur('m8-b', 2), coeur('m8-c', 3), coeur('m8-d', 4), coeur('m8-b', 5, false)]);
+    expect(s.notes.map((n) => n.likedBy.length)).toEqual([1, 0, 1, 1]);
+  });
+
+  it('suit la limite quand l’animateur la change, et ne compte ni brouillon ni sa propre idée', () => {
+    const brouillon = idee('m8-e', 'bruno');
+    const s = memeEtatPartout([
+      coeur('m8-a', 1), coeur('m8-b', 2), coeur('m8-c', 3),
+      { t: 'voteLimit', value: 2 },
+      ajout(brouillon), coeur('m8-e', 0),
+      { t: 'like', id: 'm8-a', voterId: 'bruno', liked: true, at: 1 },
+    ]);
+    expect(s.notes.map((n) => n.likedBy)).toEqual([['alice'], ['alice'], [], [], []]);
+  });
+
+  it('reprend les cœurs d’une séance enregistrée avant les cœurs datés', () => {
+    const ancien = { voteLimit: 3, notes: idees.slice(0, 3).map((n) => ({ ...n, revealed: true, likedBy: ['alice', 'chloe'] })) } as Partial<IdeaboxState>;
+    const s = normalizeIdeaboxState(ancien);
+    expect(s.notes.map((n) => n.likedBy)).toEqual([['alice', 'chloe'], ['alice', 'chloe'], ['alice', 'chloe']]);
+    // Alice peut retirer un cœur repris, puis le redonner ailleurs.
+    const s2 = appliquer([coeur('m8-a', 10, false)], s);
+    expect(s2.notes[0].likedBy).toEqual(['chloe']);
+    expect(votesUsedBy(s2.notes, 'alice')).toBe(2);
   });
 });

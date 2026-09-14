@@ -84,6 +84,15 @@ describe('Disons-nous les choses — règles', () => {
     expect(votesUsedBy(s.notes, 'alice')).toBe(2);
   });
 
+  it('applique la limite de cœurs de la même façon, quel que soit l’ordre d’arrivée', () => {
+    const cartes = ['m4-a', 'm4-b', 'm4-c'].map((id) => carte(id, 'bruno'));
+    const depart = appliquer([{ t: 'voteLimit', value: 2 }, ...cartes.flatMap((n) => [ajout(n), publie(n)])]);
+    const ops = cartes.map((n, i): DisonsOp => ({ t: 'like', id: n.id, voterId: 'alice', liked: true, at: i + 1 }));
+    const reference = appliquer(ops, depart);
+    permutations(ops).forEach((ordre) => expect(appliquer(ordre, depart)).toEqual(reference));
+    expect(reference.notes.map((n) => n.likedBy)).toEqual([['alice'], ['alice'], []]);
+  });
+
   it('« Retenir » reçu deux fois ne s’annule pas, et la carte retenue passe en tête', () => {
     const c = carte('m2-c', 'chloe');
     const s = appliquer([

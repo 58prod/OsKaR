@@ -3,6 +3,7 @@ import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import { useToast } from '@/hooks/useToast';
 import { buildNote, notesOf, downloadTextFile } from '@/components/toolbox/shared/boardNotes';
+import { aDonneCoeur, heureDuCoeur } from '@/components/toolbox/shared/coeurs';
 import {
   chronoRemaining, resetChronoState, toggleChronoState, withDuration,
 } from '@/components/toolbox/shared/toolChrono';
@@ -68,13 +69,14 @@ export function useIdeaboxSession(code: string | null, identity: ToolIdentity | 
   const vote = useCallback((id: string) => {
     const note = state.notes.find((n) => n.id === id);
     if (!note || note.authorId === myId) return;
-    const liked = !note.likedBy.includes(myId);
+    // Un cœur au-delà de la limite (limite baissée entre-temps) ne compte pas mais existe : ce clic le retire.
+    const liked = !aDonneCoeur(state.likes, id, myId);
     if (liked && votesLeft === 0) {
       toast.warning(`Vous avez donné vos ${state.voteLimit} cœurs : retirez-en un pour voter ailleurs.`);
       return;
     }
-    send({ t: 'like', id, voterId: myId, liked });
-  }, [state.notes, state.voteLimit, myId, votesLeft, send, toast]);
+    send({ t: 'like', id, voterId: myId, liked, at: heureDuCoeur(state.likes, id, myId) });
+  }, [state.notes, state.likes, state.voteLimit, myId, votesLeft, send, toast]);
 
   /** Marque « retenue » / « à retirer » (animateur). */
   const retain = useCallback((id: string) => {
