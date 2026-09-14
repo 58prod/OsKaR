@@ -10,6 +10,38 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.42.0] - 2026-09-14
+
+### ✨ Ajouté — Résolution collective, un atelier d'intelligence collective
+- Nouvel outil de la boîte à outils (`/app/outils/resolution-collective`),
+  en présentiel comme à distance, en six étapes pilotées par l'animateur :
+  1. **Problèmes** : sur le thème saisi par l'animateur, chacun note seul
+     les problèmes rencontrés (« Quand…, alors… »), face cachée.
+  2. **Choix** : on découvre tout, on regroupe les doublons, on vote avec ses
+     cœurs ; l'animateur retient **3 problèmes au plus** et peut les
+     reformuler en « Comment pourrions-nous… ? ».
+  3. **Solutions** : chacun propose seul ses solutions, « Déjà testé » ou
+     « Idée », face cachée.
+  4. **Échange** : commentaires (+ j'ajoute, ? je m'interroge, ! attention) ;
+     un rapporteur par problème rédige la solution du groupe.
+  5. **Vote** : une voix par problème, secrète jusqu'au dévoilement ;
+     l'animateur valide la solution retenue (égalité signalée).
+  6. **Premier pas** : action, porteur et échéance ; synthèse à copier ou à
+     exporter.
+- Anonymat optionnel, cœurs par personne réglables, minuteur calé sur la
+  durée proposée pour chaque étape, « Nouvel atelier » qui garde le thème.
+- Exemples adaptés au métier (thème, problème, solution, premier pas) pour les
+  14 familles.
+- Synchronisation par opérations comme les autres outils : ajouts rangés par
+  identifiant, textes partagés et choix où le plus récent l'emporte. La
+  limite de cœurs s'applique à l'affichage (premiers cœurs de chacun, par
+  date) : tous les écrans comptent pareil, quel que soit l'ordre d'arrivée.
+  Vérifié à 6 participants simultanés sur tout le déroulé.
+
+### 🔧 Modifié
+- La copie de synthèse du Team Mood passe par une fonction commune
+  (`toolbox/shared/copyText`).
+
 ## [2.41.0] - 2026-09-14
 
 ### ✨ Ajouté — Planning Poker, « Mon emoji » plus facile et plus joli

@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Layers, Star, Sunrise, Smile, Lightbulb, StickyNote,
-  Scale, PartyPopper, Radar, Sailboat, RefreshCw,
+  Scale, PartyPopper, Radar, Sailboat, RefreshCw, Puzzle,
 } from 'lucide-react';
 
 /**
@@ -71,7 +71,8 @@ export type ToolType =
   | 'en-mode-recre'
   | 'competences'
   | 'retrospective'
-  | 'speedboat';
+  | 'speedboat'
+  | 'resolution-collective';
 
 export interface ToolDefinition {
   /** Identifiant technique (route + tool_type). */
@@ -164,6 +165,18 @@ export const TOOLS: ToolDefinition[] = [
     participants: '2 – 20 participants',
     gradient: 'linear-gradient(135deg, #0d9466, #00d4b4)',
     icon: StickyNote,
+  },
+  {
+    type: 'resolution-collective',
+    status: 'live',
+    title: 'Résolution collective',
+    description:
+      "Un atelier d'intelligence collective en six étapes : chacun note les problèmes rencontrés sur un thème, l'équipe en retient trois au plus, propose des solutions, échange, vote et repart avec un premier pas.",
+    duration: '45 – 60 min',
+    participants: '3 – 15 participants',
+    gradient: 'linear-gradient(135deg, #c2410c, #fb923c)',
+    icon: Puzzle,
+    cta: 'Lancer la résolution',
   },
   {
     type: 'disons-nous',

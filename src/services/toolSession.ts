@@ -14,6 +14,7 @@ const CODE_PREFIX: Record<ToolType, string> = {
   'competences': 'SKILLS',
   'retrospective': 'RETRO',
   'speedboat': 'BOAT',
+  'resolution-collective': 'RESOL',
 };
 
 // Caractères sans ambiguïté (pas de O/0, I/1) pour la saisie/lecture du code.
