@@ -10,6 +10,24 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.34.0] - 2026-09-14
+
+### ✨ Modifié — Boîte à idées alignée sur les autres jeux
+- Synchro par opérations (`ideaboxReducer`) : toute l'équipe peut proposer,
+  publier et voter dans la même seconde sans que rien ne se perde ; ordre
+  des idées identique partout, « Retenir » et les votes ne s'annulent plus
+  quand un geste est reçu deux fois ; on ne peut pas voter pour sa propre
+  idée ni publier celle d'un autre (vérifié dans les données partagées).
+- Barre blanche commune : compteurs (idées, votes, retenues), « Idées
+  anonymes », cœurs par personne (illimités, 3, 5 ou 10), export,
+  réinitialisation confirmée et minuteur partagé.
+- Mon espace : brouillons modifiables, « Tout publier », cœurs reçus et
+  statut « retenue » sur ses idées publiées, compteur de caractères.
+- Espace commun : cœurs restants, compteurs par catégorie, badge
+  « Populaire » réservé à la tête du classement (3 idées au plus),
+  suppression d'une idée par l'animateur (modération, en deux clics).
+- Textes au vouvoiement, comme les autres outils.
+
 ## [2.33.1] - 2026-09-13
 
 ### 🔧 Corrigé — « Suggérer un outil » envoie bien un email à l'équipe
