@@ -68,6 +68,11 @@ export interface BrainstormState {
    * juste avant la remise à zéro est ignorée au lieu de réapparaître.
    */
   round: number;
+  /**
+   * Post-its supprimés pendant la séance : un message en retard (ajout,
+   * révélation) ne peut pas les faire revenir.
+   */
+  deleted: string[];
 }
 
 export const INITIAL_BRAINSTORM_STATE: BrainstormState = {
@@ -77,6 +82,7 @@ export const INITIAL_BRAINSTORM_STATE: BrainstormState = {
   chrono: initialChrono(BRAINSTORM_DEFAULT_DURATION_SEC),
   anonymous: false,
   round: 0,
+  deleted: [],
 };
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
@@ -138,6 +144,7 @@ export function normalizeBrainstormState(raw: Partial<BrainstormState> | null | 
     chrono: s.chrono ?? INITIAL_BRAINSTORM_STATE.chrono,
     anonymous: !!s.anonymous,
     round: typeof s.round === 'number' ? s.round : 0,
+    deleted: Array.isArray(s.deleted) ? s.deleted.filter((x): x is string => typeof x === 'string') : [],
   };
 }
 
@@ -212,7 +219,7 @@ export type BrainstormOp =
    * post-it voyage avec : si son « add » arrive après (messages dans le
    * désordre), il est quand même révélé.
    */
-  | { t: 'reveal'; authorId: string; items: { id: string; pos: PostitPosition; note?: BoardNote }[] }
+  | { t: 'reveal'; authorId: string; round?: number; items: { id: string; pos: PostitPosition; note?: BoardNote }[] }
   /** Retour en préparation de toutes les idées révélées d'un auteur. */
   | { t: 'unreveal'; authorId: string }
   /** Suppression : ses propres idées, ou n'importe laquelle par l'animateur. */
@@ -232,18 +239,20 @@ export function brainstormReducer(raw: BrainstormState, op: BrainstormOp): Brain
   const s = normalizeBrainstormState(raw);
   switch (op.t) {
     case 'add': {
-      if (op.round !== s.round) return s;
+      if (op.round !== s.round || s.deleted.includes(op.note?.id)) return s;
       const note = sanitizeNote({ ...op.note, revealed: false, likedBy: [], retained: false });
       return note ? { ...s, notes: insertById(s.notes, note) } : s;
     }
     case 'reveal': {
+      // Révélation d'une séance effacée depuis : ignorée.
+      if (op.round !== undefined && op.round !== s.round) return s;
       const places = new Map<string, PostitPosition>();
       let notes = s.notes;
       op.items.forEach((it) => {
         const pos = sanitizePosition(it.pos);
         if (!pos) return;
         let note = notes.find((n) => n.id === it.id);
-        if (!note && it.note) {
+        if (!note && it.note && !s.deleted.includes(it.id)) {
           // Le post-it n'est pas encore arrivé : on l'ajoute depuis la révélation.
           const recu = sanitizeNote({ ...it.note, id: it.id, revealed: false, likedBy: [], retained: false });
           if (recu && recu.authorId === op.authorId) { notes = insertById(notes, recu); note = recu; }
@@ -267,10 +276,13 @@ export function brainstormReducer(raw: BrainstormState, op: BrainstormOp): Brain
     }
     case 'delete': {
       const note = s.notes.find((n) => n.id === op.id);
-      if (!note || !(op.moderator || note.authorId === op.by)) return s;
+      if (note && !(op.moderator || note.authorId === op.by)) return s;
+      const deleted = s.deleted.includes(op.id) ? s.deleted : [...s.deleted, op.id];
+      // Pas encore arrivé ici : on retient seulement qu'il est supprimé.
+      if (!note) return deleted === s.deleted ? s : { ...s, deleted };
       const positions = { ...s.positions };
       delete positions[op.id];
-      return { ...s, notes: s.notes.filter((n) => n.id !== op.id), positions };
+      return { ...s, notes: s.notes.filter((n) => n.id !== op.id), positions, deleted };
     }
     case 'move': {
       const cur = s.positions[op.id];
@@ -313,7 +325,7 @@ export function brainstormReducer(raw: BrainstormState, op: BrainstormOp): Brain
       return { ...s, chrono: op.chrono };
     case 'reset':
       if (op.round <= s.round) return s;
-      return { ...s, round: op.round, notes: [], positions: {}, chrono: op.chrono ?? s.chrono };
+      return { ...s, round: op.round, notes: [], positions: {}, deleted: [], chrono: op.chrono ?? s.chrono };
     default:
       return s;
   }

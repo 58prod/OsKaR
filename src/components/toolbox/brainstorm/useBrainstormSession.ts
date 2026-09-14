@@ -66,8 +66,8 @@ export function useBrainstormSession(code: string | null, identity: ToolIdentity
       taken.push(pos);
       return { id, pos, note: state.notes.find((n) => n.id === id) };
     });
-    send({ t: 'reveal', authorId: myId, items });
-  }, [send, myId, state.positions, state.notes]);
+    send({ t: 'reveal', authorId: myId, round: state.round, items });
+  }, [send, myId, state.positions, state.notes, state.round]);
 
   const pendingIds = useMemo(() => myNotes.filter((n) => !n.revealed).map((n) => n.id), [myNotes]);
   const revealMyNext = useCallback(() => revealIds(pendingIds.slice(0, 1)), [revealIds, pendingIds]);

@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.35.1] - 2026-09-14
+
+### 🔧 Corrigé — messages dans le désordre (rétro, brainstorming, boîte à idées)
+- Rétrospective : une note révélée avant d'être arrivée n'est plus bloquée
+  en préparation (la note voyage avec sa révélation, vérifié à 8 personnes
+  × 3 notes dans la même milliseconde) ; on ne peut révéler que ses propres
+  notes.
+- Rétrospective : séances numérotées. Une note envoyée juste avant
+  « Nouvelle rétro » ou « Tout effacer » ne réapparaît plus après, et
+  « Nouvelle rétro » reçue deux fois n'archive les actions qu'une fois.
+- Rétro, brainstorming, boîte à idées : une note supprimée ne peut plus
+  revenir par un message en retard (les suppressions de la séance sont
+  retenues) ; une révélation ou publication d'avant la réinitialisation est
+  ignorée.
+- Compatible avec les séances déjà ouvertes et avec les messages de la
+  version précédente pendant le déploiement.
+
 ## [2.35.0] - 2026-09-14
 
 ### ✨ Modifié — Brainstorming aligné sur les autres jeux

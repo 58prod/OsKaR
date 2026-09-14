@@ -51,6 +51,11 @@ export interface IdeaboxState {
    */
   round: number;
   chrono: ToolChrono;
+  /**
+   * Idées supprimées pendant la séance : un message en retard (ajout,
+   * publication) ne peut pas les faire revenir.
+   */
+  deleted: string[];
 }
 
 export const INITIAL_IDEABOX_STATE: IdeaboxState = {
@@ -59,6 +64,7 @@ export const INITIAL_IDEABOX_STATE: IdeaboxState = {
   voteLimit: 0,
   round: 0,
   chrono: initialChrono(300),
+  deleted: [],
 };
 
 const texte = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -102,6 +108,7 @@ export function normalizeIdeaboxState(raw: Partial<IdeaboxState> | null | undefi
     voteLimit: typeof s.voteLimit === 'number' ? s.voteLimit : 0,
     round: typeof s.round === 'number' ? s.round : 0,
     chrono: s.chrono ?? INITIAL_IDEABOX_STATE.chrono,
+    deleted: Array.isArray(s.deleted) ? s.deleted.filter((x): x is string => typeof x === 'string') : [],
   };
 }
 
@@ -133,7 +140,7 @@ export type IdeaboxOp =
    * voyagent avec : si leur « add » arrive après (messages dans le désordre),
    * elles sont quand même publiées.
    */
-  | { t: 'publish'; authorId: string; ids: string[]; notes?: BoardNote[] }
+  | { t: 'publish'; authorId: string; ids: string[]; round?: number; notes?: BoardNote[] }
   /** Suppression : son propre brouillon, ou n'importe quelle idée par l'animateur. */
   | { t: 'delete'; id: string; by: string; moderator?: boolean }
   | { t: 'like'; id: string; voterId: string; liked: boolean }
@@ -148,17 +155,21 @@ export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
   const s = normalizeIdeaboxState(raw);
   switch (op.t) {
     case 'add': {
-      if (op.round !== s.round) return s;
+      if (op.round !== s.round || s.deleted.includes(op.note?.id)) return s;
       const note = sanitizeIdea({ ...op.note, revealed: false, likedBy: [], retained: false });
       return note ? { ...s, notes: insertById(s.notes, note) } : s;
     }
     case 'publish': {
+      // Publication d'une séance effacée depuis : ignorée.
+      if (op.round !== undefined && op.round !== s.round) return s;
       const ids = new Set(op.ids);
       let notes = s.notes;
-      // Idée pas encore arrivée : on l'ajoute depuis la publication (même auteur seulement).
+      // Idée pas encore arrivée : on l'ajoute depuis la publication (même auteur, jamais une idée supprimée).
       (op.notes ?? []).forEach((raw) => {
         const recu = sanitizeIdea({ ...raw, revealed: false, likedBy: [], retained: false });
-        if (recu && ids.has(recu.id) && recu.authorId === op.authorId) notes = insertById(notes, recu);
+        if (recu && ids.has(recu.id) && recu.authorId === op.authorId && !s.deleted.includes(recu.id)) {
+          notes = insertById(notes, recu);
+        }
       });
       if (!notes.some((n) => ids.has(n.id) && n.authorId === op.authorId && !n.revealed)) return s;
       return {
@@ -168,9 +179,11 @@ export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
     }
     case 'delete': {
       const note = s.notes.find((n) => n.id === op.id);
-      if (!note) return s;
-      const allowed = op.moderator || (note.authorId === op.by && !note.revealed);
-      return allowed ? { ...s, notes: s.notes.filter((n) => n.id !== op.id) } : s;
+      if (note && !(op.moderator || (note.authorId === op.by && !note.revealed))) return s;
+      const deleted = s.deleted.includes(op.id) ? s.deleted : [...s.deleted, op.id];
+      // Pas encore arrivée ici : on retient seulement qu'elle est supprimée.
+      if (!note) return deleted === s.deleted ? s : { ...s, deleted };
+      return { ...s, notes: s.notes.filter((n) => n.id !== op.id), deleted };
     }
     case 'like': {
       const note = s.notes.find((n) => n.id === op.id);
@@ -200,7 +213,7 @@ export function ideaboxReducer(raw: IdeaboxState, op: IdeaboxOp): IdeaboxState {
       return { ...s, chrono: op.chrono };
     case 'reset':
       if (op.round <= s.round) return s;
-      return { ...s, round: op.round, notes: [], chrono: op.chrono ?? s.chrono };
+      return { ...s, round: op.round, notes: [], deleted: [], chrono: op.chrono ?? s.chrono };
     default:
       return s;
   }

@@ -86,6 +86,16 @@ export interface RetroState {
    */
   dismissedActions: string[];
   chrono: ToolChrono;
+  /**
+   * Numéro de séance, augmenté à chaque « Nouvelle rétro » et « Tout
+   * effacer » : une note envoyée juste avant ne réapparaît pas après.
+   */
+  session: number;
+  /**
+   * Notes supprimées pendant la séance : un message en retard (ajout,
+   * révélation) ne peut pas les faire revenir.
+   */
+  deletedIds: string[];
 }
 
 /** Jour local au format AAAA-MM-JJ. */
@@ -110,6 +120,8 @@ export const INITIAL_RETRO_STATE: RetroState = {
   retroDate: '',
   dismissedActions: [],
   chrono: initialChrono(RETRO_DEFAULT_DURATION_SEC),
+  session: 0,
+  deletedIds: [],
 };
 
 /**
@@ -125,6 +137,8 @@ export function normalizeRetroState(raw: Partial<RetroState> | null | undefined)
     pastActions: raw?.pastActions ?? [],
     retroDate: raw?.retroDate ?? '',
     dismissedActions: raw?.dismissedActions ?? [],
+    session: typeof raw?.session === 'number' ? raw.session : 0,
+    deletedIds: Array.isArray(raw?.deletedIds) ? raw.deletedIds : [],
   };
 }
 
@@ -403,9 +417,14 @@ export function buildRetroSummary(state: RetroState): string {
  * chaque écran : deux ajouts simultanés ne s'écrasent plus.
  */
 export type RetroOp =
-  | { t: 'addNote'; note: RetroNote; today: string }
+  /** `session` absent = message d'une version précédente, appliqué comme avant. */
+  | { t: 'addNote'; note: RetroNote; today: string; session?: number }
   | { t: 'deleteNote'; id: string }
-  | { t: 'reveal'; ids: string[] }
+  /**
+   * Révélation de notes d'un auteur. Les notes voyagent avec : si leur ajout
+   * arrive après (messages dans le désordre), elles sont quand même révélées.
+   */
+  | { t: 'reveal'; ids: string[]; authorId?: string; session?: number; notes?: RetroNote[] }
   | { t: 'unreveal'; authorId: string }
   | { t: 'move'; id: string; category: string }
   | { t: 'movePile'; pileId: string; category: string }
@@ -420,8 +439,13 @@ export type RetroOp =
   | { t: 'restoreActions' }
   | { t: 'importActions'; actions: RetroPastAction[] }
   | { t: 'chrono'; chrono: ToolChrono }
-  | { t: 'newRetro'; today: string }
-  | { t: 'reset'; today: string };
+  /** `session` = séance courante + 1 : rejouée ou dépassée, elle est ignorée. */
+  | { t: 'newRetro'; today: string; session?: number }
+  | { t: 'reset'; today: string; session?: number };
+
+/** Le message vient-il d'une séance effacée depuis ? */
+const autreSeance = (op: { session?: number }, state: RetroState) =>
+  op.session !== undefined && op.session !== state.session;
 
 /** Insère en gardant l'ordre des identifiants (horodatés) : même ordre partout. */
 function insertById<T extends { id: string }>(list: T[], item: T): T[] {
@@ -434,15 +458,27 @@ export function retroReducer(raw: RetroState, op: RetroOp): RetroState {
   const state = normalizeRetroState(raw);
   switch (op.t) {
     case 'addNote':
+      if (autreSeance(op, state) || state.deletedIds.includes(op.note?.id)) return state;
       return { ...state, retroDate: state.retroDate || op.today, notes: insertById(state.notes, op.note) };
     case 'deleteNote': {
       const actionMeta = { ...state.actionMeta };
       delete actionMeta[op.id];
-      return { ...state, notes: state.notes.filter((n) => n.id !== op.id), actionMeta };
+      const deletedIds = state.deletedIds.includes(op.id) ? state.deletedIds : [...state.deletedIds, op.id];
+      return { ...state, notes: state.notes.filter((n) => n.id !== op.id), actionMeta, deletedIds };
     }
     case 'reveal': {
+      if (autreSeance(op, state)) return state;
       const ids = new Set(op.ids);
-      return { ...state, notes: state.notes.map((n) => (ids.has(n.id) ? { ...n, revealed: true } : n)) };
+      const ofAuthor = (n: RetroNote) => !op.authorId || n.authorId === op.authorId;
+      let notes = state.notes;
+      // Note pas encore arrivée : on l'ajoute depuis la révélation (même auteur, jamais une note supprimée).
+      (op.notes ?? []).forEach((n) => {
+        if (n && typeof n.id === 'string' && typeof n.text === 'string' && ids.has(n.id)
+          && ofAuthor(n) && !state.deletedIds.includes(n.id)) {
+          notes = insertById(notes, { ...n, revealed: false, likedBy: [], retained: false, pileId: undefined });
+        }
+      });
+      return { ...state, notes: notes.map((n) => (ids.has(n.id) && ofAuthor(n) ? { ...n, revealed: true } : n)) };
     }
     case 'unreveal':
       return {
@@ -498,9 +534,12 @@ export function retroReducer(raw: RetroState, op: RetroOp): RetroState {
     case 'chrono':
       return { ...state, chrono: op.chrono };
     case 'newRetro':
-      return startNewRetro(state, op.today);
+      // Déjà appliquée (rejeu) ou dépassée : sans effet, pour ne rien archiver deux fois.
+      if (op.session !== undefined && op.session <= state.session) return state;
+      return { ...startNewRetro(state, op.today), session: op.session ?? state.session + 1, deletedIds: [] };
     case 'reset':
-      return { ...INITIAL_RETRO_STATE, retroDate: op.today };
+      if (op.session !== undefined && op.session <= state.session) return state;
+      return { ...INITIAL_RETRO_STATE, retroDate: op.today, session: op.session ?? state.session + 1 };
     default:
       return state;
   }

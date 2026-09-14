@@ -46,20 +46,25 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
 
   const addNote = useCallback((category: RetroCategoryKey, text: string) => {
     if (!identity || !text.trim()) return;
-    send({ t: 'addNote', note: buildNote(identity, category, text), today: todayISO() });
-  }, [identity, send]);
+    send({ t: 'addNote', note: buildNote(identity, category, text), today: todayISO(), session: state.session });
+  }, [identity, send, state.session]);
 
   const deleteNote = useCallback((id: string) => send({ t: 'deleteNote', id }), [send]);
 
+  /** Révèle ses notes ; elles voyagent avec la révélation (voir `retroReducer`). */
+  const reveal = useCallback((notes: import('./retroLogic').RetroNote[]) => {
+    if (!notes.length) return;
+    send({ t: 'reveal', ids: notes.map((n) => n.id), authorId: myId, session: state.session, notes });
+  }, [send, myId, state.session]);
+
   const revealMyNext = useCallback(() => {
     const next = state.notes.find((n) => n.authorId === myId && !n.revealed);
-    if (next) send({ t: 'reveal', ids: [next.id] });
-  }, [state.notes, myId, send]);
+    if (next) reveal([next]);
+  }, [state.notes, myId, reveal]);
 
   const revealMyAll = useCallback(() => {
-    const ids = state.notes.filter((n) => n.authorId === myId && !n.revealed).map((n) => n.id);
-    if (ids.length) send({ t: 'reveal', ids });
-  }, [state.notes, myId, send]);
+    reveal(state.notes.filter((n) => n.authorId === myId && !n.revealed));
+  }, [state.notes, myId, reveal]);
 
   const unrevealMine = useCallback(() => send({ t: 'unreveal', authorId: myId }), [send, myId]);
 
@@ -128,10 +133,12 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
   }, [state.pastActions, send]);
 
   /** Vide les cases pour une nouvelle rétro ; les actions passent dans le suivi. */
-  const newRetro = useCallback(() => send({ t: 'newRetro', today: todayISO() }), [send]);
+  const newRetro = useCallback(() => {
+    send({ t: 'newRetro', today: todayISO(), session: state.session + 1 });
+  }, [send, state.session]);
 
   /** Efface tout, suivi des actions compris. */
-  const reset = useCallback(() => send({ t: 'reset', today: todayISO() }), [send]);
+  const reset = useCallback(() => send({ t: 'reset', today: todayISO(), session: state.session + 1 }), [send, state.session]);
 
   return {
     state,

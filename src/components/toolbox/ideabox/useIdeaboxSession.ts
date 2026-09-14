@@ -61,8 +61,8 @@ export function useIdeaboxSession(code: string | null, identity: ToolIdentity | 
   /** Publie un ou plusieurs de ses brouillons dans l'espace commun. */
   const publish = useCallback((ids: string[]) => {
     if (!ids.length) return;
-    send({ t: 'publish', authorId: myId, ids, notes: state.notes.filter((n) => ids.includes(n.id)) });
-  }, [send, myId, state.notes]);
+    send({ t: 'publish', authorId: myId, ids, round: state.round, notes: state.notes.filter((n) => ids.includes(n.id)) });
+  }, [send, myId, state.notes, state.round]);
 
   /** Vote cœur (impossible sur ses propres idées, dans la limite de cœurs). */
   const vote = useCallback((id: string) => {
