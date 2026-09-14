@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertCircle, AlertTriangle, Check, ArrowRight } from 'lucide-react';
+import { COULEURS_PILIERS, type PilierId } from '@/constants/piliers';
 import type { Pillar, PillarInput } from '@/lib/diagnostic';
 import {
   objectiveScore,
@@ -32,13 +33,15 @@ export const PillarCard: React.FC<PillarCardProps> = ({ pillar, input, onSliderC
   const total = computeScore(input);
   const st = stateOf(total);
   const col = stateColor(st);
+  // Code couleur du pilier dans le menu : liseré, intitulé, curseur, cases et bouton.
+  const couleur = COULEURS_PILIERS[pillar.id as PilierId] ?? { DEFAULT: pillar.color, dark: pillar.color, light: '#f5f6fa' };
 
   return (
-    <article className="bg-white rounded-card border border-line shadow-card p-5 mb-4">
+    <article className="bg-white rounded-card border border-line shadow-card p-5 mb-4" style={{ borderTop: `3px solid ${couleur.DEFAULT}` }}>
       <div className="flex items-stretch gap-3 mb-3">
-        <span className="w-1 rounded-full" style={{ background: pillar.color }} aria-hidden />
+        <span className="w-1 rounded-full" style={{ background: couleur.DEFAULT }} aria-hidden />
         <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-muted">{pillar.module}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: couleur.dark }}>{pillar.module}</div>
           <h3 className="text-lg font-bold text-navy">{pillar.label}</h3>
         </div>
       </div>
@@ -64,7 +67,7 @@ export const PillarCard: React.FC<PillarCardProps> = ({ pillar, input, onSliderC
             value={input.slider}
             onChange={(e) => onSliderChange(parseInt(e.target.value, 10))}
             className="flex-1 h-1.5 cursor-pointer"
-            style={{ accentColor: pillar.color }}
+            style={{ accentColor: couleur.DEFAULT }}
             aria-label={`Ressenti sur le pilier ${pillar.label}, de 0 à 10`}
             aria-valuetext={`${input.slider} sur 10`}
           />
@@ -87,7 +90,8 @@ export const PillarCard: React.FC<PillarCardProps> = ({ pillar, input, onSliderC
                     type="checkbox"
                     checked={checked}
                     onChange={() => onToggleCheck(i)}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-line text-teal-dark focus:ring-2 focus:ring-teal cursor-pointer"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-line focus:ring-2 focus:ring-teal cursor-pointer"
+                    style={{ accentColor: couleur.DEFAULT, color: couleur.DEFAULT }}
                   />
                   <span className="text-sm text-ink leading-snug">{q}</span>
                 </label>
@@ -109,7 +113,7 @@ export const PillarCard: React.FC<PillarCardProps> = ({ pillar, input, onSliderC
             type="button"
             onClick={() => onOpenModule(pillar)}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white rounded-lg transition-transform hover:-translate-y-0.5"
-            style={{ background: pillar.color }}
+            style={{ background: couleur.DEFAULT }}
           >
             Ouvrir {pillar.module} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </button>

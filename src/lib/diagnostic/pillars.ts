@@ -1,12 +1,16 @@
+import { COULEURS_PILIERS } from '@/constants/piliers';
 import type { Pillar, PillarId, PillarAdviceMap } from './types';
 
-/** Les 5 piliers OSKAR avec leurs critères objectifs (porté de bilan.html) */
+/**
+ * Les 5 piliers OSKAR avec leurs critères objectifs (porté de bilan.html).
+ * Chaque pilier garde le code couleur du menu (voir `COULEURS_PILIERS`).
+ */
 export const PILLARS: Pillar[] = [
   {
     id: 'vision',
     label: 'Vision',
     module: 'OSKAR Vision',
-    color: '#1e2d7d',
+    color: COULEURS_PILIERS.vision.DEFAULT,
     desc: 'Clarté de la direction stratégique et capacité à la communiquer.',
     q: [
       'Nous savons clairement pourquoi notre entreprise existe.',
@@ -18,7 +22,7 @@ export const PILLARS: Pillar[] = [
     id: 'fit',
     label: 'Market Fit',
     module: 'OSKAR Market Fit',
-    color: '#2563eb',
+    color: COULEURS_PILIERS.fit.DEFAULT,
     desc: 'Adéquation entre la solution proposée et les besoins réels du marché.',
     q: [
       'Nous avons identifié un vrai problème client important.',
@@ -30,7 +34,7 @@ export const PILLARS: Pillar[] = [
     id: 'finance',
     label: 'Finance',
     module: 'OSKAR Finance',
-    color: '#00a890',
+    color: COULEURS_PILIERS.finance.DEFAULT,
     desc: 'Solidité et lisibilité du modèle économique et de la trésorerie.',
     q: [
       'Nous connaissons clairement nos revenus, marges et coûts.',
@@ -42,7 +46,7 @@ export const PILLARS: Pillar[] = [
     id: 'okr',
     label: 'OKR',
     module: 'OSKAR OKR',
-    color: '#7c3aed',
+    color: COULEURS_PILIERS.okr.DEFAULT,
     desc: 'Alignement des objectifs et mesure des résultats clés.',
     q: [
       'Nous avons des objectifs clairs et mesurables.',
@@ -54,7 +58,7 @@ export const PILLARS: Pillar[] = [
     id: 'team',
     label: 'Team',
     module: 'OSKAR Team',
-    color: '#0891b2',
+    color: COULEURS_PILIERS.team.DEFAULT,
     desc: "Engagement, cohésion et performance collective de l'équipe.",
     q: [
       'Les rôles et responsabilités sont clairement définis et bien compris.',

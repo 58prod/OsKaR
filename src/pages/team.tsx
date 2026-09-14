@@ -48,7 +48,7 @@ export default function TeamPillarPage() {
         <>
           Des gens heureux de travailler
           <br />
-          <span className="text-teal">produisent plus</span>
+          <span>produisent plus</span>
         </>
       }
       description="Des conseils simples pour garder votre équipe motivée, avancer ensemble et désamorcer les tensions, avec les documents prêts à l’emploi pour les appliquer dès cette semaine."

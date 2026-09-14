@@ -46,7 +46,7 @@ export default function OkrPresentationPage() {
         <>
           Trois objectifs pour l’année.
           <br />
-          Des résultats <span className="text-teal">que vous mesurez</span>.
+          Des résultats <span>que vous mesurez</span>.
         </>
       }
       description="Un parcours en 3 étapes pour fixer vos objectifs de l’année avec une cible chiffrée, les décliner en résultats clés chaque trimestre, puis piloter vos actions au quotidien."

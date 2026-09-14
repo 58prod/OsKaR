@@ -47,42 +47,63 @@ import { ouvrirConnexion } from '@/store/useConnexion';
 
 export type Pilier = 'vision' | 'fit' | 'finance' | 'okr' | 'team';
 
-/** Classes ecrites en toutes lettres : Tailwind ne resout pas les noms construits. */
-const COULEURS: Record<Pilier, { texte: string; valeur: string; icone: string; bouton: string; point: string }> = {
+/**
+ * Code couleur du pilier (celui du menu) sur toute sa page d'accueil : surtitre,
+ * mot mis en avant du titre, halo du bandeau, repères, bouton, pastilles.
+ * Classes ecrites en toutes lettres : Tailwind ne resout pas les noms construits.
+ */
+const COULEURS: Record<Pilier, {
+  texte: string; titre: string; halo: string; valeur: string; icone: string; bouton: string; point: string; coche: string;
+}> = {
   vision: {
     texte: 'text-vision',
+    titre: '[&_span]:text-vision',
+    halo: 'bg-[radial-gradient(circle,rgba(14,165,233,0.2)_0%,transparent_70%)]',
     valeur: 'text-vision',
     icone: 'bg-vision-light text-vision-dark',
     bouton: 'bg-vision hover:bg-vision-dark',
     point: 'bg-vision',
+    coche: 'text-vision-dark',
   },
   fit: {
     texte: 'text-fit',
+    titre: '[&_span]:text-fit',
+    halo: 'bg-[radial-gradient(circle,rgba(34,197,94,0.15)_0%,transparent_70%)]',
     valeur: 'text-fit-dark',
     icone: 'bg-fit-light text-fit-dark',
     bouton: 'bg-fit hover:bg-fit-dark',
     point: 'bg-fit',
+    coche: 'text-fit-dark',
   },
   finance: {
     texte: 'text-finance',
+    titre: '[&_span]:text-finance',
+    halo: 'bg-[radial-gradient(circle,rgba(245,158,11,0.18)_0%,transparent_70%)]',
     valeur: 'text-finance',
     icone: 'bg-finance-light text-finance-dark',
     bouton: 'bg-finance hover:bg-finance-dark',
     point: 'bg-finance',
+    coche: 'text-finance-dark',
   },
   okr: {
     texte: 'text-okr',
+    titre: '[&_span]:text-okr',
+    halo: 'bg-[radial-gradient(circle,rgba(99,102,241,0.22)_0%,transparent_70%)]',
     valeur: 'text-okr',
     icone: 'bg-okr-light text-okr-dark',
     bouton: 'bg-okr hover:bg-okr-dark',
     point: 'bg-okr',
+    coche: 'text-okr-dark',
   },
   team: {
     texte: 'text-team',
+    titre: '[&_span]:text-team',
+    halo: 'bg-[radial-gradient(circle,rgba(236,72,153,0.18)_0%,transparent_70%)]',
     valeur: 'text-team',
     icone: 'bg-team-light text-team-dark',
     bouton: 'bg-team hover:bg-team-dark',
     point: 'bg-team',
+    coche: 'text-team-dark',
   },
 };
 
@@ -197,7 +218,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
         {/* Bannière du module */}
         <section className="relative overflow-hidden rounded-[20.5px] px-8 py-10 sm:px-[52px] sm:py-14 mb-7 bg-[linear-gradient(135deg,#151f5e_0%,#1e2d7d_60%,#2a3d99_100%)]">
           <span
-            className="absolute -right-[60px] -top-[60px] w-[280px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.15)_0%,transparent_70%)]"
+            className={`absolute -right-[60px] -top-[60px] w-[280px] h-[280px] rounded-full ${c.halo}`}
             aria-hidden
           />
           <span
@@ -208,7 +229,8 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
             <p className={`text-14 font-bold uppercase tracking-[1.6px] ${c.texte} mb-3.5`}>
               Module {numero} — {nom}
             </p>
-            <h1 className="text-34.5 font-extrabold text-white mb-3.5">{titre}</h1>
+            {/* Le mot mis en avant (<span>) prend la couleur du pilier. */}
+            <h1 className={`text-34.5 font-extrabold text-white mb-3.5 ${c.titre}`}>{titre}</h1>
             <p className="text-18.5 leading-[1.7] text-white/75">{description}</p>
           </div>
         </section>
@@ -247,7 +269,7 @@ export const ModuleLanding: React.FC<ModuleLandingProps> = ({
               style={{ backgroundImage: CHEVRON }}
             />
             {secteur && (
-              <p className="flex items-center gap-1.5 text-13 text-teal-dark mt-3">
+              <p className={`flex items-center gap-1.5 text-13 mt-3 ${c.coche}`}>
                 <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
                 {enregistre
                   ? 'Enregistré : les exemples de l’atelier sont adaptés à votre métier.'

@@ -10,6 +10,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.38.1] - 2026-09-14
+
+### 🎨 Corrigé — un seul code couleur par pilier, partout
+- Diagnostic : les blocs de chaque pilier reprennent enfin la couleur du
+  menu (ils avaient leurs propres couleurs : marine, bleu roi, vert d'eau,
+  violet, bleu canard). Liseré et bordure haute, intitulé, curseur, cases à
+  cocher et bouton « Ouvrir » dans la couleur du pilier ; points et noms du
+  radar aussi.
+- Pages d'accueil des piliers : le mot mis en avant dans le titre (turquoise
+  sur les cinq pages) et le halo du bandeau (vert partout) prennent la
+  couleur du pilier, comme le surtitre, les repères et le bouton.
+- Une seule source pour ces couleurs (`src/constants/piliers.ts`) ; un test
+  vérifie qu'elle reste identique aux couleurs Tailwind du menu.
+
 ## [2.38.0] - 2026-09-14
 
 ### ✨ Modifié — Rétrospective Speedboat alignée sur les autres jeux

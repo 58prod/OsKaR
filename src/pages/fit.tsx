@@ -37,7 +37,7 @@ export default function FitPage() {
         <>
           Vérifiez que votre offre
           <br />
-          correspond à un <span className="text-teal">vrai besoin marché</span>
+          correspond à un <span>vrai besoin marché</span>
         </>
       }
       description="Un parcours guidé en 4 étapes pour analyser votre offre, affirmer votre différenciation, cartographier votre environnement concurrentiel et mesurer vos signaux terrain."

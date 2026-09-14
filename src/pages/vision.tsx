@@ -49,7 +49,7 @@ export default function VisionPage() {
         <>
           Clarifiez votre cap,
           <br />
-          transformez-le en <span className="text-teal">objectifs concrets</span>
+          transformez-le en <span>objectifs concrets</span>
         </>
       }
       description="Un parcours guidé en 7 étapes pour formaliser votre vision, cartographier vos cibles et acteurs, définir vos valeurs et poser les 3 objectifs qui comptent vraiment."

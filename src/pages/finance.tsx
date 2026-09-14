@@ -37,7 +37,7 @@ export default function FinancePage() {
         <>
           Maîtrisez votre marge.
           <br />
-          Solidifiez votre <span className="text-teal">modèle économique.</span>
+          Solidifiez votre <span>modèle économique.</span>
         </>
       }
       description="Un parcours guidé en 4 étapes pour cartographier vos revenus, analyser vos coûts, calculer votre seuil de rentabilité et prendre des décisions financières structurantes."
