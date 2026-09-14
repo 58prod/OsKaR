@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.38.2] - 2026-09-14
+
+### 🎨 Corrigé — radar et menu
+- Radar du Diagnostic : le « 10 » était caché par « Vision ». Les
+  graduations passent entre Vision et Market Fit, dans un espace libre.
+  Même correction sur le radar du Team Mood (« Épanouissement » cachait le 10).
+- Menu : au survol (ou au clavier), l'icône de chaque pilier prend sa
+  couleur (Vision bleu, Market Fit vert, Finance orange, OKR indigo, Team rose).
+
 ## [2.38.1] - 2026-09-14
 
 ### 🎨 Corrigé — un seul code couleur par pilier, partout

@@ -27,7 +27,8 @@ export const MoodRadar: React.FC<MoodRadarProps> = ({ data, series, height, aria
       <RadarChart data={data} outerRadius="70%">
         <PolarGrid stroke="#e2e8f0" />
         <PolarAngleAxis dataKey="label" tick={{ fill: '#1e2d7d', fontSize: 12, fontWeight: 600 }} />
-        <PolarRadiusAxis domain={[0, 10]} tickCount={6} angle={90} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+        {/* Graduations entre les deux premières dimensions : sur l'axe vertical, le libellé du haut cachait le 10. */}
+        <PolarRadiusAxis domain={[0, 10]} tickCount={6} angle={54} tick={{ fill: '#94a3b8', fontSize: 10 }} />
         {series.map((s) => (
           <Radar
             key={s.key}

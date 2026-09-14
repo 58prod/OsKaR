@@ -47,12 +47,13 @@ export type AccentPilier = 'vision' | 'fit' | 'finance' | 'okr' | 'team';
  */
 type AccentMenu = AccentPilier | 'coach' | 'admin';
 
-const ACCENTS: Record<AccentMenu | 'defaut', { fond: string; texte: string; liseré: string }> = {
-  vision: { fond: 'bg-vision/[0.12]', texte: 'text-vision', liseré: 'before:bg-vision' },
-  fit: { fond: 'bg-fit/[0.12]', texte: 'text-fit', liseré: 'before:bg-fit' },
-  finance: { fond: 'bg-finance/[0.12]', texte: 'text-finance', liseré: 'before:bg-finance' },
-  okr: { fond: 'bg-okr/[0.12]', texte: 'text-okr', liseré: 'before:bg-okr' },
-  team: { fond: 'bg-team/[0.12]', texte: 'text-team', liseré: 'before:bg-team' },
+const ACCENTS: Record<AccentMenu | 'defaut', { fond: string; texte: string; liseré: string; survol?: string }> = {
+  // `survol` : au passage de la souris (ou au clavier), l'icône du pilier prend sa couleur.
+  vision: { fond: 'bg-vision/[0.12]', texte: 'text-vision', liseré: 'before:bg-vision', survol: 'group-hover:text-vision group-focus-visible:text-vision' },
+  fit: { fond: 'bg-fit/[0.12]', texte: 'text-fit', liseré: 'before:bg-fit', survol: 'group-hover:text-fit group-focus-visible:text-fit' },
+  finance: { fond: 'bg-finance/[0.12]', texte: 'text-finance', liseré: 'before:bg-finance', survol: 'group-hover:text-finance group-focus-visible:text-finance' },
+  okr: { fond: 'bg-okr/[0.12]', texte: 'text-okr', liseré: 'before:bg-okr', survol: 'group-hover:text-okr group-focus-visible:text-okr' },
+  team: { fond: 'bg-team/[0.12]', texte: 'text-team', liseré: 'before:bg-team', survol: 'group-hover:text-team group-focus-visible:text-team' },
   coach: { fond: 'bg-coral/[0.14]', texte: 'text-coral', liseré: 'before:bg-coral' },
   // Administration (admin.html) : actif turquoise, icône bleu clair au repos.
   admin: { fond: 'bg-teal/[0.12]', texte: 'text-teal', liseré: 'before:bg-teal' },
@@ -161,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       (item.aussi ?? []).some((chemin) => estActif(router.pathname, chemin));
 
     const accent = ACCENTS[item.accent ?? 'defaut'];
-    const className = `relative flex items-center gap-[14px] px-5 py-[11.5px] text-15.5 font-medium transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
+    const className = `group relative flex items-center gap-[14px] px-5 py-[11.5px] text-15.5 font-medium transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
       actif
         ? `${accent.fond} ${accent.texte} before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] ${accent.liseré} before:rounded-r-[2px]`
         : 'text-white/65 hover:bg-white/[0.07] hover:text-white/95'
@@ -177,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ? 'text-[#c7cdf5] opacity-100'
                 : actif
                   ? 'opacity-100'
-                  : 'opacity-80'
+                  : `opacity-80 transition-colors ${accent.survol ? `${accent.survol} group-hover:opacity-100` : ''}`
           }`}
           aria-hidden
         />

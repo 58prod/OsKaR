@@ -83,7 +83,8 @@ export const SynthesisPanel: React.FC<SynthesisPanelProps> = ({ state, onAnalyse
               <PolarGrid stroke="rgba(30,45,125,0.1)" />
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               <PolarAngleAxis dataKey="subject" tick={(props: any) => <TickPilier {...props} />} />
-              <PolarRadiusAxis angle={90} domain={[0, 10]} tickCount={6} tick={{ fill: '#9098c5', fontSize: 11 }} axisLine={false} tickFormatter={(v: number) => v === 0 ? '' : String(v)} />
+              {/* Graduations entre Vision (en haut) et Market Fit : sur l'axe vertical, « Vision » cachait le 10. */}
+              <PolarRadiusAxis angle={54} domain={[0, 10]} tickCount={6} tick={{ fill: '#9098c5', fontSize: 11 }} axisLine={false} tickFormatter={(v: number) => v === 0 ? '' : String(v)} />
               <Radar
                 name="Score"
                 dataKey="value"
