@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Sidebar, DEFAULT_SECTIONS, type SidebarSection, type SidebarNavItem } from './Sidebar';
 import { useSectionAdmin } from '@/components/admin/sectionAdmin';
+import { useSectionAccompagnement } from '@/components/accompagnement/sectionAccompagnement';
 import { Topbar } from './Topbar';
 import { useAppStore } from '@/store/useAppStore';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
@@ -43,9 +44,12 @@ export const AppShell: React.FC<AppShellProps> = ({
   const { authReady, isAuthenticated } = useAppStore();
   const { collapsed: sidebarCollapsed, toggle: handleToggle } = useSidebarCollapsed();
 
-  // Les administrateurs voient une section de plus sous le menu habituel.
+  // Sous le menu habituel : l'accompagnement (coach référencé, dirigeant relié
+  // à un coach), puis l'administration pour les administrateurs.
+  const sectionAccompagnement = useSectionAccompagnement();
   const sectionAdmin = useSectionAdmin();
-  const sectionsMenu = sections ?? (sectionAdmin ? [...DEFAULT_SECTIONS, sectionAdmin] : undefined);
+  const enPlus = [sectionAccompagnement, sectionAdmin].filter((s): s is SidebarSection => s !== null);
+  const sectionsMenu = sections ?? (enPlus.length ? [...DEFAULT_SECTIONS, ...enPlus] : undefined);
 
   // Pied de sidebar : si non fourni par l'appelant, on déduit de l'auth.
   // - utilisateur connecté (ou état en cours de résolution) : masqué (null)

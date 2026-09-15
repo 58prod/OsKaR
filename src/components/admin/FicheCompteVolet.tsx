@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, X } from 'lucide-react';
-import { useFicheCompte, useOffrirFormule, useRetirerFormule, useSupprimerCompte } from '@/hooks/useAdmin';
+import {
+  useCoachsAdmin,
+  useFicheCompte,
+  useOffrirFormule,
+  useReferencerCoach,
+  useRetirerFormule,
+  useSupprimerCompte,
+} from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/useToast';
 import { useAppStore } from '@/store/useAppStore';
 import { avancementDuCompte } from '@/lib/admin/avancement';
@@ -95,6 +102,7 @@ export const FicheCompteVolet: React.FC<Props> = ({ compte, onFermer }) => {
             <div className="px-[26px] pt-5 pb-[30px] overflow-y-auto flex-1">
               <OffreFormule key={`${affiche.id}-${formule.genre}`} compte={affiche} formule={formule} />
               <div className="h-3.5" />
+              <ReferencementCoach compte={affiche} />
 
               <Carte titre="Identité" compacte>
                 <dl className="grid grid-cols-[130px_1fr] gap-x-3.5 gap-y-2 text-14.5">
@@ -320,6 +328,48 @@ const OffreFormule: React.FC<{ compte: CompteAdmin; formule: FormuleCompte }> = 
         membres fondateurs, les coachs partenaires, les tests.
       </p>
     </div>
+  );
+};
+
+/*
+ * Référencer le compte comme coach (migration 20260915_accompagnements) : il
+ * peut alors inviter des dirigeants et suivre leur travail, avec leur accord.
+ * Rien ne s'affiche tant que la migration n'est pas passée.
+ */
+const ReferencementCoach: React.FC<{ compte: CompteAdmin }> = ({ compte }) => {
+  const toast = useToast();
+  const { data: coachs, error } = useCoachsAdmin(true);
+  const referencer = useReferencerCoach();
+  if (error || !coachs) return null;
+  const estCoach = coachs.includes(compte.id);
+
+  const basculer = async () => {
+    if (estCoach && !window.confirm('Retirer le référencement ? Les accompagnements de ce coach s’arrêtent aussitôt.')) return;
+    try {
+      await referencer.mutateAsync({ userId: compte.id, reference: !estCoach });
+      toast.success(estCoach ? 'Référencement retiré.' : 'Compte référencé : « Mes dirigeants » apparaît dans son menu.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'L’opération n’a pas pu aboutir.');
+    }
+  };
+
+  return (
+    <Carte titre="Coach référencé" compacte>
+      <p className={`${NOTE} mb-3.5`}>
+        {estCoach
+          ? 'Ce compte est coach référencé : il invite des dirigeants et suit leur travail, avec leur accord, depuis « Mes dirigeants ».'
+          : 'Une fois référencé, ce compte pourra inviter des dirigeants et suivre leur travail, avec leur accord. Zone, structure et piliers sont repris de sa candidature.'}
+      </p>
+      <button
+        type="button"
+        className={estCoach ? BOUTON_RETRAIT : BOUTON_PRINCIPAL}
+        onClick={basculer}
+        disabled={referencer.isPending}
+      >
+        {referencer.isPending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+        {estCoach ? 'Retirer le référencement' : 'Référencer comme coach'}
+      </button>
+    </Carte>
   );
 };
 

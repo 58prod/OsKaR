@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, HeartHandshake } from 'lucide-react';
 import { AuthService } from '@/services/auth';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
@@ -76,6 +76,7 @@ export const UserMenu: React.FC = () => {
             <p className="text-xs text-muted truncate">{user?.email ?? ''}</p>
           </div>
           <MenuLink icon={ClipboardList} label="Mes bilans" onClick={() => { setMenuOpen(false); router.push('/mes-bilans'); }} />
+          <MenuLink icon={HeartHandshake} label="Mes coachs" onClick={() => { setMenuOpen(false); router.push('/app/mes-coachs'); }} />
           <MenuLink icon={Building2} label="Profil d'entreprise" onClick={() => { setMenuOpen(false); router.push('/company-profile'); }} />
           <MenuLink icon={Settings} label="Paramètres" onClick={() => { setMenuOpen(false); router.push('/settings'); }} />
           <div className="border-t border-line my-1" />

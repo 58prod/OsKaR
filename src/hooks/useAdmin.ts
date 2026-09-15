@@ -115,6 +115,30 @@ export function useOffrirFormule() {
   });
 }
 
+/** Les coachs référencés (migration 20260915_accompagnements). */
+export function useCoachsAdmin(actif: boolean) {
+  return useQuery({
+    queryKey: ['admin', 'coachs'],
+    queryFn: () => AdminService.coachs(),
+    enabled: actif,
+    staleTime: 60 * 1000,
+    // Avant la migration, la fonction n'existe pas : inutile d'insister.
+    retry: false,
+  });
+}
+
+export function useReferencerCoach() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, reference }: { userId: string; reference: boolean }) =>
+      AdminService.referencerCoach(userId, reference),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'coachs'] });
+      queryClient.invalidateQueries({ queryKey: ['accompagnement'] });
+    },
+  });
+}
+
 /** Les bilans, demandes et candidatures du compte partent avec lui : tout est rechargé. */
 export function useSupprimerCompte() {
   const queryClient = useQueryClient();

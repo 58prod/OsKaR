@@ -174,6 +174,18 @@ export class AdminService {
     await appeler('admin_supprimer_compte', { p_user_id: userId });
   }
 
+  /** Migration 20260915_accompagnements : identifiants des coachs référencés. */
+  static async coachs(): Promise<string[]> {
+    const lignes = (await appeler<unknown[]>('admin_coachs')) ?? [];
+    // Une fonction SETOF uuid peut revenir en valeurs simples ou en objets.
+    return lignes.map((l) => (typeof l === 'string' ? l : String(Object.values(l as Ligne)[0])));
+  }
+
+  /** Référencer un compte comme coach, ou retirer le référencement (ses accompagnements s'arrêtent). */
+  static async referencerCoach(userId: string, reference: boolean): Promise<void> {
+    await appeler('admin_referencer_coach', { p_user_id: userId, p_reference: reference });
+  }
+
   /** Migration 20260914_statistiques. `hote` null = tous les sites branchés sur la base. */
   static async statistiques(jours: number, hote: string | null): Promise<Statistiques | null> {
     const r = await appeler<Ligne | null>('admin_statistiques', { p_jours: jours, p_hote: hote });

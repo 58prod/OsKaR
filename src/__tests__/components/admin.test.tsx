@@ -81,6 +81,8 @@ jest.mock('@/hooks/useAdmin', () => ({
   useOffrirFormule: () => ({ mutateAsync: jest.fn(), isPending: false }),
   useRetirerFormule: () => ({ mutateAsync: jest.fn(), isPending: false }),
   useSupprimerCompte: () => ({ mutateAsync: mockSupprimer, isPending: false }),
+  useCoachsAdmin: () => ({ data: ['c2'], error: null }),
+  useReferencerCoach: () => ({ mutateAsync: jest.fn(), isPending: false }),
 }));
 
 const mockSupprimer = jest.fn();

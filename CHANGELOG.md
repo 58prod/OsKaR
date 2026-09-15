@@ -10,6 +10,39 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.43.0] - 2026-09-15
+
+### ✨ Ajouté — l'accompagnement : un coach suit le travail de ses dirigeants
+- Un dirigeant et un **coach référencé** se relient ; le lien part de l'un ou
+  de l'autre, et c'est toujours le dirigeant qui l'accepte. La **transparence
+  totale** est annoncée d'entrée, puis acceptée case cochée : le coach voit
+  tout ce que le dirigeant saisit (ateliers Vision, Market Fit, Finance,
+  OKR, bilans). Chacun peut y mettre fin à tout moment ; l'accès s'arrête aussitôt.
+- **Mes coachs** (`/app/mes-coachs`, aussi dans le menu du compte) : inviter
+  son coach par email, accepter ou refuser une invitation, voir ses coachs.
+  Inclus dans la formule Dirigeant (constante `ACCOMPAGNEMENT_RESERVE_ABONNES`).
+- **Mes dirigeants** (`/app/mes-dirigeants`, coachs référencés) : les
+  dirigeants suivis avec une pastille par pilier, cerclée quand quelque chose
+  a bougé depuis la dernière visite ; demandes reçues, invitations (aussi à
+  une adresse sans compte : l'invitation attend sa création) ; réglages
+  « Je prends de nouveaux accompagnements » et « Résumé de 8 h ».
+- **Fiche d'un dirigeant** (`/app/mes-dirigeants/<id>`) : tout son travail en
+  lecture seule, pilier par pilier, avec ce qui a changé depuis la visite
+  précédente (statut Market Fit, chiffres Finance, arbre des OKR).
+- **Résumé de 8 h** : chaque matin, un email par coach avec ce que ses
+  dirigeants ont fait la veille, seulement s'il y a du nouveau. Fonction
+  planifiée Netlify `netlify/functions/resume-coachs.mts` → route
+  `/api/resume-coachs`, protégée par `RESUME_COACHS_SECRET`.
+- Emails d'invitation (`/api/notifier-accompagnement`), une seule fois par
+  invitation, envoyés au nom de la base, jamais du navigateur.
+- Menu : section « Accompagnement » (compteurs corail).
+- Administration : « Référencer comme coach » dans la fiche compte ; zone,
+  structure et piliers repris de la candidature.
+- Page Confidentialité : paragraphe sur l'accès du coach.
+- Base : migration `20260915_accompagnements.sql`, purement additive ; aucune
+  règle d'accès ajoutée aux tables existantes (fonctions SECURITY DEFINER qui
+  vérifient le lien), déclencheur `updated_at` sur les tables OKR.
+
 ## [2.42.1] - 2026-09-14
 
 ### 🐛 Corrigé — limite de cœurs identique sur tous les écrans

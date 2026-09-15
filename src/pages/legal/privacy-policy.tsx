@@ -67,6 +67,12 @@ export default function ConfidentialitePage() {
         ))}
       </ul>
       <p>
+        <strong>Votre coach, si vous en choisissez un.</strong> Lorsque vous reliez votre compte à un coach référencé
+        par Oskar, et seulement avec votre accord, il consulte tout ce que vous saisissez (ateliers, objectifs, bilans)
+        et reçoit chaque matin un résumé de vos modifications de la veille. Vous pouvez mettre fin à cet accès à tout
+        moment depuis « Mes coachs » ; il s’arrête aussitôt.
+      </p>
+      <p>
         <strong>Vos données sont stockées dans l’Union européenne.</strong> Seuls l’envoi des emails, la diffusion du site
         et les suggestions par intelligence artificielle font appel à des prestataires établis aux États-Unis ; ces
         transferts sont encadrés par les garanties prévues par le RGPD (clauses contractuelles types de la Commission
