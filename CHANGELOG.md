@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.3] - 2026-09-15
+
+### 🔧 Modifié — adresse définitive de la page d'accroche
+- **oskar-coach.fr/performance/** (`public/performance.html`), le mot du
+  positionnement d'Oskar, valable pour les dirigeants comme pour les coachs.
+  `/test/` et `/votre-realite/` redirigent vers cette adresse.
+- Statistiques : `/performance/entreprises`, `/performance/coachs`,
+  `/performance/…/resultat`.
+
 ## [2.47.2] - 2026-09-15
 
 ### 🐛 Corrigé — contenu de la page /votre-realite/

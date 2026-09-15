@@ -67,15 +67,16 @@ const nextConfig = {
       // Le 3e pilier s'appelait « Business » ; il porte desormais le nom des
       // maquettes, « Finance ». On garde l'ancienne URL vivante.
       { source: '/business', destination: '/finance', permanent: false },
-      // Première adresse de la page d'accroche (2.47.0), gardée vivante.
-      { source: '/test', destination: '/votre-realite/', permanent: false },
+      // Anciennes adresses de la page d'accroche (2.47.0 et 2.47.1), gardées vivantes.
+      { source: '/test', destination: '/performance/', permanent: false },
+      { source: '/votre-realite', destination: '/performance/', permanent: false },
     ];
   },
   async rewrites() {
     // Page d'accroche des supports de communication : un fichier statique
-    // (public/votre-realite.html) servi sous une adresse lisible,
-    // oskar-coach.fr/votre-realite/.
-    return [{ source: '/votre-realite', destination: '/votre-realite.html' }];
+    // (public/performance.html) servi sous une adresse lisible,
+    // oskar-coach.fr/performance/.
+    return [{ source: '/performance', destination: '/performance.html' }];
   },
 }
 

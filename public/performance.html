@@ -255,13 +255,13 @@
 </style>
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="canonical" href="https://oskar-coach.fr/votre-realite/">
+<link rel="canonical" href="https://oskar-coach.fr/performance/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:site_name" content="Oskar">
 <meta property="og:title" content="Le test Oskar : votre entreprise notée sur 100">
 <meta property="og:description" content="5 questions, 60 secondes. Dirigeants et coachs : mesurez-vous, puis passez le diagnostic complet, gratuit.">
-<meta property="og:url" content="https://oskar-coach.fr/votre-realite/">
+<meta property="og:url" content="https://oskar-coach.fr/performance/">
 <meta property="og:image" content="https://oskar-coach.fr/icon-512x512.png">
 <meta name="twitter:card" content="summary">
 </head>
@@ -477,7 +477,7 @@
    * Mêmes règles que le reste du site (src/lib/statistiques/mesure.ts) :
    * identifiant anonyme 13 mois, rien en local, refus / GPC / DNT respectés.
    * Chaque onglet et chaque écran de résultat compte comme une page :
-   * /votre-realite/entreprises, /votre-realite/coachs, /votre-realite/…/resultat. */
+   * /performance/entreprises, /performance/coachs, /performance/…/resultat. */
   var mesure = (function(){
     var API = "https://tgtgrnuekgsczszdjxqr.supabase.co", CLE = "sb_publishable_HjQGqfX4_jd95aQmj3RyPQ_yuBXZKyy";
     var cur = null;
@@ -761,7 +761,7 @@
         "</div>";
 
       countUp(root.querySelector(".num"), score);
-      mesure.vue("/votre-realite/" + id + "/resultat");
+      mesure.vue("/performance/" + id + "/resultat");
       animateRadar(root, cfg.axes, vals);
       root.querySelector(".res-title").focus({preventScroll:true});
       root.querySelector(".redo").addEventListener("click", reset);
@@ -825,7 +825,7 @@
       document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
     });
     document.body.dataset.onglet = id;
-    mesure.vue("/votre-realite/" + id);
+    mesure.vue("/performance/" + id);
     if (opts.hash !== false){ try { history.replaceState(null, "", "#" + id); } catch (e) {} }
     if (opts.top) window.scrollTo({top:0, behavior: reduceMotion ? "auto" : "smooth"});
     drawVisibleDots();
