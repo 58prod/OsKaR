@@ -11,26 +11,37 @@ import {
   Clock,
   TrendingUp,
   PlayCircle,
-  Shield,
   Zap,
   BarChart3,
   MessageSquare,
+  Check,
+  Sparkles,
+  type LucideIcon,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AppShell } from '@/components/layout/AppShell';
 import { ouvrirConnexion } from '@/store/useConnexion';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { useAppStore } from '@/store/useAppStore';
+import { COULEURS_PILIERS, type PilierId } from '@/constants/piliers';
 
 // Chargé à la demande : la bibliothèque de graphiques (~90 ko) ne ralentit
 // plus le premier affichage de l'accueil.
 const RadarExemple = dynamic(() => import('@/components/accueil/RadarExemple'), { ssr: false });
 
+/** Le parcours en 5 piliers, illustré dans l'appel final de la page. */
+const PARCOURS: { id: PilierId; nom: string; verbe: string; icon: LucideIcon }[] = [
+  { id: 'vision', nom: 'OSKAR Vision', verbe: 'Clarifier le cap', icon: Eye },
+  { id: 'fit', nom: 'OSKAR Market Fit', verbe: 'Valider le marché', icon: LineChart },
+  { id: 'finance', nom: 'OSKAR Finance', verbe: 'Piloter les chiffres', icon: TargetIcon },
+  { id: 'okr', nom: 'OSKAR OKR', verbe: 'Exécuter les priorités', icon: CheckSquare },
+  { id: 'team', nom: 'OSKAR Team', verbe: 'Souder l’équipe', icon: Users },
+];
+
 const HomePage: React.FC = () => {
   const router = useRouter();
   const { authReady, isAuthenticated } = useAppStore();
   const openAuth = (tab: 'login' | 'register' = 'register') => ouvrirConnexion(tab);
-
   const topbarActions = !authReady ? null : isAuthenticated ? (
     <>
       <button
@@ -117,12 +128,7 @@ const HomePage: React.FC = () => {
 
       {/* Bilan Section */}
       <section className="mb-20">
-        <div className="flex items-baseline justify-between mb-8">
-          <h2 className="text-xl font-bold text-navy uppercase tracking-wider">Bilan & diagnostic Oskar</h2>
-          <button onClick={() => router.push('/diagnostic')} className="text-sm font-bold text-teal-dark hover:underline">
-            Voir un exemple →
-          </button>
-        </div>
+        <h2 className="text-xl font-bold text-navy uppercase tracking-wider mb-8">Bilan & diagnostic Oskar</h2>
         <div className="bg-white rounded-3xl border border-line shadow-card overflow-hidden">
           <div className="grid lg:grid-cols-2">
             <div className="p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-line bg-gradient-to-br from-[#f0f2ff] to-[#e8f8f5]">
@@ -168,10 +174,7 @@ const HomePage: React.FC = () => {
 
       {/* Pillars Grid Section */}
       <section className="mb-20">
-        <div className="flex items-baseline justify-between mb-8">
-          <h2 className="text-xl font-bold text-navy uppercase tracking-wider">Les 5 piliers Oskar</h2>
-          <button className="text-sm font-bold text-teal-dark hover:underline">Accéder aux modules →</button>
-        </div>
+        <h2 className="text-xl font-bold text-navy uppercase tracking-wider mb-8">Les 5 piliers Oskar</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { id: '01', name: 'OSKAR Vision', desc: 'Clarifiez votre cap à 1 an, vos valeurs et vos objectifs.', icon: Eye, status: 'Disponible', href: '/vision' },
@@ -232,19 +235,80 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="bg-navy rounded-[32px] p-10 lg:p-16 text-center text-white shadow-card mb-12">
-        <Shield className="h-12 w-12 text-teal mx-auto mb-6 opacity-80" />
-        <h2 className="text-3xl font-extrabold mb-4">Prêt à transformer votre organisation ?</h2>
-        <p className="text-white/60 mb-10 max-w-xl mx-auto leading-relaxed">
-          Démarrez par le bilan gratuit — 10 minutes pour savoir où concentrer votre énergie et identifier vos priorités.
-        </p>
-        <button
-          onClick={() => router.push('/diagnostic')}
-          className="px-10 py-5 bg-teal text-navy-dark font-black rounded-xl shadow-lg hover:bg-teal-dark hover:-translate-y-1 transition-all text-sm uppercase tracking-wider"
-        >
-          Démarrer le bilan gratuit →
-        </button>
+      {/* Appel final : carte claire, halos et parcours aux couleurs des piliers */}
+      {/* Même dégradé lavande → vert d'eau que la carte du Bilan, plus haut. */}
+      <section
+        className="relative mb-12 overflow-hidden rounded-[28px] border border-line shadow-card"
+        style={{ background: 'linear-gradient(135deg, #f0f2ff 0%, #ffffff 55%, #e8f8f5 100%)' }}
+      >
+        {/* Anneaux concentriques discrets derrière le parcours */}
+        <svg aria-hidden className="pointer-events-none absolute right-[-120px] top-1/2 hidden h-[640px] w-[640px] -translate-y-1/2 lg:block" viewBox="0 0 640 640" fill="none">
+          {[120, 190, 260, 318].map((r) => (
+            <circle key={r} cx="320" cy="320" r={r} stroke="rgba(30,45,125,0.07)" strokeWidth="1" />
+          ))}
+        </svg>
+
+        <div className="relative grid items-center gap-10 p-8 sm:p-12 lg:grid-cols-[1.15fr_1fr] lg:p-14">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-teal-light px-3 py-1 text-[11px] font-bold uppercase tracking-[1.5px] text-teal-dark">
+              <Sparkles className="h-3.5 w-3.5" /> Par où commencer
+            </span>
+            <h2 className="mt-5 text-27.5 font-extrabold text-navy lg:text-34.5">
+              Prêt à{' '}
+              <span className="bg-gradient-to-r from-vision via-okr to-team bg-clip-text text-transparent">transformer</span>{' '}
+              votre organisation&nbsp;?
+            </h2>
+            <p className="mt-4 max-w-md text-15.5 leading-[1.75] text-muted">
+              Démarrez par le bilan gratuit — 10 minutes pour savoir où concentrer votre énergie et identifier vos priorités.
+            </p>
+            <button
+              onClick={() => router.push('/diagnostic')}
+              className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-navy px-8 py-4 font-bold text-white shadow-lg shadow-navy/20 transition-all hover:-translate-y-0.5 hover:bg-navy-light"
+            >
+              Démarrer le bilan gratuit
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </button>
+            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+              {['Gratuit', '10 minutes', 'Sans inscription', 'Confidentiel'].map((repere) => (
+                <li key={repere} className="flex items-center gap-1.5 text-[13px] font-semibold text-navy">
+                  <Check className="h-4 w-4 text-teal-dark" /> {repere}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <ol className="relative mx-auto w-full max-w-sm" aria-label="Le parcours Oskar en 5 piliers">
+            {/* Le fil du parcours, qui passe derrière les pastilles */}
+            <span aria-hidden className="absolute bottom-7 left-[28px] top-7 w-0.5 rounded-full bg-gradient-to-b from-vision via-okr to-team opacity-40" />
+            {PARCOURS.map((etape, i) => {
+              const couleur = COULEURS_PILIERS[etape.id];
+              return (
+                <motion.li
+                  key={etape.id}
+                  initial={{ opacity: 0, x: 16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                  className="relative mb-3 flex items-center gap-3 rounded-2xl border border-line bg-white/90 p-2.5 pr-4 shadow-card backdrop-blur-sm last:mb-0"
+                >
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                    style={{ background: couleur.light, color: couleur.dark }}
+                  >
+                    <etape.icon className="h-[18px] w-[18px]" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[13px] font-bold text-navy">{etape.nom}</span>
+                    <span className="block text-[11.5px] text-muted">{etape.verbe}</span>
+                  </span>
+                  <span className="ml-auto text-[10px] font-bold" style={{ color: couleur.DEFAULT }}>
+                    0{i + 1}
+                  </span>
+                </motion.li>
+              );
+            })}
+          </ol>
+        </div>
       </section>
     </AppShell>
   );

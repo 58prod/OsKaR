@@ -10,6 +10,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.4] - 2026-09-15
+
+### 🎨 Modifié — accueil : appel final repensé, liens inutiles retirés
+- « Prêt à transformer votre organisation ? » n'est plus un pavé navy :
+  carte au même dégradé lavande → vert d'eau que la carte du Bilan, fins
+  anneaux concentriques derrière le parcours, « transformer » en dégradé
+  Vision → OKR → Team, un seul bouton navy, et
+  les repères Gratuit · 10 minutes · Sans inscription · Confidentiel. À
+  droite, le parcours des 5 piliers (icône et couleur de chacun, reliés par
+  un fil), qui apparaît en cascade au défilement.
+- Retirés : « Voir un exemple → » (menait au Diagnostic, comme le bouton
+  juste en dessous) et « Accéder aux modules → » (sans action).
+
 ## [2.47.3] - 2026-09-15
 
 ### 🔧 Modifié — adresse définitive de la page d'accroche
