@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Sidebar, DEFAULT_SECTIONS, type SidebarSection, type SidebarNavItem } from './Sidebar';
 import { useSectionAdmin } from '@/components/admin/sectionAdmin';
 import { useSectionAccompagnement } from '@/components/accompagnement/sectionAccompagnement';
+import { useProfilCoach } from '@/hooks/useAccompagnements';
 import { Topbar } from './Topbar';
 import { useAppStore } from '@/store/useAppStore';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
@@ -47,6 +48,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   // Sous le menu habituel : l'accompagnement (coach référencé, dirigeant relié
   // à un coach), puis l'administration pour les administrateurs.
   const sectionAccompagnement = useSectionAccompagnement();
+  // Menus longs (administrateur, coach) : les sections se rabattent.
+  const { estCoach } = useProfilCoach();
   const sectionAdmin = useSectionAdmin();
   const enPlus = [sectionAccompagnement, sectionAdmin].filter((s): s is SidebarSection => s !== null);
   const sectionsMenu = sections ?? (enPlus.length ? [...DEFAULT_SECTIONS, ...enPlus] : undefined);
@@ -71,7 +74,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           onToggle={handleToggle}
           sections={sectionsMenu}
           footerItem={resolvedFooterItem}
-          repliable={sectionAdmin !== null}
+          repliable={sectionAdmin !== null || estCoach}
         />
         <div
           className="oskar-main flex flex-col min-h-screen transition-[margin] duration-250"

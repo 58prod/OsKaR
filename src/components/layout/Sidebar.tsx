@@ -24,8 +24,12 @@ import { ouvrirConnexion } from '@/store/useConnexion';
  * Menu latéral Oskar — transposition de la sidebar de `plateforme/oskar.css` :
  *   largeur      240px, 64px replié, transition 0.25s
  *   en-tête      hauteur 64px, fond blanc, logo 30px (icône 32px quand replié)
- *   libellé      15.5px / 500, retrait 20px, hauteur de ligne 11.5px
- *   section      11.5px / 600 / interlettrage 1.2px, blanc 30 %
+ *   libellé      15.5px / 500, retrait 20px, marge verticale 8px
+ *   section      11.5px / 600 / interlettrage 1.2px, blanc 45 %, 8px entre blocs
+ *   piliers      encart blanc 5 %, rayon 12, retrait 8px ; icônes à la couleur
+ *                de leur pilier, même inactives
+ * Variante « D » choisie par Christophe le 2026-09-15 pour alléger le menu
+ * (la maquette avait 11.5px par entrée, titres à 30 % et icônes grises).
  *   actif        fond teal 12 %, texte teal, liseré gauche 3px
  *   survol       fond blanc 7 %, texte blanc 95 %
  *
@@ -61,6 +65,17 @@ const ACCENTS: Record<AccentMenu | 'defaut', { fond: string; texte: string; lise
   defaut: { fond: 'bg-teal/[0.12]', texte: 'text-teal', liseré: 'before:bg-teal' },
 };
 
+/** Icône d'un pilier : toujours à sa couleur, active ou non. */
+const ICONE_PILIER: Record<AccentPilier, string> = {
+  vision: 'text-vision',
+  fit: 'text-fit',
+  finance: 'text-finance',
+  okr: 'text-okr',
+  team: 'text-team',
+};
+
+const estPilier = (accent?: AccentMenu): accent is AccentPilier => !!accent && accent in ICONE_PILIER;
+
 export interface SidebarNavItem {
   href: string;
   label: string;
@@ -81,6 +96,8 @@ export interface SidebarNavItem {
 export interface SidebarSection {
   label: string;
   items: SidebarNavItem[];
+  /** Section mise en avant dans un encart éclairci (les 5 piliers). */
+  encart?: boolean;
 }
 
 interface SidebarProps {
@@ -120,6 +137,7 @@ export const DEFAULT_SECTIONS: SidebarSection[] = [
   },
   {
     label: 'Les 5 Piliers',
+    encart: true,
     items: [
       { accent: 'vision', href: '/vision', aussi: ['/app/vision'], label: 'OSKAR Vision', icon: Eye },
       { accent: 'fit', href: '/fit', aussi: ['/app/fit'], label: 'OSKAR Market Fit', icon: LineChart },
@@ -132,7 +150,7 @@ export const DEFAULT_SECTIONS: SidebarSection[] = [
     // La maquette range la boîte à outils avec « À propos », sous Ressources.
     label: 'Ressources',
     items: [
-      { href: '/app/outils', label: 'Boîte à outils', icon: Wrench },
+      { href: '/app/outils', label: 'Boîte à outils', icon: Wrench, badge: 'Gratuit' },
       { accent: 'coach', href: '/coachs', label: 'Espace coachs', icon: UserCheck },
       { href: '/pricing', label: 'Tarifs', icon: Tag },
       { href: '/about', label: 'À propos', icon: Info },
@@ -197,12 +215,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
     estActif(router.pathname, item.href, item.exact) ||
     (item.aussi ?? []).some((chemin) => estActif(router.pathname, chemin));
 
-  const renderItem = (item: SidebarNavItem) => {
+  // Dans l'encart (retrait de 8px), 12px de marge : les icônes restent
+  // alignées sur celles des autres sections (8 + 12 = 20px).
+  const renderItem = (item: SidebarNavItem, encart = false) => {
     const Icon = item.icon;
     const actif = itemActif(item);
 
     const accent = ACCENTS[item.accent ?? 'defaut'];
-    const className = `group relative flex items-center gap-[14px] px-5 py-[11.5px] text-15.5 font-medium transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
+    const className = `group relative flex items-center gap-[14px] ${encart ? 'px-3 rounded-lg' : 'px-5'} py-2 text-15.5 font-medium transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
       actif
         ? `${accent.fond} ${accent.texte} before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[3px] ${accent.liseré} before:rounded-r-[2px]`
         : 'text-white/65 hover:bg-white/[0.07] hover:text-white/95'
@@ -214,7 +234,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className={`icone-fine h-5 w-5 shrink-0 ${
             item.accent === 'coach'
               ? 'text-coral opacity-100'
-              : item.accent === 'admin' && !actif
+              : estPilier(item.accent)
+                ? `${ICONE_PILIER[item.accent]} opacity-100`
+                : item.accent === 'admin' && !actif
                 ? 'text-[#c7cdf5] opacity-100'
                 : actif
                   ? 'opacity-100'
@@ -316,14 +338,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-thin"
       >
         {sections.map((section, i) => {
-          const titre = 'oskar-nav-label text-11.5 font-semibold tracking-[1.2px] uppercase text-white/30 px-5 pt-[14px] pb-1 whitespace-nowrap';
+          const titre = `oskar-nav-label text-11.5 font-semibold tracking-[1.2px] uppercase text-white/45 ${
+            section.encart ? 'px-3' : 'px-5'
+          } pt-[14px] pb-1.5 whitespace-nowrap`;
           const peutReplier = repliable && i > 0;
           // Menu plié (icônes seules) : les titres sont masqués, tout reste visible.
           const replie = peutReplier && !collapsed && repliees.includes(section.label);
           // Une section rabattue garde la page où l'on se trouve.
           const items = replie ? section.items.filter(itemActif) : section.items;
           return (
-            <div key={section.label} role="group" aria-labelledby={`${idBase}-s${i}`}>
+            <div
+              key={section.label}
+              role="group"
+              aria-labelledby={`${idBase}-s${i}`}
+              className={section.encart ? 'bg-white/[0.05] rounded-xl mx-2 mt-2.5 mb-0.5 pb-1.5' : i > 0 ? 'mt-2' : undefined}
+            >
               {peutReplier ? (
                 <button
                   type="button"
@@ -347,7 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {section.label}
                 </div>
               )}
-              <ul id={`${idBase}-l${i}`}>{items.map(renderItem)}</ul>
+              <ul id={`${idBase}-l${i}`}>{items.map((item) => renderItem(item, section.encart))}</ul>
             </div>
           );
         })}

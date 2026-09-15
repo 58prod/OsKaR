@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.46.0] - 2026-09-15
+
+### 🎨 Modifié — un menu plus lisible (variante « D »)
+- Entrées resserrées (8px de marge au lieu de 11.5), blocs un peu plus
+  espacés, titres de blocs plus contrastés : tout le menu tient à l'écran.
+- Les 5 piliers dans un encart légèrement éclairci et arrondi ; chaque icône
+  de pilier garde sa couleur, même inactive.
+- « Boîte à outils » porte la pastille « Gratuit ».
+- Un coach référencé peut, comme un administrateur, rabattre les sections.
+
 ## [2.45.0] - 2026-09-15
 
 ### ✨ Ajouté — le mode coach
