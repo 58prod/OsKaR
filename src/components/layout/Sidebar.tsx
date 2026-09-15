@@ -13,6 +13,7 @@ import {
   Info,
   Wrench,
   LogIn,
+  ChevronDown,
   ChevronLeft,
   UserCheck,
   Tag,
@@ -88,6 +89,24 @@ interface SidebarProps {
   sections?: SidebarSection[];
   /** Élément de pied de menu. `null` pour le masquer entièrement. */
   footerItem?: SidebarNavItem | null;
+  /**
+   * Sections rabattables d'un clic sur leur titre (toutes sauf la première).
+   * Pour les administrateurs, dont le menu s'allonge ; le choix est retenu
+   * par le navigateur.
+   */
+  repliable?: boolean;
+}
+
+/** Titres des sections rabattues, retenus d'une visite à l'autre. */
+const CLE_SECTIONS_REPLIEES = 'oskar.menu.sectionsRepliees';
+
+function lireSectionsRepliees(): string[] {
+  try {
+    const valeur = JSON.parse(window.localStorage.getItem(CLE_SECTIONS_REPLIEES) ?? '[]');
+    return Array.isArray(valeur) ? valeur.filter((v): v is string => typeof v === 'string') : [];
+  } catch {
+    return [];
+  }
 }
 
 export const DEFAULT_SECTIONS: SidebarSection[] = [
@@ -151,15 +170,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggle,
   sections = DEFAULT_SECTIONS,
   footerItem = DEFAULT_FOOTER,
+  repliable = false,
 }) => {
   const router = useRouter();
   const idBase = React.useId();
 
+  // Lu après le premier rendu : le serveur ne connaît pas le navigateur.
+  const [repliees, setRepliees] = React.useState<string[]>([]);
+  React.useEffect(() => {
+    if (repliable) setRepliees(lireSectionsRepliees());
+  }, [repliable]);
+
+  const basculerSection = (titre: string) => {
+    setRepliees((avant) => {
+      const apres = avant.includes(titre) ? avant.filter((t) => t !== titre) : [...avant, titre];
+      try {
+        window.localStorage.setItem(CLE_SECTIONS_REPLIEES, JSON.stringify(apres));
+      } catch {
+        /* navigation privée : le choix vaut pour la page en cours */
+      }
+      return apres;
+    });
+  };
+
+  const itemActif = (item: SidebarNavItem) =>
+    estActif(router.pathname, item.href, item.exact) ||
+    (item.aussi ?? []).some((chemin) => estActif(router.pathname, chemin));
+
   const renderItem = (item: SidebarNavItem) => {
     const Icon = item.icon;
-    const actif =
-      estActif(router.pathname, item.href, item.exact) ||
-      (item.aussi ?? []).some((chemin) => estActif(router.pathname, chemin));
+    const actif = itemActif(item);
 
     const accent = ACCENTS[item.accent ?? 'defaut'];
     const className = `group relative flex items-center gap-[14px] px-5 py-[11.5px] text-15.5 font-medium transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
@@ -275,17 +315,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-label="Navigation principale"
         className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-thin"
       >
-        {sections.map((section, i) => (
-          <div key={section.label} role="group" aria-labelledby={`${idBase}-s${i}`}>
-            <div
-              id={`${idBase}-s${i}`}
-              className="oskar-nav-label text-11.5 font-semibold tracking-[1.2px] uppercase text-white/30 px-5 pt-[14px] pb-1 whitespace-nowrap"
-            >
-              {section.label}
+        {sections.map((section, i) => {
+          const titre = 'oskar-nav-label text-11.5 font-semibold tracking-[1.2px] uppercase text-white/30 px-5 pt-[14px] pb-1 whitespace-nowrap';
+          const peutReplier = repliable && i > 0;
+          // Menu plié (icônes seules) : les titres sont masqués, tout reste visible.
+          const replie = peutReplier && !collapsed && repliees.includes(section.label);
+          // Une section rabattue garde la page où l'on se trouve.
+          const items = replie ? section.items.filter(itemActif) : section.items;
+          return (
+            <div key={section.label} role="group" aria-labelledby={`${idBase}-s${i}`}>
+              {peutReplier ? (
+                <button
+                  type="button"
+                  id={`${idBase}-s${i}`}
+                  onClick={() => basculerSection(section.label)}
+                  aria-expanded={!replie}
+                  aria-controls={`${idBase}-l${i}`}
+                  tabIndex={collapsed ? -1 : undefined}
+                  title={replie ? 'Déplier la section' : 'Rabattre la section'}
+                  suppressHydrationWarning
+                  className={`${titre} w-full flex items-center justify-between text-left transition-colors hover:text-white/60 focus-visible:outline-none focus-visible:text-white/80`}
+                >
+                  {section.label}
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${replie ? '-rotate-90' : ''}`}
+                    aria-hidden
+                  />
+                </button>
+              ) : (
+                <div id={`${idBase}-s${i}`} className={titre}>
+                  {section.label}
+                </div>
+              )}
+              <ul id={`${idBase}-l${i}`}>{items.map(renderItem)}</ul>
             </div>
-            <ul>{section.items.map(renderItem)}</ul>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {footerItem && (

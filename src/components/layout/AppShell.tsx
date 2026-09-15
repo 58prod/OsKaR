@@ -66,7 +66,13 @@ export const AppShell: React.FC<AppShellProps> = ({
         {description && <meta name="description" content={description} />}
       </Head>
       <div className="min-h-screen bg-surface text-ink font-sans">
-        <Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} sections={sectionsMenu} footerItem={resolvedFooterItem} />
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={handleToggle}
+          sections={sectionsMenu}
+          footerItem={resolvedFooterItem}
+          repliable={sectionAdmin !== null}
+        />
         <div
           className="oskar-main flex flex-col min-h-screen transition-[margin] duration-250"
           style={{ marginLeft: 'var(--oskar-sidebar)' }}

@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.44.0] - 2026-09-15
+
+### ✨ Ajouté — menu rabattable pour les administrateurs
+- Les sections du menu (Les 5 Piliers, Ressources, Accompagnement,
+  Administration) se rabattent d'un clic sur leur titre ; une flèche indique
+  l'état. « Navigation » reste toujours ouverte.
+- Une section rabattue garde la page où l'on se trouve. Le choix est retenu
+  par le navigateur. Menu plié en icônes : tout reste affiché.
+- Réservé aux administrateurs, dont le menu s'allonge ; rien ne change pour
+  les autres comptes.
+
+### ✨ Ajouté — compte de démonstration « coach »
+- Script relançable `supabase/demo/compte_demo_coach.sql` : identifiant
+  « coach », mot de passe « coach2026 ». Camille Roche, coach référencée
+  fictive, accompagne Marc Durand (compte « oskar »). Sans résumé par email.
+  À relancer après `compte_demo.sql`, qui supprime le lien en remettant Marc à zéro.
+
 ## [2.43.0] - 2026-09-15
 
 ### ✨ Ajouté — l'accompagnement : un coach suit le travail de ses dirigeants
