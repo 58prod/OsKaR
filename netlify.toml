@@ -4,8 +4,9 @@
   command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
+  # Node 22 (LTS maintenue) ; npm est celui fourni avec Node. Validé avec
+  # Eric le 2026-09-15 (ce fichier sert aux deux sites Netlify).
+  NODE_VERSION = "22"
 
 
 

@@ -10,6 +10,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.5] - 2026-09-15
+
+### 🔧 Modifié — Node 22 et signalements de sécurité
+- Build Netlify sous Node 22 (LTS) au lieu de Node 18, en fin de vie ; npm
+  n'est plus forcé en version 9. Validé avec Eric (`netlify.toml` sert aux
+  deux sites). `engines` passe à `>=20.9.0`.
+- Politique de sécurité du contenu : les navigateurs signalent désormais ce
+  qu'elle bloquerait à `/api/csp-rapport`, qui l'écrit dans les journaux
+  Netlify. Toujours en mode « rapport seulement » : le passage en mode
+  bloquant se fera après un essai des outils temps réel avec un compte
+  connecté. Tour des pages publiques en ligne le 2026-09-15 : aucun
+  signalement.
+
 ## [2.47.4] - 2026-09-15
 
 ### 🎨 Modifié — accueil : appel final repensé, liens inutiles retirés

@@ -21,6 +21,9 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
+  // Chaque blocage est signalé à /api/csp-rapport, qui l'écrit dans les
+  // journaux Netlify (Logs → Functions).
+  'report-uri /api/csp-rapport',
 ].join('; ');
 
 const enTetesSecurite = [
