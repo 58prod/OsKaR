@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.2] - 2026-09-15
+
+### 🐛 Corrigé — contenu de la page /votre-realite/
+- La 2.47.1 avait publié le fichier renommé sans ses retouches : adresse
+  canonique et aperçu des réseaux sociaux pointaient encore vers /test/, et
+  les visites se comptaient sous `/test/…`. Tout pointe désormais vers
+  /votre-realite/.
+
 ## [2.47.1] - 2026-09-15
 
 ### 🔧 Modifié — la page d'accroche change d'adresse
