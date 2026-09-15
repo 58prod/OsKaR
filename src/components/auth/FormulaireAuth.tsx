@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabaseClient';
 import { AuthService } from '@/services/auth';
+import { AccompagnementsService } from '@/services/db/accompagnements';
 import { useAppStore } from '@/store/useAppStore';
 import type { OngletAuth } from '@/store/useConnexion';
 import { GOOGLE_AUTH_ENABLED } from '@/constants';
@@ -95,15 +96,17 @@ export const FormulaireAuth: React.FC<FormulaireAuthProps> = ({
   // de changer de page : une page protégée renverrait sinon vers la connexion.
   useEffect(() => {
     if (!connecte || !naviguer) return;
-    const partir = () => {
+    // Un coach référencé arrive dans son espace plutôt que sur l'atelier OKR.
+    const partir = async () => {
+      const cible = await AccompagnementsService.arrivee(destination);
       onFermer?.();
-      router.push(destination);
+      router.push(cible);
     };
     if (isAuthenticated) {
-      partir();
+      void partir();
       return;
     }
-    const secours = setTimeout(partir, 4000);
+    const secours = setTimeout(() => void partir(), 4000);
     return () => clearTimeout(secours);
   }, [connecte, naviguer, isAuthenticated, onFermer, router, destination]);
 

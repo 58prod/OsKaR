@@ -4,6 +4,7 @@ import { CadrePageAuth } from '@/components/auth/CarteAuth';
 import { FormulaireAuth } from '@/components/auth/FormulaireAuth';
 import { useAppStore } from '@/store/useAppStore';
 import { APRES_CONNEXION, destinationSure } from '@/lib/authFlux';
+import { AccompagnementsService } from '@/services/db/accompagnements';
 
 /**
  * Page de connexion — le même formulaire que la fenêtre de connexion, pour les
@@ -17,9 +18,17 @@ const LoginPage: React.FC = () => {
   // Page demandée avant la redirection vers la connexion, sinon le pilier OKR.
   const destination = destinationSure(router.query.redirect) ?? APRES_CONNEXION;
 
-  // Session déjà ouverte (ou qui vient de l'être) : on part sans attendre le profil.
+  // Session déjà ouverte (ou qui vient de l'être) : on part sans attendre le
+  // profil. Un coach référencé arrive dans son espace plutôt que sur les OKR.
   useEffect(() => {
-    if (authReady && isAuthenticated) router.replace(destination);
+    if (!authReady || !isAuthenticated) return;
+    let annule = false;
+    AccompagnementsService.arrivee(destination).then((cible) => {
+      if (!annule) router.replace(cible);
+    });
+    return () => {
+      annule = true;
+    };
   }, [authReady, isAuthenticated, destination, router]);
 
   const erreur = router.query.error === 'session_expired' ? 'Votre session a expiré. Veuillez vous reconnecter.' : null;

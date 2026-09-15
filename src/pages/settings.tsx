@@ -10,10 +10,15 @@ import { supabase } from '@/lib/supabaseClient';
 import { Settings, User, Bell, Lock, Trash2, Download, Eye, EyeOff, Save, CreditCard, Beaker, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SubscriptionTab } from '@/components/settings/SubscriptionTab';
+import { useProfilCoach } from '@/hooks/useAccompagnements';
+import Link from 'next/link';
+
+const ONGLETS_DIRIGEANT: string[] = ['subscription', 'experimental', 'notifications'];
 
 const SettingsPage: React.FC = () => {
   const router = useRouter();
   const { user, authReady, isAuthenticated, experimentalFeatures, toggleExperimentalFeature } = useAppStore();
+  const { estCoach } = useProfilCoach();
 
   useEffect(() => {
     if (authReady && !isAuthenticated) router.replace(urlConnexion(router.asPath));
@@ -187,6 +192,8 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  // Un coach référencé n'a ni abonnement, ni les réglages propres au
+  // dirigeant : son résumé de 8 h se règle dans « Ma fiche coach ».
   const tabs = [
     { id: 'profile' as const, label: 'Profil', icon: User },
     { id: 'subscription' as const, label: 'Abonnement', icon: CreditCard },
@@ -194,7 +201,7 @@ const SettingsPage: React.FC = () => {
     { id: 'notifications' as const, label: 'Notifications', icon: Bell },
     { id: 'privacy' as const, label: 'Confidentialité', icon: Lock },
     { id: 'data' as const, label: 'Données', icon: Download },
-  ];
+  ].filter((t) => !estCoach || !ONGLETS_DIRIGEANT.includes(t.id));
 
   if (!user) {
     return (
@@ -297,6 +304,15 @@ const SettingsPage: React.FC = () => {
                 <Button onClick={handleUpdateProfile} disabled={isLoading} leftIcon={<Save className="h-4 w-4" />}>
                   {isLoading ? 'Enregistrement...' : 'Enregistrer'}
                 </Button>
+                {estCoach && (
+                  <p className="text-sm text-muted pt-2">
+                    Votre structure, votre fiche d&rsquo;annuaire et votre résumé de 8 h se règlent dans{' '}
+                    <Link href="/app/ma-fiche-coach" className="font-semibold text-navy hover:text-teal-dark">
+                      Ma fiche coach
+                    </Link>
+                    .
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}

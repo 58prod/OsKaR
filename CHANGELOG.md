@@ -10,6 +10,22 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.45.0] - 2026-09-15
+
+### ✨ Ajouté — le mode coach
+- Menu sous le nom d'un coach référencé : Mes dirigeants, Ma fiche coach,
+  Kit du coach, Paramètres (pastille « Coach référencé »). Mes bilans, Mes
+  coachs et Profil d'entreprise restent au dirigeant.
+- **Ma fiche coach** (`/app/ma-fiche-coach`) : sa structure (nom, SIRET, site,
+  zone d'intervention), sa fiche d'annuaire (piliers, approche), l'aperçu de
+  la fiche telle que l'annuaire la montrera, disponibilité et résumé de 8 h.
+- Paramètres d'un coach : profil, confidentialité et données seulement ; ni
+  abonnement, ni onglets propres au dirigeant.
+- Après connexion, un coach arrive sur « Mes dirigeants » (sauf s'il allait
+  vers une page précise).
+- Base : migration `20260915_fiche_coach.sql` (colonnes siret, site, approche,
+  reprises de la candidature ; fonction `coach_maj_fiche`).
+
 ## [2.44.0] - 2026-09-15
 
 ### ✨ Ajouté — menu rabattable pour les administrateurs

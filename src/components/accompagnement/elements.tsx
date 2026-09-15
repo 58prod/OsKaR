@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Loader2, ShieldAlert } from 'lucide-react';
-import { ilYA } from '@/lib/admin/formule';
+import { Carte } from '@/components/admin/elements';
+import { dateCourte, ilYA } from '@/lib/admin/formule';
 import { ENGAGEMENT_TRANSPARENCE, SUJETS_SUIVIS, sujetsNouveaux } from '@/lib/accompagnement/regles';
-import type { ActivitePiliers, SujetSuivi } from '@/lib/accompagnement/types';
+import type { ActivitePiliers, ProfilCoach, SujetSuivi } from '@/lib/accompagnement/types';
 
 /*
  * Briques des écrans d'accompagnement. Même vocabulaire visuel que
@@ -220,6 +221,39 @@ export const Vide: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="bg-white border border-dashed border-[#cfd3e6] rounded-card px-[22px] py-6 text-14.5 text-muted leading-[1.6]">
     {children}
   </div>
+);
+
+/** Disponibilité et résumé de 8 h : dans « Mes dirigeants » et « Ma fiche coach ». */
+export const ReglagesCoach: React.FC<{
+  profil: ProfilCoach;
+  onReglages: (r: { disponible?: boolean; resumeQuotidien?: boolean }) => unknown;
+  titre?: string;
+}> = ({ profil, onReglages, titre = 'Vos réglages' }) => (
+  <Carte titre={titre} compacte>
+    <Interrupteur
+      id="reglage-disponible"
+      actif={profil.disponible}
+      onChange={(v) => onReglages({ disponible: v })}
+      libelle="Je prends de nouveaux accompagnements"
+      description={
+        profil.disponible
+          ? 'Les dirigeants peuvent vous envoyer une demande.'
+          : 'Les dirigeants ne peuvent plus vous envoyer de demande. Vous pouvez toujours inviter qui vous voulez.'
+      }
+    />
+    <div className="h-4" />
+    <Interrupteur
+      id="reglage-resume"
+      actif={profil.resumeQuotidien}
+      onChange={(v) => onReglages({ resumeQuotidien: v })}
+      libelle="Recevoir le résumé de 8 h"
+      description="Chaque matin, ce que vos dirigeants ont fait la veille. Rien n’est envoyé les jours sans nouveauté."
+    />
+    <p className={`${NOTE} mt-4 pt-3.5 border-t border-line`}>
+      Coach référencé depuis le {dateCourte(profil.referenceLe)}
+      {profil.zone ? ` · ${profil.zone}` : ''}.
+    </p>
+  </Carte>
 );
 
 /** Ce qu'un compte non référencé voit à la place de l'espace coach. */

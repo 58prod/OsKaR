@@ -9,6 +9,9 @@ import type { EmailOtpType } from '@supabase/supabase-js';
 /** Destination par défaut après connexion ou inscription : le pilier OKR. */
 export const APRES_CONNEXION = '/app/okr';
 
+/** Où arrive un coach référencé, à la place de APRES_CONNEXION. */
+export const ESPACE_COACH = '/app/mes-dirigeants';
+
 /**
  * Ne garde qu'une destination interne : un chemin relatif, jamais une URL
  * externe (« //evil.com ») ni une page d'authentification (boucle).

@@ -100,8 +100,11 @@ describe('Mes dirigeants (coach)', () => {
     disponible: true,
     resumeQuotidien: true,
     structure: 'Vasseur Coaching',
+    siret: null,
+    site: null,
     zone: 'Hérault',
     piliers: ['vision'],
+    approche: null,
     referenceLe: new Date('2026-09-11T08:00:00Z'),
   };
   const sophie = lien({

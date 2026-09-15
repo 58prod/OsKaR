@@ -1,4 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
+import { ficheNettoyee, type FicheCoach } from '@/lib/accompagnement/fiche';
+import { APRES_CONNEXION, ESPACE_COACH } from '@/lib/authFlux';
 import type {
   Accompagnement,
   ActiviteJour,
@@ -70,8 +72,11 @@ export function versProfilCoach(r: Ligne | null): ProfilCoach | null {
     disponible: r.disponible !== false,
     resumeQuotidien: r.resume_quotidien !== false,
     structure: texte(r.structure),
+    siret: texte(r.siret),
+    site: texte(r.site),
     zone: texte(r.zone),
     piliers: Array.isArray(r.piliers) ? r.piliers : [],
+    approche: texte(r.approche),
     referenceLe: new Date(r.reference_le),
   };
 }
@@ -171,6 +176,15 @@ export class AccompagnementsService {
     return error ? null : versProfilCoach(data);
   }
 
+  /**
+   * La page où arriver après connexion : l'espace coach pour un coach
+   * référencé, sauf si la personne allait ailleurs (page protégée demandée).
+   */
+  static async arrivee(destination: string): Promise<string> {
+    if (destination !== APRES_CONNEXION) return destination;
+    return (await AccompagnementsService.profilCoach()) ? ESPACE_COACH : destination;
+  }
+
   static async liste(): Promise<Accompagnement[]> {
     return ((await appeler<Ligne[]>('mes_accompagnements')) ?? []).map(versAccompagnement);
   }
@@ -202,6 +216,19 @@ export class AccompagnementsService {
     await appeler('coach_maj_reglages', {
       p_disponible: r.disponible ?? null,
       p_resume_quotidien: r.resumeQuotidien ?? null,
+    });
+  }
+
+  /** Migration 20260915_fiche_coach : structure et fiche d'annuaire. */
+  static async majFiche(f: FicheCoach): Promise<void> {
+    const n = ficheNettoyee(f);
+    await appeler('coach_maj_fiche', {
+      p_structure: n.structure,
+      p_siret: n.siret,
+      p_site: n.site,
+      p_zone: n.zone,
+      p_piliers: n.piliers,
+      p_approche: n.approche,
     });
   }
 

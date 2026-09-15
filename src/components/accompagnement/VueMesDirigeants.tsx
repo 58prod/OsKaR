@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { CadreTableau, Carte, Kpi, TAG, TD, TH, pluriel } from '@/components/admin/elements';
-import { dateCourte, ilYA } from '@/lib/admin/formule';
+import { ilYA } from '@/lib/admin/formule';
 import { derniereActivite, emailValide, nomDe, rangerAccompagnements, sujetsNouveaux } from '@/lib/accompagnement/regles';
 import type { Accompagnement, ProfilCoach } from '@/lib/accompagnement/types';
 import {
@@ -15,6 +15,7 @@ import {
   LIBELLE,
   NOTE,
   PastillesSuivi,
+  ReglagesCoach,
   TitreBloc,
   Vide,
 } from './elements';
@@ -215,31 +216,7 @@ export const VueMesDirigeants: React.FC<Props> = ({
         <aside className="min-w-0 grid gap-3.5">
           <InviterDirigeant onInviter={onInviter} />
           <div id="reglages" className="scroll-mt-24">
-            <Carte titre="Vos réglages" compacte>
-              <Interrupteur
-                id="reglage-disponible"
-                actif={profil.disponible}
-                onChange={(v) => onReglages({ disponible: v })}
-                libelle="Je prends de nouveaux accompagnements"
-                description={
-                  profil.disponible
-                    ? 'Les dirigeants peuvent vous envoyer une demande.'
-                    : 'Les dirigeants ne peuvent plus vous envoyer de demande. Vous pouvez toujours inviter qui vous voulez.'
-                }
-              />
-              <div className="h-4" />
-              <Interrupteur
-                id="reglage-resume"
-                actif={profil.resumeQuotidien}
-                onChange={(v) => onReglages({ resumeQuotidien: v })}
-                libelle="Recevoir le résumé de 8 h"
-                description="Chaque matin, ce que vos dirigeants ont fait la veille. Rien n’est envoyé les jours sans nouveauté."
-              />
-              <p className={`${NOTE} mt-4 pt-3.5 border-t border-line`}>
-                Coach référencé depuis le {dateCourte(profil.referenceLe)}
-                {profil.zone ? ` · ${profil.zone}` : ''}.
-              </p>
-            </Carte>
+            <ReglagesCoach profil={profil} onReglages={onReglages} />
           </div>
         </aside>
       </div>

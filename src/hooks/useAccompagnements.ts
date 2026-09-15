@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/useAppStore';
 import { AccompagnementsService } from '@/services/db/accompagnements';
+import type { FicheCoach } from '@/lib/accompagnement/fiche';
 
 /*
  * Données de l'accompagnement coach ↔ dirigeant. Rien ne part tant que la
@@ -107,6 +108,14 @@ export function useMajReglagesCoach() {
   const recharger = useRecharger();
   return useMutation({
     mutationFn: (r: { disponible?: boolean; resumeQuotidien?: boolean }) => AccompagnementsService.majReglages(r),
+    onSuccess: recharger,
+  });
+}
+
+export function useMajFicheCoach() {
+  const recharger = useRecharger();
+  return useMutation({
+    mutationFn: (f: FicheCoach) => AccompagnementsService.majFiche(f),
     onSuccess: recharger,
   });
 }

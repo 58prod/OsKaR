@@ -14,7 +14,7 @@
 -- À RELANCER après compte_demo.sql : remettre la démo « oskar » à zéro
 -- supprime Marc, et avec lui son lien avec Camille.
 --
--- Demande la migration 20260915_accompagnements. À exécuter en entier dans
+-- Demande les migrations 20260915_accompagnements et 20260915_fiche_coach. À exécuter en entier dans
 -- Supabase > SQL Editor. Généré par Claude le 2026-09-15.
 -- ════════════════════════════════════════════════════════════════════════
 
@@ -50,9 +50,11 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, company = EXCLUDED.company,
   settings = EXCLUDED.settings;
 
 -- 4. Coach référencée, disponible, sans résumé par email.
-INSERT INTO public.coachs_references (user_id, structure, zone, piliers, disponible, resume_quotidien)
-VALUES ('0d5a0000-0000-4000-8000-000000000002', 'Cap Dirigeants', 'Métropole lilloise',
-  ARRAY['vision', 'finance', 'okr'], TRUE, FALSE);
+INSERT INTO public.coachs_references (user_id, structure, site, zone, piliers, approche, disponible, resume_quotidien)
+VALUES ('0d5a0000-0000-4000-8000-000000000002', 'Cap Dirigeants', 'cap-dirigeants.example', 'Métropole lilloise · Distanciel',
+  ARRAY['vision', 'finance', 'okr'],
+  'J''accompagne des dirigeants d''entreprises artisanales et de services, de 5 à 50 personnes, qui veulent reprendre la main sur leur cap et leurs chiffres. Séances mensuelles d''une demi-journée, entre lesquelles nous avançons sur Oskar. Dernier accompagnement : un atelier de menuiserie qui a retrouvé trois mois de trésorerie en un an.',
+  TRUE, FALSE);
 
 -- 5. Elle accompagne Marc Durand (compte « oskar »), s'il existe.
 INSERT INTO public.accompagnements (

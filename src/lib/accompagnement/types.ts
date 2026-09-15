@@ -51,8 +51,12 @@ export interface ProfilCoach {
   disponible: boolean;
   resumeQuotidien: boolean;
   structure: string | null;
+  siret: string | null;
+  site: string | null;
   zone: string | null;
   piliers: string[];
+  /** Texte de la fiche d'annuaire. */
+  approche: string | null;
   referenceLe: Date;
 }
 
