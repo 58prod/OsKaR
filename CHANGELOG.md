@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.1] - 2026-09-15
+
+### 🔧 Modifié — la page d'accroche change d'adresse
+- **oskar-coach.fr/votre-realite/** remplace /test/ (le mot « test » ne
+  convenait pas dans une adresse de communication). Fichier renommé
+  `public/votre-realite.html` ; `/test/` redirige vers la nouvelle adresse.
+- Statistiques : `/votre-realite/entreprises`, `/votre-realite/coachs`,
+  `/votre-realite/…/resultat`.
+
 ## [2.47.0] - 2026-09-15
 
 ### ✨ Ajouté — le test Oskar, page d'accroche des supports de communication
