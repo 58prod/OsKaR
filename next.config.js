@@ -69,6 +69,11 @@ const nextConfig = {
       { source: '/business', destination: '/finance', permanent: false },
     ];
   },
+  async rewrites() {
+    // Page d'accroche des supports de communication : un fichier statique
+    // (public/test.html) servi sous une adresse lisible, oskar-coach.fr/test/.
+    return [{ source: '/test', destination: '/test.html' }];
+  },
 }
 
 module.exports = nextConfig

@@ -10,6 +10,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.0] - 2026-09-15
+
+### ✨ Ajouté — le test Oskar, page d'accroche des supports de communication
+- **oskar-coach.fr/test/** (`public/test.html`, servi par une réécriture dans
+  `next.config.js`) : une page autonome à deux onglets, « Je dirige une
+  entreprise » (turquoise) et « J'accompagne des dirigeants » (corail).
+  `/test/#coachs` ouvre directement l'onglet coachs, pratique pour un QR code.
+- Dans chaque onglet, un test de 5 questions noté sur 100 : un profil, un radar,
+  le point d'appui et le point de levier (côté dirigeants, conseils repris du
+  Diagnostic), puis les boutons vers `/diagnostic/` ou `/coachs/`, et un
+  « Défier un associé » pour partager son score.
+- Mesure d'audience anonyme aux mêmes règles que le site : les onglets et les
+  écrans de résultat apparaissent dans /admin/statistiques comme
+  `/test/entreprises`, `/test/coachs`, `/test/…/resultat`.
+
 ## [2.46.0] - 2026-09-15
 
 ### 🎨 Modifié — un menu plus lisible (variante « D »)
