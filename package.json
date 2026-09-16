@@ -1,6 +1,6 @@
 {
   "name": "oskar",
-  "version": "2.47.5",
+  "version": "2.47.6",
   "description": "Outil de gestion d'objectifs pour entrepreneurs avec IA coach intégrée",
   "private": true,
   "scripts": {
