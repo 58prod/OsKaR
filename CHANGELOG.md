@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.48.0] - 2026-09-16
+
+### ✨ Ajouté — /diagnostic2 : version d'essai du Diagnostic, à tester avant de décider
+- Page hors menu, non indexée, rien n'est enregistré ; le Diagnostic actuel ne change pas.
+- 15 situations concrètes (3 par pilier), 4 réponses rangées de la moins mûre à la plus mûre.
+- Note du pilier = réponses seules ; le ressenti est facultatif, hors note, et sert à
+  signaler un écart d'au moins 2,5 points entre intuition et réponses.
+- Niveaux sans trou (moins de 4 / 4 à 6,9 / 7 et plus) ; score global seulement quand
+  tout est répondu ; un pilier fragile empêche un global « Solide ».
+- Analyse resserrée : une priorité avec le lien vers son atelier, 2 croisements au plus.
+- Case « Je travaille seul » qui retire Team du calcul.
+
 ## [2.47.7] - 2026-09-16
 
 ### 🔧 Modifié — /performance : deux questions valables de la TPE à la multinationale
