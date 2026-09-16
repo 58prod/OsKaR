@@ -153,7 +153,7 @@ const Diagnostic2Page: React.FC = () => {
                   <>
                     <div className="mb-5 rounded-lg bg-surface px-4 py-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-ink">D’abord, à vue de nez, vous vous donnez combien&nbsp;?</span>
+                        <span className="text-sm font-semibold text-ink">Avant de répondre, quelle note vous donneriez-vous&nbsp;?</span>
                         <span className="text-sm font-bold text-navy">{saisie.ressenti === null ? '—' : `${saisie.ressenti}/10`}</span>
                       </div>
                       <input

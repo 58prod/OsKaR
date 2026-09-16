@@ -10,6 +10,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.48.1] - 2026-09-16
+
+### 🔧 Modifié — /diagnostic2 : question du ressenti reformulée
+- « D'abord, à vue de nez, vous vous donnez combien ? » devient « Avant de répondre,
+  quelle note vous donneriez-vous ? ».
+
 ## [2.48.0] - 2026-09-16
 
 ### ✨ Ajouté — /diagnostic2 : version d'essai du Diagnostic, à tester avant de décider
