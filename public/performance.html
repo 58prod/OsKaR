@@ -85,9 +85,6 @@
   h1{font-size:clamp(2.3rem,5.2vw,3.85rem);font-weight:800;line-height:1.02;letter-spacing:-.035em;max-width:13ch}
   .hl{background:linear-gradient(transparent 60%,var(--acc) 60%,var(--acc) 88%,transparent 88%);padding-inline:.04em}
   .lede{font-size:1.2rem;line-height:1.55;color:var(--muted);max-width:44ch;margin-top:22px}
-  .axes{list-style:none;margin:30px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-  .axes li{display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;color:var(--navy);background:var(--white);border:1px solid var(--line);border-radius:999px;padding:6px 13px 6px 10px}
-  .axes li i{width:10px;height:10px;border-radius:50%;background:var(--c)}
   .fine{font-size:.88rem;color:var(--muted);margin-top:18px;display:flex;align-items:center;gap:8px}
   .fine svg{flex:none}
 
@@ -166,9 +163,7 @@
   /* ---------- sections ---------- */
   .sec{padding-block:84px;border-top:1px solid var(--line)}
   .sec.tint{background:var(--ground)}
-  .kicker{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--acc-ink);margin-bottom:12px}
   h2{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;line-height:1.1;letter-spacing:-.025em;max-width:22ch}
-  .intro{font-size:1.1rem;color:var(--muted);max-width:60ch;margin-top:14px}
 
   /* parcours */
   .steps{list-style:none;margin:44px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
@@ -178,7 +173,6 @@
   .steps li.here .n{background:var(--acc);color:var(--navy)}
   .steps h3{font-size:1.15rem;font-weight:700;line-height:1.25}
   .steps .meta{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--acc-ink);margin-top:6px}
-  .steps p:last-child{font-size:.97rem;color:var(--muted);margin-top:10px}
   .here-pill{position:absolute;top:22px;right:0;font-size:.72rem;font-weight:700;background:var(--acc-soft);color:var(--acc-ink);padding:3px 9px;border-radius:999px}
 
   /* piliers */
@@ -187,7 +181,7 @@
   .pillars li:first-child{border-left:0;padding-left:0}
   .pillars .pn{display:flex;align-items:center;gap:9px;font-weight:700;color:var(--navy);font-size:1rem;line-height:1.2}
   .pillars .pn i{flex:none;width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px var(--cl)}
-  .pillars p{font-size:.95rem;color:var(--muted);margin-top:12px;line-height:1.5}
+  .pillars p{font-size:1rem;color:var(--muted);margin-top:8px}
 
   /* bande marine */
   .band{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,var(--navy-3) 100%);color:#fff;position:relative;overflow:hidden;padding-block:84px}
@@ -197,8 +191,6 @@
   }
   .band .wrap{position:relative}
   .band h2{color:#fff}
-  .band .kicker{color:var(--acc)}
-  .band .intro{color:rgba(255,255,255,.72)}
   .statement{font-size:clamp(2rem,4.6vw,3.4rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:#fff;max-width:18ch}
   .statement em{font-style:normal;color:var(--acc)}
   .figs{list-style:none;margin:44px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:16px 56px}
@@ -206,16 +198,10 @@
   .figs span{display:block;font-size:.95rem;color:rgba(255,255,255,.66);margin-top:6px;max-width:18ch}
 
   /* raisons coachs */
-  .reasons{display:grid;grid-template-columns:1fr 1fr;gap:40px 56px;margin-top:44px}
+  .reasons{display:grid;grid-template-columns:1fr 1fr;gap:28px 56px;margin-top:40px}
   .reasons article{border-top:1px solid var(--line);padding-top:20px}
-  .reasons h3{font-size:1.2rem;font-weight:700;line-height:1.25}
-  .reasons p{color:var(--muted);margin-top:10px}
-  .not{margin-top:56px;display:grid;grid-template-columns:auto 1fr;gap:18px 28px;align-items:center;background:var(--acc-soft);border-radius:18px;padding:26px 30px}
-  .not strong{font-size:1.35rem;font-weight:800;color:var(--navy);line-height:1.2;letter-spacing:-.01em}
-  .not p{color:var(--ink)}
+  .reasons h3{font-size:1.3rem;font-weight:700;line-height:1.3}
 
-  .kit{list-style:none;margin:28px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
-  .kit li{font-weight:600;font-size:.95rem;color:var(--navy);background:var(--white);border:1px solid var(--line);border-radius:999px;padding:9px 16px}
 
   .switch-row{margin-top:40px;font-size:1rem;color:rgba(255,255,255,.7)}
   .switch-row .lnk{color:#fff;text-decoration-color:rgba(255,255,255,.4)}
@@ -249,7 +235,6 @@
     .score b{font-size:4.2rem}
     .reads{grid-template-columns:1fr}
     .steps,.pillars,.reasons{grid-template-columns:1fr}
-    .not{grid-template-columns:1fr;padding:22px}
     .sec,.band{padding-block:60px}
   }
   @media (prefers-reduced-motion:reduce){
@@ -288,17 +273,10 @@
     <canvas class="dots" aria-hidden="true"></canvas>
     <div class="wrap hero-grid">
       <div>
-        <p class="eyebrow"><span>De la TPE/PME à la multinationale</span><span>60 secondes</span></p>
+        <p class="eyebrow"><span>De la TPE/PME à la multinationale</span></p>
         <h1>Votre entreprise, notée <span class="hl">sur&nbsp;100</span>.</h1>
-        <p class="lede">Vision, marché, finance, objectifs, équipe. Cinq questions pour savoir sur quel pilier votre entreprise s’appuie — et lequel la fait vaciller.</p>
-        <ul class="axes" aria-label="Les 5 piliers mesurés">
-          <li style="--c:#0ea5e9"><i></i>Vision</li>
-          <li style="--c:#22c55e"><i></i>Market Fit</li>
-          <li style="--c:#f59e0b"><i></i>Finance</li>
-          <li style="--c:#6366f1"><i></i>OKR</li>
-          <li style="--c:#ec4899"><i></i>Team</li>
-        </ul>
-        <p class="fine"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Anonyme : vos réponses ne quittent pas votre navigateur.</p>
+        <p class="lede">5 questions, 60 secondes. Sur quel pilier tient votre entreprise&nbsp;?</p>
+        <p class="fine"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Anonyme, sans inscription.</p>
       </div>
       <div class="quiz" id="quiz-entreprises" aria-live="polite"></div>
     </div>
@@ -306,66 +284,39 @@
 
   <section class="sec tint">
     <div class="wrap">
-      <p class="kicker">Après ces 60 secondes</p>
       <h2>Le test donne une tendance. Le diagnostic donne un plan.</h2>
-      <p class="intro">Cinq questions suffisent pour se situer. Pour décider par quoi commencer, Oskar va plus loin — à votre rythme, et gratuitement jusqu’au diagnostic.</p>
       <ol class="steps">
-        <li class="here">
-          <span class="n">1</span><span class="here-pill">Vous êtes ici</span>
-          <h3>Le test</h3>
-          <p class="meta">60 secondes</p>
-          <p>Un premier regard sur vos cinq piliers et votre point de levier.</p>
-        </li>
-        <li>
-          <span class="n">2</span>
-          <h3>Le diagnostic complet</h3>
-          <p class="meta">10 minutes · gratuit · sans compte</p>
-          <p>15 critères, votre radar détaillé, vos priorités et une synthèse à recevoir par email.</p>
-        </li>
-        <li>
-          <span class="n">3</span>
-          <h3>Les ateliers OSKAR</h3>
-          <p class="meta">1<sup>re</sup> étape offerte</p>
-          <p>Vision, Market Fit, Finance, OKR, Team : chaque atelier démarre avec un compte gratuit.</p>
-        </li>
-        <li>
-          <span class="n">4</span>
-          <h3>Un coach, si vous le souhaitez</h3>
-          <p class="meta">L’annuaire Oskar</p>
-          <p>Des coachs qui connaissent la méthode, pour vous accompagner pilier par pilier.</p>
-        </li>
+        <li class="here"><span class="n">1</span><span class="here-pill">Vous êtes ici</span><h3>Le test</h3><p class="meta">60 secondes</p></li>
+        <li><span class="n">2</span><h3>Le diagnostic</h3><p class="meta">10 minutes · gratuit</p></li>
+        <li><span class="n">3</span><h3>Les ateliers</h3><p class="meta">1<sup>re</sup> étape offerte</p></li>
+        <li><span class="n">4</span><h3>Un coach</h3><p class="meta">Si vous le souhaitez</p></li>
       </ol>
       <div class="actions">
-        <a class="btn btn-main" href="/diagnostic/">Faire le diagnostic complet →</a>
-        <a class="btn btn-ghost" href="/coachs/#annuaire">Trouver un coach</a>
+        <a class="btn btn-main" href="/diagnostic/">Faire le diagnostic →</a>
       </div>
     </div>
   </section>
 
   <section class="sec">
     <div class="wrap">
-      <p class="kicker">La méthode</p>
       <h2>Cinq piliers. Une entreprise qui tient debout.</h2>
-      <p class="intro">Oskar regarde votre entreprise comme un tout : un pilier fragile freine tous les autres. On commence toujours par celui qui pèse le plus.</p>
       <ul class="pillars">
-        <li style="--c:#0ea5e9;--cl:#e0f2fe"><span class="pn"><i></i>OSKAR Vision</span><p>Clarté de la direction stratégique et capacité à la communiquer.</p></li>
-        <li style="--c:#22c55e;--cl:#dcfce7"><span class="pn"><i></i>OSKAR Market Fit</span><p>Adéquation entre votre offre et les besoins réels du marché.</p></li>
-        <li style="--c:#f59e0b;--cl:#fef3c7"><span class="pn"><i></i>OSKAR Finance</span><p>Solidité et lisibilité du modèle économique et de la trésorerie.</p></li>
-        <li style="--c:#6366f1;--cl:#ede9fe"><span class="pn"><i></i>OSKAR OKR</span><p>Alignement des objectifs et mesure des résultats clés.</p></li>
-        <li style="--c:#ec4899;--cl:#fce7f3"><span class="pn"><i></i>OSKAR Team</span><p>Engagement, cohésion et performance collective de l’équipe.</p></li>
+        <li style="--c:#0ea5e9;--cl:#e0f2fe"><span class="pn"><i></i>OSKAR Vision</span><p>Le cap</p></li>
+        <li style="--c:#22c55e;--cl:#dcfce7"><span class="pn"><i></i>OSKAR Market Fit</span><p>Le marché</p></li>
+        <li style="--c:#f59e0b;--cl:#fef3c7"><span class="pn"><i></i>OSKAR Finance</span><p>Les chiffres</p></li>
+        <li style="--c:#6366f1;--cl:#ede9fe"><span class="pn"><i></i>OSKAR OKR</span><p>Les priorités</p></li>
+        <li style="--c:#ec4899;--cl:#fce7f3"><span class="pn"><i></i>OSKAR Team</span><p>L’équipe</p></li>
       </ul>
     </div>
   </section>
 
   <section class="band">
     <div class="wrap">
-      <p class="statement">Votre score, c’est un point de départ. <em>Pas un verdict.</em></p>
-      <p class="intro">Le diagnostic complet vous dit par quoi commencer, et pourquoi. Dix minutes, sans compte, résultats par email.</p>
+      <p class="statement">Votre score est un point de départ. <em>Pas un verdict.</em></p>
       <div class="actions">
-        <a class="btn btn-main" href="/diagnostic/">Faire le diagnostic complet →</a>
-        <a class="btn btn-ghost" href="#top" data-restart="entreprises">Refaire le test</a>
+        <a class="btn btn-main" href="/diagnostic/">Faire le diagnostic →</a>
       </div>
-      <p class="switch-row">Vous accompagnez des dirigeants&nbsp;? <button class="lnk" type="button" data-goto="coachs">Faites le test coach →</button></p>
+      <p class="switch-row">Coach&nbsp;? <button class="lnk" type="button" data-goto="coachs">Faites le test coach →</button></p>
     </div>
   </section>
 </section>
@@ -376,17 +327,10 @@
     <canvas class="dots" aria-hidden="true"></canvas>
     <div class="wrap hero-grid">
       <div>
-        <p class="eyebrow"><span>Coachs · consultants · facilitateurs</span><span>60 secondes</span></p>
+        <p class="eyebrow"><span>Coachs · consultants · facilitateurs</span></p>
         <h1>Votre accompagnement, noté <span class="hl">sur&nbsp;100</span>.</h1>
-        <p class="lede">Méthode, prospection, suivi, impact, visibilité : cinq situations que tout coach connaît. Voyez où votre pratique tient — et où elle vous coûte du temps.</p>
-        <ul class="axes" aria-label="Les 5 axes mesurés">
-          <li style="--c:#ffa089"><i></i>Méthode</li>
-          <li style="--c:#ffa089"><i></i>Prospection</li>
-          <li style="--c:#ffa089"><i></i>Continuité</li>
-          <li style="--c:#ffa089"><i></i>Impact</li>
-          <li style="--c:#ffa089"><i></i>Visibilité</li>
-        </ul>
-        <p class="fine"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Anonyme : vos réponses ne quittent pas votre navigateur.</p>
+        <p class="lede">5 questions, 60 secondes. Où en est votre pratique&nbsp;?</p>
+        <p class="fine"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Anonyme, sans inscription.</p>
       </div>
       <div class="quiz" id="quiz-coachs" aria-live="polite"></div>
     </div>
@@ -394,9 +338,7 @@
 
   <section class="band">
     <div class="wrap">
-      <p class="kicker">L’espace coachs Oskar</p>
       <p class="statement">Oskar porte le cadre. Vous portez <em>la relation.</em></p>
-      <p class="intro">Une méthode structurée en 5 piliers, des rituels prêts à animer et un diagnostic gratuit qui ouvre la conversation avec vos prospects. Vous gardez votre style, votre posture et vos clients.</p>
       <ul class="figs">
         <li><b>5</b><span>piliers à accompagner</span></li>
         <li><b>12+</b><span>rituels prêts à animer</span></li>
@@ -407,58 +349,24 @@
 
   <section class="sec">
     <div class="wrap">
-      <p class="kicker">Pourquoi intégrer Oskar à votre pratique</p>
       <h2>Moins de temps sur les supports. Plus de temps à coacher.</h2>
       <div class="reasons">
-        <article>
-          <h3>Un cadre commun, pas des supports à refaire</h3>
-          <p>Cinq piliers, des ateliers structurés, plus de douze rituels d’équipe. Vous arrivez chez le client avec la méthode ; vous gardez votre manière de faire.</p>
-        </article>
-        <article>
-          <h3>Une porte d’entrée commerciale</h3>
-          <p>Le diagnostic gratuit met des mots et des chiffres sur les besoins du dirigeant avant même votre proposition. La conversation commence sur des faits.</p>
-        </article>
-        <article>
-          <h3>Du travail qui continue entre vos séances</h3>
-          <p>Vision, objectifs, rituels : votre client avance dans Oskar entre deux rendez-vous. S’il vous y invite, vous voyez où il en est.</p>
-        </article>
-        <article>
-          <h3>De la visibilité entrante</h3>
-          <p>Les dirigeants qui passent le diagnostic peuvent trouver un coach dans l’annuaire Oskar. Votre fiche y présente votre approche.</p>
-        </article>
+        <article><h3>Une méthode prête à animer</h3></article>
+        <article><h3>Un diagnostic qui ouvre la porte</h3></article>
+        <article><h3>Des clients qui avancent entre les séances</h3></article>
+        <article><h3>Une place dans l’annuaire Oskar</h3></article>
       </div>
-      <div class="not">
-        <strong>Oskar ne remplace pas le coach.</strong>
-        <p>Il lui laisse le temps de coacher. L’écoute, la posture, le choix du bon moment : tout cela reste à vous.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec tint">
-    <div class="wrap">
-      <p class="kicker">Le kit de conviction</p>
-      <h2>Six documents pour présenter Oskar à vos clients.</h2>
-      <p class="intro">Prêts à l’emploi, dans l’espace coachs : de quoi expliquer la méthode, restituer un diagnostic et chiffrer une mission.</p>
-      <ul class="kit">
-        <li>One-pager OSKAR</li>
-        <li>Deck de présentation</li>
-        <li>Grille de restitution du diagnostic</li>
-        <li>Fiche « les 5 piliers »</li>
-        <li>Trame de proposition</li>
-        <li>Calendrier des ateliers</li>
-      </ul>
     </div>
   </section>
 
   <section class="band">
     <div class="wrap">
-      <p class="statement">Le meilleur test&nbsp;? <em>Le diagnostic sur votre propre activité.</em></p>
-      <p class="intro">Découvrez l’espace coachs, le kit et l’annuaire. Et rejoignez les coachs Oskar si la méthode vous parle.</p>
+      <p class="statement">Rejoignez les coachs <em>Oskar.</em></p>
       <div class="actions">
         <a class="btn btn-main" href="/coachs/">Découvrir l’espace coachs →</a>
         <a class="btn btn-ghost" href="/coachs/#candidature">Rejoindre l’annuaire</a>
       </div>
-      <p class="switch-row">Vous dirigez une entreprise&nbsp;? <button class="lnk" type="button" data-goto="entreprises">Faites le test dirigeant →</button></p>
+      <p class="switch-row">Dirigeant&nbsp;? <button class="lnk" type="button" data-goto="entreprises">Faites le test dirigeant →</button></p>
     </div>
   </section>
 </section>

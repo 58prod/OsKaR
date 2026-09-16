@@ -45,6 +45,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Analyse resserrée : une priorité avec le lien vers son atelier, 2 croisements au plus.
 - Case « Je travaille seul » qui retire Team du calcul.
 
+## [2.47.8] - 2026-09-16
+
+### 🎨 Modifié — /performance : textes allégés (« less is more »)
+- Test inchangé. Autour : une idée par bloc, un bouton par section.
+- Dirigeants : accroche « 5 questions, 60 secondes. Sur quel pilier tient
+  votre entreprise ? », pastilles des piliers retirées, parcours en 4 étapes
+  sans paragraphes, piliers résumés en deux mots.
+- Coachs : bande « Oskar porte le cadre » réduite à la phrase et aux 3
+  chiffres, 4 bénéfices en titres courts, bloc « Oskar ne remplace pas le
+  coach » et section du kit retirés, appel final « Rejoignez les coachs Oskar ».
+
 ## [2.47.7] - 2026-09-16
 
 ### 🔧 Modifié — /performance : deux questions valables de la TPE à la multinationale
