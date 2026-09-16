@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.47.7] - 2026-09-16
+
+### 🔧 Modifié — /performance : deux questions valables de la TPE à la multinationale
+- Finance : « Quand l'expert-comptable appelle » et « En ouvrant l'appli de la
+  banque » deviennent « Quand les comptes sont arrêtés, pas avant » et « Au
+  dernier moment, en croisant les doigts » ; « À peu près, de tête » devient
+  « Dans les grandes lignes ».
+- Team : « dans l'équipe » devient « dans vos équipes », et « Par un
+  collaborateur qui ose venir vous voir » devient « Quand quelqu'un prend sur
+  lui de le faire remonter ». Barème inchangé.
+
 ## [2.47.6] - 2026-09-16
 
 ### 🎨 Modifié — /performance/ : la carte du test au même endroit dans les deux onglets
