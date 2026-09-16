@@ -10,6 +10,23 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.49.0] - 2026-09-16
+
+### ✨ Ajouté — /diagnostic3 : version d'essai rapide, au format du Diagnostic en ligne
+- Page hors menu, non indexée, rien n'est enregistré ; /diagnostic et /diagnostic2 ne changent pas.
+- Par pilier : une question qui le résume, une note spontanée de 0 à 10 (boutons), puis
+  4 critères vérifiables à cocher, valables de la TPE à la multinationale.
+- Calcul : 2 points par critère coché (8 points) + ressenti × 0,2 (2 points). Sans
+  preuve, la note plafonne à 2 ; il faut 3 critères sur 4 pour être « Solide ».
+  Niveaux : moins de 4 / 4 à 6,9 / 7 et plus. Score global seulement quand tout est
+  noté, jamais « Solide » avec un pilier fragile.
+- Radar « Ressenti ou réalité ? » : ressenti en pointillés, preuves en surface.
+- Analyse réécrite : profil (mêmes noms que le test /performance), priorité et son
+  verdict, effet domino sur le point fort, angles morts et forces sous-estimées
+  (écart d'au moins 3 points), 3 actions pour les 30 prochains jours tirées des
+  cases vides, verdict pilier par pilier, bouton vers l'atelier du pilier prioritaire.
+- Case « Je travaille seul » qui retire Team du calcul.
+
 ## [2.48.1] - 2026-09-16
 
 ### 🔧 Modifié — /diagnostic2 : question du ressenti reformulée
