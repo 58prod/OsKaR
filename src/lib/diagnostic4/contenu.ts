@@ -1,22 +1,23 @@
 import type { PillarId } from '@/lib/diagnostic';
 
 /*
- * Diagnostic 4 — version d'essai rapide (page /diagnostic4) : le format du
- * Diagnostic en ligne (ressenti + cases à cocher), avec des critères
- * vérifiables et une analyse réécrite. Tous les textes sont ici.
+ * Diagnostic 4 : perception séparée des réponses explicites sur les pratiques,
+ * avec des critères vérifiables et une analyse traçable. Tous les textes sont ici.
  *
- * Règles d'écriture des critères : un seul fait par case, vérifiable (on peut
+ * Règles d'écriture des critères : un seul fait par question, vérifiable (on peut
  * le montrer), valable de la TPE à la multinationale, sans jargon de start-up.
- * Chaque critère porte l'action proposée quand il n'est pas coché.
+ * Chaque critère porte une vérification, une action et un exemple de preuve à examiner.
  */
 
 export interface Critere4 {
-  /** Ce que l'on coche quand c'est vrai aujourd'hui. */
+  /** Pratique sur laquelle l’utilisateur se prononce explicitement. */
   texte: string;
   /** Question à approfondir quand la pratique n’est pas déclarée. */
   verification: string;
   /** Action à envisager si le besoin est confirmé. */
   action: string;
+  /** Exemple à examiner avec le coach ; aucune preuve collectée ou validée ici. */
+  preuveAExaminer: string;
 }
 
 export interface Pilier4 {
@@ -33,21 +34,25 @@ export const PILIERS4: Record<PillarId, Pilier4> = {
         texte: 'Notre cap à trois ans est écrit, en quelques phrases.',
         verification: "Votre cap à trois ans est-il écrit et accessible ?",
         action: 'Écrivez votre cap à trois ans en cinq lignes : où vous voulez être, pour qui, avec quel résultat.',
+        preuveAExaminer: "Un document daté présentant le cap à trois ans.",
       },
       {
         texte: 'Nos personnes clés sauraient le redire avec leurs propres mots.',
         verification: "Comment les personnes clés reformulent-elles votre cap ?",
         action: 'Demandez aux personnes clés de reformuler votre cap, puis discutez ensemble des éventuels écarts.',
+        preuveAExaminer: "Les reformulations recueillies auprès des personnes clés.",
       },
       {
         texte: 'Cette année, nous avons dit non à une opportunité parce qu’elle sortait de ce cap.',
         verification: "Avez-vous eu à refuser une opportunité cette année ? Si oui, le cap a-t-il guidé ce choix ?",
         action: 'Écrivez ce que vous ne ferez pas : c’est ce qui rend un cap utile au moment de décider.',
+        preuveAExaminer: "Un exemple d’opportunité refusée et le motif de la décision.",
       },
       {
         texte: 'Nos budgets et nos recrutements de l’année en découlent directement.',
         verification: "Comment reliez-vous les budgets et les recrutements au cap ?",
         action: 'Reliez chaque grand poste de budget et chaque recrutement à une ambition de votre cap.',
+        preuveAExaminer: "Un budget ou une décision de recrutement relié au cap.",
       },
     ],
   },
@@ -58,21 +63,25 @@ export const PILIERS4: Record<PillarId, Pilier4> = {
         texte: 'Nous savons, preuves à l’appui, pourquoi nos clients nous choisissent.',
         verification: "Sur quels retours clients vous appuyez-vous pour expliquer leur choix ?",
         action: 'Interrogez cinq clients récents : pourquoi vous, pourquoi maintenant, et qu’auraient-ils fait sinon ?',
+        preuveAExaminer: "Des comptes rendus d’entretiens ou des retours clients récents.",
       },
       {
         texte: 'Une bonne part de nos nouveaux clients vient de recommandations ou de clients qui reviennent.',
         verification: "Quelle place occupent les recommandations et le réachat dans votre modèle commercial ?",
         action: 'Notez d’où vient chaque nouveau client ce trimestre : recommandation, retour, prospection, publicité.',
+        preuveAExaminer: "La répartition des nouveaux clients par origine sur une période précisée.",
       },
       {
         texte: 'Nous tenons nos prix face à des concurrents moins chers.',
         verification: "Comment vos prix résistent-ils aux offres concurrentes moins chères ?",
         action: 'Formulez en une phrase ce qu’un client perd en choisissant moins cher que vous.',
+        preuveAExaminer: "Des devis comparés et les motifs de gain ou de perte d’affaires.",
       },
       {
         texte: 'Nous suivons au moins un indicateur de fidélité ou de satisfaction client.',
         verification: "Quel indicateur de fidélité ou de satisfaction suivez-vous, et à quelle fréquence ?",
         action: 'Choisissez un indicateur de fidélité (réachat, recommandation, départs) et suivez-le chaque mois.',
+        preuveAExaminer: "Un tableau de suivi daté de satisfaction, de fidélité ou de réachat.",
       },
     ],
   },
@@ -83,21 +92,25 @@ export const PILIERS4: Record<PillarId, Pilier4> = {
         texte: 'Nous connaissons la marge de chacune de nos offres ou activités.',
         verification: "Disposez-vous d’une marge calculée pour chaque offre ou activité ?",
         action: 'Calculez la marge offre par offre pour comparer leur contribution.',
+        preuveAExaminer: "Un calcul récent des marges par offre ou activité.",
       },
       {
         texte: 'Nous tenons un prévisionnel de trésorerie à six mois, mis à jour chaque mois.',
         verification: "À quel horizon anticipez-vous la trésorerie et quand actualisez-vous ce prévisionnel ?",
         action: 'Montez un prévisionnel de trésorerie à six mois et mettez-le à jour chaque mois.',
+        preuveAExaminer: "Un prévisionnel de trésorerie à six mois et ses dates de mise à jour.",
       },
       {
         texte: 'Aucun client ne représente plus de 20 % de notre chiffre d’affaires.',
         verification: "Quel poids représentent vos principaux clients, et quelle concentration est acceptable dans votre contexte ?",
         action: 'Mesurez le poids de vos trois premiers clients et fixez-vous un seuil de dépendance à ne pas dépasser.',
+        preuveAExaminer: "La répartition du chiffre d’affaires par client sur une période précisée.",
       },
       {
         texte: 'Nos indicateurs financiers clés sont revus chaque mois, et des décisions en sortent.',
         verification: "À quelle fréquence revoyez-vous les indicateurs financiers et quelles décisions en découlent ?",
         action: 'Instaurez un point financier mensuel de 30 minutes, avec trois indicateurs et une décision à la clé.',
+        preuveAExaminer: "Un compte rendu de revue financière et les décisions prises.",
       },
     ],
   },
@@ -108,21 +121,25 @@ export const PILIERS4: Record<PillarId, Pilier4> = {
         texte: 'Nos objectifs de l’année sont chiffrés et datés.',
         verification: "Quels objectifs de l’année ont une cible chiffrée et une échéance ?",
         action: 'Transformez chaque objectif de l’année en résultat chiffré, avec une échéance.',
+        preuveAExaminer: "Une liste d’objectifs avec cibles chiffrées et échéances.",
       },
       {
         texte: 'Nous avons cinq priorités au plus ce trimestre.',
         verification: "Combien de priorités poursuivez-vous ce trimestre ?",
         action: 'Réduisez vos priorités du trimestre à cinq au plus, et dites ce que vous mettez de côté.',
+        preuveAExaminer: "La liste des priorités du trimestre.",
       },
       {
         texte: 'Chaque priorité a un responsable nommé.',
         verification: "Un responsable est-il nommé pour chaque priorité ?",
         action: 'Nommez un responsable pour chaque priorité : une personne, pas une équipe.',
+        preuveAExaminer: "La liste des priorités et de leurs responsables nommés.",
       },
       {
         texte: 'Nous faisons le point sur l’avancement au moins toutes les deux semaines.',
         verification: "À quelle fréquence faites-vous le point sur l’avancement des priorités ?",
         action: 'Installez un point d’avancement de 20 minutes toutes les deux semaines, chiffres à l’appui.',
+        preuveAExaminer: "Les dates et comptes rendus des derniers points d’avancement.",
       },
     ],
   },
@@ -133,21 +150,25 @@ export const PILIERS4: Record<PillarId, Pilier4> = {
         texte: 'Sur les sujets importants, chacun sait qui décide.',
         verification: "Qui tranche les décisions importantes, et est-ce clair pour les personnes concernées ?",
         action: 'Listez les dix décisions qui reviennent le plus souvent et écrivez qui tranche chacune.',
+        preuveAExaminer: "Une répartition des responsabilités de décision ou des décisions récentes documentées.",
       },
       {
         texte: 'Les désaccords se disent en réunion, pas dans les couloirs.',
         verification: "Dans quel cadre les désaccords peuvent-ils être exprimés et discutés ?",
         action: 'Proposez un temps de discussion des désaccords en réunion et convenez de règles d’écoute.',
+        preuveAExaminer: "Un exemple récent de désaccord discuté en réunion et de son traitement.",
       },
       {
         texte: 'Au moins une fois par trimestre, nous revoyons ensemble notre façon de travailler.',
         verification: "Quand avez-vous revu ensemble votre façon de travailler pour la dernière fois ?",
         action: 'Animez une rétrospective d’équipe ce mois-ci : ce qui marche, ce qui coince, ce qu’on change.',
+        preuveAExaminer: "Les dates et comptes rendus des dernières rétrospectives.",
       },
       {
         texte: 'Chaque personne a eu un vrai échange individuel sur son rôle ces six derniers mois.',
         verification: "Quand chaque personne a-t-elle eu un échange individuel sur son rôle ?",
         action: 'Planifiez un échange individuel avec chaque personne sur son rôle et ce qui l’aiderait à progresser.',
+        preuveAExaminer: "Les dates des entretiens individuels et les sujets abordés, sans données confidentielles.",
       },
     ],
   },
@@ -171,7 +192,7 @@ export const PROFILS4: Record<ProfilId, { nom: string; texte: (pilier: string) =
   },
   pilote: {
     nom: 'Le pilote à vue',
-    texte: (p) => `Votre score global se situe au niveau « Fragile ». Commencez par préciser les pratiques non renseignées, notamment sur ${p}, avant de choisir un chantier.`,
+    texte: (p) => `Votre score global se situe au niveau « Fragile ». Examinez les pratiques déclarées « Non » ou « En partie », notamment sur ${p}, avant de choisir un chantier.`,
   },
 };
 
