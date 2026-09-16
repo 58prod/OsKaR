@@ -45,6 +45,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Analyse resserrée : une priorité avec le lien vers son atelier, 2 croisements au plus.
 - Case « Je travaille seul » qui retire Team du calcul.
 
+## [2.47.9] - 2026-09-16
+
+### 🎨 Modifié — /performance ultra minimaliste
+- Chaque onglet tient en un écran : le titre, la cible en toutes lettres
+  (« De la TPE/PME à la multinationale. » / « Coachs, consultants,
+  facilitateurs. »), « 5 questions · 60 secondes · anonyme », un lien
+  « Ou directement : le diagnostic complet / l'espace coachs », et le test.
+- Toutes les sections sous le haut de page retirées (parcours, piliers,
+  bandes, bénéfices coachs) ; les appels à l'action restent sur l'écran de
+  résultat. 41 règles CSS devenues inutiles supprimées.
+
 ## [2.47.8] - 2026-09-16
 
 ### 🎨 Modifié — /performance : textes allégés (« less is more »)
