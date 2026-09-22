@@ -15,8 +15,9 @@ const groupe = (nom: string) => screen.queryByRole('group', { name: nom });
 function repondre(id: PillarId, index: number, reponse = 'Oui') {
   fireEvent.click(within(screen.getByRole('group', { name: PILIERS4[id].criteres[index].texte })).getByRole('radio', { name: reponse }));
 }
+const curseur = (label: string) => screen.queryByRole('slider', { name: `Votre perception · ${label}` });
 function perception(label: string, valeur = '7') {
-  fireEvent.click(within(screen.getByRole('group', { name: `Votre perception · ${label}` })).getByRole('radio', { name: valeur }));
+  fireEvent.change(curseur(label)!, { target: { value: valeur } });
 }
 function remplirPilier(id: PillarId, label: string, reponse = 'Oui') {
   perception(label);
@@ -29,8 +30,8 @@ beforeEach(() => {
 
 it('n’ouvre qu’un pilier, et fait apparaître ses pratiques une à une', () => {
   render(<Diagnostic4bPage />);
-  expect(groupe('Votre perception · Vision')).toBeInTheDocument();
-  expect(groupe('Votre perception · Market Fit')).not.toBeInTheDocument();
+  expect(curseur('Vision')).toBeInTheDocument();
+  expect(curseur('Market Fit')).not.toBeInTheDocument();
   expect(groupe(PILIERS4.vision.criteres[0].texte)).not.toBeInTheDocument();
   perception('Vision');
   expect(groupe(PILIERS4.vision.criteres[0].texte)).toBeInTheDocument();
@@ -42,13 +43,13 @@ it('n’ouvre qu’un pilier, et fait apparaître ses pratiques une à une', () 
 it('replie le pilier rempli, ouvre le suivant, et permet de revenir le modifier', () => {
   render(<Diagnostic4bPage />);
   remplirPilier('vision', 'Vision');
-  expect(groupe('Votre perception · Vision')).not.toBeInTheDocument();
-  expect(groupe('Votre perception · Market Fit')).toBeInTheDocument();
+  expect(curseur('Vision')).not.toBeInTheDocument();
+  expect(curseur('Market Fit')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Modifier Vision' }));
   expect(groupe(PILIERS4.vision.criteres[3].texte)).toBeInTheDocument();
   repondre('vision', 3, 'Non');
   fireEvent.click(screen.getByRole('button', { name: 'Valider ce pilier' }));
-  expect(groupe('Votre perception · Market Fit')).toBeInTheDocument();
+  expect(curseur('Market Fit')).toBeInTheDocument();
 });
 
 it('garde le calcul et la restitution de la V4, « Je travaille seul » compris', () => {
@@ -58,4 +59,24 @@ it('garde le calcul et la restitution de la V4, « Je travaille seul » compris'
   fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
   expect(screen.getByRole('region', { name: 'Votre analyse' })).toBeInTheDocument();
   expect(screen.getByText('Passé : je travaille seul')).toBeInTheDocument();
+});
+
+it('un clic sur la position de départ du curseur compte comme une perception', () => {
+  render(<Diagnostic4bPage />);
+  expect(screen.getByText('—')).toBeInTheDocument();
+  fireEvent.pointerUp(curseur('Vision')!);
+  expect(screen.getByText('5/10')).toBeInTheDocument();
+  expect(groupe(PILIERS4.vision.criteres[0].texte)).toBeInTheDocument();
+});
+
+it('« Je ne sais pas » compte comme non en place sans effacer le score', () => {
+  render(<Diagnostic4bPage />);
+  perception('Vision');
+  repondre('vision', 0, 'Je ne sais pas');
+  [1, 2, 3].forEach((i) => repondre('vision', i));
+  // 3 oui sur 4 → 7,5, affiché sur la ligne repliée de Vision.
+  expect(screen.getByText('7,5')).toBeInTheDocument();
+  PILLARS.filter((p) => p.id !== 'vision').forEach((p) => remplirPilier(p.id, p.label));
+  fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
+  expect(screen.getByRole('region', { name: 'Score global de pratiques' }).textContent).toMatch(/9,5/);
 });

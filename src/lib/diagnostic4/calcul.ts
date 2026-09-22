@@ -35,8 +35,13 @@ export function pilierComplet4(saisie: Saisie4): boolean { return saisie.percept
  * suspend le score, sans être assimilée à un Non ni gonfler la moyenne.
  * La perception n’intervient jamais, même pour départager des piliers.
  */
-export function note4(saisie: Saisie4): number | null {
-  if (saisie.reponses.some((r) => r === null || r === 'inconnu')) return null;
+/** Variante de calcul (Diagnostic 4b) : « Je ne sais pas » compte comme une
+ * pratique non en place (0) au lieu de suspendre le score, et reste signalé
+ * comme à clarifier. Sans option, le comportement de la V4 est inchangé. */
+export interface Options4 { inconnuCommeNon?: boolean }
+
+export function note4(saisie: Saisie4, options: Options4 = {}): number | null {
+  if (saisie.reponses.some((r) => r === null || (r === 'inconnu' && !options.inconnuCommeNon))) return null;
   const applicables = saisie.reponses.filter((r) => r !== 'na');
   if (applicables.length === 0) return null;
   const points = applicables.reduce((total, r) => total + (r === 'oui' ? 1 : r === 'partiel' ? 0.5 : 0), 0);
@@ -61,8 +66,8 @@ export interface Verdict4 {
   aVerifier: Verification4[];
 }
 
-function restituerPilier4(id: PillarId, saisie: Saisie4): Verdict4 {
-  const note = note4(saisie);
+function restituerPilier4(id: PillarId, saisie: Saisie4, options: Options4): Verdict4 {
+  const note = note4(saisie, options);
   const constats: Pratique4[] = [];
   const aVerifier: Verification4[] = [];
   PILIERS4[id].criteres.forEach((critere, index) => {
@@ -84,7 +89,9 @@ function restituerPilier4(id: PillarId, saisie: Saisie4): Verdict4 {
   return {
     id, label: PILLAR_SHORT_LABEL[id], note, niveau: note === null ? null : niveau4(note), perception: saisie.perception!, nbApplicables: 4 - na,
     titre: `${oui} oui · ${partiel} en partie · ${non} non`,
-    texte: inconnues > 0
+    texte: inconnues > 0 && options.inconnuCommeNon
+      ? `${inconnues} réponse(s) « Je ne sais pas », comptée(s) comme non en place jusqu’à clarification. ${na} non applicable(s), hors calcul.`
+      : inconnues > 0
       ? `${inconnues} réponse(s) « Je ne sais pas » : score suspendu jusqu’à clarification. ${na} non applicable(s), hors calcul.`
       : na === 4
         ? 'Les quatre pratiques sont déclarées non applicables : aucun score pour ce pilier.'
@@ -108,7 +115,7 @@ export interface Analyse4 {
   verdicts: Verdict4[];
 }
 
-export function analyser4(etat: Etat4): Analyse4 {
+export function analyser4(etat: Etat4, options: Options4 = {}): Analyse4 {
   const ids = piliersAttendus4(etat);
   const nbComplets = ids.filter((id) => pilierComplet4(etat.piliers[id])).length;
   const complet = nbComplets === ids.length;
@@ -116,7 +123,7 @@ export function analyser4(etat: Etat4): Analyse4 {
   const notes: NotePilier4[] = [];
   ids.forEach((id) => {
     const saisie = etat.piliers[id];
-    const note = note4(saisie);
+    const note = note4(saisie, options);
     if (note !== null) notes.push({ id, label: PILLAR_SHORT_LABEL[id], note, niveau: niveau4(note), perception: saisie.perception, nbApplicables: saisie.reponses.filter((r) => r !== 'na').length });
   });
   const parNote = [...notes].sort((a, b) => a.note - b.note);
@@ -134,7 +141,7 @@ export function analyser4(etat: Etat4): Analyse4 {
       : niveauGlobal === 'c' ? 'batisseur' : 'pilote';
     profil = { id, nom: PROFILS4[id].nom, texte: PROFILS4[id].texte(plusFaible.label) };
   }
-  const verdicts = complet ? ids.map((id) => restituerPilier4(id, etat.piliers[id])) : [];
+  const verdicts = complet ? ids.map((id) => restituerPilier4(id, etat.piliers[id], options)) : [];
   const exAequo = parNote.filter((n) => n.note === plusFaible?.note);
   const priorite: Analyse4['priorite'] = moyenne !== null && plusFaible.niveau !== 's'
     ? {

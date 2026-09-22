@@ -10,7 +10,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { COULEURS_PILIERS } from '@/constants/piliers';
 import { PILLARS, fmt, stateLabel, stateColor, stateBorder, type PillarId, type StateKey } from '@/lib/diagnostic';
 import { PILIERS4 } from '@/lib/diagnostic4/contenu';
-import { analyser4, etatInitial4, nbReponses4, niveau4, note4, pilierComplet4, piliersAttendus4, REPONSES4, libelleReponse4, type Reponse4, type Etat4, type Verification4 } from '@/lib/diagnostic4/calcul';
+import { analyser4, etatInitial4, type Options4, nbReponses4, niveau4, note4, pilierComplet4, piliersAttendus4, REPONSES4, libelleReponse4, type Reponse4, type Etat4, type Verification4 } from '@/lib/diagnostic4/calcul';
 
 /*
  * Diagnostic 4b — la V4 d'Eric (même calcul, même restitution : lib/diagnostic4),
@@ -37,13 +37,16 @@ const PointAVerifier = ({ point }: { point: Verification4 }) => (
   </div>
 );
 
+// V4b : « Je ne sais pas » compte comme une pratique non en place, sans effacer le score.
+const OPTIONS: Options4 = { inconnuCommeNon: true };
+
 export default function Diagnostic4bPage() {
   const [etat, setEtat] = useState<Etat4>(etatInitial4);
   const [revele, setRevele] = useState(false);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const authReady = useAppStore((s) => s.authReady);
   const analyseRef = useRef<HTMLElement>(null);
-  const analyse = useMemo(() => analyser4(etat), [etat]);
+  const analyse = useMemo(() => analyser4(etat, OPTIONS), [etat]);
   // Pilier rouvert pour modification ; sinon, le premier pilier pas encore rempli.
   const [ouvert, setOuvert] = useState<PillarId | null>(null);
   const estFait = (id: PillarId) => (etat.seul && id === 'team') || pilierComplet4(etat.piliers[id]);
@@ -116,7 +119,7 @@ export default function Diagnostic4bPage() {
             const saisie = etat.piliers[pilier.id];
             const couleur = COULEURS_PILIERS[pilier.id];
             const contenu = PILIERS4[pilier.id];
-            const note = note4(saisie);
+            const note = note4(saisie, OPTIONS);
             const ecarte = etat.seul && pilier.id === 'team';
             const entete = <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: couleur.dark }}>{index + 1}/5 · {pilier.module}</div>;
 
@@ -143,7 +146,7 @@ export default function Diagnostic4bPage() {
                   <div className="ml-auto flex items-center gap-3">
                     {!ecarte && (note !== null
                       ? <><span className="text-lg font-extrabold text-navy">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></span><Pastille niveau={niveau4(note)} /></>
-                      : <span className="text-xs text-muted">{saisie.reponses.includes('inconnu') ? 'À clarifier' : 'Non applicable'}</span>)}
+                      : <span className="text-xs text-muted">Non applicable</span>)}
                     <button type="button" onClick={() => setOuvert(pilier.id)} className="inline-flex items-center gap-1 text-xs font-semibold text-navy hover:underline">
                       <Pencil className="h-3.5 w-3.5" aria-hidden />Modifier<span className="sr-only"> {pilier.label}</span>
                     </button>
@@ -177,19 +180,32 @@ export default function Diagnostic4bPage() {
                   </label>
                 )}
                 {!ecarte && <>
-                  <fieldset className="mb-4">
-                    <legend className="text-sm font-semibold text-ink mb-2">Votre perception · {pilier.label}</legend>
-                    <div className="grid grid-cols-11 gap-1">
-                      {Array.from({ length: 11 }, (_, v) => {
-                        const choisie = saisie.perception === v;
-                        return <label key={v}
-                          className={`h-9 rounded-md text-sm font-bold border-[1.5px] flex items-center justify-center cursor-pointer focus-within:ring-2 focus-within:ring-navy focus-within:ring-offset-2 ${choisie ? 'text-white' : 'bg-white text-navy border-line hover:border-navy/40'}`}
-                          style={choisie ? { background: couleur.DEFAULT, borderColor: couleur.DEFAULT } : undefined}>
-                          <input type="radio" name={`perception-${pilier.id}`} value={v} checked={choisie} onChange={() => noter(pilier.id, v)} className="sr-only" />{v}
-                        </label>;
-                      })}
+                  <div className="mb-5 rounded-lg bg-surface px-4 py-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <label htmlFor={`perception-${pilier.id}`} className="text-sm font-semibold text-ink">Votre perception · {pilier.label}</label>
+                      <span className="text-sm font-bold text-navy">{saisie.perception === null ? '—' : `${saisie.perception}/10`}</span>
                     </div>
-                  </fieldset>
+                    <input
+                      id={`perception-${pilier.id}`}
+                      type="range"
+                      min={0}
+                      max={10}
+                      step={1}
+                      value={saisie.perception ?? 5}
+                      onChange={(e) => noter(pilier.id, parseInt(e.target.value, 10))}
+                      // Un simple clic sur la valeur du milieu doit aussi compter comme une réponse.
+                      onPointerUp={(e) => noter(pilier.id, parseInt(e.currentTarget.value, 10))}
+                      onKeyUp={(e) => noter(pilier.id, parseInt(e.currentTarget.value, 10))}
+                      className="w-full h-1.5 cursor-pointer"
+                      style={{ accentColor: couleur.DEFAULT, opacity: saisie.perception === null ? 0.45 : 1 }}
+                      aria-valuetext={saisie.perception === null ? 'Non renseignée' : `${saisie.perception} sur 10`}
+                    />
+                    <div className="flex justify-between gap-4 mt-1.5 text-[11px] leading-snug text-muted">
+                      <span><strong className="font-semibold">0</strong> · nous sommes nettement en retrait sur ce sujet</span>
+                      <span className="text-right"><strong className="font-semibold">10</strong> · nous le maîtrisons pleinement</span>
+                    </div>
+                    {saisie.perception === null && <p className="text-[11.5px] text-muted mt-1">Faites glisser le curseur pour donner votre appréciation.</p>}
+                  </div>
                   {visibles > 0 && (
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-semibold text-ink">Vos pratiques</span>
@@ -215,9 +231,8 @@ export default function Diagnostic4bPage() {
                       </fieldset>
                     ))}
                   </div>
-                  {nbReponses4(saisie) === 4 && note === null && <p className="text-xs text-muted mt-2">
-                    {saisie.reponses.includes('inconnu') ? 'Score suspendu : une ou plusieurs pratiques restent à clarifier.' : 'Aucun score : toutes les pratiques sont déclarées non applicables.'}
-                  </p>}
+                  {nbReponses4(saisie) === 4 && note === null && <p className="text-xs text-muted mt-2">Aucun score : toutes les pratiques sont déclarées non applicables.</p>}
+                  {saisie.reponses.includes('inconnu') && <p className="text-xs text-muted mt-2">« Je ne sais pas » compte comme une pratique non en place, à clarifier.</p>}
                   {ouvert === pilier.id && (
                     <button type="button" onClick={() => setOuvert(null)} className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy-light">
                       <Check className="h-4 w-4" aria-hidden />Valider ce pilier
@@ -348,7 +363,7 @@ export default function Diagnostic4bPage() {
         <details>
           <summary className="cursor-pointer font-semibold text-navy">Comment est calculé le score ?</summary>
           <p className="mt-2">Non = 0, En partie = 0,5, Oui = 1. La moyenne des pratiques applicables est ramenée sur 10.
-            « Non applicable » est exclu. « Je ne sais pas » suspend le score du pilier jusqu’à clarification.
+            « Non applicable » est exclu. « Je ne sais pas » compte comme une pratique non en place (0), signalée comme à clarifier.
             Sans réponse, le questionnaire reste incomplet. « En partie » indique une pratique mise en œuvre partiellement ou irrégulièrement.</p>
           <p className="mt-2">Le score global est la moyenne des piliers, uniquement si chacun peut être noté.
             Les niveaux sont : Fragile en dessous de 4, En construction de 4 à moins de 7, Solide à partir de 7.

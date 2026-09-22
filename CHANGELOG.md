@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.50.2] - 2026-09-22
+
+### 🔧 Modifié — /diagnostic4b : curseur de perception et « Je ne sais pas »
+- La perception revient à un curseur de 0 à 10, avec une légende discrète :
+  « 0 · nous sommes nettement en retrait sur ce sujet », « 10 · nous le
+  maîtrisons pleinement ». Tant qu'il n'est pas touché, il reste estompé et
+  affiche « — » ; un simple clic compte comme une réponse.
+- « Je ne sais pas » ne fait plus disparaître le score : la pratique compte
+  comme non en place (0) et reste signalée à clarifier. Option `inconnuCommeNon`
+  ajoutée au calcul de la V4 (`lib/diagnostic4/calcul.ts`), désactivée par
+  défaut : /diagnostic4 est inchangé.
+
 ## [2.50.1] - 2026-09-22
 
 ### 🎨 Modifié — /diagnostic4b : les explications passent en fin de page
