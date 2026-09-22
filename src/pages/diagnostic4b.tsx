@@ -108,18 +108,6 @@ export default function Diagnostic4bPage() {
         <h1 className="text-[28px] leading-tight font-extrabold text-navy">Où en est votre entreprise selon vous&nbsp;?</h1>
         <p className="text-[15px] text-muted mt-2 leading-relaxed">Un pilier à la fois : votre perception d’abord, puis quatre pratiques.
           Votre perception ne modifie pas le score de pratiques ; leur écart ouvre une discussion.</p>
-        <details className="mt-3 text-sm text-muted">
-          <summary className="cursor-pointer font-semibold text-navy">Comment est calculé le score&nbsp;?</summary>
-          <div className="mt-2 rounded-lg bg-surface p-4 space-y-2">
-            <p><strong className="text-navy">Perception :</strong> votre appréciation spontanée, de 0 à 10. <strong className="text-navy">Pratiques déclarées :</strong> vos réponses, sans vérification externe.
-              <strong className="text-navy"> Preuves :</strong> des documents ou exemples à examiner avec votre coach ; aucune n’est collectée ici.</p>
-            <p>Non = 0, En partie = 0,5, Oui = 1. La moyenne des pratiques applicables est ramenée sur 10.
-              « Non applicable » est exclu. « Je ne sais pas » suspend le score du pilier jusqu’à clarification.</p>
-            <p>Le score global est la moyenne des piliers, uniquement si chacun peut être noté.
-              Fragile en dessous de 4, En construction de 4 à moins de 7, Solide à partir de 7.
-              Par convention, un pilier Fragile empêche le niveau global Solide.</p>
-          </div>
-        </details>
       </header>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px] items-start">
@@ -352,6 +340,21 @@ export default function Diagnostic4bPage() {
           </div>
         </section>
       )}
+      {/* Explications, en fin de page : la saisie reste au premier plan. */}
+      <section className="mt-8 rounded-lg bg-surface p-4 text-sm text-muted space-y-2 max-w-3xl" aria-label="Comprendre le diagnostic">
+        <p><strong className="text-navy">Perception :</strong> votre appréciation spontanée, de 0 à 10.</p>
+        <p><strong className="text-navy">Pratiques déclarées :</strong> vos réponses, sans vérification externe.</p>
+        <p><strong className="text-navy">Preuves :</strong> des documents ou exemples à examiner avec votre coach. Aucune preuve n’est collectée ni validée par ce questionnaire.</p>
+        <details>
+          <summary className="cursor-pointer font-semibold text-navy">Comment est calculé le score ?</summary>
+          <p className="mt-2">Non = 0, En partie = 0,5, Oui = 1. La moyenne des pratiques applicables est ramenée sur 10.
+            « Non applicable » est exclu. « Je ne sais pas » suspend le score du pilier jusqu’à clarification.
+            Sans réponse, le questionnaire reste incomplet. « En partie » indique une pratique mise en œuvre partiellement ou irrégulièrement.</p>
+          <p className="mt-2">Le score global est la moyenne des piliers, uniquement si chacun peut être noté.
+            Les niveaux sont : Fragile en dessous de 4, En construction de 4 à moins de 7, Solide à partir de 7.
+            Par convention, un pilier Fragile empêche le niveau global Solide. Ces repères ne constituent pas une validation de la performance.</p>
+        </details>
+      </section>
     </AppShell>
   );
 }

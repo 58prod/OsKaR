@@ -10,6 +10,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.50.1] - 2026-09-22
+
+### 🎨 Modifié — /diagnostic4b : les explications passent en fin de page
+- Le bloc Perception / Pratiques déclarées / Preuves et « Comment est calculé le
+  score ? » quitte l'en-tête et se place tout en bas, sous la restitution.
+
 ## [2.50.0] - 2026-09-22
 
 ### ✨ Ajouté — /diagnostic4b : la version 4 d'Eric, affichée pilier par pilier
