@@ -10,6 +10,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.50.0] - 2026-09-22
+
+### ✨ Ajouté — /diagnostic4b : la version 4 d'Eric, affichée pilier par pilier
+- Même calcul et même restitution que /diagnostic4 (`lib/diagnostic4`), seule la
+  saisie change pour alléger l'écran.
+- Un seul pilier ouvert à la fois ; ses pratiques apparaissent une à une, après
+  la perception ; l'écran suit la question en cours.
+- Pilier rempli replié en une ligne (perception, score, niveau) avec « Modifier » ;
+  piliers à venir réduits à leur nom.
+- Explications du calcul rangées sous « Comment est calculé le score ? ».
+- Page hors menu, non indexée, rien n'est enregistré.
+- Numéro de version : repart de 2.49.0 (déjà en ligne) ; les deux retouches de
+  /performance commitées ensuite portaient à tort 2.47.8 et 2.47.9.
+
 ## [2.49.0] - 2026-09-16
 
 ### ✨ Ajouté — /diagnostic3 : version d'essai rapide, au format du Diagnostic en ligne
