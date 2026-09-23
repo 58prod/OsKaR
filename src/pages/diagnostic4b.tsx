@@ -384,9 +384,14 @@ export default function Diagnostic4bPage() {
           )}
           {analyse.priorite && (
             <div className="rounded-card bg-white border border-line shadow-card p-6 border-l-4" style={{ borderLeftColor: stateBorder(analyse.priorite.niveau) }}>
-              <div className="flex flex-wrap items-center gap-2.5 mb-3"><Target className="h-4 w-4 text-navy" aria-hidden /><span className="text-xs font-bold text-muted">Priorité proposée, à confirmer</span>
-                <Pastille niveau={analyse.priorite.niveau}>{analyse.priorite.label} · {fmt(analyse.priorite.note)}/10</Pastille></div>
-              <p className="text-xl font-extrabold text-navy">{analyse.priorite.titre}</p><p className="text-sm text-ink mt-2">{analyse.priorite.texte}</p>
+              {/* Le titre nomme le pilier ; le décompte des réponses n'est qu'un rappel, en petit. */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <Target className="h-5 w-5 text-navy shrink-0" aria-hidden />
+                <h2 className="text-xl font-extrabold text-navy leading-snug">Priorité proposée, à confirmer : {analyse.priorite.label}</h2>
+                <Pastille niveau={analyse.priorite.niveau}>{fmt(analyse.priorite.note)}/10</Pastille>
+              </div>
+              <p className="text-xs text-muted mt-1.5">{analyse.priorite.titre}</p>
+              <p className="text-sm text-ink mt-3">{analyse.priorite.texte}</p>
               <p className="mt-4 rounded-lg bg-surface px-4 py-3 text-sm text-ink">{analyse.priorite.justification}</p>
               <p className="mt-3 text-sm text-muted">Les réponses qui fondent cette piste sont détaillées dans « Pilier par pilier ».</p>
             </div>

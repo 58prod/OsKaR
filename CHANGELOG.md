@@ -10,6 +10,13 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.52.1] - 2026-09-23
+
+### 🎨 Modifié — /diagnostic4b : titre de la priorité mis en évidence
+- Le premier bloc de l'analyse titre en grand « Priorité proposée, à confirmer :
+  [pilier] », suivi de la note ; le décompte « x oui · y en partie · z non »
+  passe en petit, comme simple rappel.
+
 ## [2.52.0] - 2026-09-23
 
 ### ✨ Ajouté — /diagnostic4b : bouton de test « remplir au hasard »
