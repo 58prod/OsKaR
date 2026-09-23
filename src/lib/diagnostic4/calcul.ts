@@ -88,7 +88,8 @@ function restituerPilier4(id: PillarId, saisie: Saisie4, options: Options4): Ver
   const na = saisie.reponses.filter((r) => r === 'na').length;
   return {
     id, label: PILLAR_SHORT_LABEL[id], note, niveau: note === null ? null : niveau4(note), perception: saisie.perception!, nbApplicables: 4 - na,
-    titre: `${oui} oui · ${partiel} en partie · ${non} non`,
+    // Le décompte couvre les quatre réponses : « à clarifier » et « non applicable » apparaissent dès qu'il y en a.
+    titre: [`${oui} oui`, `${partiel} en partie`, `${non} non`, ...(inconnues ? [`${inconnues} à clarifier`] : []), ...(na ? [`${na} non applicable${na > 1 ? 's' : ''}`] : [])].join(' · '),
     texte: inconnues > 0 && options.inconnuCommeNon
       ? `${inconnues} réponse(s) « Je ne sais pas », comptée(s) comme non en place jusqu’à clarification. ${na} non applicable(s), hors calcul.`
       : inconnues > 0

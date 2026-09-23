@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.52.3] - 2026-09-23
+
+### 🔧 Corrigé — Diagnostic 4 / 4b : le rappel des réponses compte les quatre pratiques
+- « 1 oui · 1 en partie · 1 non » oubliait les autres réponses : il devient
+  « 1 oui · 1 en partie · 1 non · 1 à clarifier », et mentionne aussi les
+  « non applicable » quand il y en a (`lib/diagnostic4/calcul.ts`, commun à la V4
+  et à la V4b).
+
 ## [2.52.2] - 2026-09-23
 
 ### 🔧 Corrigé — /diagnostic4b : le tirage de test fait sortir les quatre profils

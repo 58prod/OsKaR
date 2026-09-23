@@ -110,3 +110,13 @@ it('le bouton de test remplit tout au hasard et affiche l’analyse', () => {
   expect(screen.getByRole('region', { name: 'Votre analyse' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Révéler mon analyse' })).toBeEnabled();
 });
+
+it('le rappel des réponses compte aussi les « Je ne sais pas »', () => {
+  render(<Diagnostic4bPage />);
+  PILLARS.forEach((p) => {
+    perception(p.label);
+    PILIERS4[p.id].criteres.forEach((_, i) => repondre(p.id, i, p.id === 'okr' ? ['Oui', 'En partie', 'Non', 'Je ne sais pas'][i] : 'Oui'));
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
+  expect(screen.getAllByText('1 oui · 1 en partie · 1 non · 1 à clarifier').length).toBeGreaterThan(0);
+});
