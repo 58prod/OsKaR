@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.51.1] - 2026-09-23
+
+### 🔧 Modifié — /diagnostic4c : « Je travaille seul » revient dans le pilier Team
+- La question « seul ou avec une équipe ? » posée d'entrée disparaît ; la case
+  « Je travaille seul : passer ce pilier » revient dans Team, comme en V4b, avec
+  « Remplir ce pilier » pour revenir en arrière.
+- Les deux formulations adaptées à qui travaille seul (Vision, OKR) sont retirées :
+  posée en dernier, la case ne peut plus les influencer.
+
 ## [2.51.0] - 2026-09-23
 
 ### ✨ Ajouté — /diagnostic4c : la V4b avec la revue des pratiques appliquée

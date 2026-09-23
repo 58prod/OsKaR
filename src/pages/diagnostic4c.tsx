@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { AlertCircle, AlertTriangle, ArrowRight, Check, ChevronDown, ChevronUp, Eye, FlaskConical, Mail, RotateCcw, Sparkles, Target, User, Users } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ArrowRight, Check, ChevronDown, ChevronUp, Eye, FlaskConical, Mail, RotateCcw, Sparkles, Target } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { EmailPromptModal } from '@/components/diagnostic/EmailPromptModal';
@@ -14,13 +14,13 @@ import { PILLARS, fmt, stateLabel, stateColor, stateBorder, type PillarId, type 
 import { PILIERS4C } from '@/lib/diagnostic4c/contenu';
 import {
   REPONSES4C, analyser4c, etatInitial4c, libelleReponse4c, nbReponses4c, niveau4c, note4c, noteProvisoire4c,
-  pilierComplet4c, piliersAttendus4c, textePratique, type Etat4c, type Reponse4c,
+  pilierComplet4c, piliersAttendus4c, type Etat4c, type Reponse4c,
 } from '@/lib/diagnostic4c/calcul';
 
 /*
  * Diagnostic 4c — la V4b (saisie pilier par pilier) avec la revue du
- * 2026-09-23 appliquée : pratiques corrigées, « seul ou avec une équipe »
- * demandé d'entrée, quatre réponses par pratique (plus de « Non applicable »),
+ * 2026-09-23 appliquée : pratiques corrigées, « Je travaille seul » dans le
+ * pilier Team, quatre réponses par pratique (plus de « Non applicable »),
  * restitution nette, actions reliées aux outils Oskar, bilan envoyé par email.
  * Textes : lib/diagnostic4c/contenu.ts ; calcul : lib/diagnostic4c/calcul.ts.
  * Version d'essai : page non indexée, réponses non enregistrées.
@@ -83,7 +83,6 @@ export default function Diagnostic4cPage() {
   const [etat, setEtat] = useState<Etat4c>(etatInitial4c);
   const [revele, setRevele] = useState(false);
   const [ouverts, setOuverts] = useState<PillarId[]>([]);
-  const [choixOuvert, setChoixOuvert] = useState(false);
   const [emailOuvert, setEmailOuvert] = useState(false);
   const [envoi, setEnvoi] = useState(false);
   const [envoye, setEnvoye] = useState('');
@@ -94,10 +93,9 @@ export default function Diagnostic4cPage() {
   const analyseRef = useRef<HTMLElement>(null);
   const analyse = useMemo(() => analyser4c(etat), [etat]);
 
-  const demarre = etat.seul !== null;
   const attendus = piliersAttendus4c(etat);
-  const estFait = (id: PillarId) => (etat.seul === true && id === 'team') || pilierComplet4c(etat.piliers[id]);
-  const courant = demarre ? attendus.find((id) => !estFait(id)) ?? null : null;
+  const estFait = (id: PillarId) => (etat.seul && id === 'team') || pilierComplet4c(etat.piliers[id]);
+  const courant = attendus.find((id) => !estFait(id)) ?? null;
   const deplie = (id: PillarId) => id === courant || ouverts.includes(id);
   const basculer = (id: PillarId) => setOuverts((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
@@ -116,9 +114,8 @@ export default function Diagnostic4cPage() {
 
   const valeursRadar = analyse.notes.map((n) => ({ id: n.id, perception: n.perception, pratiques: n.note }));
 
-  const choisirEquipe = (seul: boolean) => {
+  const travaillerSeul = (seul: boolean) => {
     setEtat((prev) => ({ ...prev, seul }));
-    setChoixOuvert(false);
     if (seul) setOuverts((prev) => prev.filter((x) => x !== 'team'));
   };
   const noter = (id: PillarId, perception: number) => {
@@ -197,29 +194,6 @@ export default function Diagnostic4cPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px] items-start">
         <div className="min-w-0">
-          {/* Avant de commencer : seul ou avec une équipe, pour adapter les pratiques. */}
-          {!demarre || choixOuvert ? (
-            <section className="bg-white rounded-card border border-line shadow-card p-5 mb-4 animate-fade-in" aria-label="Votre situation">
-              <h2 className="text-lg font-bold text-navy">Pour commencer, vous dirigez…</h2>
-              <p className="text-sm text-muted mt-1 mb-4">Les pratiques s’adaptent à votre situation.</p>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {([[true, 'Seul, sans équipe', 'Le pilier Team sera laissé de côté.', User], [false, 'Avec une équipe', 'Associés, salariés, managers…', Users]] as const).map(([seul, titre, sousTitre, Icone]) => (
-                  <button key={titre} type="button" onClick={() => choisirEquipe(seul)}
-                    className={`flex items-start gap-3 text-left rounded-lg border-[1.5px] px-4 py-3.5 transition-colors ${etat.seul === seul ? 'border-navy bg-surface' : 'border-line hover:border-navy/50'}`}>
-                    <Icone className="h-5 w-5 mt-0.5 shrink-0 text-navy" aria-hidden />
-                    <span><span className="block text-sm font-bold text-navy">{titre}</span><span className="block text-xs text-muted mt-0.5">{sousTitre}</span></span>
-                  </button>
-                ))}
-              </div>
-            </section>
-          ) : (
-            <div className="flex items-center gap-3 rounded-card border border-line bg-white px-5 py-3 mb-3 text-sm">
-              {etat.seul ? <User className="h-4 w-4 text-navy" aria-hidden /> : <Users className="h-4 w-4 text-navy" aria-hidden />}
-              <span className="text-muted">Vous dirigez <strong className="text-navy">{etat.seul ? 'seul, sans équipe' : 'avec une équipe'}</strong></span>
-              <button type="button" onClick={() => setChoixOuvert(true)} className="ml-auto text-xs font-semibold text-navy hover:underline">Modifier</button>
-            </div>
-          )}
-
           {PILLARS.map((pilier, index) => {
             const saisie = etat.piliers[pilier.id];
             const couleur = COULEURS_PILIERS[pilier.id];
@@ -228,11 +202,12 @@ export default function Diagnostic4cPage() {
             const provisoire = noteProvisoire4c(saisie);
             const entete = <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: couleur.dark }}>{index + 1}/5 · {pilier.module}</div>;
 
-            if (etat.seul === true && pilier.id === 'team') {
+            if (etat.seul && pilier.id === 'team') {
               return (
-                <div key={pilier.id} className="flex items-center gap-3 rounded-card border border-dashed border-line bg-white/60 px-5 py-3 mb-3 text-sm text-muted">
+                <div key={pilier.id} className="flex flex-wrap items-center gap-3 rounded-card border border-dashed border-line bg-white/60 px-5 py-3 mb-3 text-sm text-muted">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: couleur.DEFAULT, opacity: 0.45 }} aria-hidden />
-                  <span className="font-semibold text-navy/70">{index + 1}/5 · {pilier.module}</span><span className="text-xs">Passé : vous travaillez seul</span>
+                  <span className="font-semibold text-navy/70">{index + 1}/5 · {pilier.module}</span><span className="text-xs">Passé : je travaille seul</span>
+                  <button type="button" onClick={() => travaillerSeul(false)} className="ml-auto text-xs font-semibold text-navy hover:underline">Remplir ce pilier</button>
                 </div>
               );
             }
@@ -284,6 +259,13 @@ export default function Diagnostic4cPage() {
                     {pilier.id !== courant && <BoutonFleche ouvert libelle={`Replier ${pilier.label}`} onClick={() => basculer(pilier.id)} />}
                   </div>
                 </div>
+                {pilier.id === 'team' && (
+                  <label className="flex items-center gap-2.5 mb-4 text-sm text-muted cursor-pointer">
+                    <input type="checkbox" checked={etat.seul} onChange={(e) => travaillerSeul(e.target.checked)}
+                      className="h-4 w-4 rounded border-line" style={{ accentColor: couleur.DEFAULT }} />
+                    Je travaille seul : passer ce pilier
+                  </label>
+                )}
                 <JaugePerception label={pilier.label} couleur={couleur} valeur={saisie.perception} onChoisir={(v) => noter(pilier.id, v)} />
                 {visibles > 0 && (
                   <div className="mb-2">
@@ -296,7 +278,7 @@ export default function Diagnostic4cPage() {
                 )}
                 <div className="space-y-3">
                   {contenu.criteres.slice(0, visibles).map((_, i) => {
-                    const texte = textePratique(pilier.id, i, etat.seul);
+                    const texte = PILIERS4C[pilier.id].criteres[i].texte;
                     return (
                       <fieldset key={i} ref={i === visibles - 1 ? derniereQuestion : undefined} className="rounded-lg border border-line p-3 min-w-0 animate-fade-in">
                         <legend className="px-1 text-[13.5px] font-medium text-ink">{texte}</legend>

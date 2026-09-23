@@ -30,8 +30,8 @@ export interface Saisie4c {
   reponses: [Reponse4c | null, Reponse4c | null, Reponse4c | null, Reponse4c | null];
 }
 export interface Etat4c {
-  /** null tant que la personne n'a pas dit si elle travaille seule ou avec une équipe. */
-  seul: boolean | null;
+  /** Dirigeant sans équipe (case du pilier Team) : Team sort du calcul. */
+  seul: boolean;
   piliers: Record<PillarId, Saisie4c>;
 }
 
@@ -41,7 +41,7 @@ export const SEUIL_ECART = 3;
 export function etatInitial4c(): Etat4c {
   const piliers = {} as Etat4c['piliers'];
   PILLARS.forEach((p) => { piliers[p.id] = { perception: null, reponses: [null, null, null, null] }; });
-  return { seul: null, piliers };
+  return { seul: false, piliers };
 }
 
 export function piliersAttendus4c(etat: Etat4c): PillarId[] {
@@ -50,11 +50,6 @@ export function piliersAttendus4c(etat: Etat4c): PillarId[] {
 export function niveau4c(note: number): StateKey { return note < 4 ? 'f' : note < 7 ? 'c' : 's'; }
 export function nbReponses4c(s: Saisie4c): number { return s.reponses.filter((r) => r !== null).length; }
 export function pilierComplet4c(s: Saisie4c): boolean { return s.perception !== null && nbReponses4c(s) === 4; }
-/** Texte d'une pratique, adapté à qui travaille seul. */
-export function textePratique(id: PillarId, index: number, seul: boolean | null): string {
-  const c = PILIERS4C[id].criteres[index];
-  return seul && c.texteSeul ? c.texteSeul : c.texte;
-}
 
 function moyenne(reponses: Reponse4c[]): number | null {
   if (reponses.length === 0) return null;
@@ -99,9 +94,9 @@ const ORDRE_ACTION: Record<Reponse4c, number> = { non: 0, partiel: 1, inconnu: 2
 
 export function analyser4c(etat: Etat4c): Analyse4c {
   const ids = piliersAttendus4c(etat);
-  const nbAttendu = etat.seul === null ? PILLARS.length * 5 : ids.length * 5;
+  const nbAttendu = ids.length * 5;
   const nbReponses = ids.reduce((n, id) => n + nbReponses4c(etat.piliers[id]) + (etat.piliers[id].perception === null ? 0 : 1), 0);
-  const complet = etat.seul !== null && ids.every((id) => pilierComplet4c(etat.piliers[id]));
+  const complet = ids.every((id) => pilierComplet4c(etat.piliers[id]));
 
   const notes: NotePilier4c[] = [];
   ids.forEach((id) => {
@@ -141,13 +136,13 @@ export function analyser4c(etat: Etat4c): Analyse4c {
   const actions: Action4c[] = [];
   for (const n of parNote) {
     const aFaire = PILIERS4C[n.id].criteres
-      .map((c, i) => ({ c, i, r: etat.piliers[n.id].reponses[i] as Reponse4c }))
+      .map((c, i) => ({ c, r: etat.piliers[n.id].reponses[i] as Reponse4c }))
       .filter(({ r }) => r !== 'oui')
       .sort((a, b) => ORDRE_ACTION[a.r] - ORDRE_ACTION[b.r])
       .slice(0, 2);
-    for (const { c, i, r } of aFaire) {
+    for (const { c, r } of aFaire) {
       if (actions.length < 3) {
-        actions.push({ id: n.id, label: n.label, reponse: r, pratique: textePratique(n.id, i, etat.seul), action: c.action, verification: c.verification, outil: c.outil });
+        actions.push({ id: n.id, label: n.label, reponse: r, pratique: c.texte, action: c.action, verification: c.verification, outil: c.outil });
       }
     }
   }
@@ -155,7 +150,7 @@ export function analyser4c(etat: Etat4c): Analyse4c {
   const verdicts: Verdict4c[] = notes.map((n) => ({
     ...n,
     ...VERDICTS4C[n.id][n.niveau],
-    reponses: PILIERS4C[n.id].criteres.map((c, i) => ({ pratique: textePratique(n.id, i, etat.seul), reponse: etat.piliers[n.id].reponses[i] as Reponse4c, preuveAExaminer: c.preuveAExaminer })),
+    reponses: PILIERS4C[n.id].criteres.map((c, i) => ({ pratique: c.texte, reponse: etat.piliers[n.id].reponses[i] as Reponse4c, preuveAExaminer: c.preuveAExaminer })),
     aVerifier: etat.piliers[n.id].reponses.filter((r) => r === 'inconnu').length,
   }));
 

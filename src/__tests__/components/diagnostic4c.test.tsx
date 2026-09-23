@@ -26,29 +26,29 @@ beforeEach(() => {
   window.scrollTo = jest.fn();
 });
 
-it('demande d’abord seul ou avec une équipe, puis ouvre Vision', () => {
+it('ouvre Vision d’emblée, avec quatre réponses par pratique', () => {
   render(<Diagnostic4cPage />);
-  expect(jauge('Vision')).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: /Avec une équipe/ }));
   expect(jauge('Vision')).toBeInTheDocument();
+  expect(jauge('Market Fit')).not.toBeInTheDocument();
   fireEvent.click(within(jauge('Vision')!).getByRole('radio', { name: '6' }));
   // Quatre réponses, plus de « Non applicable ».
   const options = within(pratique(PILIERS4C.vision.criteres[0].texte)!).getAllByRole('radio').map((r) => (r.parentElement as HTMLElement).textContent);
   expect(options).toEqual(['Non', 'En partie', 'Oui', 'Je ne sais pas']);
 });
 
-it('adapte les pratiques à qui travaille seul et passe Team', () => {
+it('« Je travaille seul » dans le pilier Team : le passe et permet l’analyse', () => {
   render(<Diagnostic4cPage />);
-  fireEvent.click(screen.getByRole('button', { name: /Seul, sans équipe/ }));
-  fireEvent.click(within(jauge('Vision')!).getByRole('radio', { name: '6' }));
-  repondre('vision', 0);
-  expect(pratique(PILIERS4C.vision.criteres[1].texteSeul!)).toBeInTheDocument();
-  expect(screen.getByText('Passé : vous travaillez seul')).toBeInTheDocument();
+  PILLARS.filter((p) => p.id !== 'team').forEach((p) => remplirPilier(p.id, p.label));
+  expect(screen.queryByRole('checkbox', { name: /Je travaille seul/ })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('checkbox', { name: /Je travaille seul/ }));
+  expect(screen.getByText('Passé : je travaille seul')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Révéler mon analyse' })).toBeEnabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Remplir ce pilier' }));
+  expect(jauge('Team')).toBeInTheDocument();
 });
 
 it('restitue un verdict net, des actions reliées à Oskar, et propose le bilan par email', () => {
   render(<Diagnostic4cPage />);
-  fireEvent.click(screen.getByRole('button', { name: /Avec une équipe/ }));
   // Les piliers s'ouvrent l'un après l'autre : on les remplit dans l'ordre.
   PILLARS.forEach((p) => (p.id === 'finance' ? remplirPilier('finance', 'Finance', 'Non', '8') : remplirPilier(p.id, p.label)));
   fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));

@@ -1,4 +1,4 @@
-import { analyser4c, etat4cDuCorps, etatInitial4c, note4c, noteProvisoire4c, textePratique, type Etat4c, type Reponse4c } from '@/lib/diagnostic4c/calcul';
+import { analyser4c, etat4cDuCorps, etatInitial4c, note4c, noteProvisoire4c, type Etat4c, type Reponse4c } from '@/lib/diagnostic4c/calcul';
 import { DOMINO4C, PILIERS4C, VERDICTS4C } from '@/lib/diagnostic4c/contenu';
 import { PILLARS, type PillarId } from '@/lib/diagnostic';
 
@@ -15,11 +15,11 @@ describe('Diagnostic 4c — calcul', () => {
     expect(noteProvisoire4c({ perception: 5, reponses: ['oui', 'non', null, null] })).toBe(5);
   });
 
-  it('rien avant d’avoir dit seul ou avec une équipe, ni avant la fin', () => {
+  it('pas d’analyse tant que tous les piliers ne sont pas remplis', () => {
     const e = etatInitial4c();
-    IDS.forEach((id) => remplir(e, id, tout('oui')));
+    IDS.filter((id) => id !== 'team').forEach((id) => remplir(e, id, tout('oui')));
     expect(analyser4c(e).complet).toBe(false);
-    e.seul = false;
+    remplir(e, 'team', tout('oui'));
     expect(analyser4c(e).complet).toBe(true);
   });
 
@@ -39,7 +39,7 @@ describe('Diagnostic 4c — calcul', () => {
     expect(a.actions.every((x) => x.outil.href.startsWith('/app/'))).toBe(true);
   });
 
-  it('seul : Team sort du calcul, et les pratiques qui parlent d’équipe s’adaptent', () => {
+  it('« Je travaille seul » : Team sort du calcul', () => {
     const e = etatInitial4c();
     e.seul = true;
     ['vision', 'fit', 'finance', 'okr'].forEach((id) => remplir(e, id as PillarId, tout('oui'), 9));
@@ -47,8 +47,6 @@ describe('Diagnostic 4c — calcul', () => {
     expect(a.complet).toBe(true);
     expect(a.notes).toHaveLength(4);
     expect(a.profil?.id).toBe('horloger');
-    expect(textePratique('okr', 2, true)).toBe(PILIERS4C.okr.criteres[2].texteSeul);
-    expect(textePratique('okr', 2, false)).toBe(PILIERS4C.okr.criteres[2].texte);
   });
 
   it('les textes sont complets', () => {
@@ -63,7 +61,7 @@ describe('Diagnostic 4c — calcul', () => {
     const e = etatInitial4c();
     e.seul = false;
     expect(etat4cDuCorps(JSON.parse(JSON.stringify(e)))).toEqual(e);
-    expect(etat4cDuCorps({ ...e, seul: null })).toBeNull();
+    expect(etat4cDuCorps({ ...e, seul: 'non' })).toBeNull();
     const faux = JSON.parse(JSON.stringify(e));
     faux.piliers.vision.reponses[0] = '<b>oui</b>';
     expect(etat4cDuCorps(faux)).toBeNull();

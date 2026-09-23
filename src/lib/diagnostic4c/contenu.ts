@@ -6,7 +6,6 @@ import type { PillarId, StateKey } from '@/lib/diagnostic';
  * - pratiques sans faux positif ni ambiguïté (priorités « écrites, cinq au
  *   plus », opportunités « triées », clients « fidèles ou recommandés »…) ;
  * - Finance : la solidité est enfin mesurée (trois mois de charges) ;
- * - variantes pour qui travaille seul, là où une pratique parle d'équipe ;
  * - chaque pratique mène à l'outil Oskar qui la met en place ;
  * - restitution nette (verdicts, domino, profils de la V3), les précautions
  *   étant regroupées une seule fois en bas de page.
@@ -20,8 +19,6 @@ export interface Outil4c {
 export interface Critere4c {
   /** Pratique sur laquelle on se prononce. */
   texte: string;
-  /** Variante quand le dirigeant travaille seul (sinon `texte`). */
-  texteSeul?: string;
   /** Question à se poser quand la réponse est « Je ne sais pas ». */
   verification: string;
   /** Action proposée quand la pratique n'est pas en place. */
@@ -54,7 +51,6 @@ export const PILIERS4C: Record<PillarId, Pilier4c> = {
       },
       {
         texte: 'Nos personnes clés savent l’expliquer avec leurs propres mots.',
-        texteSeul: 'Je sais l’expliquer en une minute à un client ou à un partenaire.',
         verification: 'Avez-vous déjà demandé à vos personnes clés de reformuler votre cap ?',
         action: 'Demandez à trois personnes clés de reformuler votre cap : les écarts montrent ce qui n’est pas passé.',
         preuveAExaminer: 'Les reformulations recueillies auprès des personnes clés.',
@@ -161,7 +157,6 @@ export const PILIERS4C: Record<PillarId, Pilier4c> = {
       },
       {
         texte: 'Chaque priorité a un responsable nommé.',
-        texteSeul: 'Chaque priorité a une échéance et un temps réservé dans mon agenda.',
         verification: 'Pour chaque priorité, pourriez-vous dire qui en répond ?',
         action: 'Nommez un responsable pour chaque priorité : une personne, pas une équipe.',
         preuveAExaminer: 'La liste des priorités et de leurs responsables nommés.',
