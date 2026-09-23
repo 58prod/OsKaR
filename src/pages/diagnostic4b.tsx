@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { AlertCircle, AlertTriangle, ArrowRight, Check, Eye, FlaskConical, Pencil, RotateCcw, Sparkles, Target } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ArrowRight, Check, Eye, ChevronDown, ChevronUp, FlaskConical, RotateCcw, Sparkles, Target } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { ouvrirConnexion } from '@/store/useConnexion';
@@ -39,6 +39,18 @@ const PointAVerifier = ({ point }: { point: Verification4 }) => (
 
 // V4b : « Je ne sais pas » compte comme une pratique non en place, sans effacer le score.
 const OPTIONS: Options4 = { inconnuCommeNon: true };
+
+/*
+ * Score du pilier au fil des réponses : même barème que `note4`, appliqué aux
+ * seules pratiques déjà renseignées (« Non applicable » exclu). Il s'affiche
+ * comme provisoire tant que les quatre pratiques ne sont pas répondues.
+ */
+function noteProvisoire(saisie: Etat4['piliers'][PillarId]): number | null {
+  const donnees = saisie.reponses.filter((r) => r !== null && r !== 'na');
+  if (donnees.length === 0) return null;
+  const points = donnees.reduce((total, r) => total + (r === 'oui' ? 1 : r === 'partiel' ? 0.5 : 0), 0);
+  return Math.round(points / donnees.length * 100) / 10;
+}
 
 /*
  * Perception : une jauge de 0 à 10 qui se remplit jusqu'à la note cliquée.
@@ -101,21 +113,22 @@ export default function Diagnostic4bPage() {
   const authReady = useAppStore((s) => s.authReady);
   const analyseRef = useRef<HTMLElement>(null);
   const analyse = useMemo(() => analyser4(etat, OPTIONS), [etat]);
-  // Pilier rouvert pour modification ; sinon, le premier pilier pas encore rempli.
-  const [ouvert, setOuvert] = useState<PillarId | null>(null);
+  // Piliers dépliés à la main, en plus du pilier en cours de saisie.
+  const [ouverts, setOuverts] = useState<PillarId[]>([]);
   const estFait = (id: PillarId) => (etat.seul && id === 'team') || pilierComplet4(etat.piliers[id]);
   const courant = piliersAttendus4(etat).find((id) => !estFait(id)) ?? null;
-  const actif = ouvert ?? courant;
+  const deplie = (id: PillarId) => id === courant || ouverts.includes(id);
+  const basculer = (id: PillarId) => setOuverts((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   const carteActive = useRef<HTMLElement>(null);
   const derniereQuestion = useRef<HTMLFieldSetElement>(null);
   const premierRendu = useRef(true);
-  const nbVisibles = actif ? nbReponses4(etat.piliers[actif]) + (etat.piliers[actif].perception === null ? 0 : 1) : 0;
+  const nbVisibles = courant ? nbReponses4(etat.piliers[courant]) + (etat.piliers[courant].perception === null ? 0 : 1) : 0;
 
-  // Quand un pilier s'ouvre, on l'amène en haut de l'écran.
+  // Quand on passe au pilier suivant, on l'amène en haut de l'écran.
   useEffect(() => {
     if (premierRendu.current) { premierRendu.current = false; return; }
     carteActive.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [actif]);
+  }, [courant]);
   // Quand une pratique apparaît, on s'assure qu'elle est visible.
   useEffect(() => {
     if (nbVisibles > 0) derniereQuestion.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -141,7 +154,7 @@ export default function Diagnostic4bPage() {
   };
   const recommencer = () => {
     setEtat(etatInitial4());
-    setOuvert(null);
+    setOuverts([]);
     setRevele(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -174,21 +187,23 @@ export default function Diagnostic4bPage() {
             const couleur = COULEURS_PILIERS[pilier.id];
             const contenu = PILIERS4[pilier.id];
             const note = note4(saisie, OPTIONS);
+            const provisoire = noteProvisoire(saisie);
             const ecarte = etat.seul && pilier.id === 'team';
             const entete = <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: couleur.dark }}>{index + 1}/5 · {pilier.module}</div>;
 
             // Pilier à venir : une ligne discrète, pour garder le fil sans charger l'écran.
-            if (pilier.id !== actif && !estFait(pilier.id)) {
+            if (!deplie(pilier.id) && !estFait(pilier.id)) {
               return (
-                <div key={pilier.id} className="flex items-center gap-3 rounded-card border border-dashed border-line bg-white/60 px-5 py-3 mb-3 text-sm text-muted">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: couleur.DEFAULT, opacity: 0.35 }} aria-hidden />
-                  <span className="font-semibold">{pilier.module}</span><span className="ml-auto text-xs">À venir</span>
+                <div key={pilier.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-card border border-dashed border-line bg-white/60 px-5 py-3 mb-3 text-sm text-muted">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: couleur.DEFAULT, opacity: 0.45 }} aria-hidden />
+                  <span className="font-semibold text-navy/70">{index + 1}/5 · {pilier.module}</span>
+                  <span className="text-xs">{contenu.question}</span>
                 </div>
               );
             }
 
             // Pilier rempli : replié en une ligne, rouvrable.
-            if (pilier.id !== actif) {
+            if (!deplie(pilier.id)) {
               return (
                 <div key={pilier.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-line bg-white shadow-card px-5 py-3.5 mb-3" style={{ borderLeft: `4px solid ${couleur.DEFAULT}` }}>
                   <div className="min-w-0">
@@ -201,8 +216,9 @@ export default function Diagnostic4bPage() {
                     {!ecarte && (note !== null
                       ? <><span className="text-lg font-extrabold text-navy">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></span><Pastille niveau={niveau4(note)} /></>
                       : <span className="text-xs text-muted">Non applicable</span>)}
-                    <button type="button" onClick={() => setOuvert(pilier.id)} className="inline-flex items-center gap-1 text-xs font-semibold text-navy hover:underline">
-                      <Pencil className="h-3.5 w-3.5" aria-hidden />Modifier<span className="sr-only"> {pilier.label}</span>
+                    <button type="button" onClick={() => basculer(pilier.id)} aria-expanded={false}
+                      className="w-8 h-8 inline-flex items-center justify-center rounded-full border border-line text-navy hover:border-navy hover:bg-surface transition-colors">
+                      <ChevronDown className="h-4 w-4" aria-hidden /><span className="sr-only">Déplier {pilier.label} pour le modifier</span>
                     </button>
                   </div>
                 </div>
@@ -211,24 +227,38 @@ export default function Diagnostic4bPage() {
 
             // Pilier en cours : la perception, puis les pratiques une à une.
             const premiereVide = saisie.reponses.findIndex((r) => r === null);
-            const visibles = ouvert === pilier.id ? 4 : saisie.perception === null ? 0 : premiereVide === -1 ? 4 : premiereVide + 1;
+            const visibles = pilier.id !== courant ? 4 : saisie.perception === null ? 0 : premiereVide === -1 ? 4 : premiereVide + 1;
             return (
-              <article key={pilier.id} ref={carteActive} className="bg-white rounded-card border border-line shadow-card p-5 mb-4 scroll-mt-24 animate-fade-in" style={{ borderTop: `3px solid ${couleur.DEFAULT}` }}>
+              <article key={pilier.id} ref={pilier.id === courant ? carteActive : undefined} className="bg-white rounded-card border border-line shadow-card p-5 mb-4 scroll-mt-24 animate-fade-in" style={{ borderTop: `3px solid ${couleur.DEFAULT}` }}>
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                   <div>
                     {entete}
                     <h2 className="text-lg font-bold text-navy leading-snug mt-0.5">{contenu.question}</h2>
                   </div>
-                  {note !== null && !ecarte && (
-                    <div className="sm:text-right shrink-0">
-                      <div className="text-2xl font-extrabold text-navy leading-none">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></div>
-                      <div className="mt-1.5"><Pastille niveau={niveau4(note)} /></div>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-3 shrink-0">
+                    {!ecarte && (note !== null ? (
+                      <div className="sm:text-right">
+                        <div className="text-2xl font-extrabold text-navy leading-none">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></div>
+                        <div className="mt-1.5"><Pastille niveau={niveau4(note)} /></div>
+                      </div>
+                    ) : provisoire !== null && (
+                      // Le score avance à chaque réponse, sans attendre la fin du pilier.
+                      <div className="sm:text-right">
+                        <div className="text-2xl font-extrabold text-navy/70 leading-none">{fmt(provisoire)}<span className="text-xs font-normal text-muted"> /10</span></div>
+                        <div className="text-[11px] text-muted mt-1">Provisoire · {nbReponses4(saisie)}/4</div>
+                      </div>
+                    ))}
+                    {pilier.id !== courant && (
+                      <button type="button" onClick={() => basculer(pilier.id)} aria-expanded
+                        className="w-8 h-8 inline-flex items-center justify-center rounded-full border border-line text-navy hover:border-navy hover:bg-surface transition-colors">
+                        <ChevronUp className="h-4 w-4" aria-hidden /><span className="sr-only">Replier {pilier.label}</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {pilier.id === 'team' && (
                   <label className="flex items-center gap-2.5 mb-4 text-sm text-muted cursor-pointer">
-                    <input type="checkbox" checked={etat.seul} onChange={(e) => { const seul = e.target.checked; setEtat((prev) => ({ ...prev, seul })); if (seul) setOuvert(null); }}
+                    <input type="checkbox" checked={etat.seul} onChange={(e) => { const seul = e.target.checked; setEtat((prev) => ({ ...prev, seul })); if (seul) setOuverts((prev) => prev.filter((x) => x !== 'team')); }}
                       className="h-4 w-4 rounded border-line" style={{ accentColor: couleur.DEFAULT }} />
                     Je travaille seul : passer ce pilier
                   </label>
@@ -267,9 +297,9 @@ export default function Diagnostic4bPage() {
                   </div>
                   {nbReponses4(saisie) === 4 && note === null && <p className="text-xs text-muted mt-2">Aucun score : toutes les pratiques sont déclarées non applicables.</p>}
                   {saisie.reponses.includes('inconnu') && <p className="text-xs text-muted mt-2">« Je ne sais pas » compte comme une pratique non en place, à clarifier.</p>}
-                  {ouvert === pilier.id && (
-                    <button type="button" onClick={() => setOuvert(null)} className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy-light">
-                      <Check className="h-4 w-4" aria-hidden />Valider ce pilier
+                  {pilier.id !== courant && (
+                    <button type="button" onClick={() => basculer(pilier.id)} className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy-light">
+                      <ChevronUp className="h-4 w-4" aria-hidden />Replier ce pilier
                     </button>
                   )}
                 </>}

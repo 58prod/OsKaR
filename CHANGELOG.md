@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.50.4] - 2026-09-23
+
+### 🎨 Modifié — /diagnostic4b : flèches, score au fil de l'eau, piliers à venir
+- Une flèche déplie un pilier déjà rempli (et une autre le replie) ; il reste
+  modifiable déplié, sans refermer le pilier en cours de saisie. Plusieurs
+  piliers peuvent donc être ouverts en même temps.
+- Le score du pilier se met à jour à chaque réponse, marqué « Provisoire · n/4 »
+  tant que les quatre pratiques ne sont pas renseignées ; le score définitif et
+  son niveau le remplacent ensuite.
+- Les piliers à venir n'affichent plus « À venir », qui laissait croire que le
+  module n'existait pas : ils annoncent leur numéro et leur question.
+
 ## [2.50.3] - 2026-09-23
 
 ### 🎨 Modifié — /diagnostic4b : la perception se donne sur une jauge cliquable

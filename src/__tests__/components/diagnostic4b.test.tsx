@@ -40,15 +40,19 @@ it('n’ouvre qu’un pilier, et fait apparaître ses pratiques une à une', () 
   expect(groupe(PILIERS4.vision.criteres[1].texte)).toBeInTheDocument();
 });
 
-it('replie le pilier rempli, ouvre le suivant, et permet de revenir le modifier', () => {
+it('replie le pilier rempli, ouvre le suivant, et le rouvre à la flèche', () => {
   render(<Diagnostic4bPage />);
   remplirPilier('vision', 'Vision');
   expect(curseur('Vision')).not.toBeInTheDocument();
   expect(curseur('Market Fit')).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Modifier Vision' }));
+  // La flèche déplie le pilier rempli, modifiable sans fermer le pilier en cours.
+  fireEvent.click(screen.getByRole('button', { name: 'Déplier Vision pour le modifier' }));
   expect(groupe(PILIERS4.vision.criteres[3].texte)).toBeInTheDocument();
+  expect(curseur('Market Fit')).toBeInTheDocument();
   repondre('vision', 3, 'Non');
-  fireEvent.click(screen.getByRole('button', { name: 'Valider ce pilier' }));
+  expect(screen.getByText(/7,5/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Replier Vision' }));
+  expect(groupe(PILIERS4.vision.criteres[3].texte)).not.toBeInTheDocument();
   expect(curseur('Market Fit')).toBeInTheDocument();
 });
 
@@ -82,4 +86,20 @@ it('« Je ne sais pas » compte comme non en place sans effacer le score', () =>
   PILLARS.filter((p) => p.id !== 'vision').forEach((p) => remplirPilier(p.id, p.label));
   fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
   expect(screen.getByRole('region', { name: 'Score global de pratiques' }).textContent).toMatch(/9,5/);
+});
+
+it('affiche le score du pilier au fil des réponses, marqué provisoire', () => {
+  render(<Diagnostic4bPage />);
+  perception('Vision');
+  repondre('vision', 0, 'Oui');
+  expect(screen.getByText('Provisoire · 1/4')).toBeInTheDocument();
+  expect(screen.getByText(/10,0/)).toBeInTheDocument();
+  repondre('vision', 1, 'Non');
+  expect(screen.getByText('Provisoire · 2/4')).toBeInTheDocument();
+  expect(screen.getByText(/5,0/)).toBeInTheDocument();
+  repondre('vision', 2, 'En partie');
+  repondre('vision', 3, 'Oui');
+  // Pilier complet : le score définitif et son niveau remplacent le provisoire.
+  expect(screen.queryByText(/Provisoire/)).not.toBeInTheDocument();
+  expect(screen.getByText(/6,3/)).toBeInTheDocument();
 });
