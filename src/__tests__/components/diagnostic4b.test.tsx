@@ -103,3 +103,10 @@ it('affiche le score du pilier au fil des réponses, marqué provisoire', () => 
   expect(screen.queryByText(/Provisoire/)).not.toBeInTheDocument();
   expect(screen.getByText(/6,3/)).toBeInTheDocument();
 });
+
+it('le bouton de test remplit tout au hasard et affiche l’analyse', () => {
+  render(<Diagnostic4bPage />);
+  fireEvent.click(screen.getByRole('button', { name: 'Test : remplir au hasard' }));
+  expect(screen.getByRole('region', { name: 'Votre analyse' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Révéler mon analyse' })).toBeEnabled();
+});

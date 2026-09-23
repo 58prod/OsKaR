@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { AlertCircle, AlertTriangle, ArrowRight, Check, Eye, ChevronDown, ChevronUp, FlaskConical, RotateCcw, Sparkles, Target } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ArrowRight, Check, Eye, ChevronDown, ChevronUp, Dices, FlaskConical, RotateCcw, Sparkles, Target } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { ouvrirConnexion } from '@/store/useConnexion';
@@ -151,6 +151,27 @@ export default function Diagnostic4bPage() {
     if (!analyse.complet) return;
     setRevele(true);
     requestAnimationFrame(() => analyseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+  // Outil de test : remplit tout au hasard puis affiche l'analyse, pour relire les textes générés.
+  const remplirAuHasard = () => {
+    const tirage: [Reponse4, number][] = [['oui', 30], ['partiel', 25], ['non', 30], ['inconnu', 10], ['na', 5]];
+    const auHasard = (): Reponse4 => {
+      let r = Math.random() * 100;
+      for (const [valeur, poids] of tirage) { if ((r -= poids) < 0) return valeur; }
+      return 'oui';
+    };
+    const nouvel = etatInitial4();
+    nouvel.seul = Math.random() < 0.15;
+    PILLARS.forEach((p) => {
+      nouvel.piliers[p.id] = {
+        perception: Math.floor(Math.random() * 11),
+        reponses: [auHasard(), auHasard(), auHasard(), auHasard()],
+      };
+    });
+    setEtat(nouvel);
+    setOuverts([]);
+    setRevele(true);
+    setTimeout(() => analyseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
   };
   const recommencer = () => {
     setEtat(etatInitial4());
@@ -335,6 +356,9 @@ export default function Diagnostic4bPage() {
           </button>
           <button type="button" onClick={recommencer} className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-white text-navy text-sm font-semibold border border-line rounded-lg hover:border-navy">
             <RotateCcw className="h-4 w-4" aria-hidden />Recommencer
+          </button>
+          <button type="button" onClick={remplirAuHasard} className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-muted border border-dashed border-line rounded-lg hover:border-navy hover:text-navy">
+            <Dices className="h-4 w-4" aria-hidden />Test : remplir au hasard
           </button>
         </div>
       </div>
