@@ -2,7 +2,7 @@ import { analyser4 } from '@/lib/diagnostic4/calcul';
 import { etatAuHasard } from '@/lib/diagnostic4b/hasard';
 
 it('le tirage de test fait sortir les quatre profils, de façon équilibrée', () => {
-  const options = { inconnuCommeNon: true };
+  const options = { couvertureMinimale: 2 };
   const compte: Record<string, number> = {};
   for (let i = 0; i < 400; i++) {
     const a = analyser4(etatAuHasard(options), options);

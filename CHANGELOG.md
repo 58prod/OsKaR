@@ -10,6 +10,28 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.52.4] - 2026-09-23
+
+### 🔧 Corrigé — /diagnostic4b : « Je ne sais pas », couverture des notes, mobile et clavier
+Suite à une relecture externe :
+- « Je ne sais pas » ne vaut plus zéro : il sort du calcul, comme « Non
+  applicable », et reste à clarifier. Vingt « Je ne sais pas » ne donnent plus
+  0/10 et « Le pilote à vue », mais une restitution sans score qui propose
+  d'abord de clarifier.
+- Un pilier n'est noté qu'à partir de deux pratiques renseignées (Oui, En partie,
+  Non), sinon « Note suspendue · à clarifier ». Chaque note affiche sa couverture
+  (« sur 3/4 pratiques ») ; le score global pèse chaque pilier selon ce nombre et
+  indique « Établi sur n pratiques sur 20 ». Profil et priorité exigent que tous
+  les piliers soient notés. Option `couvertureMinimale` de `analyser4` : la V4
+  d'Eric est inchangée.
+- Score provisoire : plus de 10/10 après un seul « Oui » ; il n'apparaît qu'à
+  partir de deux pratiques, sous une étiquette « Provisoire · n/4 répondues »
+  aussi visible que le chiffre. Message du radar corrigé.
+- Jauge de perception : deux rangées de grandes cases (44 px) sur téléphone ;
+  au clavier, une seule case dans la tabulation et les flèches (Début / Fin)
+  changent la note. Au passage au pilier suivant, le focus va sur sa question
+  (ou sur « Révéler mon analyse » à la fin).
+
 ## [2.52.3] - 2026-09-23
 
 ### 🔧 Corrigé — Diagnostic 4 / 4b : le rappel des réponses compte les quatre pratiques

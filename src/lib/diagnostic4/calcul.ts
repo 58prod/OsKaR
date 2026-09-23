@@ -35,20 +35,36 @@ export function pilierComplet4(saisie: Saisie4): boolean { return saisie.percept
  * suspend le score, sans être assimilée à un Non ni gonfler la moyenne.
  * La perception n’intervient jamais, même pour départager des piliers.
  */
-/** Variante de calcul (Diagnostic 4b) : « Je ne sais pas » compte comme une
- * pratique non en place (0) au lieu de suspendre le score, et reste signalé
- * comme à clarifier. Sans option, le comportement de la V4 est inchangé. */
-export interface Options4 { inconnuCommeNon?: boolean }
+/** Variante de calcul (Diagnostic 4b), réglée par `couvertureMinimale` :
+ * « Je ne sais pas » sort du calcul comme « Non applicable » (ni zéro, ni
+ * suspension d'office) et reste signalé à clarifier. La note d'un pilier exige
+ * au moins `couvertureMinimale` pratiques exploitables (Oui, En partie, Non),
+ * sinon elle est suspendue. Le score global pèse chaque pilier selon son
+ * nombre de pratiques exploitables. Sans option, la V4 est inchangée. */
+export interface Options4 { couvertureMinimale?: number }
+
+const exploitables4 = (saisie: Saisie4) => saisie.reponses.filter((r) => r === 'oui' || r === 'partiel' || r === 'non');
+/** Nombre de pratiques qui fondent la note : Oui, En partie, Non. */
+export function nbExploitables4(saisie: Saisie4): number { return exploitables4(saisie).length; }
 
 export function note4(saisie: Saisie4, options: Options4 = {}): number | null {
-  if (saisie.reponses.some((r) => r === null || (r === 'inconnu' && !options.inconnuCommeNon))) return null;
+  if (options.couvertureMinimale !== undefined) {
+    if (saisie.reponses.some((r) => r === null)) return null;
+    const retenues = exploitables4(saisie);
+    if (retenues.length === 0 || retenues.length < options.couvertureMinimale) return null;
+    const pts = retenues.reduce((total, r) => total + (r === 'oui' ? 1 : r === 'partiel' ? 0.5 : 0), 0);
+    return Math.round(pts / retenues.length * 100) / 10;
+  }
+  if (saisie.reponses.some((r) => r === null || r === 'inconnu')) return null;
   const applicables = saisie.reponses.filter((r) => r !== 'na');
   if (applicables.length === 0) return null;
   const points = applicables.reduce((total, r) => total + (r === 'oui' ? 1 : r === 'partiel' ? 0.5 : 0), 0);
   return Math.round(points / applicables.length * 100) / 10;
 }
 
-export interface NotePilier4 { id: PillarId; label: string; note: number; niveau: StateKey; perception: number | null; nbApplicables: number }
+const pluriel = (n: number, mot: string, motPluriel = `${mot}s`) => `${n} ${n > 1 ? motPluriel : mot}`;
+
+export interface NotePilier4 { id: PillarId; label: string; note: number; niveau: StateKey; perception: number | null; nbApplicables: number; nbExploitables: number }
 export interface Ecart4 { id: PillarId; label: string; perception: number; pratiques: number; sens: 'superieure' | 'inferieure' }
 export interface Pratique4 { index: number; texte: string; reponse: Reponse4; preuveAExaminer: string }
 export interface Verification4 extends Pratique4 { verification: string; action: string }
@@ -90,8 +106,14 @@ function restituerPilier4(id: PillarId, saisie: Saisie4, options: Options4): Ver
     id, label: PILLAR_SHORT_LABEL[id], note, niveau: note === null ? null : niveau4(note), perception: saisie.perception!, nbApplicables: 4 - na,
     // Le décompte couvre les quatre réponses : « à clarifier » et « non applicable » apparaissent dès qu'il y en a.
     titre: [`${oui} oui`, `${partiel} en partie`, `${non} non`, ...(inconnues ? [`${inconnues} à clarifier`] : []), ...(na ? [`${na} non applicable${na > 1 ? 's' : ''}`] : [])].join(' · '),
-    texte: inconnues > 0 && options.inconnuCommeNon
-      ? `${inconnues} réponse(s) « Je ne sais pas », comptée(s) comme non en place jusqu’à clarification. ${na} non applicable(s), hors calcul.`
+    texte: options.couvertureMinimale !== undefined
+      ? (note === null
+        ? na === 4
+          ? 'Les quatre pratiques sont déclarées non applicables : aucune note pour ce pilier.'
+          : `Note suspendue : ${pluriel(4 - inconnues - na, 'pratique exploitable', 'pratiques exploitables')} sur 4, il en faut au moins ${options.couvertureMinimale}. ${inconnues
+            ? 'Clarifiez d’abord les réponses « Je ne sais pas ».'
+            : 'Confirmez avec votre coach que ces pratiques ne s’appliquent pas.'}`
+        : `Note établie sur ${pluriel(4 - inconnues - na, 'pratique')} sur 4${inconnues ? ` ; ${pluriel(inconnues, 'réponse')} « Je ne sais pas » à clarifier, hors calcul` : ''}${na ? ` ; ${pluriel(na, 'pratique non applicable', 'pratiques non applicables')}` : ''}.`)
       : inconnues > 0
       ? `${inconnues} réponse(s) « Je ne sais pas » : score suspendu jusqu’à clarification. ${na} non applicable(s), hors calcul.`
       : na === 4
@@ -106,6 +128,8 @@ export interface Analyse4 {
   nbComplets: number;
   nbReponses: number;
   nbAttendu: number;
+  /** Pratiques exploitables (Oui, En partie, Non) sur l'ensemble des piliers retenus. */
+  nbExploitables: number;
   notes: NotePilier4[];
   moyenne: number | null;
   niveauGlobal: StateKey | null;
@@ -125,7 +149,7 @@ export function analyser4(etat: Etat4, options: Options4 = {}): Analyse4 {
   ids.forEach((id) => {
     const saisie = etat.piliers[id];
     const note = note4(saisie, options);
-    if (note !== null) notes.push({ id, label: PILLAR_SHORT_LABEL[id], note, niveau: niveau4(note), perception: saisie.perception, nbApplicables: saisie.reponses.filter((r) => r !== 'na').length });
+    if (note !== null) notes.push({ id, label: PILLAR_SHORT_LABEL[id], note, niveau: niveau4(note), perception: saisie.perception, nbApplicables: saisie.reponses.filter((r) => r !== 'na').length, nbExploitables: nbExploitables4(saisie) });
   });
   const parNote = [...notes].sort((a, b) => a.note - b.note);
   const plusFaible = parNote[0];
@@ -134,7 +158,10 @@ export function analyser4(etat: Etat4, options: Options4 = {}): Analyse4 {
   let profil: Analyse4['profil'] = null;
   // Aucun profil global ni classement prioritaire sur une couverture incomplète.
   if (complet && notes.length === ids.length) {
-    moyenne = Math.round(notes.reduce((n, p) => n + p.note, 0) / notes.length * 10) / 10;
+    // Avec l'option de couverture, un pilier noté sur deux pratiques pèse moitié moins qu'un pilier noté sur quatre.
+    moyenne = options.couvertureMinimale !== undefined
+      ? Math.round(notes.reduce((n, p) => n + p.note * p.nbExploitables, 0) / notes.reduce((n, p) => n + p.nbExploitables, 0) * 10) / 10
+      : Math.round(notes.reduce((n, p) => n + p.note, 0) / notes.length * 10) / 10;
     niveauGlobal = niveau4(moyenne);
     if (niveauGlobal === 's' && plusFaible.niveau === 'f') niveauGlobal = 'c';
     const id: ProfilId = niveauGlobal === 's'
@@ -167,5 +194,6 @@ export function analyser4(etat: Etat4, options: Options4 = {}): Analyse4 {
       if (leviers.length < 3) leviers.push({ id: v.id, label: v.label, ...c });
     }
   }
-  return { complet, nbComplets, nbReponses, nbAttendu: ids.length * 5, notes, moyenne, niveauGlobal, profil, priorite, ecarts, leviers, verdicts };
+  const nbExploitables = ids.reduce((n, id) => n + nbExploitables4(etat.piliers[id]), 0);
+  return { complet, nbComplets, nbReponses, nbAttendu: ids.length * 5, nbExploitables, notes, moyenne, niveauGlobal, profil, priorite, ecarts, leviers, verdicts };
 }

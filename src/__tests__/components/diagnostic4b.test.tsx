@@ -76,26 +76,41 @@ it('invite à cliquer, et remplit la jauge jusqu’à la note choisie', () => {
   expect(groupe(PILIERS4.vision.criteres[0].texte)).toBeInTheDocument();
 });
 
-it('« Je ne sais pas » compte comme non en place sans effacer le score', () => {
+it('« Je ne sais pas » sort du calcul sans valoir zéro, et la couverture s’affiche', () => {
   render(<Diagnostic4bPage />);
   perception('Vision');
   repondre('vision', 0, 'Je ne sais pas');
   [1, 2, 3].forEach((i) => repondre('vision', i));
-  // 3 oui sur 4 → 7,5, affiché sur la ligne repliée de Vision.
-  expect(screen.getByText('7,5')).toBeInTheDocument();
+  // 3 oui sur 3 pratiques renseignées → 10, et non 7,5.
+  expect(screen.getByText('10,0')).toBeInTheDocument();
+  expect(screen.getByText('sur 3/4 pratiques')).toBeInTheDocument();
   PILLARS.filter((p) => p.id !== 'vision').forEach((p) => remplirPilier(p.id, p.label));
   fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
-  expect(screen.getByRole('region', { name: 'Score global de pratiques' }).textContent).toMatch(/9,5/);
+  const global = screen.getByRole('region', { name: 'Score global de pratiques' }).textContent;
+  expect(global).toMatch(/10,0/);
+  expect(global).toMatch(/Établi sur 19 pratiques sur 20/);
+});
+
+it('vingt « Je ne sais pas » : ni note, ni profil, et la clarification passe d’abord', () => {
+  render(<Diagnostic4bPage />);
+  PILLARS.forEach((p) => remplirPilier(p.id, p.label, 'Je ne sais pas'));
+  expect(screen.getByRole('region', { name: 'Score global de pratiques' }).textContent).toMatch(/indisponible/);
+  fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
+  const analyse = within(screen.getByRole('region', { name: 'Votre analyse' }));
+  expect(analyse.getByText('Restitution disponible sans score global')).toBeInTheDocument();
+  expect(analyse.queryByText(/pilote à vue/i)).not.toBeInTheDocument();
+  expect(analyse.getAllByText('À clarifier :').length).toBeGreaterThan(0);
 });
 
 it('affiche le score du pilier au fil des réponses, marqué provisoire', () => {
   render(<Diagnostic4bPage />);
   perception('Vision');
   repondre('vision', 0, 'Oui');
-  expect(screen.getByText('Provisoire · 1/4')).toBeInTheDocument();
-  expect(screen.getByText(/10,0/)).toBeInTheDocument();
+  // Un seul « Oui » n'affiche pas 10/10 : seulement l'avancement.
+  expect(screen.getByText('Provisoire · 1/4 répondues')).toBeInTheDocument();
+  expect(screen.queryByText(/10,0/)).not.toBeInTheDocument();
   repondre('vision', 1, 'Non');
-  expect(screen.getByText('Provisoire · 2/4')).toBeInTheDocument();
+  expect(screen.getByText('Provisoire · 2/4 répondues')).toBeInTheDocument();
   expect(screen.getByText(/5,0/)).toBeInTheDocument();
   repondre('vision', 2, 'En partie');
   repondre('vision', 3, 'Oui');
@@ -119,4 +134,22 @@ it('le rappel des réponses compte aussi les « Je ne sais pas »', () => {
   });
   fireEvent.click(screen.getByRole('button', { name: 'Révéler mon analyse' }));
   expect(screen.getAllByText('1 oui · 1 en partie · 1 non · 1 à clarifier').length).toBeGreaterThan(0);
+});
+
+it('la jauge se pilote au clavier comme des boutons radio', () => {
+  render(<Diagnostic4bPage />);
+  const cases = within(curseur('Vision')!).getAllByRole('radio');
+  expect(cases.filter((c) => c.tabIndex === 0)).toHaveLength(1);
+  perception('Vision', '5');
+  fireEvent.keyDown(within(curseur('Vision')!).getByRole('radio', { name: '5' }), { key: 'ArrowRight' });
+  expect(screen.getByText('6/10')).toBeInTheDocument();
+  expect(document.activeElement).toBe(within(curseur('Vision')!).getByRole('radio', { name: '6' }));
+  fireEvent.keyDown(document.activeElement!, { key: 'End' });
+  expect(screen.getByText('10/10')).toBeInTheDocument();
+});
+
+it('au passage au pilier suivant, le focus va sur sa question', () => {
+  render(<Diagnostic4bPage />);
+  remplirPilier('vision', 'Vision');
+  expect(document.activeElement?.textContent).toBe(PILIERS4.fit.question);
 });

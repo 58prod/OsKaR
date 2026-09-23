@@ -11,7 +11,7 @@ import { COULEURS_PILIERS } from '@/constants/piliers';
 import { PILLARS, fmt, stateLabel, stateColor, stateBorder, type PillarId, type StateKey } from '@/lib/diagnostic';
 import { PILIERS4 } from '@/lib/diagnostic4/contenu';
 import { etatAuHasard } from '@/lib/diagnostic4b/hasard';
-import { analyser4, etatInitial4, type Options4, nbReponses4, niveau4, note4, pilierComplet4, piliersAttendus4, REPONSES4, libelleReponse4, type Reponse4, type Etat4, type Verification4 } from '@/lib/diagnostic4/calcul';
+import { analyser4, etatInitial4, type Options4, nbExploitables4, nbReponses4, niveau4, note4, pilierComplet4, piliersAttendus4, REPONSES4, libelleReponse4, type Reponse4, type Etat4, type Verification4 } from '@/lib/diagnostic4/calcul';
 
 /*
  * Diagnostic 4b — la V4 d'Eric (même calcul, même restitution : lib/diagnostic4),
@@ -38,17 +38,23 @@ const PointAVerifier = ({ point }: { point: Verification4 }) => (
   </div>
 );
 
-// V4b : « Je ne sais pas » compte comme une pratique non en place, sans effacer le score.
-const OPTIONS: Options4 = { inconnuCommeNon: true };
+/*
+ * V4b : « Je ne sais pas » sort du calcul (ni zéro, ni note effacée d'office)
+ * et reste à clarifier ; un pilier n'est noté qu'avec au moins deux pratiques
+ * renseignées (Oui, En partie, Non) ; le score global pèse chaque pilier selon
+ * ce nombre. Voir `couvertureMinimale` dans lib/diagnostic4/calcul.ts.
+ */
+const COUVERTURE_MINIMALE = 2;
+const OPTIONS: Options4 = { couvertureMinimale: COUVERTURE_MINIMALE };
 
 /*
- * Score du pilier au fil des réponses : même barème que `note4`, appliqué aux
- * seules pratiques déjà renseignées (« Non applicable » exclu). Il s'affiche
- * comme provisoire tant que les quatre pratiques ne sont pas répondues.
+ * Score du pilier au fil des réponses : même barème, sur les pratiques déjà
+ * renseignées. Il n'apparaît qu'à partir de deux pratiques, pour qu'un seul
+ * « Oui » n'affiche pas 10/10, et reste marqué « Provisoire ».
  */
 function noteProvisoire(saisie: Etat4['piliers'][PillarId]): number | null {
-  const donnees = saisie.reponses.filter((r) => r !== null && r !== 'na');
-  if (donnees.length === 0) return null;
+  const donnees = saisie.reponses.filter((r) => r === 'oui' || r === 'partiel' || r === 'non');
+  if (donnees.length < COUVERTURE_MINIMALE) return null;
   const points = donnees.reduce((total, r) => total + (r === 'oui' ? 1 : r === 'partiel' ? 0.5 : 0), 0);
   return Math.round(points / donnees.length * 100) / 10;
 }
@@ -65,7 +71,17 @@ const JaugePerception = ({ label, couleur, valeur, onChoisir }: {
   onChoisir: (valeur: number) => void;
 }) => {
   const [survol, setSurvol] = useState<number | null>(null);
+  const cases = useRef<(HTMLButtonElement | null)[]>([]);
   const apercu = survol ?? valeur;
+  // Clavier : une seule case dans l'ordre de tabulation, les flèches changent la note.
+  const auClavier = (e: React.KeyboardEvent, v: number) => {
+    const cible = { ArrowRight: v + 1, ArrowUp: v + 1, ArrowLeft: v - 1, ArrowDown: v - 1, Home: 0, End: 10 }[e.key];
+    if (cible === undefined) return;
+    e.preventDefault();
+    const n = Math.min(10, Math.max(0, cible));
+    onChoisir(n);
+    cases.current[n]?.focus();
+  };
   return (
     <div className="mb-5 rounded-lg bg-surface px-4 py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 mb-2">
@@ -74,22 +90,26 @@ const JaugePerception = ({ label, couleur, valeur, onChoisir }: {
           {valeur === null ? 'Cliquez sur votre note, de 0 à 10' : <span className="font-bold text-navy">{valeur}/10</span>}
         </span>
       </div>
-      <div className="flex gap-[3px]" role="radiogroup" aria-label={`Votre perception · ${label}`} onMouseLeave={() => setSurvol(null)}>
+      {/* Sur téléphone : deux rangées de grandes cases ; à partir de 640 px, une jauge d'un seul tenant. */}
+      <div className="grid grid-cols-6 gap-1.5 sm:flex sm:gap-[3px]" role="radiogroup" aria-label={`Votre perception · ${label}`} onMouseLeave={() => setSurvol(null)}>
         {Array.from({ length: 11 }, (_, v) => {
           const remplie = apercu !== null && v <= apercu;
           const choisie = valeur === v;
           return (
             <button
               key={v}
+              ref={(el) => { cases.current[v] = el; }}
               type="button"
               role="radio"
               aria-checked={choisie}
               aria-label={String(v)}
+              tabIndex={(valeur ?? 0) === v ? 0 : -1}
+              onKeyDown={(e) => auClavier(e, v)}
               onClick={() => onChoisir(v)}
               onMouseEnter={() => setSurvol(v)}
               onFocus={() => setSurvol(v)}
               onBlur={() => setSurvol(null)}
-              className={`flex-1 h-10 text-[13px] font-bold transition-colors first:rounded-l-lg last:rounded-r-lg ${remplie ? 'text-white' : 'bg-white text-muted hover:text-navy'} ${choisie ? 'ring-2 ring-offset-1 ring-navy relative z-10' : ''}`}
+              className={`h-11 rounded-md sm:rounded-none sm:flex-1 sm:h-10 sm:first:rounded-l-lg sm:last:rounded-r-lg text-[13px] font-bold transition-colors ${remplie ? 'text-white' : 'bg-white text-muted hover:text-navy'} ${choisie ? 'ring-2 ring-offset-1 ring-navy relative z-10' : ''}`}
               style={remplie
                 ? { background: survol !== null && (valeur === null || survol > valeur) ? couleur.light : couleur.DEFAULT, color: survol !== null && (valeur === null || survol > valeur) ? couleur.dark : '#fff' }
                 : undefined}
@@ -121,6 +141,8 @@ export default function Diagnostic4bPage() {
   const deplie = (id: PillarId) => id === courant || ouverts.includes(id);
   const basculer = (id: PillarId) => setOuverts((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   const carteActive = useRef<HTMLElement>(null);
+  const titreActif = useRef<HTMLHeadingElement>(null);
+  const boutonReveler = useRef<HTMLButtonElement>(null);
   const derniereQuestion = useRef<HTMLFieldSetElement>(null);
   const premierRendu = useRef(true);
   const nbVisibles = courant ? nbReponses4(etat.piliers[courant]) + (etat.piliers[courant].perception === null ? 0 : 1) : 0;
@@ -129,6 +151,8 @@ export default function Diagnostic4bPage() {
   useEffect(() => {
     if (premierRendu.current) { premierRendu.current = false; return; }
     carteActive.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Le pilier qu'on vient de finir se replie : le focus clavier passe au suivant, ou au bouton d'analyse.
+    (courant ? titreActif.current : boutonReveler.current)?.focus({ preventScroll: true });
   }, [courant]);
   // Quand une pratique apparaît, on s'assure qu'elle est visible.
   useEffect(() => {
@@ -223,8 +247,9 @@ export default function Diagnostic4bPage() {
                   </div>
                   <div className="ml-auto flex items-center gap-3">
                     {!ecarte && (note !== null
-                      ? <><span className="text-lg font-extrabold text-navy">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></span><Pastille niveau={niveau4(note)} /></>
-                      : <span className="text-xs text-muted">Non applicable</span>)}
+                      ? <><span className="text-lg font-extrabold text-navy">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></span>
+                        <span className="text-xs text-muted">sur {nbExploitables4(saisie)}/4 pratiques</span><Pastille niveau={niveau4(note)} /></>
+                      : <span className="text-xs font-semibold text-muted">{saisie.reponses.every((r) => r === 'na') ? 'Non applicable' : 'À clarifier'}</span>)}
                     <button type="button" onClick={() => basculer(pilier.id)} aria-expanded={false}
                       className="w-8 h-8 inline-flex items-center justify-center rounded-full border border-line text-navy hover:border-navy hover:bg-surface transition-colors">
                       <ChevronDown className="h-4 w-4" aria-hidden /><span className="sr-only">Déplier {pilier.label} pour le modifier</span>
@@ -242,19 +267,22 @@ export default function Diagnostic4bPage() {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                   <div>
                     {entete}
-                    <h2 className="text-lg font-bold text-navy leading-snug mt-0.5">{contenu.question}</h2>
+                    <h2 ref={pilier.id === courant ? titreActif : undefined} tabIndex={-1} className="text-lg font-bold text-navy leading-snug mt-0.5 focus:outline-none">{contenu.question}</h2>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     {!ecarte && (note !== null ? (
                       <div className="sm:text-right">
                         <div className="text-2xl font-extrabold text-navy leading-none">{fmt(note)}<span className="text-xs font-normal text-muted"> /10</span></div>
                         <div className="mt-1.5"><Pastille niveau={niveau4(note)} /></div>
+                        <div className="text-[11px] text-muted mt-1">sur {nbExploitables4(saisie)}/4 pratiques</div>
                       </div>
-                    ) : provisoire !== null && (
-                      // Le score avance à chaque réponse, sans attendre la fin du pilier.
+                    ) : nbReponses4(saisie) === 4 ? (
+                      <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-bold text-muted">{saisie.reponses.every((r) => r === 'na') ? 'Non applicable' : 'Note suspendue · à clarifier'}</span>
+                    ) : nbReponses4(saisie) > 0 && (
+                      // Le score avance au fil des réponses ; son statut est aussi visible que le chiffre.
                       <div className="sm:text-right">
-                        <div className="text-2xl font-extrabold text-navy/70 leading-none">{fmt(provisoire)}<span className="text-xs font-normal text-muted"> /10</span></div>
-                        <div className="text-[11px] text-muted mt-1">Provisoire · {nbReponses4(saisie)}/4</div>
+                        <span className="inline-block rounded-full border border-dashed border-navy/30 px-2.5 py-1 text-xs font-bold text-navy">Provisoire · {nbReponses4(saisie)}/4 répondues</span>
+                        {provisoire !== null && <div className="text-xl font-extrabold text-navy/60 leading-none mt-1.5">{fmt(provisoire)}<span className="text-xs font-normal text-muted"> /10</span></div>}
                       </div>
                     ))}
                     {pilier.id !== courant && (
@@ -305,7 +333,7 @@ export default function Diagnostic4bPage() {
                     ))}
                   </div>
                   {nbReponses4(saisie) === 4 && note === null && <p className="text-xs text-muted mt-2">Aucun score : toutes les pratiques sont déclarées non applicables.</p>}
-                  {saisie.reponses.includes('inconnu') && <p className="text-xs text-muted mt-2">« Je ne sais pas » compte comme une pratique non en place, à clarifier.</p>}
+                  {saisie.reponses.includes('inconnu') && <p className="text-xs text-muted mt-2">« Je ne sais pas » n’entre pas dans la note : c’est un point à clarifier. Un pilier se note à partir de {COUVERTURE_MINIMALE} pratiques renseignées.</p>}
                   {pilier.id !== courant && (
                     <button type="button" onClick={() => basculer(pilier.id)} className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-navy text-white text-sm font-bold rounded-lg hover:bg-navy-light">
                       <ChevronUp className="h-4 w-4" aria-hidden />Replier ce pilier
@@ -323,8 +351,9 @@ export default function Diagnostic4bPage() {
             {analyse.moyenne !== null && analyse.niveauGlobal ? <>
               <div className="text-5xl font-extrabold leading-none tracking-tight">{fmt(analyse.moyenne)}<span className="text-lg font-normal text-white/60"> /10</span></div>
               <div className="mt-3"><Pastille niveau={analyse.niveauGlobal} /></div>
+              <p className="text-xs text-white/70 mt-3">Établi sur {analyse.nbExploitables} pratiques sur {analyse.nbAttendu / 5 * 4}</p>
             </> : <p className="text-sm text-white/70 mt-1">{analyse.complet
-              ? 'Score global indisponible : un ou plusieurs piliers restent à clarifier ou ne comportent aucune pratique applicable.'
+              ? `Score global indisponible : au moins un pilier a moins de ${COUVERTURE_MINIMALE} pratiques renseignées. Clarifiez d’abord les réponses « Je ne sais pas » ou vérifiez les « Non applicable ».`
               : 'Répondez à chaque pratique et donnez votre perception pour accéder à la restitution.'}</p>}
             <div className="flex justify-between text-xs text-white/70 mt-4 mb-1.5"><span>Réponses renseignées</span><span>{analyse.nbReponses}/{analyse.nbAttendu}</span></div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden"><div className="h-full rounded-full bg-teal transition-all" style={{ width: `${analyse.nbReponses / analyse.nbAttendu * 100}%` }} /></div>
@@ -336,9 +365,9 @@ export default function Diagnostic4bPage() {
               <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-teal/30 border border-navy" aria-hidden /> Pratiques déclarées</span>
             </div>
             {radarComplet ? <div className="w-full h-56"><Radar4 valeurs={valeursRadar} /></div>
-              : <p className="text-sm text-muted py-4">Le radar apparaît lorsque chaque pilier retenu dispose d’une perception et d’un score de pratiques. Les valeurs inconnues ne sont pas représentées comme des zéros.</p>}
+              : <p className="text-sm text-muted py-4">Le radar apparaît quand chaque pilier a une note. Un pilier à clarifier n’y est jamais tracé à zéro.</p>}
           </section>
-          <button type="button" disabled={!analyse.complet} onClick={reveler}
+          <button ref={boutonReveler} type="button" disabled={!analyse.complet} onClick={reveler}
             className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 bg-teal text-navy-dark text-sm font-extrabold rounded-lg shadow-sm hover:bg-teal-dark disabled:opacity-40 disabled:cursor-not-allowed">
             <Sparkles className="h-4 w-4" aria-hidden />{analyse.complet ? 'Révéler mon analyse' : `Encore ${analyse.nbAttendu - analyse.nbReponses} réponse${analyse.nbAttendu - analyse.nbReponses > 1 ? 's' : ''} à renseigner`}
           </button>
@@ -444,9 +473,9 @@ export default function Diagnostic4bPage() {
         <details>
           <summary className="cursor-pointer font-semibold text-navy">Comment est calculé le score ?</summary>
           <p className="mt-2">Non = 0, En partie = 0,5, Oui = 1. La moyenne des pratiques applicables est ramenée sur 10.
-            « Non applicable » est exclu. « Je ne sais pas » compte comme une pratique non en place (0), signalée comme à clarifier.
+            « Non applicable » et « Je ne sais pas » sont exclus ; « Je ne sais pas » reste signalé à clarifier. Un pilier n’est noté qu’à partir de deux pratiques renseignées (Oui, En partie ou Non) ; sa note affiche sur combien.
             Sans réponse, le questionnaire reste incomplet. « En partie » indique une pratique mise en œuvre partiellement ou irrégulièrement.</p>
-          <p className="mt-2">Le score global est la moyenne des piliers, uniquement si chacun peut être noté.
+          <p className="mt-2">Le score global est la moyenne de toutes les pratiques renseignées, uniquement si chaque pilier peut être noté : un pilier noté sur deux pratiques pèse moitié moins qu’un pilier noté sur quatre.
             Les niveaux sont : Fragile en dessous de 4, En construction de 4 à moins de 7, Solide à partir de 7.
             Par convention, un pilier Fragile empêche le niveau global Solide. Ces repères ne constituent pas une validation de la performance.</p>
         </details>
