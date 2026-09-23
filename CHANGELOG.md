@@ -10,6 +10,28 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.51.0] - 2026-09-23
+
+### ✨ Ajouté — /diagnostic4c : la V4b avec la revue des pratiques appliquée
+- Textes et calcul propres (`lib/diagnostic4c`) : /diagnostic4 et /diagnostic4b
+  ne changent pas. Page hors menu, non indexée.
+- Pratiques corrigées : priorités « écrites, cinq au plus » (une entreprise sans
+  priorité répondait Oui), opportunités « triées » par le cap, chiffre d'affaires
+  venant de clients « fidèles ou recommandés », mesure de satisfaction datée,
+  grands choix de l'année, pouls de l'équipe. Finance mesure enfin la solidité
+  (trésorerie couvrant trois mois de charges) ; question du pilier ajustée.
+- « Seul ou avec une équipe ? » demandé d'entrée : les pratiques qui parlent
+  d'équipe s'adaptent, Team est passé pour qui travaille seul.
+- Quatre réponses par pratique (plus de « Non applicable ») ; « En partie »
+  expliqué une fois ; « Je ne sais pas » compte 0 et reste à vérifier.
+- Restitution réécrite : profil, priorité avec verdict net, effet domino,
+  angles morts, trois actions reliées chacune à l'outil Oskar qui la met en
+  place (atelier et étape, check-in OKR, rétrospective, Team Mood…).
+  Précautions regroupées une seule fois en bas de page.
+- Bilan envoyé par email (`/api/send-diagnostic4c`) : le serveur recalcule
+  l'analyse à partir des réponses ; l'adresse n'est pas enregistrée.
+- Durée annoncée en haut de page (« 5 minutes environ »).
+
 ## [2.50.4] - 2026-09-23
 
 ### 🎨 Modifié — /diagnostic4b : flèches, score au fil de l'eau, piliers à venir
