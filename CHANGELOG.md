@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.52.2] - 2026-09-23
+
+### 🔧 Corrigé — /diagnostic4b : le tirage de test fait sortir les quatre profils
+- Chaque réponse était tirée indépendamment : les moyennes tombaient presque
+  toujours vers 4 à 5, « Le stratège » et « L'horloger » ne sortaient jamais.
+- Le tirage (`lib/diagnostic4b/hasard.ts`) choisit d'abord un profil parmi les
+  quatre, puis des piliers inégaux autour de ce niveau, des réponses cohérentes
+  et une perception parfois décalée (optimiste ou pessimiste une fois sur quatre).
+  Un test vérifie que les quatre profils sortent à parts proches.
+
 ## [2.52.1] - 2026-09-23
 
 ### 🎨 Modifié — /diagnostic4b : titre de la priorité mis en évidence

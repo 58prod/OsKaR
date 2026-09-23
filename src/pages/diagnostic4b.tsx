@@ -10,6 +10,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { COULEURS_PILIERS } from '@/constants/piliers';
 import { PILLARS, fmt, stateLabel, stateColor, stateBorder, type PillarId, type StateKey } from '@/lib/diagnostic';
 import { PILIERS4 } from '@/lib/diagnostic4/contenu';
+import { etatAuHasard } from '@/lib/diagnostic4b/hasard';
 import { analyser4, etatInitial4, type Options4, nbReponses4, niveau4, note4, pilierComplet4, piliersAttendus4, REPONSES4, libelleReponse4, type Reponse4, type Etat4, type Verification4 } from '@/lib/diagnostic4/calcul';
 
 /*
@@ -152,22 +153,9 @@ export default function Diagnostic4bPage() {
     setRevele(true);
     requestAnimationFrame(() => analyseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   };
-  // Outil de test : remplit tout au hasard puis affiche l'analyse, pour relire les textes générés.
+  // Outil de test : un cas au hasard (profil tiré parmi les quatre), puis l'analyse.
   const remplirAuHasard = () => {
-    const tirage: [Reponse4, number][] = [['oui', 30], ['partiel', 25], ['non', 30], ['inconnu', 10], ['na', 5]];
-    const auHasard = (): Reponse4 => {
-      let r = Math.random() * 100;
-      for (const [valeur, poids] of tirage) { if ((r -= poids) < 0) return valeur; }
-      return 'oui';
-    };
-    const nouvel = etatInitial4();
-    nouvel.seul = Math.random() < 0.15;
-    PILLARS.forEach((p) => {
-      nouvel.piliers[p.id] = {
-        perception: Math.floor(Math.random() * 11),
-        reponses: [auHasard(), auHasard(), auHasard(), auHasard()],
-      };
-    });
+    const nouvel = etatAuHasard(OPTIONS);
     setEtat(nouvel);
     setOuverts([]);
     setRevele(true);
