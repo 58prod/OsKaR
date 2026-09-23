@@ -40,6 +40,60 @@ const PointAVerifier = ({ point }: { point: Verification4 }) => (
 // V4b : « Je ne sais pas » compte comme une pratique non en place, sans effacer le score.
 const OPTIONS: Options4 = { inconnuCommeNon: true };
 
+/*
+ * Perception : une jauge de 0 à 10 qui se remplit jusqu'à la note cliquée.
+ * Des cases, donc on voit tout de suite qu'il faut cliquer — mais elles se
+ * lisent comme une jauge, et le survol montre le remplissage à venir.
+ */
+const JaugePerception = ({ label, couleur, valeur, onChoisir }: {
+  label: string;
+  couleur: { DEFAULT: string; dark: string; light: string };
+  valeur: number | null;
+  onChoisir: (valeur: number) => void;
+}) => {
+  const [survol, setSurvol] = useState<number | null>(null);
+  const apercu = survol ?? valeur;
+  return (
+    <div className="mb-5 rounded-lg bg-surface px-4 py-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 mb-2">
+        <span className="text-sm font-semibold text-ink">Votre perception · {label}</span>
+        <span className="text-sm text-muted">
+          {valeur === null ? 'Cliquez sur votre note, de 0 à 10' : <span className="font-bold text-navy">{valeur}/10</span>}
+        </span>
+      </div>
+      <div className="flex gap-[3px]" role="radiogroup" aria-label={`Votre perception · ${label}`} onMouseLeave={() => setSurvol(null)}>
+        {Array.from({ length: 11 }, (_, v) => {
+          const remplie = apercu !== null && v <= apercu;
+          const choisie = valeur === v;
+          return (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={choisie}
+              aria-label={String(v)}
+              onClick={() => onChoisir(v)}
+              onMouseEnter={() => setSurvol(v)}
+              onFocus={() => setSurvol(v)}
+              onBlur={() => setSurvol(null)}
+              className={`flex-1 h-10 text-[13px] font-bold transition-colors first:rounded-l-lg last:rounded-r-lg ${remplie ? 'text-white' : 'bg-white text-muted hover:text-navy'} ${choisie ? 'ring-2 ring-offset-1 ring-navy relative z-10' : ''}`}
+              style={remplie
+                ? { background: survol !== null && (valeur === null || survol > valeur) ? couleur.light : couleur.DEFAULT, color: survol !== null && (valeur === null || survol > valeur) ? couleur.dark : '#fff' }
+                : undefined}
+            >
+              {v}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex justify-between gap-4 mt-1.5 text-[11px] leading-snug text-muted">
+        <span><strong className="font-semibold">0</strong> · nous sommes nettement en retrait sur ce sujet</span>
+        <span className="text-right"><strong className="font-semibold">10</strong> · nous le maîtrisons pleinement</span>
+      </div>
+    </div>
+  );
+};
+
 export default function Diagnostic4bPage() {
   const [etat, setEtat] = useState<Etat4>(etatInitial4);
   const [revele, setRevele] = useState(false);
@@ -180,32 +234,12 @@ export default function Diagnostic4bPage() {
                   </label>
                 )}
                 {!ecarte && <>
-                  <div className="mb-5 rounded-lg bg-surface px-4 py-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <label htmlFor={`perception-${pilier.id}`} className="text-sm font-semibold text-ink">Votre perception · {pilier.label}</label>
-                      <span className="text-sm font-bold text-navy">{saisie.perception === null ? '—' : `${saisie.perception}/10`}</span>
-                    </div>
-                    <input
-                      id={`perception-${pilier.id}`}
-                      type="range"
-                      min={0}
-                      max={10}
-                      step={1}
-                      value={saisie.perception ?? 5}
-                      onChange={(e) => noter(pilier.id, parseInt(e.target.value, 10))}
-                      // Un simple clic sur la valeur du milieu doit aussi compter comme une réponse.
-                      onPointerUp={(e) => noter(pilier.id, parseInt(e.currentTarget.value, 10))}
-                      onKeyUp={(e) => noter(pilier.id, parseInt(e.currentTarget.value, 10))}
-                      className="w-full h-1.5 cursor-pointer"
-                      style={{ accentColor: couleur.DEFAULT, opacity: saisie.perception === null ? 0.45 : 1 }}
-                      aria-valuetext={saisie.perception === null ? 'Non renseignée' : `${saisie.perception} sur 10`}
-                    />
-                    <div className="flex justify-between gap-4 mt-1.5 text-[11px] leading-snug text-muted">
-                      <span><strong className="font-semibold">0</strong> · nous sommes nettement en retrait sur ce sujet</span>
-                      <span className="text-right"><strong className="font-semibold">10</strong> · nous le maîtrisons pleinement</span>
-                    </div>
-                    {saisie.perception === null && <p className="text-[11.5px] text-muted mt-1">Faites glisser le curseur pour donner votre appréciation.</p>}
-                  </div>
+                  <JaugePerception
+                    label={pilier.label}
+                    couleur={couleur}
+                    valeur={saisie.perception}
+                    onChoisir={(v) => noter(pilier.id, v)}
+                  />
                   {visibles > 0 && (
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-semibold text-ink">Vos pratiques</span>

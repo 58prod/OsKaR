@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.50.3] - 2026-09-23
+
+### 🎨 Modifié — /diagnostic4b : la perception se donne sur une jauge cliquable
+- Le curseur ne disait pas qu'il fallait agir : retour à onze cases, mais qui se
+  remplissent jusqu'à la note choisie, comme une jauge (survol en aperçu).
+- « Cliquez sur votre note, de 0 à 10 » tant que rien n'est choisi, puis la note.
+  Légende inchangée aux deux extrémités.
+
 ## [2.50.2] - 2026-09-22
 
 ### 🔧 Modifié — /diagnostic4b : curseur de perception et « Je ne sais pas »

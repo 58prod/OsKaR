@@ -15,9 +15,9 @@ const groupe = (nom: string) => screen.queryByRole('group', { name: nom });
 function repondre(id: PillarId, index: number, reponse = 'Oui') {
   fireEvent.click(within(screen.getByRole('group', { name: PILIERS4[id].criteres[index].texte })).getByRole('radio', { name: reponse }));
 }
-const curseur = (label: string) => screen.queryByRole('slider', { name: `Votre perception · ${label}` });
+const curseur = (label: string) => screen.queryByRole('radiogroup', { name: `Votre perception · ${label}` });
 function perception(label: string, valeur = '7') {
-  fireEvent.change(curseur(label)!, { target: { value: valeur } });
+  fireEvent.click(within(curseur(label)!).getByRole('radio', { name: valeur }));
 }
 function remplirPilier(id: PillarId, label: string, reponse = 'Oui') {
   perception(label);
@@ -61,11 +61,14 @@ it('garde le calcul et la restitution de la V4, « Je travaille seul » compris'
   expect(screen.getByText('Passé : je travaille seul')).toBeInTheDocument();
 });
 
-it('un clic sur la position de départ du curseur compte comme une perception', () => {
+it('invite à cliquer, et remplit la jauge jusqu’à la note choisie', () => {
   render(<Diagnostic4bPage />);
-  expect(screen.getByText('—')).toBeInTheDocument();
-  fireEvent.pointerUp(curseur('Vision')!);
-  expect(screen.getByText('5/10')).toBeInTheDocument();
+  expect(screen.getByText('Cliquez sur votre note, de 0 à 10')).toBeInTheDocument();
+  perception('Vision', '3');
+  expect(screen.getByText('3/10')).toBeInTheDocument();
+  const cases = within(curseur('Vision')!).getAllByRole('radio');
+  expect(cases.filter((c) => c.className.includes('text-white'))).toHaveLength(4); // 0 à 3
+  expect(cases[3].getAttribute('aria-checked')).toBe('true');
   expect(groupe(PILIERS4.vision.criteres[0].texte)).toBeInTheDocument();
 });
 
