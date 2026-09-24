@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Check } from 'lucide-react';
-import { TexteSynchro } from './TexteSynchro';
+import { TexteSynchro } from '@/components/toolbox/shared/TexteSynchro';
 import { PHASES, RESOLUTION_ACCENT, THEME_MAX, phaseIndex, type ResolutionPhase } from './resolutionLogic';
 
 interface ResolutionStepsProps {

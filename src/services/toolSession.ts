@@ -15,6 +15,7 @@ const CODE_PREFIX: Record<ToolType, string> = {
   'retrospective': 'RETRO',
   'speedboat': 'BOAT',
   'resolution-collective': 'RESOL',
+  'matrice-eisenhower': 'PRIO',
 };
 
 // Caractères sans ambiguïté (pas de O/0, I/1) pour la saisie/lecture du code.

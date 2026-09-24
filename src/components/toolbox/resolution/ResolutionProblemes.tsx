@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, EyeOff, Heart, Link2, MessageSquareWarning, Trash2, Unlink } from 'lucide-react';
-import { TexteSynchro } from './TexteSynchro';
+import { TexteSynchro } from '@/components/toolbox/shared/TexteSynchro';
 import {
   MAX_RETENUS, QUESTION_MAX, RESOLUTION_ACCENT, aDonneCoeur, authorLabel,
   type GroupeProblemes, type ResolutionState,

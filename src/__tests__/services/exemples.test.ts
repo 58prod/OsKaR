@@ -3,6 +3,7 @@ import { exemplesPour, EXEMPLES_PAR_FAMILLE, EXEMPLES_PAR_DEFAUT } from '@/lib/e
 import { FIT_PAR_FAMILLE } from '@/lib/exemplesFit';
 import { FINANCE_PAR_FAMILLE } from '@/lib/exemplesFinance';
 import { RESOLUTION_PAR_FAMILLE } from '@/lib/exemplesResolution';
+import { EISENHOWER_PAR_FAMILLE } from '@/lib/exemplesEisenhower';
 
 /*
  * Règle produit : les exemples proposés doivent parler le langage du métier
@@ -58,6 +59,15 @@ describe('Exemples adaptés au métier', () => {
       expect(jeu.resolution.probleme).toMatch(/^Quand .+, alors /);
     });
     expect(JSON.stringify(exemplesPour('Plombier').resolution).toLowerCase()).toContain('chantier');
+  });
+
+  it('a des exemples Eisenhower propres à chaque famille, tous remplis', () => {
+    const familles = Array.from(new Set(SECTEURS.map((s) => s.famille))).filter((f) => f !== 'Autre');
+    expect(familles.filter((f) => !EISENHOWER_PAR_FAMILLE[f])).toEqual([]);
+    Object.values(EXEMPLES_PAR_FAMILLE).forEach((jeu) => {
+      Object.values(jeu.eisenhower).forEach((texte) => expect(texte.trim()).not.toBe(''));
+    });
+    expect(JSON.stringify(exemplesPour('Plombier').eisenhower).toLowerCase()).toContain('chantier');
   });
 
   it('donne à un artisan des exemples Fit de chantier', () => {

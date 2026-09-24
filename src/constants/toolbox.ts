@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Layers, Star, Sunrise, Smile, Lightbulb, StickyNote,
-  Scale, PartyPopper, Radar, Sailboat, RefreshCw, Puzzle,
+  Scale, PartyPopper, Radar, Sailboat, RefreshCw, Puzzle, Grid2x2,
 } from 'lucide-react';
 
 /**
@@ -24,6 +24,8 @@ export const TOOLBOX_CONFIG = {
    */
   sessionRetentionHoursByTool: {
     retrospective: 365 * 24,
+    // Une matrice de priorités se reprend d'une semaine à l'autre.
+    'matrice-eisenhower': 30 * 24,
   } as Partial<Record<string, number>>,
 
   /** Longueur de la partie aléatoire du code de session (ex: « POKER-7K2P »). */
@@ -72,7 +74,8 @@ export type ToolType =
   | 'competences'
   | 'retrospective'
   | 'speedboat'
-  | 'resolution-collective';
+  | 'resolution-collective'
+  | 'matrice-eisenhower';
 
 export interface ToolDefinition {
   /** Identifiant technique (route + tool_type). */
@@ -177,6 +180,18 @@ export const TOOLS: ToolDefinition[] = [
     gradient: 'linear-gradient(135deg, #c2410c, #fb923c)',
     icon: Puzzle,
     cta: 'Lancer la résolution',
+  },
+  {
+    type: 'matrice-eisenhower',
+    status: 'live',
+    title: "Matrice d'Eisenhower",
+    description:
+      "Urgent ou pas, important ou pas : chacun place ses tickets dans les quatre quadrants, l'équipe les ajuste et regroupe les doublons, puis repart avec un plan d'action — faire, planifier, déléguer, abandonner.",
+    duration: '30 – 45 min',
+    participants: '1 – 15 participants',
+    gradient: 'linear-gradient(135deg, #1d4ed8, #60a5fa)',
+    icon: Grid2x2,
+    cta: 'Ouvrir la matrice',
   },
   {
     type: 'disons-nous',

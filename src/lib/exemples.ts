@@ -2,6 +2,7 @@ import { familleDe } from './secteurs';
 import { FIT_PAR_DEFAUT, FIT_PAR_FAMILLE, type ExemplesFit } from './exemplesFit';
 import { FINANCE_PAR_DEFAUT, FINANCE_PAR_FAMILLE, type ExemplesFinance } from './exemplesFinance';
 import { RESOLUTION_PAR_DEFAUT, RESOLUTION_PAR_FAMILLE, type ExemplesResolution } from './exemplesResolution';
+import { EISENHOWER_PAR_DEFAUT, EISENHOWER_PAR_FAMILLE, type ExemplesEisenhower } from './exemplesEisenhower';
 
 /*
  * Exemples adaptés au métier.
@@ -60,10 +61,12 @@ export interface JeuExemples {
   finance: ExemplesFinance;
   /** Repères pour l'outil Résolution collective, écrits à part dans `exemplesResolution.ts`. */
   resolution: ExemplesResolution;
+  /** Repères pour la Matrice d'Eisenhower, écrits à part dans `exemplesEisenhower.ts`. */
+  eisenhower: ExemplesEisenhower;
 }
 
-/** Un jeu avant qu'on lui rattache ses exemples Fit, Finance et Résolution. */
-type JeuSansFit = Omit<JeuExemples, 'fit' | 'finance' | 'resolution'>;
+/** Un jeu avant qu'on lui rattache ses exemples Fit, Finance, Résolution et Eisenhower. */
+type JeuSansFit = Omit<JeuExemples, 'fit' | 'finance' | 'resolution' | 'eisenhower'>;
 
 /** Sans secteur choisi : les exemples d'origine, volontairement passe-partout. */
 const JEU_PAR_DEFAUT: JeuSansFit = {
@@ -109,6 +112,7 @@ const JEU_PAR_DEFAUT: JeuSansFit = {
 
 export const EXEMPLES_PAR_DEFAUT: JeuExemples = {
   ...JEU_PAR_DEFAUT, fit: FIT_PAR_DEFAUT, finance: FINANCE_PAR_DEFAUT, resolution: RESOLUTION_PAR_DEFAUT,
+  eisenhower: EISENHOWER_PAR_DEFAUT,
 };
 
 /* Un jeu par famille de la liste des secteurs. Les clés sont les intitulés
@@ -650,7 +654,7 @@ const JEUX_PAR_FAMILLE: Record<string, JeuSansFit> = {
   Autre: JEU_PAR_DEFAUT,
 };
 
-/** Chaque jeu complété de ses exemples Fit, Finance et Résolution ; « Autre » reste le jeu générique. */
+/** Chaque jeu complété de ses exemples Fit, Finance, Résolution et Eisenhower ; « Autre » reste le jeu générique. */
 export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = Object.fromEntries(
   Object.entries(JEUX_PAR_FAMILLE).map(([famille, jeu]) => [
     famille,
@@ -661,6 +665,7 @@ export const EXEMPLES_PAR_FAMILLE: Record<string, JeuExemples> = Object.fromEntr
           fit: FIT_PAR_FAMILLE[famille] ?? FIT_PAR_DEFAUT,
           finance: FINANCE_PAR_FAMILLE[famille] ?? FINANCE_PAR_DEFAUT,
           resolution: RESOLUTION_PAR_FAMILLE[famille] ?? RESOLUTION_PAR_DEFAUT,
+          eisenhower: EISENHOWER_PAR_FAMILLE[famille] ?? EISENHOWER_PAR_DEFAUT,
         },
   ])
 );

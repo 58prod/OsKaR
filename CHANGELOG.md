@@ -10,6 +10,33 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.53.0] - 2026-09-24
+
+### ✨ Ajouté — Matrice d'Eisenhower (boîte à outils)
+Nouvel outil collaboratif `/app/outils/matrice-eisenhower` (code `PRIO-XXXX`,
+accent #1d4ed8), sur le même socle que les autres outils (synchro par
+opérations, barre blanche, mode animateur, minuteur partagé) :
+- Chacun écrit ses tickets en privé dans « Mon espace », choisit le quadrant
+  sur une petite matrice (Faire · Planifier · Déléguer · Abandonner), puis les
+  place ; ils arrivent à une place libre du quadrant.
+- Urgent à gauche, important en haut : la position compte. On glisse un ticket
+  à la souris ou au doigt, il change de quadrant au lâcher ; le plan d'action
+  classe chaque quadrant du plus important et urgent au moins important.
+- Regroupement : lâcher un ticket sur un autre, ou « Regrouper avec un autre
+  ticket » puis clic sur celui qui l'accueille. Le groupe se déplace d'un bloc,
+  s'affiche en pile avec un compteur ; « Détacher » ressort un ticket.
+- Fenêtre d'un ticket : texte (retouchable par son auteur ou l'animateur),
+  changement de quadrant sans glisser, porteur et échéance aux libellés propres
+  au quadrant (« À qui le confier ? » pour Déléguer), suppression.
+- Vue « Plan d'action » : quadrant par quadrant, porteur et échéance
+  modifiables sur place, échéances dépassées en rouge. « Copier le plan »,
+  export texte, tickets anonymes, « Mes tickets » en avant, sujet de séance.
+- Exemples par métier (14 familles, `lib/exemplesEisenhower.ts`, champ
+  `eisenhower` de `useExemples`). Session conservée 30 jours.
+- Tests `eisenhowerSynchro.test.ts` (toutes permutations) ; `TexteSynchro`
+  déplacé dans `toolbox/shared`. Aucune migration : `tool_sessions` accueille
+  le nouveau type tel quel.
+
 ## [2.52.4] - 2026-09-23
 
 ### 🔧 Corrigé — /diagnostic4b : « Je ne sais pas », couverture des notes, mobile et clavier

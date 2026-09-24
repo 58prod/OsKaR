@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import type { ToolIdentity } from '@/hooks/useToolSession';
 import type { ExemplesResolution } from '@/lib/exemplesResolution';
-import { TexteSynchro } from './TexteSynchro';
+import { TexteSynchro } from '@/components/toolbox/shared/TexteSynchro';
 import {
   COMMENTAIRE_MAX, COMMENT_KINDS, PLAN_MAX, RESOLUTION_ACCENT, SYNTHESE, SYNTHESE_MAX,
   authorLabel, candidats, commentairesDe, dateCourte, getCommentKind, getSolutionKind, intituleProbleme,
