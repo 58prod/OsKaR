@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 import type { Database, Json } from '@/types/supabase';
 import type { AnalysisResult, DiagnosticState } from '@/lib/diagnostic';
 import type { ProductFitAnalysis, ProductFitProject } from '@/lib/productFit/types';
+import { estBilan4, type ReponsesBilan4, type ScoresBilan4 } from '@/lib/diagnostic4/bilan';
 
 type DiagnosticRow = Database['public']['Tables']['diagnostics']['Row'];
 type DiagnosticInsert = Database['public']['Tables']['diagnostics']['Insert'];
@@ -28,8 +29,14 @@ export interface DiagnosticRecord {
   email: string | null;
   /** Le type de bilan, déduit du contenu enregistré. */
   type: TypeBilan;
-  scores: AnalysisResult;
-  responses: DiagnosticState;
+  /**
+   * Version du diagnostic de maturité : 4 pour le Diagnostic actuel (20
+   * pratiques, depuis le 2026-09-24), 1 pour l'ancien (ressenti + 3 critères),
+   * rouvert dans /diagnostic-classique.
+   */
+  version: 1 | 4;
+  scores: AnalysisResult | ScoresBilan4;
+  responses: DiagnosticState | ReponsesBilan4;
   createdAt: Date;
 }
 
@@ -51,9 +58,9 @@ export interface DiagnosticPayload {
   /** Email de l'invité (requis si userId est null) */
   email: string | null;
   /** Résultat structuré de l'analyse */
-  scores: AnalysisResult;
-  /** État brut du questionnaire (sliders, cases, touched) */
-  responses: DiagnosticState;
+  scores: AnalysisResult | ScoresBilan4;
+  /** État brut du questionnaire */
+  responses: DiagnosticState | ReponsesBilan4;
   /** Type de bilan ; « organisation » par défaut. */
   type?: TypeBilan;
   /** La personne a coché « J'accepte qu'Oskar me recontacte ». */
@@ -77,8 +84,9 @@ export class DiagnosticsService {
       userId: row.user_id,
       email: row.email,
       type: typeDuBilan(row.responses),
-      scores: row.scores as unknown as AnalysisResult,
-      responses: row.responses as unknown as DiagnosticState,
+      version: estBilan4(row.responses) ? 4 : 1,
+      scores: row.scores as unknown as AnalysisResult | ScoresBilan4,
+      responses: row.responses as unknown as DiagnosticState | ReponsesBilan4,
       createdAt: new Date(row.created_at),
     };
   }
@@ -125,6 +133,7 @@ export class DiagnosticsService {
         userId: null,
         email,
         type: payload.type ?? 'organisation',
+        version: estBilan4(payload.responses) ? 4 : 1,
         scores: payload.scores,
         responses: payload.responses,
         createdAt: new Date(),

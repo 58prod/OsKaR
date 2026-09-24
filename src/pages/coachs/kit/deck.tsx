@@ -259,7 +259,7 @@ function diaposClient({ coach, contact, client }: Contexte): React.ReactNode[] {
         <Radar />
         <div>
           <p className={k('sl-lede')} style={{ marginBottom: '5mm' }}>
-            5 piliers, 15 critères, un score sur 10 par pilier. Gratuit et sans inscription.
+            5 piliers, 20 pratiques, un score sur 10 par pilier. Gratuit et sans inscription.
           </p>
           <ul className={k('sl-liste')}>
             <li>
@@ -284,7 +284,7 @@ function diaposClient({ coach, contact, client }: Contexte): React.ReactNode[] {
       </div>
       <div className={k('sl-bas', 'sl-grille', 'sl-g4')}>
         {[
-          ['Le diagnostic', '10 minutes, 5 piliers, 15 critères. Seul ou avec votre coach.', 'Avant le 1er RDV'],
+          ['Le diagnostic', '10 minutes, 5 piliers, 20 pratiques. Seul ou avec votre coach.', 'Avant le 1er RDV'],
           ['La restitution', '45 minutes pour lire les résultats et nommer les vrais sujets.', 'Séance 1'],
           ['Le plan d’actions', 'La feuille de route jusqu’à la fin de l’année et les points de coaching calés.', 'Séance 1 ou 2'],
           ['Le premier pilier', 'Celui qui débloque le reste. Atelier animé, résultats dans la plateforme.', 'Séances suivantes'],

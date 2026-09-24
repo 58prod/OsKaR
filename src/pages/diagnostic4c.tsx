@@ -181,7 +181,7 @@ export default function Diagnostic4cPage() {
       <Head><meta name="robots" content="noindex, nofollow" /></Head>
       <div className="flex items-start gap-3 mb-6 rounded-lg border border-dashed border-navy/30 bg-white px-4 py-3 text-[13px] text-muted">
         <FlaskConical className="h-4 w-4 mt-0.5 shrink-0 text-navy" aria-hidden />
-        <p><strong className="text-navy">Version d’essai 4c</strong> — la <Link href="/diagnostic4b" className="font-semibold text-navy underline">version 4b</Link> avec
+        <p><strong className="text-navy">Version d’essai 4c</strong> — le <Link href="/diagnostic" className="font-semibold text-navy underline">Diagnostic</Link> (ex-version 4b) avec
           les pratiques revues, une restitution réécrite et le bilan par email. Voir aussi la <Link href="/diagnostic4" className="font-semibold text-navy underline">version 4</Link>. Rien n’est enregistré.</p>
       </div>
 

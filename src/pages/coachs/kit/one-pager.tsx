@@ -41,7 +41,7 @@ const PILIERS = [
 ];
 
 const ETAPES = [
-  { titre: 'Le diagnostic', texte: '10 minutes, 5 piliers, 15 critères. Seul ou avec votre coach.' },
+  { titre: 'Le diagnostic', texte: '10 minutes, 5 piliers, 20 pratiques. Seul ou avec votre coach.' },
   { titre: 'La restitution', texte: '45 minutes pour lire les résultats et nommer les vrais sujets.' },
   { titre: 'Le plan d’actions', texte: 'La feuille de route jusqu’à fin d’année et les points de coaching calés.' },
   { titre: 'Le premier pilier', texte: 'Celui qui débloque le reste. Atelier animé, résultats dans la plateforme.' },

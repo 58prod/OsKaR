@@ -44,11 +44,21 @@ function resume(bilan: DiagnosticRecord): { note: string; etat: string; ton: 'bo
       ton: ton === 'success' ? 'bon' : ton === 'danger' ? 'faible' : 'moyen',
     };
   }
-  const moyenne = typeof bilan.scores?.average === 'number' ? bilan.scores.average : 0;
+  const scores = bilan.scores as { average?: number | null; evaluatedCount?: number; nbPiliers?: number };
+  // Version actuelle : le score global peut manquer (un pilier reste à clarifier) et le seuil « Solide » est 7.
+  if (bilan.version === 4) {
+    const noteV4 = typeof scores.average === 'number' ? Math.round(scores.average * 10) / 10 : null;
+    return {
+      note: noteV4 === null ? '—' : `${noteV4}`,
+      etat: noteV4 === null ? 'Score global à clarifier' : `${scores.evaluatedCount ?? 0}/${scores.nbPiliers ?? 5} piliers notés`,
+      ton: noteV4 === null ? 'moyen' : noteV4 >= 7 ? 'bon' : noteV4 >= 4 ? 'moyen' : 'faible',
+    };
+  }
+  const moyenne = typeof scores.average === 'number' ? scores.average : 0;
   const arrondi = Math.round(moyenne * 10) / 10;
   return {
     note: `${arrondi}`,
-    etat: `${bilan.scores?.evaluatedCount ?? 0}/5 piliers évalués`,
+    etat: `${scores.evaluatedCount ?? 0}/5 piliers évalués · ancienne version`,
     ton: arrondi >= 8 ? 'bon' : arrondi >= 5 ? 'moyen' : 'faible',
   };
 }
@@ -78,7 +88,7 @@ const MesBilansPage: React.FC = () => {
   );
 
   const rouvrir = (bilan: DiagnosticRecord) => {
-    const page = bilan.type === 'produit' ? '/diagnostic-produit' : '/diagnostic';
+    const page = bilan.type === 'produit' ? '/diagnostic-produit' : bilan.version === 4 ? '/diagnostic' : '/diagnostic-classique';
     router.push({ pathname: page, query: { bilan: bilan.id } });
   };
 

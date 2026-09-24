@@ -10,6 +10,29 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.54.0] - 2026-09-24
+
+### ✨ Modifié — Le Diagnostic passe à la version à 20 pratiques (ex-/diagnostic4b)
+- `/diagnostic` est désormais la V4b : perception puis 4 pratiques par pilier,
+  saisie pilier par pilier, « Je ne sais pas » hors calcul, couverture affichée.
+  Bouton de test « remplir au hasard » retiré ; `/diagnostic4b` redirige vers
+  `/diagnostic`.
+- Mêmes services que l'ancien Diagnostic : Enregistrer (compte, ou email pour un
+  visiteur, avec consentement de recontact), Restaurer par email, Télécharger la
+  synthèse PDF (envoyée par email), réouverture depuis « Mes bilans ».
+- Nouvelle synthèse PDF et nouvel email (`lib/diagnostic4/pdf.ts`, `email.ts`) ;
+  `/api/send-diagnostic` reconnaît les deux versions et recalcule toujours
+  l'analyse côté serveur.
+- Bilans enregistrés dans la même table, sans migration : `responses.__version = 4`
+  et les clés déjà lues par « Mes bilans », l'administration et l'espace coach
+  (`scores.average`, `evaluatedCount`) — `lib/diagnostic4/bilan.ts`.
+- L'ancien Diagnostic est gardé tel quel sur `/diagnostic-classique` (hors menu,
+  non indexé) : il rouvre et restaure les bilans faits avec lui ; « Mes bilans »
+  y envoie directement ces anciens bilans, marqués « ancienne version ».
+- Textes mis en cohérence : « 15 critères » devient « 20 pratiques » (accueil,
+  espace coachs, one-pager, deck, page /performance et sa copie) ; l'annuaire
+  parle du pilier prioritaire.
+
 ## [2.53.0] - 2026-09-24
 
 ### ✨ Ajouté — Matrice d'Eisenhower (boîte à outils)

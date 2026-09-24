@@ -5,12 +5,19 @@ import { buildAnalysis, fmt, stateLabel } from '@/lib/diagnostic';
 import type { AnalysisResult } from '@/lib/diagnostic';
 import { etatDiagnosticDuCorps } from '@/lib/diagnostic/validation';
 import { echapperHtml } from '@/lib/coachs/notification';
+import { analyser4 } from '@/lib/diagnostic4/calcul';
+import { OPTIONS_DIAGNOSTIC, estBilan4, etat4Depuis } from '@/lib/diagnostic4/bilan';
+import { genererPdfDiagnostic4 } from '@/lib/diagnostic4/pdf';
+import { emailBilan4 } from '@/lib/diagnostic4/email';
 
 /*
  * Envoi par email du bilan de maturité, avec le PDF en pièce jointe. La route
  * est libre d'accès (le Diagnostic ne demande pas de compte) : le navigateur
  * n'envoie que les réponses, et c'est ici que l'analyse est recalculée. Le
  * message ne contient donc que nos propres textes.
+ *
+ * Deux versions : le Diagnostic actuel (réponses marquées `__version: 4`) et
+ * l'ancien, toujours servi par /diagnostic-classique.
  */
 
 type ApiResponse = { ok: true } | { error: string };
@@ -63,22 +70,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!email || !EMAIL_RE.test(email)) {
     return res.status(400).json({ error: 'Adresse email invalide.' });
   }
-  const etat = etatDiagnosticDuCorps(body?.responses);
-  const scores = etat ? buildAnalysis(etat) : null;
-  if (!scores) {
-    return res.status(400).json({ error: 'Bilan invalide ou incomplet.' });
+  // Le PDF est produit dans le try : une erreur de génération répond 502, comme avant.
+  let message: { subject: string; html: string; pdf: () => ArrayBuffer };
+  if (estBilan4(body?.responses)) {
+    const etat4 = etat4Depuis(body?.responses);
+    const analyse = etat4 ? analyser4(etat4, OPTIONS_DIAGNOSTIC) : null;
+    if (!analyse?.complet) return res.status(400).json({ error: 'Bilan invalide ou incomplet.' });
+    const base = process.env.NEXT_PUBLIC_APP_URL || 'https://oskar-coach.fr';
+    message = { subject: 'Votre diagnostic Oskar', html: emailBilan4(analyse, base), pdf: () => genererPdfDiagnostic4(analyse, base) };
+  } else {
+    const etat = etatDiagnosticDuCorps(body?.responses);
+    const scores = etat ? buildAnalysis(etat) : null;
+    if (!scores) {
+      return res.status(400).json({ error: 'Bilan invalide ou incomplet.' });
+    }
+    message = { subject: 'Votre bilan de maturité Oskar', html: buildEmailHtml(scores), pdf: () => generateDiagnosticPdf(scores) };
   }
 
   try {
-    const pdf = Buffer.from(generateDiagnosticPdf(scores));
+    const pdf = Buffer.from(message.pdf());
     const resend = new Resend(apiKey);
     const from = process.env.RESEND_FROM_EMAIL || 'Oskar <onboarding@resend.dev>';
 
     const { error } = await resend.emails.send({
       from,
       to: email,
-      subject: 'Votre bilan de maturité Oskar',
-      html: buildEmailHtml(scores),
+      subject: message.subject,
+      html: message.html,
       attachments: [{ filename: 'bilan-oskar.pdf', content: pdf }],
     });
 

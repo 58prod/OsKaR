@@ -147,7 +147,7 @@ const PARCOURS: {
   {
     titre: 'Le diagnostic est posé',
     texte:
-      'Vous envoyez le lien au client, ou vous l’offrez et le remplissez avec lui en séance. 10 minutes, 5 piliers, 15 critères.',
+      'Vous envoyez le lien au client, ou vous l’offrez et le remplissez avec lui en séance. 10 minutes, 5 piliers, 20 pratiques.',
     quand: (
       <>
         Avant ou pendant le 1<sup>er</sup> RDV
@@ -670,7 +670,7 @@ export default function EspaceCoachsPage() {
       {/* ── Annuaire ── */}
       <TitreSection id="annuaire">L’annuaire des coachs Oskar</TitreSection>
       <p className="text-15.5 leading-[1.7] text-muted max-w-[760px] mb-[18px]">
-        À la fin de son diagnostic, une entreprise voit ses deux ou trois piliers les plus faibles. On lui propose alors
+        À la fin de son diagnostic, une entreprise voit son pilier prioritaire et ses points faibles. On lui propose alors
         les coachs référencés <strong className="text-navy">sur ces piliers-là</strong>, dans sa région. Vous choisissez
         les piliers sur lesquels vous vous positionnez.
       </p>

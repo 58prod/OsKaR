@@ -387,13 +387,13 @@
          o:[["À la machine à café, par la bande",1],["En réunion, et on le règle ensemble",3],["Le jour où quelqu’un démissionne",0],["Quand quelqu’un prend sur lui de le faire remonter",2]]}
       ],
       profiles: [
-        {min:85, name:"L’horloger", text:"Cap clair, marché validé, chiffres maîtrisés : c’est rare. Reste à le confirmer sur les 15 critères du diagnostic complet."},
+        {min:85, name:"L’horloger", text:"Cap clair, marché validé, chiffres maîtrisés : c’est rare. Reste à le confirmer sur les 20 pratiques du diagnostic complet."},
         {min:65, name:"Le stratège", text:"Votre entreprise tient debout. Le prochain palier se joue sur votre pilier le moins solide."},
         {min:40, name:"Le bâtisseur", text:"Les fondations sont là, par endroits. Un ou deux piliers fragiles freinent tout le reste."},
         {min:0,  name:"Le pilote à vue", text:"Ça avance, souvent grâce à votre énergie. Sans cap ni repères partagés, tout repose sur vous."}
       ],
       lever: function(ax, v){ var a = CONSEIL_PILIER[ax.id][v <= 1 ? "f" : "c"]; return "<strong>" + a[0] + "</strong> " + a[1]; },
-      even: "Aucun pilier ne décroche. Le diagnostic complet les départage sur 15 critères.",
+      even: "Aucun pilier ne décroche. Le diagnostic complet les départage sur 20 pratiques.",
       cta: {href: SITE + "/diagnostic/", label:"Faire le diagnostic complet", note:"Gratuit · sans compte · 10 minutes · radar détaillé et priorités"},
       share: function(s){ return "J’ai obtenu " + s + "/100 au test Oskar. Votre entreprise fait mieux ?"; }
     },

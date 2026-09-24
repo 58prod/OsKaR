@@ -73,6 +73,8 @@ const nextConfig = {
       // Anciennes adresses de la page d'accroche (2.47.0 et 2.47.1), gardées vivantes.
       { source: '/test', destination: '/performance/', permanent: false },
       { source: '/votre-realite', destination: '/performance/', permanent: false },
+      // La version d'essai 4b est devenue le Diagnostic (2026-09-24).
+      { source: '/diagnostic4b', destination: '/diagnostic/', permanent: false },
     ];
   },
   async rewrites() {

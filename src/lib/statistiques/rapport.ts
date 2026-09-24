@@ -168,6 +168,7 @@ const NOMS_PAGES: Record<string, string> = {
   '/about': 'À propos',
   '/pricing': 'Tarifs',
   '/diagnostic': 'Diagnostic',
+  '/diagnostic-classique': 'Diagnostic (ancienne version)',
   '/diagnostic-produit': 'Diagnostic produit',
   '/mes-bilans': 'Mes bilans',
   '/coachs': 'Espace coachs',

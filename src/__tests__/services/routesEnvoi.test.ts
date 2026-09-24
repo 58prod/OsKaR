@@ -12,6 +12,7 @@ jest.mock('resend', () => ({
   Resend: jest.fn().mockImplementation(() => ({ emails: { send: envoyer } })),
 }));
 jest.mock('@/lib/diagnostic/pdf', () => ({ generateDiagnosticPdf: () => new Uint8Array([1]) }));
+jest.mock('@/lib/diagnostic4/pdf', () => ({ genererPdfDiagnostic4: () => new Uint8Array([1]) }));
 jest.mock('@/lib/productFit/pdf', () => ({ generateProductFitPdf: () => new Uint8Array([1]) }));
 
 import sendDiagnostic from '@/pages/api/send-diagnostic';
@@ -82,5 +83,28 @@ describe('/api/send-product-fit', () => {
     expect(html).not.toContain('<img');
     expect(html).not.toContain('<a href');
     expect(html).toContain('&lt;a href=&quot;https://piege.example&quot;&gt;');
+  });
+});
+
+describe('/api/send-diagnostic — version actuelle (20 pratiques)', () => {
+  const reponses = (r: string[]) => ({
+    __version: 4,
+    seul: false,
+    piliers: Object.fromEntries(['vision', 'fit', 'finance', 'okr', 'team'].map((id) => [id, { perception: 6, reponses: r }])),
+  });
+
+  it('recalcule le bilan V4 et l’envoie avec le PDF', async () => {
+    const res = await appeler(sendDiagnostic, { email: 'a@b.fr', responses: reponses(['oui', 'partiel', 'non', 'oui']) });
+    expect(res.statusCode).toBe(200);
+    const { html, subject, attachments } = envoyer.mock.calls[0][0];
+    expect(subject).toBe('Votre diagnostic Oskar');
+    expect(html).toContain('Score global : <strong>6,3/10</strong>');
+    expect(attachments[0].filename).toBe('bilan-oskar.pdf');
+  });
+
+  it('refuse un bilan V4 incomplet ou mal formé', async () => {
+    expect((await appeler(sendDiagnostic, { email: 'a@b.fr', responses: reponses(['oui', null, 'non', 'oui']) as never })).statusCode).toBe(400);
+    expect((await appeler(sendDiagnostic, { email: 'a@b.fr', responses: reponses(['<b>', 'oui', 'oui', 'oui']) })).statusCode).toBe(400);
+    expect(envoyer).not.toHaveBeenCalled();
   });
 });
