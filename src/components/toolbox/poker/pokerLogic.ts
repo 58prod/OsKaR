@@ -27,6 +27,11 @@ export interface PokerState {
   ticketsSupprimes: string[];
   /** Ticket de la liste en cours d'estimation, ou null (ticket saisi à la main). */
   ticketCourant: string | null;
+  /**
+   * Observateurs : ils suivent la séance sans voter. Choix de chacun, daté
+   * (le plus récent l'emporte), gardé d'une manche à l'autre.
+   */
+  observateurs: Record<string, { on: boolean; at: number }>;
   suiteKey: SuiteKey;
   suite: string[];
   /** participantId -> valeur votée. */
@@ -92,6 +97,7 @@ export const INITIAL_POKER_STATE: PokerState = {
   tickets: [],
   ticketsSupprimes: [],
   ticketCourant: null,
+  observateurs: {},
   suiteKey: 'fibonacci',
   suite: [...SUITES.fibonacci],
   votes: {},
@@ -102,6 +108,21 @@ export const INITIAL_POKER_STATE: PokerState = {
   departs: {},
   animateurSeul: false,
 };
+
+function lireObservateurs(raw: unknown): PokerState['observateurs'] {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out: PokerState['observateurs'] = {};
+  Object.entries(raw as Record<string, unknown>).forEach(([id, v]) => {
+    const o = v as { on?: unknown; at?: unknown } | null;
+    if (o && typeof o.at === 'number') out[id] = { on: !!o.on, at: o.at };
+  });
+  return out;
+}
+
+/** La personne suit-elle la séance en observateur ? */
+export function estObservateur(state: Pick<PokerState, 'observateurs'>, id: string): boolean {
+  return !!state.observateurs[id]?.on;
+}
 
 /** Complète un état enregistré avant l'ajout d'un champ (sessions déjà ouvertes). */
 export function normalizePokerState(raw: Partial<PokerState> | null | undefined): PokerState {
@@ -121,6 +142,7 @@ export function normalizePokerState(raw: Partial<PokerState> | null | undefined)
     tickets: lireTickets(s.tickets),
     ticketsSupprimes: Array.isArray(s.ticketsSupprimes) ? s.ticketsSupprimes.filter((id) => typeof id === 'string') : [],
     ticketCourant: typeof s.ticketCourant === 'string' ? s.ticketCourant : null,
+    observateurs: lireObservateurs(s.observateurs),
   };
 }
 
@@ -153,6 +175,8 @@ export type PokerOp =
     ticketId?: string | null; estimation?: string; at?: number;
   }
   | TicketOp
+  /** Se mettre en observateur (ne vote plus, son vote éventuel est retiré) ou revenir voter. */
+  | { t: 'observateur'; voterId: string; value: boolean; at: number }
   | { t: 'chrono'; chrono: PokerChrono }
   /** Animation réservée au créateur, ou ouverte à tous (envoyée par le créateur). */
   | { t: 'animateurSeul'; value: boolean }
@@ -165,6 +189,7 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
     case 'vote':
       if (op.round !== state.round || state.revealed) return state;
       if (estParti(state.departs, op.voterId)) return state;
+      if (estObservateur(state, op.voterId)) return state;
       if (state.votes[op.voterId] === op.value) return state;
       return {
         ...state,
@@ -209,9 +234,22 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
       };
     case 'reveal': {
       if (op.round !== state.round || state.revealed) return state;
-      const revele = { ...state, votes: sansPartis(op.votes, state.departs), revealed: true, chrono: op.chrono };
+      const votes = Object.fromEntries(
+        Object.entries(sansPartis(op.votes, state.departs)).filter(([id]) => !estObservateur(state, id)),
+      );
+      const revele = { ...state, votes, revealed: true, chrono: op.chrono };
       if (!op.ticketId || op.estimation === undefined || typeof op.at !== 'number') return revele;
       return appliquerTicket(revele, { t: 'ticketEstimation', id: op.ticketId, estimation: op.estimation, at: op.at });
+    }
+    case 'observateur': {
+      const cur = state.observateurs[op.voterId];
+      if (!op.voterId || typeof op.at !== 'number') return state;
+      if (cur && (cur.at > op.at || (cur.at === op.at && (cur.on || !op.value)))) return state;
+      const observateurs = { ...state.observateurs, [op.voterId]: { on: !!op.value, at: op.at } };
+      // En devenant observateur, son vote de la manche en cours (non révélée) est retiré.
+      if (!op.value || state.revealed || state.votes[op.voterId] === undefined) return { ...state, observateurs };
+      const { [op.voterId]: _retire, ...votes } = state.votes;
+      return { ...state, observateurs, votes };
     }
     case 'ticketAdd':
     case 'ticketEdit':

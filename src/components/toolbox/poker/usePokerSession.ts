@@ -8,7 +8,7 @@ import {
 } from '@/components/toolbox/shared/toolChrono';
 import { shootDrawing, shootEmojis, launchFireworks } from './flyingEmoji';
 import {
-  INITIAL_POKER_STATE, SUITES, computeResults, estimationRetenue, emojiAuHasard, lireSuitePersonnalisee, estDessinValide, normalizePokerState, pokerReducer,
+  INITIAL_POKER_STATE, SUITES, computeResults, estObservateur, estimationRetenue, emojiAuHasard, lireSuitePersonnalisee, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
 import { ordreDeplace, ordreEnFin, ordrePourPosition, ticketSuivant } from './pokerTickets';
@@ -157,8 +157,25 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
         isHost: false,
         online: false,
       }));
-    return [...online, ...absents];
-  }, [session.participants, state.votes, state.voterNames, state.departs]);
+    return [...online, ...absents].map((p) => ({ ...p, observateur: !!state.observateurs[p.id]?.on }));
+  }, [session.participants, state.votes, state.voterNames, state.departs, state.observateurs]);
+
+  // Observateur : ne vote pas ; choix de chacun, gardé d'une manche à l'autre.
+  const jeSuisObservateur = estObservateur(state, myId);
+  const setObservateur = useCallback((value: boolean) => {
+    if (!identity) return;
+    send({ t: 'observateur', voterId: identity.id, value, at: Date.now() });
+  }, [send, identity]);
+
+  // Tous les votants (hors observateurs) ont voté : l'animateur peut révéler.
+  const votants = players.filter((p) => !p.observateur);
+  const tousOntVote = !state.revealed && votants.length > 0 && votants.every((p) => state.votes[p.id] !== undefined);
+  const prevenu = useRef(-1);
+  useEffect(() => {
+    if (!tousOntVote || !isFacilitator || prevenu.current === state.round) return;
+    prevenu.current = state.round;
+    toast.success('Tout le monde a voté : vous pouvez révéler les cartes.');
+  }, [tousOntVote, isFacilitator, state.round, toast]);
 
   const setAnimateurSeul = useCallback((value: boolean) => send({ t: 'animateurSeul', value }), [send]);
 
@@ -278,8 +295,10 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     myId,
     myEmoji,
     voirReactions,
+    jeSuisObservateur,
+    tousOntVote,
     actions: {
-      vote, chooseEmoji, setAnimateurSeul, toggleVoirReactions, setStoryUrl,
+      vote, chooseEmoji, setAnimateurSeul, toggleVoirReactions, setStoryUrl, setObservateur,
       ajouterTicket, modifierTicket, deplacerTicket, placerTicket, supprimerTicket, corrigerEstimation, estimerTicket, estimerSuivant,
       setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing,
     },

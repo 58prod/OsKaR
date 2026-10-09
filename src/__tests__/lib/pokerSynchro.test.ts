@@ -279,3 +279,31 @@ describe('Planning Poker — animation réservée au créateur', () => {
     expect(pokerReducer(seul, { t: 'newRound', round: 1 }).animateurSeul).toBe(true);
   });
 });
+
+describe('Planning Poker — observateurs', () => {
+  const obs = (value: boolean, at: number): PokerOp => ({ t: 'observateur', voterId: 'bruno', value, at });
+  const voteBruno: PokerOp = { t: 'vote', round: 0, voterId: 'bruno', value: '5' };
+
+  it('un observateur ne vote pas, et son vote en cours est retiré', () => {
+    const a = appliquer([obs(true, 10), voteBruno]);
+    const b = appliquer([voteBruno, obs(true, 10)]);
+    expect(a.votes).toEqual({});
+    expect(b.votes).toEqual({});
+    expect(a.observateurs).toEqual(b.observateurs);
+  });
+
+  it('le choix le plus récent l’emporte, quel que soit l’ordre d’arrivée', () => {
+    expect(appliquer([obs(true, 10), obs(false, 20)]).observateurs.bruno.on).toBe(false);
+    expect(appliquer([obs(false, 20), obs(true, 10)]).observateurs.bruno.on).toBe(false);
+    expect(appliquer([obs(true, 10), obs(false, 20), voteBruno]).votes).toEqual({ bruno: '5' });
+  });
+
+  it('une révélation ne compte pas le vote d’un observateur', () => {
+    const s = appliquer([obs(true, 10), { t: 'reveal', round: 0, votes: { alice: '3', bruno: '8' }, chrono: arret }]);
+    expect(s.votes).toEqual({ alice: '3' });
+  });
+
+  it('reste observateur d’une manche à l’autre', () => {
+    expect(appliquer([obs(true, 10), { t: 'newRound', round: 1 }]).observateurs.bruno.on).toBe(true);
+  });
+});

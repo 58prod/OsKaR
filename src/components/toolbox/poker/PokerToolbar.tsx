@@ -18,6 +18,8 @@ interface PokerToolbarProps {
   /** Tickets de la liste estimés, et nombre total de tickets. */
   ticketsEstimes: number;
   ticketsTotal: number;
+  /** Tous les votants (hors observateurs) ont voté : on attire l'œil sur Révéler. */
+  tousOntVote: boolean;
   suiteKey: SuiteKey;
   onStoryChange: (story: string) => void;
   onStoryUrlChange: (url: string) => void;
@@ -37,7 +39,7 @@ interface PokerToolbarProps {
  * partagé aux couleurs de l'outil.
  */
 export const PokerToolbar: React.FC<PokerToolbarProps> = ({
-  story, storyUrl, chrono, remainingSec, isFacilitator, revealed, voteCount, ticketsEstimes, ticketsTotal, suiteKey,
+  story, storyUrl, chrono, remainingSec, isFacilitator, revealed, voteCount, ticketsEstimes, ticketsTotal, tousOntVote, suiteKey,
   onStoryChange, onStoryUrlChange, onToggleChrono, onResetChrono, onDurationChange, onSuiteChange, onApplyCustom, onReveal, onReset,
 }) => {
   const [customRaw, setCustomRaw] = useState('');
@@ -142,12 +144,20 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
                 </button>
               </form>
             )}
+            {tousOntVote && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-success-50 px-2.5 py-1 text-xs font-bold text-success-700" role="status">
+                <span className="h-1.5 w-1.5 animate-ping rounded-full bg-success-500" aria-hidden />
+                Tout le monde a voté
+              </span>
+            )}
             <button
               type="button"
               onClick={onReveal}
               disabled={revealed || voteCount === 0}
               title={voteCount === 0 ? 'Il faut au moins un vote' : 'Montrer les cartes à toute l’équipe'}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-navy px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40"
+              className={`inline-flex items-center gap-1.5 rounded-lg bg-navy px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40 ${
+                tousOntVote ? 'animate-pulse ring-2 ring-teal ring-offset-2' : ''
+              }`}
             >
               <Eye className="h-4 w-4" aria-hidden /> Révéler
             </button>

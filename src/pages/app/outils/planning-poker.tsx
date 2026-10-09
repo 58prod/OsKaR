@@ -14,7 +14,7 @@ import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
 const PlanningPokerPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('planning-poker');
 
-  const { state, participants, isHost, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, voirReactions, actions } =
+  const { state, participants, isHost, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, voirReactions, jeSuisObservateur, tousOntVote, actions } =
     usePokerSession(code, identity);
 
   // Choix fait à la création : envoyé dès l'entrée (mis en attente jusqu'à
@@ -49,6 +49,7 @@ const PlanningPokerPage: React.FC = () => {
         voteCount={Object.keys(state.votes).length}
         ticketsEstimes={state.tickets.filter((t) => t.estimation !== null).length}
         ticketsTotal={state.tickets.length}
+        tousOntVote={tousOntVote}
         suiteKey={state.suiteKey}
         onStoryChange={actions.setStory}
         onStoryUrlChange={actions.setStoryUrl}
@@ -86,6 +87,8 @@ const PlanningPokerPage: React.FC = () => {
             myEmoji={myEmoji}
             onVote={actions.vote}
             onChooseEmoji={actions.chooseEmoji}
+            jeSuisObservateur={jeSuisObservateur}
+            onToggleObservateur={actions.setObservateur}
           />
         </div>
 

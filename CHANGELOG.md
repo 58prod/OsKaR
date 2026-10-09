@@ -10,6 +10,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.65.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : observateurs et « Tout le monde a voté »
+- **Observateur** : interrupteur au-dessus des cartes de vote. Un observateur
+  suit la séance sans voter (cartes désactivées, son vote en cours retiré) ;
+  sa carte de participant a un liseré bleu, une pastille « OBSERVATEUR » (à
+  côté d'« ANIMATEUR » s'il anime) et l'état « Observe ». Choix de chacun,
+  gardé d'une manche à l'autre (opération `observateur`, la plus récente
+  l'emporte) ; une révélation ne compte jamais le vote d'un observateur.
+- **Tout le monde a voté** : quand tous les votants (hors observateurs) ont
+  voté, l'animateur voit « Révéler » pulser, une pastille « Tout le monde a
+  voté » et une notification (une fois par manche).
+
 ## [2.64.1] - 2026-10-09
 
 ### 💄 Modifié — Planning Poker : titres longs
