@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.64.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : prioriser les tickets par glisser-déposer
+- L'animateur attrape un ticket par sa poignée (⋮⋮, à gauche du numéro) et le
+  glisse à la souris ou au doigt : le ticket suit le pointeur, un trait
+  violet montre où il sera posé, la liste défile près de ses bords. La
+  nouvelle priorité part au lâcher, pour tout le monde.
+- Les flèches monter / descendre restent pour le clavier.
+- `ordrePourPosition` (pokerTickets.ts), testé.
+
 ## [2.63.1] - 2026-10-09
 
 ### 💄 Modifié — Planning Poker : compteur de tickets, liens sur les titres

@@ -11,7 +11,7 @@ import {
   INITIAL_POKER_STATE, SUITES, computeResults, estimationRetenue, emojiAuHasard, lireSuitePersonnalisee, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
-import { ordreDeplace, ordreEnFin, ticketSuivant } from './pokerTickets';
+import { ordreDeplace, ordreEnFin, ordrePourPosition, ticketSuivant } from './pokerTickets';
 
 /** « Voir les réactions des autres » : préférence de chacun, gardée dans le navigateur. */
 const CLE_VOIR_REACTIONS = 'oskar.poker.voirReactions';
@@ -180,6 +180,12 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     if (ordre !== null) send({ t: 'ticketMove', id, ordre, at: Date.now() });
   }, [send, state.tickets]);
 
+  // Glisser-déposer : le ticket prend la `position` donnée parmi les autres.
+  const placerTicket = useCallback((id: string, position: number) => {
+    const ordre = ordrePourPosition(state.tickets, id, position);
+    if (ordre !== null) send({ t: 'ticketMove', id, ordre, at: Date.now() });
+  }, [send, state.tickets]);
+
   const supprimerTicket = useCallback((id: string) => send({ t: 'ticketDelete', id }), [send]);
 
   const corrigerEstimation = useCallback((id: string, estimation: string | null) => {
@@ -274,7 +280,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     voirReactions,
     actions: {
       vote, chooseEmoji, setAnimateurSeul, toggleVoirReactions, setStoryUrl,
-      ajouterTicket, modifierTicket, deplacerTicket, supprimerTicket, corrigerEstimation, estimerTicket, estimerSuivant,
+      ajouterTicket, modifierTicket, deplacerTicket, placerTicket, supprimerTicket, corrigerEstimation, estimerTicket, estimerSuivant,
       setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing,
     },
   };

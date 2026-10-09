@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowDown, ArrowUp, Check, ExternalLink, ListTodo, Pencil, Play, Plus, RotateCcw, SkipForward, Trash2, X,
+  ArrowDown, ArrowUp, Check, ExternalLink, GripVertical, ListTodo, Pencil, Play, Plus, RotateCcw, SkipForward, Trash2, X,
 } from 'lucide-react';
 import { POKER_ACCENT } from './pokerLogic';
 import { TICKET_TITRE_MAX, TICKET_URL_MAX, ticketSuivant, type PokerTicket } from './pokerTickets';
@@ -12,6 +12,8 @@ interface PokerTicketsProps {
   onAdd: (titre: string, url: string) => void;
   onEdit: (id: string, titre: string, url: string) => void;
   onMove: (id: string, sens: -1 | 1) => void;
+  /** Glisser-déposer : place le ticket à `position` parmi les autres (0 = en tête). */
+  onPlace: (id: string, position: number) => void;
   onDelete: (id: string) => void;
   onEstimate: (id: string) => void;
   onEstimateNext: () => void;
@@ -23,16 +25,56 @@ const champ = 'w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-
 
 /**
  * Liste des tickets à estimer : l'animateur la prépare, la modifie et la
- * priorise (flèches) ; chacun la voit et peut ouvrir les liens. Un ticket
+ * priorise (glisser-déposer par la poignée, ou flèches au clavier) ; chacun la voit et peut ouvrir les liens. Un ticket
  * estimé est barré avec son estimation, et peut être réestimé.
  */
 export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
-  tickets, ticketCourant, isFacilitator, onAdd, onEdit, onMove, onDelete, onEstimate, onEstimateNext, onCorrectEstimation,
+  tickets, ticketCourant, isFacilitator, onAdd, onEdit, onMove, onPlace, onDelete, onEstimate, onEstimateNext, onCorrectEstimation,
 }) => {
   const [titre, setTitre] = useState('');
   const [url, setUrl] = useState('');
   const estimes = tickets.filter((t) => t.estimation !== null).length;
   const suivant = ticketSuivant(tickets, ticketCourant);
+
+  // Glisser-déposer au pointeur (souris et doigt) : le ticket suit le
+  // pointeur, un trait montre où il sera posé, la priorité part au lâcher.
+  const liste = useRef<HTMLOListElement>(null);
+  const lignes = useRef(new Map<string, HTMLLIElement>());
+  const [glisse, setGlisse] = useState<{ id: string; depart: number; dy: number; cible: number } | null>(null);
+  const indexDe = (id: string) => tickets.findIndex((t) => t.id === id);
+
+  const commencerGlisse = (id: string, e: React.PointerEvent) => {
+    e.preventDefault();
+    try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* rien à capturer */ }
+    setGlisse({ id, depart: e.clientY, dy: 0, cible: indexDe(id) });
+  };
+
+  const suivreGlisse = (e: React.PointerEvent) => {
+    if (!glisse) return;
+    // Position parmi les autres tickets : avant le premier dont le milieu est sous le pointeur.
+    const autres = tickets.filter((t) => t.id !== glisse.id);
+    let cible = autres.length;
+    for (let k = 0; k < autres.length; k++) {
+      const r = lignes.current.get(autres[k].id)?.getBoundingClientRect();
+      if (r && e.clientY < r.top + r.height / 2) { cible = k; break; }
+    }
+    // Défilement de la liste quand on approche de ses bords.
+    const zone = liste.current?.getBoundingClientRect();
+    if (zone && liste.current) {
+      if (e.clientY < zone.top + 30) liste.current.scrollTop -= 10;
+      else if (e.clientY > zone.bottom - 30) liste.current.scrollTop += 10;
+    }
+    setGlisse({ ...glisse, dy: e.clientY - glisse.depart, cible });
+  };
+
+  const finirGlisse = () => {
+    if (glisse && glisse.cible !== indexDe(glisse.id)) onPlace(glisse.id, glisse.cible);
+    setGlisse(null);
+  };
+
+  // Trait d'insertion, affiché seulement si le ticket change de place.
+  const trait = <li aria-hidden className="mx-2 my-0.5 h-0.5 rounded-full" style={{ background: POKER_ACCENT }} />;
+  const montrerTrait = glisse !== null && glisse.cible !== indexDe(glisse.id);
 
   const ajouter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +113,7 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
         </div>
       )}
 
-      <ol className="flex-1 overflow-y-auto p-2">
+      <ol ref={liste} className="flex-1 overflow-y-auto p-2">
         {tickets.length === 0 && (
           <li className="px-2 py-6 text-center text-sm text-muted">
             {isFacilitator
@@ -79,22 +121,37 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
               : 'Aucun ticket préparé pour l’instant.'}
           </li>
         )}
-        {tickets.map((t, i) => (
-          <LigneTicket
-            key={t.id}
-            ticket={t}
-            position={i + 1}
-            premier={i === 0}
-            dernier={i === tickets.length - 1}
-            enCours={t.id === ticketCourant}
-            isFacilitator={isFacilitator}
-            onEdit={onEdit}
-            onMove={onMove}
-            onDelete={onDelete}
-            onEstimate={onEstimate}
-            onCorrectEstimation={onCorrectEstimation}
-          />
-        ))}
+        {tickets.map((t, i) => {
+          // Rang du ticket parmi les autres (sans celui qu'on déplace).
+          const rang = glisse ? tickets.filter((x) => x.id !== glisse.id).findIndex((x) => x.id === t.id) : -1;
+          return (
+            <React.Fragment key={t.id}>
+              {montrerTrait && rang === glisse!.cible && trait}
+              <LigneTicket
+                ticket={t}
+                refLigne={(el) => { if (el) lignes.current.set(t.id, el); else lignes.current.delete(t.id); }}
+                glisse={glisse?.id === t.id ? glisse.dy : null}
+                poignee={isFacilitator && tickets.length > 1 ? {
+                  onPointerDown: (e) => commencerGlisse(t.id, e),
+                  onPointerMove: suivreGlisse,
+                  onPointerUp: finirGlisse,
+                  onPointerCancel: () => setGlisse(null),
+                } : null}
+                position={i + 1}
+                premier={i === 0}
+                dernier={i === tickets.length - 1}
+                enCours={t.id === ticketCourant}
+                isFacilitator={isFacilitator}
+                onEdit={onEdit}
+                onMove={onMove}
+                onDelete={onDelete}
+                onEstimate={onEstimate}
+                onCorrectEstimation={onCorrectEstimation}
+              />
+            </React.Fragment>
+          );
+        })}
+        {montrerTrait && glisse!.cible === tickets.length - 1 && trait}
       </ol>
 
       {isFacilitator && (
@@ -135,8 +192,20 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
   );
 };
 
+interface Poignee {
+  onPointerDown: (e: React.PointerEvent) => void;
+  onPointerMove: (e: React.PointerEvent) => void;
+  onPointerUp: () => void;
+  onPointerCancel: () => void;
+}
+
 interface LigneTicketProps {
   ticket: PokerTicket;
+  refLigne: (el: HTMLLIElement | null) => void;
+  /** Décalage vertical (px) quand ce ticket est en train d'être glissé, sinon null. */
+  glisse: number | null;
+  /** Poignée de glisser-déposer (animateur), ou null. */
+  poignee: Poignee | null;
   position: number;
   premier: boolean;
   dernier: boolean;
@@ -150,7 +219,7 @@ interface LigneTicketProps {
 }
 
 const LigneTicket: React.FC<LigneTicketProps> = ({
-  ticket: t, position, premier, dernier, enCours, isFacilitator, onEdit, onMove, onDelete, onEstimate, onCorrectEstimation,
+  ticket: t, refLigne, glisse, poignee, position, premier, dernier, enCours, isFacilitator, onEdit, onMove, onDelete, onEstimate, onCorrectEstimation,
 }) => {
   const [edition, setEdition] = useState(false);
   const [titre, setTitre] = useState(t.titre);
@@ -238,14 +307,31 @@ const LigneTicket: React.FC<LigneTicketProps> = ({
 
   return (
     <li
+      ref={refLigne}
       className={[
-        'group mb-1 flex items-start gap-2 rounded-lg border-[1.5px] px-2 py-2 transition-colors',
-        enCours ? 'bg-white' : 'border-transparent hover:bg-surface',
+        'group mb-1 flex items-start gap-2 rounded-lg border-[1.5px] px-2 py-2',
+        glisse !== null ? 'relative z-10 bg-white opacity-90 shadow-card-hover' : 'transition-colors',
+        enCours ? 'bg-white' : glisse !== null ? 'border-line' : 'border-transparent hover:bg-surface',
       ].join(' ')}
-      style={enCours ? { borderColor: POKER_ACCENT } : undefined}
+      style={{
+        ...(enCours ? { borderColor: POKER_ACCENT } : {}),
+        ...(glisse !== null ? { transform: `translateY(${glisse}px)` } : {}),
+      }}
       aria-current={enCours ? 'step' : undefined}
     >
-      <span className="mt-0.5 w-5 shrink-0 text-right text-xs font-bold text-muted">{position}</span>
+      {poignee ? (
+        <span
+          {...poignee}
+          role="presentation"
+          title="Glisser pour changer la priorité"
+          className={`-ml-1 mt-0.5 flex shrink-0 touch-none items-center text-muted hover:text-navy ${glisse !== null ? 'cursor-grabbing' : 'cursor-grab'}`}
+        >
+          <GripVertical className="h-4 w-4" aria-hidden />
+          <span className="w-4 text-right text-xs font-bold">{position}</span>
+        </span>
+      ) : (
+        <span className="mt-0.5 w-5 shrink-0 text-right text-xs font-bold text-muted">{position}</span>
+      )}
 
       <div className="min-w-0 flex-1">
         {/* Le trait d'un ticket estimé se pose sur le titre lui-même (il ne traverse pas une boîte flex). */}

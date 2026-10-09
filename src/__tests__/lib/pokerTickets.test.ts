@@ -1,7 +1,7 @@
 import {
   INITIAL_POKER_STATE, estimationRetenue, pokerReducer, type PokerOp, type PokerState,
 } from '@/components/toolbox/poker/pokerLogic';
-import { ordreDeplace, ticketSuivant, urlSure } from '@/components/toolbox/poker/pokerTickets';
+import { ordreDeplace, ordrePourPosition, ticketSuivant, urlSure } from '@/components/toolbox/poker/pokerTickets';
 
 /*
  * Liste des tickets du Planning Poker : préparée, modifiée et priorisée par
@@ -109,5 +109,23 @@ describe('Tickets — estimation', () => {
 
   it('libère la barre du haut si le ticket en cours est supprimé', () => {
     expect(pokerReducer(enCours, { t: 'ticketDelete', id: 'a' }).ticketCourant).toBeNull();
+  });
+});
+
+describe('Tickets — glisser-déposer', () => {
+  const placer = (s: PokerState, id: string, position: number) => {
+    const ordre = ordrePourPosition(s.tickets, id, position);
+    return ordre === null ? s : pokerReducer(s, { t: 'ticketMove', id, ordre, at: 50 });
+  };
+
+  it('place un ticket en tête, au milieu ou en fin de liste', () => {
+    expect(titres(placer(trois, 'c', 0))).toEqual(['Paiement', 'Connexion', 'Panier']);
+    expect(titres(placer(trois, 'a', 1))).toEqual(['Panier', 'Connexion', 'Paiement']);
+    expect(titres(placer(trois, 'a', 2))).toEqual(['Panier', 'Paiement', 'Connexion']);
+  });
+
+  it('ne fait rien si le ticket est lâché à sa place', () => {
+    expect(ordrePourPosition(trois.tickets, 'b', 1)).toBeNull();
+    expect(ordrePourPosition(trois.tickets, 'inconnu', 0)).toBeNull();
   });
 });

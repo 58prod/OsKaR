@@ -158,6 +158,25 @@ export function ordreDeplace(tickets: PokerTicket[], id: string, sens: -1 | 1): 
   return (voisin + auDela) / 2;
 }
 
+/**
+ * Priorité d'un ticket glissé à la `position` donnée, comptée parmi les
+ * autres tickets (0 = tout en haut) : entre ses deux nouveaux voisins.
+ * null s'il ne bouge pas.
+ */
+export function ordrePourPosition(tickets: PokerTicket[], id: string, position: number): number | null {
+  const liste = trierTickets(tickets);
+  const actuel = liste.findIndex((t) => t.id === id);
+  if (actuel < 0 || position === actuel) return null;
+  const autres = liste.filter((t) => t.id !== id);
+  const p = Math.max(0, Math.min(autres.length, position));
+  const avant = autres[p - 1]?.ordre;
+  const apres = autres[p]?.ordre;
+  if (avant === undefined && apres === undefined) return null;
+  if (avant === undefined) return apres! - 1;
+  if (apres === undefined) return avant + 1;
+  return (avant + apres) / 2;
+}
+
 /** Prochain ticket à estimer : le premier non estimé, hors ticket en cours. */
 export function ticketSuivant(tickets: PokerTicket[], courant: string | null): PokerTicket | null {
   return trierTickets(tickets).find((t) => t.estimation === null && t.id !== courant) ?? null;

@@ -71,6 +71,7 @@ const PlanningPokerPage: React.FC = () => {
             onAdd={actions.ajouterTicket}
             onEdit={actions.modifierTicket}
             onMove={actions.deplacerTicket}
+            onPlace={actions.placerTicket}
             onDelete={actions.supprimerTicket}
             onEstimate={actions.estimerTicket}
             onEstimateNext={actions.estimerSuivant}
