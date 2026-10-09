@@ -20,6 +20,9 @@ interface ToolPageShellProps {
   retentionLabel?: string;
   /** Précision sur le code, affichée à l'entrée dans la session. */
   codeHint?: string;
+  /** Bouton « Quitter » dans l'en-tête (après confirmation), avec le texte de la confirmation. */
+  onLeave?: () => void;
+  leaveLabel?: string;
   children: React.ReactNode;
 }
 
@@ -31,7 +34,7 @@ interface ToolPageShellProps {
  * - en-tête (logo, titre, toggle animateur, invitation) + contenu de l'outil.
  */
 export const ToolPageShell: React.FC<ToolPageShellProps> = ({
-  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, children,
+  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, onLeave, leaveLabel, children,
 }) => {
   const { collapsed, toggle } = useSidebarCollapsed();
   const { authReady, isAuthenticated } = useAppStore();
@@ -65,6 +68,8 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
         isFacilitator={isFacilitator}
         onToggleFacilitator={onToggleFacilitator}
         onShare={onShare}
+        onLeave={onLeave}
+        leaveLabel={leaveLabel}
       />
       {children}
     </div>

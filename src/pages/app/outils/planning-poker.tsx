@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { useRouter } from 'next/router';
+import { useConfirmerDepart } from '@/hooks/useConfirmerDepart';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
 import { PokerToolbar } from '@/components/toolbox/poker/PokerToolbar';
@@ -14,6 +16,18 @@ const PlanningPokerPage: React.FC = () => {
   const { state, participants, isFacilitator, toggleFacilitator, remainingSec, results, myId, actions } =
     usePokerSession(code, identity);
 
+  // Quitter (bouton, retour arrière, onglet fermé) retire la personne et son
+  // vote : voir `leaveOp` dans usePokerSession.
+  const router = useRouter();
+  const autoriserDepart = useConfirmerDepart(
+    !!identity,
+    'Quitter le Planning Poker ? Vous n’apparaîtrez plus parmi les participants et votre vote sera retiré.',
+  );
+  const quitter = useCallback(() => {
+    autoriserDepart();
+    void router.push('/app/outils');
+  }, [autoriserDepart, router]);
+
   return (
     <ToolPageShell
       title="Planning Poker"
@@ -24,6 +38,8 @@ const PlanningPokerPage: React.FC = () => {
       onToggleFacilitator={toggleFacilitator}
       onJoin={handleJoin}
       onShare={handleShare}
+      onLeave={quitter}
+      leaveLabel="Vous n’apparaîtrez plus parmi les participants et votre vote sera retiré. Vous pourrez revenir avec le lien d’invitation."
     >
       <PokerToolbar
         story={state.story}

@@ -31,6 +31,12 @@ interface UseToolSessionOptions<TState> {
    * faire, et tous l'appliquent avec ce réducteur. À utiliser via `dispatch`.
    */
   reducer?: (state: TState, op: any) => TState;
+  /**
+   * Opération diffusée quand la personne quitte la session (page quittée,
+   * onglet ou fenêtre fermés) : elle disparaît alors pour les autres au lieu
+   * de rester affichée « hors ligne ». Mode « opérations » seulement.
+   */
+  leaveOp?: (identity: ToolIdentity) => any;
 }
 
 interface UseToolSessionResult<TState> {
@@ -70,6 +76,7 @@ export function useToolSession<TState>(
   const identityRef = useRef(identity);
   const onSignalRef = useRef(opts.onSignal);
   const reducerRef = useRef(opts.reducer);
+  const leaveOpRef = useRef(opts.leaveOp);
   const snapshotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** L'état de la base est-il chargé ? Avant, les opérations sont mises en attente. */
   const readyRef = useRef(false);
@@ -81,6 +88,7 @@ export function useToolSession<TState>(
   identityRef.current = identity;
   onSignalRef.current = opts.onSignal;
   reducerRef.current = opts.reducer;
+  leaveOpRef.current = opts.leaveOp;
 
   const isHost = !!identity && hostId === identity.id;
 
@@ -150,6 +158,7 @@ export function useToolSession<TState>(
     }
 
     let cancelled = false;
+    let left = false;
     readyRef.current = false;
     const channel = supabase.channel(`tool:${toolType}:${code}`, {
       config: { presence: { key: identity.id }, broadcast: { self: false } },
@@ -218,8 +227,29 @@ export function useToolSession<TState>(
       setIsLoading(false);
     });
 
+    // Départ : diffuser l'opération et l'enregistrer tout de suite. Seulement
+    // une fois connecté (un démontage avant, comme le double montage de React
+    // en développement, n'est pas un départ).
+    const leave = () => {
+      const reducer = reducerRef.current;
+      const makeOp = leaveOpRef.current;
+      if (left || !readyRef.current || !reducer || !makeOp) return;
+      left = true;
+      const op = makeOp(identity);
+      const next = reducer(stateRef.current, op);
+      stateRef.current = next;
+      channel.send({ type: 'broadcast', event: 'op', payload: { op } });
+      if (snapshotTimer.current) clearTimeout(snapshotTimer.current);
+      snapshotTimer.current = null;
+      void ToolSessionService.saveSnapshot(code, next as any, toolType);
+    };
+    // Onglet ou fenêtre fermés : le démontage n'a pas lieu, `pagehide` si.
+    window.addEventListener('pagehide', leave);
+
     return () => {
       cancelled = true;
+      window.removeEventListener('pagehide', leave);
+      leave();
       // On quitte la page : enregistrer tout de suite l'instantané en attente.
       if (snapshotTimer.current) {
         clearTimeout(snapshotTimer.current);

@@ -11,6 +11,9 @@ import {
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
 
+/** Quitter la session : la personne et son vote disparaissent pour tous. */
+const pokerLeaveOp = (identity: ToolIdentity): PokerOp => ({ t: 'leave', voterId: identity.id });
+
 /**
  * Orchestration métier du Planning Poker au-dessus du socle temps réel, en
  * mode « opérations » (voir `pokerReducer`) : chaque vote est diffusé seul,
@@ -39,6 +42,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     initialState: INITIAL_POKER_STATE,
     onSignal,
     reducer: pokerReducer,
+    leaveOp: pokerLeaveOp,
   });
   const { isHost, sendSignal } = session;
   const send = session.dispatch as (op: PokerOp) => void;
@@ -96,7 +100,10 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   // Les personnes en ligne, puis celles qui ont voté et dont la connexion a
   // décroché : leur vote compte, on continue donc de les montrer.
   const players = useMemo(() => {
-    const online = session.participants.map((p) => ({ ...p, online: true }));
+    // Une personne partie peut figurer encore un instant dans la présence.
+    const online = session.participants
+      .filter((p) => !state.left.includes(p.id))
+      .map((p) => ({ ...p, online: true }));
     const present = new Set(online.map((p) => p.id));
     const absents = Object.keys(state.votes)
       .filter((id) => !present.has(id))
@@ -108,7 +115,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
         online: false,
       }));
     return [...online, ...absents];
-  }, [session.participants, state.votes, state.voterNames]);
+  }, [session.participants, state.votes, state.voterNames, state.left]);
 
   const setStory = useCallback((story: string) => send({ t: 'story', story }), [send]);
 

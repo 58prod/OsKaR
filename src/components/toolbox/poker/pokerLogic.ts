@@ -29,6 +29,12 @@ export interface PokerState {
    * l'ancien numéro : il est ignoré au lieu de réapparaître.
    */
   round: number;
+  /**
+   * Personnes qui ont quitté la session pendant la manche : leur vote est
+   * retiré et un vote ou une révélation qui arriverait en retard ne les fait
+   * pas réapparaître. Vidé à chaque nouvelle manche.
+   */
+  left: string[];
 }
 
 export const SUITES: Record<'fibonacci' | 'tshirt', string[]> = {
@@ -45,6 +51,7 @@ export const INITIAL_POKER_STATE: PokerState = {
   revealed: false,
   chrono: initialChrono(120),
   round: 0,
+  left: [],
 };
 
 /** Complète un état enregistré avant l'ajout d'un champ (sessions déjà ouvertes). */
@@ -58,6 +65,7 @@ export function normalizePokerState(raw: Partial<PokerState> | null | undefined)
     voterNames: s.voterNames && typeof s.voterNames === 'object' ? s.voterNames : {},
     chrono: s.chrono ?? INITIAL_POKER_STATE.chrono,
     round: typeof s.round === 'number' ? s.round : 0,
+    left: Array.isArray(s.left) ? s.left : [],
   };
 }
 
@@ -76,13 +84,22 @@ export type PokerOp =
   | { t: 'newRound'; round: number; suiteKey?: SuiteKey; suite?: string[]; chrono?: PokerChrono }
   /** Révélation : fige les votes vus par celui qui révèle, identiques pour tous. */
   | { t: 'reveal'; round: number; votes: Record<string, string>; chrono: PokerChrono }
-  | { t: 'chrono'; chrono: PokerChrono };
+  | { t: 'chrono'; chrono: PokerChrono }
+  /** Départ volontaire : la personne et son vote disparaissent pour tous. */
+  | { t: 'leave'; voterId: string };
+
+/** Retire des votes (ou des prénoms) les personnes parties. */
+function sansPartis<T>(map: Record<string, T>, left: string[]): Record<string, T> {
+  if (!left.length) return map;
+  return Object.fromEntries(Object.entries(map).filter(([id]) => !left.includes(id)));
+}
 
 export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
   const state = normalizePokerState(raw);
   switch (op.t) {
     case 'vote':
       if (op.round !== state.round || state.revealed) return state;
+      if (state.left.includes(op.voterId)) return state;
       if (state.votes[op.voterId] === op.value) return state;
       return {
         ...state,
@@ -101,6 +118,7 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
         round: op.round,
         votes: {},
         voterNames: {},
+        left: [],
         revealed: false,
         suiteKey: op.suiteKey ?? state.suiteKey,
         suite: op.suite ?? state.suite,
@@ -108,9 +126,19 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
       };
     case 'reveal':
       if (op.round !== state.round || state.revealed) return state;
-      return { ...state, votes: { ...op.votes }, revealed: true, chrono: op.chrono };
+      return { ...state, votes: sansPartis(op.votes, state.left), revealed: true, chrono: op.chrono };
     case 'chrono':
       return { ...state, chrono: op.chrono };
+    case 'leave': {
+      if (state.left.includes(op.voterId)) return state;
+      const left = [...state.left, op.voterId];
+      return {
+        ...state,
+        left,
+        votes: sansPartis(state.votes, left),
+        voterNames: sansPartis(state.voterNames, left),
+      };
+    }
     default:
       return state;
   }

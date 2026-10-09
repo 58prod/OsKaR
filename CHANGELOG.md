@@ -10,6 +10,22 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.55.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : quitter la session
+- Bouton « Quitter » dans l'en-tête de l'outil, avec confirmation : la personne
+  disparaît de la liste des participants et son vote est retiré, pour toute
+  l'équipe (nouvelle opération `leave`, idempotente ; un vote ou une révélation
+  arrivés en retard ne la font pas réapparaître).
+- Même départ quand on ferme l'onglet ou la fenêtre, ou qu'on quitte la page :
+  une coupure de connexion, elle, laisse toujours la personne « hors ligne »
+  avec son vote.
+- Confirmation avant de partir : fermeture de l'onglet ou de la fenêtre,
+  rechargement et retour arrière (fenêtre du navigateur, au texte imposé) ;
+  retour arrière vers une autre page d'Oskar (message d'Oskar, « Annuler »
+  laisse dans la session). Hook réutilisable `useConfirmerDepart`, option
+  `leaveOp` du socle `useToolSession`.
+
 ## [2.54.0] - 2026-09-24
 
 ### ✨ Modifié — Le Diagnostic passe à la version à 20 pratiques (ex-/diagnostic4b)
