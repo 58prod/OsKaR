@@ -10,6 +10,20 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.61.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : masquer les réactions des autres
+- Dans l'en-tête du panneau « Réactions », un réglage personnel « Celles des
+  autres : visibles / masquées » : une fois masqués, les emojis, réactions et
+  dessins envoyés par les autres ne s'envolent plus chez soi. Visibles par
+  défaut ; ses propres envois s'envolent toujours ; rien ne change chez les
+  autres. Choix gardé dans le navigateur (`oskar.poker.voirReactions`).
+
+### 💄 Modifié — « Story » devient « Ticket »
+- Barre du haut : « TICKET » au lieu de « STORY », « En attente de la
+  fonctionnalité… » au lieu de « En attente de la story… » ; mêmes mots dans
+  la confirmation de réinitialisation et le choix « Qui peut animer ? ».
+
 ## [2.60.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : importer une image dans « Mon emoji »

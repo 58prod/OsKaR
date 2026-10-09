@@ -25,7 +25,7 @@ interface PokerToolbarProps {
 
 /**
  * Barre supérieure du Planning Poker, sur le modèle de la rétro et de la
- * récré : la story à estimer (éditable par l'animateur, comme le thème de la
+ * récré : le ticket à estimer (éditable par l'animateur, comme le thème de la
  * récré), le compteur de votes, les commandes de l'animateur et le minuteur
  * partagé aux couleurs de l'outil.
  */
@@ -42,12 +42,12 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
       style={{ '--tool-accent': POKER_ACCENT } as React.CSSProperties}
     >
       <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
-        <Layers className="h-4 w-4" style={{ color: POKER_ACCENT }} aria-hidden /> Story
+        <Layers className="h-4 w-4" style={{ color: POKER_ACCENT }} aria-hidden /> Ticket
       </span>
 
       {isFacilitator ? (
         <label className="min-w-[220px] flex-1">
-          <span className="sr-only">Story à estimer</span>
+          <span className="sr-only">Ticket à estimer</span>
           <input
             type="text"
             value={story}
@@ -58,7 +58,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
         </label>
       ) : (
         <span className="min-w-[220px] flex-1 truncate text-base font-semibold text-navy">
-          {story || <span className="font-normal text-muted">En attente de la story…</span>}
+          {story || <span className="font-normal text-muted">En attente de la fonctionnalité…</span>}
         </span>
       )}
 
@@ -148,7 +148,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
               Réinitialiser les votes ?
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Tous les votes en cours seront effacés. Les participants devront voter à nouveau sur cette story.
+              Tous les votes en cours seront effacés. Les participants devront voter à nouveau sur ce ticket.
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button

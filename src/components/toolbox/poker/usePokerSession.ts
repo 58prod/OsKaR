@@ -12,6 +12,9 @@ import {
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
 
+/** « Voir les réactions des autres » : préférence de chacun, gardée dans le navigateur. */
+const CLE_VOIR_REACTIONS = 'oskar.poker.voirReactions';
+
 /** Emoji choisi pour la carte emoji de « Fibonacci + », gardé d'une séance à l'autre. */
 const CLE_MON_EMOJI = 'oskar.poker.monEmoji';
 
@@ -27,7 +30,23 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   const [now, setNow] = useState(() => Date.now());
   const fireworksShown = useRef(false);
 
+  // Réactions et dessins des autres affichés par défaut ; chacun peut les
+  // masquer chez lui (les siens s'envolent toujours, pour voir qu'ils partent).
+  const [voirReactions, setVoirReactions] = useState(true);
+  const voirReactionsRef = useRef(true);
+  voirReactionsRef.current = voirReactions;
+  useEffect(() => {
+    try { setVoirReactions(localStorage.getItem(CLE_VOIR_REACTIONS) !== '0'); } catch { /* stockage indisponible */ }
+  }, []);
+  const toggleVoirReactions = useCallback(() => {
+    setVoirReactions((v) => {
+      try { localStorage.setItem(CLE_VOIR_REACTIONS, v ? '0' : '1'); } catch { /* stockage indisponible */ }
+      return !v;
+    });
+  }, []);
+
   const onSignal = useCallback((payload: any) => {
+    if (!voirReactionsRef.current) return;
     if (payload?.type === 'emoji' && typeof payload.emoji === 'string') {
       shootEmojis(payload.emoji);
     }
@@ -203,6 +222,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     results,
     myId,
     myEmoji,
-    actions: { vote, chooseEmoji, setAnimateurSeul, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
+    voirReactions,
+    actions: { vote, chooseEmoji, setAnimateurSeul, toggleVoirReactions, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
   };
 }

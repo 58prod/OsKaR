@@ -13,7 +13,7 @@ import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
 const PlanningPokerPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('planning-poker');
 
-  const { state, participants, isHost, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, actions } =
+  const { state, participants, isHost, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, voirReactions, actions } =
     usePokerSession(code, identity);
 
   // Choix fait à la création : envoyé dès l'entrée (mis en attente jusqu'à
@@ -74,7 +74,11 @@ const PlanningPokerPage: React.FC = () => {
           aria-label="Résultats et réactions"
         >
           <PokerResults results={results} revealed={state.revealed} />
-          <PokerReactions onReact={actions.react} />
+          <PokerReactions
+            onReact={actions.react}
+            voirReactions={voirReactions}
+            onToggleVoirReactions={actions.toggleVoirReactions}
+          />
           <PokerDessin onSend={actions.reactDrawing} />
         </aside>
       </div>
@@ -86,7 +90,7 @@ const PlanningPokerPage: React.FC = () => {
 const ChoixAnimation: React.FC<{ value: boolean; onChange: (v: boolean) => void }> = ({ value, onChange }) => {
   const options = [
     { seul: false, Icon: Users, titre: 'Tout le monde', detail: 'Chacun peut activer le mode animateur.' },
-    { seul: true, Icon: Lock, titre: 'Moi uniquement', detail: 'Personne d’autre ne peut révéler, réinitialiser ni changer la story.' },
+    { seul: true, Icon: Lock, titre: 'Moi uniquement', detail: 'Personne d’autre ne peut révéler, réinitialiser ni changer le ticket.' },
   ];
   return (
     <fieldset className="mt-4">

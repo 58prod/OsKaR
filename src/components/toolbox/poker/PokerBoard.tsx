@@ -14,7 +14,7 @@ interface PokerBoardProps {
   onChooseEmoji: (emoji: string) => void;
 }
 
-/** Cartes de vote et participants (la story est dans la barre du haut). */
+/** Cartes de vote et participants (le ticket est dans la barre du haut). */
 export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myId, myEmoji, onVote, onChooseEmoji }) => {
   const { suite, suiteKey, votes, revealed } = state;
   const myVote = votes[myId];
