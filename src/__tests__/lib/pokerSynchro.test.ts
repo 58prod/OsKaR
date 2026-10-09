@@ -260,3 +260,22 @@ describe('Planning Poker — suite « Fibonacci + » et carte emoji', () => {
     expect(r.distribution).toContainEqual({ value: '🦄', count: 1 });
   });
 });
+
+describe('Planning Poker — animation réservée au créateur', () => {
+  it('est ouverte à tous par défaut, y compris pour une ancienne session', () => {
+    expect(INITIAL_POKER_STATE.animateurSeul).toBe(false);
+    expect(normalizePokerState({ story: 'x' } as Partial<PokerState>).animateurSeul).toBe(false);
+  });
+
+  it('se réserve et se rouvre, sans effet quand l’opération est rejouée', () => {
+    const seul = pokerReducer(INITIAL_POKER_STATE, { t: 'animateurSeul', value: true });
+    expect(seul.animateurSeul).toBe(true);
+    expect(pokerReducer(seul, { t: 'animateurSeul', value: true })).toEqual(seul);
+    expect(pokerReducer(seul, { t: 'animateurSeul', value: false }).animateurSeul).toBe(false);
+  });
+
+  it('survit à une nouvelle manche', () => {
+    const seul = pokerReducer(INITIAL_POKER_STATE, { t: 'animateurSeul', value: true });
+    expect(pokerReducer(seul, { t: 'newRound', round: 1 }).animateurSeul).toBe(true);
+  });
+});

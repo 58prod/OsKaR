@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import type { ToolIdentity } from '@/hooks/useToolSession';
 import { JoinSessionModal } from '@/components/toolbox/JoinSessionModal';
-import { ToolHeader } from '@/components/toolbox/ToolHeader';
+import { ToolHeader, type FacilitatorLock } from '@/components/toolbox/ToolHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { useAppStore } from '@/store/useAppStore';
@@ -28,6 +28,10 @@ interface ToolPageShellProps {
   codeHint?: string;
   /** Ce que devient la personne qui quitte la session, affiché avant de confirmer. */
   leaveLabel?: string;
+  /** Réglage proposé à la création de la session, dans la fenêtre d'entrée. */
+  creationOption?: React.ReactNode;
+  /** Animation réservée au créateur (voir ToolHeader). */
+  facilitatorLock?: FacilitatorLock;
   children: React.ReactNode;
 }
 
@@ -39,7 +43,7 @@ interface ToolPageShellProps {
  * - en-tête (logo, titre, toggle animateur, invitation) + contenu de l'outil.
  */
 export const ToolPageShell: React.FC<ToolPageShellProps> = ({
-  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, leaveLabel = DEPART_PAR_DEFAUT, children,
+  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, leaveLabel = DEPART_PAR_DEFAUT, creationOption, facilitatorLock, children,
 }) => {
   const { collapsed, toggle } = useSidebarCollapsed();
   const { authReady, isAuthenticated } = useAppStore();
@@ -69,6 +73,7 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
         onJoin={onJoin}
         retentionLabel={retentionLabel}
         codeHint={codeHint}
+        creationOption={creationOption}
       />
     </div>
   ) : (
@@ -83,6 +88,7 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
         onToggleFacilitator={onToggleFacilitator}
         onShare={onShare}
         onLeave={quitter}
+        facilitatorLock={facilitatorLock}
         leaveLabel={leaveLabel}
       />
       {children}

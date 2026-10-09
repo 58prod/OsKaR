@@ -52,7 +52,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   const state = useMemo(() => normalizePokerState(session.state), [session.state]);
   const myId = identity?.id ?? '';
 
-  const { isFacilitator, toggleFacilitator } = useFacilitator(isHost);
+  const { isFacilitator, toggleFacilitator } = useFacilitator(isHost, state.animateurSeul);
 
   // Tick d'affichage du chrono lorsqu'il tourne. On recale `now` dès le passage
   // en « running » (cas d'un démarrage reçu via la synchro temps réel) pour éviter
@@ -135,6 +135,8 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     return [...online, ...absents];
   }, [session.participants, state.votes, state.voterNames, state.departs]);
 
+  const setAnimateurSeul = useCallback((value: boolean) => send({ t: 'animateurSeul', value }), [send]);
+
   const setStory = useCallback((story: string) => send({ t: 'story', story }), [send]);
 
   const setSuite = useCallback((key: SuiteKey) => {
@@ -201,6 +203,6 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     results,
     myId,
     myEmoji,
-    actions: { vote, chooseEmoji, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
+    actions: { vote, chooseEmoji, setAnimateurSeul, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
   };
 }

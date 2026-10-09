@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { Lock, Users } from 'lucide-react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
 import { PokerToolbar } from '@/components/toolbox/poker/PokerToolbar';
@@ -12,8 +13,16 @@ import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
 const PlanningPokerPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('planning-poker');
 
-  const { state, participants, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, actions } =
+  const { state, participants, isHost, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, actions } =
     usePokerSession(code, identity);
+
+  // Choix fait à la création : envoyé dès l'entrée (mis en attente jusqu'à
+  // la connexion, comme tout geste fait avant).
+  const [animateurSeul, setAnimateurSeul] = useState(false);
+  const rejoindre = useCallback((name: string) => {
+    handleJoin(name);
+    if (isCreating && animateurSeul) actions.setAnimateurSeul(true);
+  }, [handleJoin, isCreating, animateurSeul, actions]);
 
   return (
     <ToolPageShell
@@ -23,7 +32,9 @@ const PlanningPokerPage: React.FC = () => {
       identity={identity}
       isFacilitator={isFacilitator}
       onToggleFacilitator={toggleFacilitator}
-      onJoin={handleJoin}
+      onJoin={rejoindre}
+      creationOption={<ChoixAnimation value={animateurSeul} onChange={setAnimateurSeul} />}
+      facilitatorLock={{ exclusive: state.animateurSeul, canChange: isHost, onChange: actions.setAnimateurSeul }}
       onShare={handleShare}
       leaveLabel={DEPART_AVEC_VOTE}
     >
@@ -68,6 +79,42 @@ const PlanningPokerPage: React.FC = () => {
         </aside>
       </div>
     </ToolPageShell>
+  );
+};
+
+/** À la création : garder l'animation pour soi, ou laisser chacun la prendre. */
+const ChoixAnimation: React.FC<{ value: boolean; onChange: (v: boolean) => void }> = ({ value, onChange }) => {
+  const options = [
+    { seul: false, Icon: Users, titre: 'Tout le monde', detail: 'Chacun peut activer le mode animateur.' },
+    { seul: true, Icon: Lock, titre: 'Moi uniquement', detail: 'Personne d’autre ne peut révéler, réinitialiser ni changer la story.' },
+  ];
+  return (
+    <fieldset className="mt-4">
+      <legend className="block text-sm font-semibold text-navy">Qui peut animer ?</legend>
+      <div className="mt-1.5 grid grid-cols-2 gap-2">
+        {options.map(({ seul, Icon, titre, detail }) => (
+          <label
+            key={titre}
+            className={[
+              'flex cursor-pointer flex-col gap-1 rounded-lg border-[1.5px] p-3 text-left transition-colors focus-within:ring-2 focus-within:ring-teal',
+              value === seul ? 'border-teal bg-teal/5' : 'border-line hover:bg-surface',
+            ].join(' ')}
+          >
+            <input
+              type="radio"
+              name="poker-animation"
+              checked={value === seul}
+              onChange={() => onChange(seul)}
+              className="sr-only"
+            />
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-navy">
+              <Icon className="h-4 w-4" aria-hidden /> {titre}
+            </span>
+            <span className="text-xs leading-snug text-muted">{detail}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 };
 

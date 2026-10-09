@@ -16,6 +16,8 @@ interface JoinSessionModalProps {
   retentionLabel?: string;
   /** Précision affichée sous le code (ex: code d'équipe permanent). */
   codeHint?: string;
+  /** Réglage proposé au créateur, sous le prénom (ex : qui peut animer). */
+  creationOption?: React.ReactNode;
 }
 
 /**
@@ -29,6 +31,7 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
   onJoin,
   retentionLabel,
   codeHint,
+  creationOption,
 }) => {
   const [name, setName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,6 +95,8 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
             className="mt-1.5 w-full rounded-lg border border-line bg-white px-4 py-2.5 text-navy outline-none transition-colors focus:border-teal focus-visible:ring-2 focus-visible:ring-teal"
             required
           />
+
+          {isCreating && creationOption}
 
           <button
             type="submit"

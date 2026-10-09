@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, LogOut, Share2 } from 'lucide-react';
+import { ChevronLeft, Lock, LogOut, Share2, Users } from 'lucide-react';
+
+/** Animation réservée au créateur de la session, ou ouverte à tous. */
+export interface FacilitatorLock {
+  /** L'animation est réservée au créateur. */
+  exclusive: boolean;
+  /** La personne est le créateur : elle peut changer ce réglage. */
+  canChange: boolean;
+  onChange: (exclusive: boolean) => void;
+}
 
 interface ToolHeaderProps {
   title: string;
@@ -13,6 +22,8 @@ interface ToolHeaderProps {
   onLeave?: () => void;
   /** Texte de la confirmation de départ. */
   leaveLabel?: string;
+  /** Outils qui permettent de réserver l'animation au créateur. */
+  facilitatorLock?: FacilitatorLock;
 }
 
 /**
@@ -20,7 +31,7 @@ interface ToolHeaderProps {
  * sans compte). Inclut le toggle « Mode animateur » auto-promu.
  */
 export const ToolHeader: React.FC<ToolHeaderProps> = ({
-  title, sessionCode, isFacilitator, onToggleFacilitator, onShare, onLeave, leaveLabel,
+  title, sessionCode, isFacilitator, onToggleFacilitator, onShare, onLeave, leaveLabel, facilitatorLock,
 }) => {
   const [confirmLeave, setConfirmLeave] = useState(false);
 
@@ -28,22 +39,48 @@ export const ToolHeader: React.FC<ToolHeaderProps> = ({
     <header className="flex h-16 shrink-0 items-center gap-3.5 border-b border-line bg-white px-5">
       <h1 className="flex-1 truncate text-[0.95rem] font-semibold text-navy">{title}</h1>
 
-      <label className="inline-flex shrink-0 cursor-pointer items-center gap-2 select-none">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted">Mode animateur</span>
-        <span className="relative inline-flex h-[22px] w-10 items-center">
-          <input
-            type="checkbox"
-            role="switch"
-            checked={isFacilitator}
-            onChange={onToggleFacilitator}
-            className="peer h-full w-full cursor-pointer appearance-none rounded-full bg-line transition-colors checked:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute left-[3px] h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px]"
-          />
+      {facilitatorLock?.exclusive && !facilitatorLock.canChange ? (
+        <span
+          className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted"
+          title="Le créateur de la session s’est réservé l’animation."
+        >
+          <Lock className="h-3.5 w-3.5" aria-hidden />
+          Animation réservée
         </span>
-      </label>
+      ) : (
+        <label className="inline-flex shrink-0 cursor-pointer items-center gap-2 select-none">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted">Mode animateur</span>
+          <span className="relative inline-flex h-[22px] w-10 items-center">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={isFacilitator}
+              onChange={onToggleFacilitator}
+              className="peer h-full w-full cursor-pointer appearance-none rounded-full bg-line transition-colors checked:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-[3px] h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px]"
+            />
+          </span>
+        </label>
+      )}
+
+      {facilitatorLock?.canChange && (
+        <button
+          type="button"
+          onClick={() => facilitatorLock.onChange(!facilitatorLock.exclusive)}
+          aria-pressed={facilitatorLock.exclusive}
+          title={facilitatorLock.exclusive
+            ? 'L’animation vous est réservée. Cliquer pour laisser chacun prendre la main.'
+            : 'Chacun peut activer le mode animateur. Cliquer pour vous réserver l’animation.'}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        >
+          {facilitatorLock.exclusive
+            ? <><Lock className="h-3.5 w-3.5" aria-hidden /> Moi uniquement</>
+            : <><Users className="h-3.5 w-3.5" aria-hidden /> Ouvert à tous</>}
+        </button>
+      )}
 
       <button
         type="button"

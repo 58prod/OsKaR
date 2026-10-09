@@ -34,6 +34,11 @@ export interface PokerState {
   round: number;
   /** Départs et retours des participants (voir shared/departs). */
   departs: Departs;
+  /**
+   * Animation réservée au créateur de la session : les autres ne peuvent pas
+   * activer le mode animateur. Choisi à la création, modifiable par lui.
+   */
+  animateurSeul: boolean;
 }
 
 /**
@@ -79,6 +84,7 @@ export const INITIAL_POKER_STATE: PokerState = {
   chrono: initialChrono(120),
   round: 0,
   departs: {},
+  animateurSeul: false,
 };
 
 /** Complète un état enregistré avant l'ajout d'un champ (sessions déjà ouvertes). */
@@ -93,6 +99,7 @@ export function normalizePokerState(raw: Partial<PokerState> | null | undefined)
     chrono: s.chrono ?? INITIAL_POKER_STATE.chrono,
     round: typeof s.round === 'number' ? s.round : 0,
     departs: lireDeparts(s.departs),
+    animateurSeul: !!s.animateurSeul,
   };
 }
 
@@ -112,6 +119,8 @@ export type PokerOp =
   /** Révélation : fige les votes vus par celui qui révèle, identiques pour tous. */
   | { t: 'reveal'; round: number; votes: Record<string, string>; chrono: PokerChrono }
   | { t: 'chrono'; chrono: PokerChrono }
+  /** Animation réservée au créateur, ou ouverte à tous (envoyée par le créateur). */
+  | { t: 'animateurSeul'; value: boolean }
   /** Départ volontaire (la personne et son vote disparaissent) ou retour. */
   | DepartOp;
 
@@ -149,6 +158,8 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
       return { ...state, votes: sansPartis(op.votes, state.departs), revealed: true, chrono: op.chrono };
     case 'chrono':
       return { ...state, chrono: op.chrono };
+    case 'animateurSeul':
+      return state.animateurSeul === !!op.value ? state : { ...state, animateurSeul: !!op.value };
     case 'leave':
     case 'back':
       return appliquerDepart(state, op);

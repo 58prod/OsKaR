@@ -10,6 +10,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.59.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : réserver l'animation au créateur
+- À la création d'une session, « Qui peut animer ? » : « Tout le monde »
+  (comme avant, chacun peut activer le mode animateur) ou « Moi uniquement ».
+- Animation réservée : les autres participants ne voient plus l'interrupteur
+  « Mode animateur » mais « Animation réservée », et n'ont plus les commandes
+  (story, suite, révéler, réinitialiser, minuteur), même s'ils avaient pris la
+  main avant.
+- Le créateur peut changer d'avis à tout moment depuis l'en-tête (bouton
+  « Moi uniquement » / « Ouvert à tous »). Réglage partagé (`animateurSeul`,
+  opération du même nom), gardé d'une manche à l'autre ; `useFacilitator`
+  accepte `reserveAHote`, `ToolPageShell` les props `creationOption` et
+  `facilitatorLock`, réutilisables par les autres outils.
+
 ## [2.58.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : carte emoji dans une suite personnalisée
