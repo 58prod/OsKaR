@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.57.1] - 2026-10-09
+
+### 💄 Modifié — Planning Poker : votes révélés en grand, choix d'emoji centré
+- Après la révélation, le vote de chacun (chiffre ou emoji) s'affiche en grand
+  sous sa carte de participant (plus petit pour une valeur personnalisée
+  longue) ; la carte indique « Pas de vote » pour qui n'a pas voté.
+- Le choix de l'emoji s'ouvre dans une fenêtre centrée (rendue dans `<body>`)
+  au lieu d'un panneau accroché à la carte, qui débordait de la zone de vote
+  et obligeait à la faire défiler.
+
 ## [2.57.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : suite « Fibonacci + » et carte emoji

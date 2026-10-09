@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Pencil, Shuffle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Pencil, Shuffle, X } from 'lucide-react';
 import { EMOJI_CATALOG, emojiAuHasard } from './pokerLogic';
 
 interface PokerCarteEmojiProps {
@@ -13,25 +14,19 @@ interface PokerCarteEmojiProps {
 
 /**
  * Dernière carte de la suite « Fibonacci + » : chacun y voit son propre emoji,
- * tiré au hasard au départ, et peut le changer avec le crayon.
+ * tiré au hasard au départ, et peut le changer avec le crayon. Le choix
+ * s'ouvre en fenêtre centrée (rendue dans <body>) : un panneau accroché à la
+ * carte débordait de la zone de vote et obligeait à la faire défiler.
  */
 export const PokerCarteEmoji: React.FC<PokerCarteEmojiProps> = ({ emoji, selected, locked, onVote, onChoose }) => {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
-  // Fermeture au clic à côté et à la touche Échap.
+  // Fermeture à la touche Échap.
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('pointerdown', onDown);
     document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('pointerdown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
+    return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
   const choisir = (e: string) => {
@@ -40,7 +35,7 @@ export const PokerCarteEmoji: React.FC<PokerCarteEmojiProps> = ({ emoji, selecte
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div className="relative">
       <button
         type="button"
         onClick={() => !locked && emoji && onVote(emoji)}
@@ -71,40 +66,58 @@ export const PokerCarteEmoji: React.FC<PokerCarteEmojiProps> = ({ emoji, selecte
         <span className="sr-only">Changer mon emoji</span>
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
           role="dialog"
-          aria-label="Choisir mon emoji"
-          className="absolute left-0 top-full z-30 mt-2 w-[296px] rounded-xl border border-line bg-white p-3 shadow-card-hover"
+          aria-modal="true"
+          aria-labelledby="poker-emoji-title"
+          className="fixed inset-0 z-[210] flex items-center justify-center bg-navy/60 p-6"
+          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
         >
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wide text-muted">Mon emoji</span>
-            <button
-              type="button"
-              onClick={() => choisir(emojiAuHasard())}
-              className="inline-flex items-center gap-1 rounded-lg border border-line px-2 py-1 text-xs font-semibold text-navy transition-colors hover:bg-surface"
-            >
-              <Shuffle className="h-3.5 w-3.5" aria-hidden /> Au hasard
-            </button>
-          </div>
-          <div className="flex max-h-[200px] flex-wrap gap-1 overflow-y-auto scrollbar-thin">
-            {EMOJI_CATALOG.map((e, i) => (
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-card-hover">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-line text-3xl" aria-hidden>
+                {emoji}
+              </span>
+              <h2 id="poker-emoji-title" className="flex-1 text-base font-bold text-navy">Choisir mon emoji</h2>
               <button
-                key={`${e}-${i}`}
                 type="button"
-                onClick={() => choisir(e)}
-                aria-pressed={e === emoji}
-                className={[
-                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-[1.5px] text-xl transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
-                  e === emoji ? 'border-navy bg-surface' : 'border-transparent bg-surface hover:border-primary-200',
-                ].join(' ')}
+                onClick={() => setOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-navy"
               >
-                <span aria-hidden>{e}</span>
-                <span className="sr-only">Choisir {e}</span>
+                <X className="h-4 w-4" aria-hidden />
+                <span className="sr-only">Fermer</span>
               </button>
-            ))}
+            </div>
+            <div className="flex max-h-[50vh] flex-wrap gap-1 overflow-y-auto scrollbar-thin">
+              {EMOJI_CATALOG.map((e, i) => (
+                <button
+                  key={`${e}-${i}`}
+                  type="button"
+                  onClick={() => choisir(e)}
+                  aria-pressed={e === emoji}
+                  className={[
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-[1.5px] text-xl transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+                    e === emoji ? 'border-navy bg-surface' : 'border-transparent bg-surface hover:border-primary-200',
+                  ].join(' ')}
+                >
+                  <span aria-hidden>{e}</span>
+                  <span className="sr-only">Choisir {e}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => choisir(emojiAuHasard())}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface"
+              >
+                <Shuffle className="h-4 w-4" aria-hidden /> Au hasard
+              </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

@@ -70,48 +70,58 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myI
           <h2 id="players-title" className="mb-3 text-xs font-bold uppercase tracking-wide text-muted">
             Participants
           </h2>
-          <ul className="flex flex-wrap gap-3" aria-live="polite">
+          <ul className="flex flex-wrap items-start gap-3" aria-live="polite">
             {participants.map((p) => {
               const voted = votes[p.id] !== undefined;
               const isMe = p.id === myId;
               return (
-                <li
-                  key={p.id}
-                  className={[
-                    'min-w-[130px] rounded-xl border-[1.5px] bg-white p-4 text-center shadow-card transition-all',
-                    voted ? 'border-success-500 bg-success-50' : 'border-line',
-                    isMe ? '!border-teal' : '',
-                    p.online === false ? 'opacity-60' : '',
-                  ].join(' ')}
-                >
+                <li key={p.id} className="flex flex-col items-center">
                   <div
-                    className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full text-lg font-bold text-white"
-                    style={{ background: voted ? '#22c55e' : isMe ? '#00d4b4' : p.color }}
-                    aria-hidden
+                    className={[
+                      'min-w-[130px] rounded-xl border-[1.5px] bg-white p-4 text-center shadow-card transition-all',
+                      voted ? 'border-success-500 bg-success-50' : 'border-line',
+                      isMe ? '!border-teal' : '',
+                      p.online === false ? 'opacity-60' : '',
+                    ].join(' ')}
                   >
-                    {p.name.charAt(0).toUpperCase()}
+                    <div
+                      className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full text-lg font-bold text-white"
+                      style={{ background: voted ? '#22c55e' : isMe ? '#00d4b4' : p.color }}
+                      aria-hidden
+                    >
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="text-sm font-bold text-navy">
+                      {p.name}
+                      {p.isHost && (
+                        <span className="ml-1 block text-[11px] font-bold text-warning-700">animateur</span>
+                      )}
+                      {p.online === false && (
+                        <span className="ml-1 block text-[11px] font-semibold text-muted">hors ligne</span>
+                      )}
+                    </div>
+                    <div className="mt-1 text-xs text-muted">
+                      {revealed && !voted ? (
+                        'Pas de vote'
+                      ) : voted ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-success-500" aria-hidden />
+                          A voté
+                        </span>
+                      ) : (
+                        'En attente…'
+                      )}
+                    </div>
                   </div>
-                  <div className="text-sm font-bold text-navy">
-                    {p.name}
-                    {p.isHost && (
-                      <span className="ml-1 block text-[11px] font-bold text-warning-700">animateur</span>
-                    )}
-                    {p.online === false && (
-                      <span className="ml-1 block text-[11px] font-semibold text-muted">hors ligne</span>
-                    )}
-                  </div>
-                  <div className="mt-1 text-xs text-muted">
-                    {revealed && voted ? (
-                      <span className="text-xl font-black text-navy">{votes[p.id]}</span>
-                    ) : voted ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-success-500" aria-hidden />
-                        A voté
-                      </span>
-                    ) : (
-                      'En attente…'
-                    )}
-                  </div>
+                  {/* Une fois révélé, le vote s'affiche en grand sous la carte. */}
+                  {revealed && voted && (
+                    <span
+                      className={`mt-2 font-black leading-none text-navy ${votes[p.id].length > 3 ? 'text-3xl' : 'text-5xl'}`}
+                      aria-label={`Vote de ${p.name} : ${votes[p.id]}`}
+                    >
+                      {votes[p.id]}
+                    </span>
+                  )}
                 </li>
               );
             })}
