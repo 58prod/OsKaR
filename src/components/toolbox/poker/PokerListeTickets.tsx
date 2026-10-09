@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowDown, ArrowUp, Check, ExternalLink, GripVertical, ListTodo, Pencil, Play, Plus, RotateCcw, SkipForward, Trash2, X,
+  ArrowDown, ArrowUp, Check, ExternalLink, GripVertical, ListTodo, PanelLeftClose, PanelLeftOpen, Pencil, Play, Plus,
+  RotateCcw, SkipForward, Trash2, X,
 } from 'lucide-react';
 import { POKER_ACCENT } from './pokerLogic';
 import { TICKET_TITRE_MAX, TICKET_URL_MAX, ticketSuivant, type PokerTicket } from './pokerTickets';
@@ -20,6 +21,9 @@ interface PokerTicketsProps {
   onCorrectEstimation: (id: string, estimation: string | null) => void;
 }
 
+/** Colonne pliée ou non : préférence de chacun, gardée dans le navigateur. */
+const CLE_PLIE = 'oskar.poker.ticketsPlies';
+
 const petitBouton = 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-30';
 const champ = 'w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-sm text-navy outline-none focus:border-[var(--tool-accent)]';
 
@@ -33,6 +37,14 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
 }) => {
   const [titre, setTitre] = useState('');
   const [url, setUrl] = useState('');
+  const [plie, setPlie] = useState(false);
+  useEffect(() => {
+    try { setPlie(localStorage.getItem(CLE_PLIE) === '1'); } catch { /* stockage indisponible */ }
+  }, []);
+  const basculer = () => setPlie((p) => {
+    try { localStorage.setItem(CLE_PLIE, p ? '0' : '1'); } catch { /* stockage indisponible */ }
+    return !p;
+  });
   const estimes = tickets.filter((t) => t.estimation !== null).length;
   const suivant = ticketSuivant(tickets, ticketCourant);
 
@@ -84,6 +96,33 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
     setUrl('');
   };
 
+  // Colonne pliée : une fine barre avec le compteur, pour laisser la place au vote.
+  if (plie) {
+    return (
+      <aside className="flex w-12 shrink-0 flex-col items-center gap-3 border-r border-line bg-white py-3" aria-label="Tickets à estimer (colonne pliée)">
+        <button
+          type="button"
+          onClick={basculer}
+          title="Déplier la liste des tickets"
+          className={petitBouton}
+        >
+          <PanelLeftOpen className="h-4 w-4" aria-hidden />
+          <span className="sr-only">Déplier la liste des tickets</span>
+        </button>
+        <button
+          type="button"
+          onClick={basculer}
+          title={`Tickets estimés : ${estimes} / ${tickets.length} — déplier la liste`}
+          className="flex flex-col items-center gap-2 rounded-md px-1 py-2 text-muted transition-colors hover:bg-surface hover:text-navy"
+        >
+          <ListTodo className="h-4 w-4" style={{ color: POKER_ACCENT }} aria-hidden />
+          <span className="text-xs font-bold text-navy">{estimes}/{tickets.length}</span>
+          <span className="text-[11px] font-bold uppercase tracking-wide [writing-mode:vertical-rl] rotate-180">Tickets</span>
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside
       className="relative flex w-[300px] shrink-0 flex-col border-r border-line bg-white"
@@ -96,6 +135,10 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
         <span className="text-sm text-muted" aria-live="polite">
           Estimés : <strong className="text-navy">{estimes}</strong> / {tickets.length}
         </span>
+        <button type="button" onClick={basculer} title="Plier la liste des tickets" className={`${petitBouton} -mr-1.5`}>
+          <PanelLeftClose className="h-4 w-4" aria-hidden />
+          <span className="sr-only">Plier la liste des tickets</span>
+        </button>
       </div>
 
       {isFacilitator && tickets.length > 0 && (

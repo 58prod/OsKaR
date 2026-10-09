@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.66.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : plier la colonne des tickets
+- Bouton dans l'en-tête de la liste des tickets pour la plier : il reste une
+  fine barre (48 px) avec le compteur « estimés / total » et un bouton pour
+  la déplier. Sur un écran de 1 280 px, la zone de vote passe de 420 à
+  672 px. Préférence de chacun, gardée dans le navigateur
+  (`oskar.poker.ticketsPlies`).
+
 ## [2.65.2] - 2026-10-09
 
 ### 🐛 Corrigé — Planning Poker : réestimer le ticket en cours
