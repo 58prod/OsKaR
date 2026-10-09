@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Clock, KeyRound, Loader2, LogIn } from 'lucide-react';
+import { Clock, KeyRound, Loader2, LogIn, X } from 'lucide-react';
 import { getLastName } from '@/utils/toolIdentity';
 import { getRetentionLabel } from '@/constants/toolbox';
 import { ToolSessionService } from '@/services/toolSession';
@@ -33,6 +33,7 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
   codeHint,
   creationOption,
 }) => {
+  const router = useRouter();
   const [name, setName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +41,14 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
     setName(getLastName());
     inputRef.current?.focus();
   }, []);
+
+  // Fermer ou annuler : retour à la boîte à outils, sans entrer dans la session.
+  const fermer = () => { void router.push('/app/outils'); };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') void router.push('/app/outils'); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [router]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +63,16 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
       aria-modal="true"
       aria-labelledby="join-title"
     >
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-auth-modal">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-auth-modal">
+        <button
+          type="button"
+          onClick={fermer}
+          title="Fermer et revenir à la boîte à outils"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        >
+          <X className="h-4 w-4" aria-hidden />
+          <span className="sr-only">Fermer et revenir à la boîte à outils</span>
+        </button>
         {/* Pas de « le » devant le nom de l'outil : « le Boîte à idées »,
             « le En mode récré ! »… Le nom de l'outil sert de titre. */}
         <p className="text-xs font-bold uppercase tracking-wide text-muted">
@@ -105,6 +123,13 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
           >
             <LogIn className="h-4 w-4" aria-hidden />
             {isCreating ? 'Démarrer la session' : 'Rejoindre'}
+          </button>
+          <button
+            type="button"
+            onClick={fermer}
+            className="mt-2 w-full rounded-lg px-4 py-2 text-sm font-semibold text-muted transition-colors hover:bg-surface hover:text-navy"
+          >
+            Annuler
           </button>
         </form>
 

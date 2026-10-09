@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.62.0] - 2026-10-09
+
+### ✨ Ajouté — Fermer la fenêtre d'entrée d'un outil
+- La fenêtre qui demande le prénom (lien d'invitation, nouvelle session) a
+  maintenant une croix, un bouton « Annuler » et répond à la touche Échap :
+  tous ramènent à la boîte à outils sans entrer dans la session. Commun aux
+  13 outils (`JoinSessionModal`).
+
 ## [2.61.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : masquer les réactions des autres
