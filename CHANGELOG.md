@@ -10,6 +10,22 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.67.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker utilisable sur téléphone
+- Sous 768 px : colonnes empilées dans un seul défilement (barre du ticket,
+  liste des tickets, vote et participants, résultats, réactions, « Mon
+  emoji ») ; cartes de vote (66 × 92 px) et cartes des participants plus
+  compactes ; liste des tickets pliée par défaut en une barre « Tickets 2/3 »
+  (repliable, préférence gardée), limitée à 45 % de l'écran une fois dépliée.
+- Tous les outils : sur téléphone, le menu Oskar est masqué (il prenait plus
+  de la moitié de l'écran) et l'en-tête se compacte (icônes seules pour
+  Inviter, Quitter, Boîte à outils, animation) ; hauteur en `100dvh`.
+- Barre du ticket : l'icône d'ouverture du lien est placée au bout du champ
+  du lien chez l'animateur.
+- Vérifié à 375 × 812 (participant et animateur) et à 1 440 × 900 : aucun
+  débordement horizontal.
+
 ## [2.66.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : plier la colonne des tickets

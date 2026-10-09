@@ -30,8 +30,8 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
   const isTshirt = suiteKey === 'tshirt';
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
+    <div className="flex flex-1 flex-col md:overflow-hidden">
+      <div className="relative flex flex-1 flex-col gap-6 p-4 sm:p-6 md:overflow-y-auto">
         {/* Vote zone */}
         <section aria-labelledby="vote-title">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -66,7 +66,7 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
               Vous suivez la séance sans voter. Désactivez « Observateur » pour voter.
             </p>
           )}
-          <div className="flex flex-wrap gap-3.5" role="group" aria-label="Cartes de vote">
+          <div className="flex flex-wrap gap-2.5 sm:gap-3.5" role="group" aria-label="Cartes de vote">
             {suite.map((val) => {
               const locked = revealed || jeSuisObservateur;
               if (val === CARTE_EMOJI) {
@@ -91,8 +91,8 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
                   aria-pressed={selected}
                   className={[
                     'flex items-center justify-center rounded-xl border-2 font-extrabold transition-all',
-                    'h-[122px] w-[90px] shadow-card',
-                    isTshirt ? 'text-lg' : 'text-3xl',
+                    'h-[92px] w-[66px] shadow-card sm:h-[122px] sm:w-[90px]',
+                    isTshirt ? 'text-base sm:text-lg' : 'text-2xl sm:text-3xl',
                     selected
                       ? 'border-navy bg-navy text-white -translate-y-2.5 scale-105'
                       : 'border-line bg-white text-navy hover:-translate-y-2 hover:border-navy',
@@ -111,7 +111,7 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
           <h2 id="players-title" className="mb-3 text-xs font-bold uppercase tracking-wide text-muted">
             Participants
           </h2>
-          <ul className="flex flex-wrap items-start gap-3" aria-live="polite">
+          <ul className="flex flex-wrap items-start gap-2.5 sm:gap-3" aria-live="polite">
             {participants.map((p) => {
               const voted = votes[p.id] !== undefined;
               const isMe = p.id === myId;
@@ -120,7 +120,7 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
                 <li key={p.id} className="flex flex-col items-center">
                   <div
                     className={[
-                      'relative min-w-[130px] rounded-xl border-[1.5px] bg-white p-4 text-center shadow-card transition-all',
+                      'relative min-w-[100px] rounded-xl border-[1.5px] bg-white p-3 text-center shadow-card transition-all sm:min-w-[130px] sm:p-4',
                       voted ? 'border-success-500 bg-success-50' : 'border-line',
                       isMe && !obs ? '!border-teal' : '',
                       p.online === false ? 'opacity-60' : '',
@@ -152,7 +152,7 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({
                     >
                       {p.name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="mx-auto max-w-[160px] truncate text-sm font-bold text-navy" title={p.name}>
+                    <div className="mx-auto max-w-[120px] truncate text-sm font-bold text-navy sm:max-w-[160px]" title={p.name}>
                       {p.name}
                     </div>
                     <div className="mt-1 text-xs text-muted">

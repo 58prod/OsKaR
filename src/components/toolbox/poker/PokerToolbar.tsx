@@ -66,7 +66,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
 
   return (
     <div
-      className="flex flex-wrap items-center gap-3 border-b border-line bg-white px-6 py-3"
+      className="flex flex-wrap items-center gap-3 border-b border-line bg-white px-4 py-3 sm:px-6"
       style={{ '--tool-accent': POKER_ACCENT } as React.CSSProperties}
     >
       <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
@@ -74,19 +74,18 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
       </span>
 
       {/* Titre sur deux lignes au plus, sans grandir la barre ; bulle s'il est plus long. */}
-      <div className="flex min-w-[220px] flex-1 items-center gap-1">
+      <div className="flex min-w-0 basis-full items-center gap-1 sm:min-w-[220px] sm:flex-[1_1_0%]">
         {isFacilitator
           ? <ChampTitre titre={story} onChange={onStoryChange} />
           : <TitreAffiche titre={story} url={storyUrl} />}
         {!isFacilitator && iconeLien}
       </div>
-      {isFacilitator && iconeLien}
-
+      {/* Champ du lien, avec l'icône d'ouverture à son extrémité. */}
       {isFacilitator && (
-        <label className="flex w-56 shrink-0 items-center gap-1.5 rounded-lg border border-line px-2.5 py-1 focus-within:border-[var(--tool-accent)]">
+        <div className="flex w-full shrink-0 items-center gap-1.5 rounded-lg border border-line py-0.5 pl-2.5 pr-0.5 sm:w-60 focus-within:border-[var(--tool-accent)]">
           <Link2 className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
-          <span className="sr-only">Lien du ticket (facultatif)</span>
           <input
+            aria-label="Lien du ticket (facultatif)"
             type="text"
             inputMode="url"
             value={urlSaisie}
@@ -94,9 +93,10 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
             onBlur={validerUrl}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); validerUrl(); } }}
             placeholder="Lien du ticket (facultatif)"
-            className="w-full bg-transparent text-sm text-navy outline-none placeholder:text-muted"
+            className="min-w-0 flex-1 bg-transparent py-1 text-sm text-navy outline-none placeholder:text-muted"
           />
-        </label>
+          {iconeLien}
+        </div>
       )}
 
 

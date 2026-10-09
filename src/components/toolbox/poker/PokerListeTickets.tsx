@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowDown, ArrowUp, Check, ExternalLink, GripVertical, ListTodo, PanelLeftClose, PanelLeftOpen, Pencil, Play, Plus,
+  ArrowDown, ArrowUp, Check, ChevronDown, ChevronUp, ExternalLink, GripVertical, ListTodo, PanelLeftClose, PanelLeftOpen, Pencil, Play, Plus,
   RotateCcw, SkipForward, Trash2, X,
 } from 'lucide-react';
 import { POKER_ACCENT } from './pokerLogic';
@@ -39,7 +39,10 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
   const [url, setUrl] = useState('');
   const [plie, setPlie] = useState(false);
   useEffect(() => {
-    try { setPlie(localStorage.getItem(CLE_PLIE) === '1'); } catch { /* stockage indisponible */ }
+    // Sans choix enregistré : pliée sur téléphone, où elle passerait avant le vote.
+    let choix: string | null = null;
+    try { choix = localStorage.getItem(CLE_PLIE); } catch { /* stockage indisponible */ }
+    setPlie(choix === null ? window.matchMedia('(max-width: 767px)').matches : choix === '1');
   }, []);
   const basculer = () => setPlie((p) => {
     try { localStorage.setItem(CLE_PLIE, p ? '0' : '1'); } catch { /* stockage indisponible */ }
@@ -99,12 +102,16 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
   // Colonne pliée : une fine barre avec le compteur, pour laisser la place au vote.
   if (plie) {
     return (
-      <aside className="flex w-12 shrink-0 flex-col items-center gap-3 border-r border-line bg-white py-3" aria-label="Tickets à estimer (colonne pliée)">
+      // Grand écran : fine colonne verticale ; téléphone : barre horizontale au-dessus du vote.
+      <aside
+        className="flex w-full shrink-0 items-center gap-2 border-b border-line bg-white px-3 py-1.5 md:w-12 md:flex-col md:gap-3 md:border-b-0 md:border-r md:px-0 md:py-3"
+        aria-label="Tickets à estimer (colonne pliée)"
+      >
         <button
           type="button"
           onClick={basculer}
           title="Déplier la liste des tickets"
-          className={petitBouton}
+          className={`${petitBouton} max-md:hidden`}
         >
           <PanelLeftOpen className="h-4 w-4" aria-hidden />
           <span className="sr-only">Déplier la liste des tickets</span>
@@ -113,11 +120,12 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
           type="button"
           onClick={basculer}
           title={`Tickets estimés : ${estimes} / ${tickets.length} — déplier la liste`}
-          className="flex flex-col items-center gap-2 rounded-md px-1 py-2 text-muted transition-colors hover:bg-surface hover:text-navy"
+          className="flex flex-1 items-center gap-2 rounded-md px-1 py-1.5 text-muted transition-colors hover:bg-surface hover:text-navy md:flex-none md:flex-col md:py-2"
         >
           <ListTodo className="h-4 w-4" style={{ color: POKER_ACCENT }} aria-hidden />
+          <span className="text-[11px] font-bold uppercase tracking-wide md:rotate-180 md:[writing-mode:vertical-rl] md:order-last">Tickets</span>
           <span className="text-xs font-bold text-navy">{estimes}/{tickets.length}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wide [writing-mode:vertical-rl] rotate-180">Tickets</span>
+          <ChevronDown className="ml-auto h-4 w-4 md:hidden" aria-hidden />
         </button>
       </aside>
     );
@@ -125,7 +133,7 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
 
   return (
     <aside
-      className="relative flex w-[300px] shrink-0 flex-col border-r border-line bg-white"
+      className="relative flex w-full shrink-0 flex-col border-b border-line bg-white md:w-[300px] md:border-b-0 md:border-r"
       aria-label="Tickets à estimer"
       style={{ '--tool-accent': POKER_ACCENT } as React.CSSProperties}
     >
@@ -136,7 +144,8 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
           Estimés : <strong className="text-navy">{estimes}</strong> / {tickets.length}
         </span>
         <button type="button" onClick={basculer} title="Plier la liste des tickets" className={`${petitBouton} -mr-1.5`}>
-          <PanelLeftClose className="h-4 w-4" aria-hidden />
+          <PanelLeftClose className="h-4 w-4 max-md:hidden" aria-hidden />
+          <ChevronUp className="h-4 w-4 md:hidden" aria-hidden />
           <span className="sr-only">Plier la liste des tickets</span>
         </button>
       </div>
@@ -156,7 +165,7 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
         </div>
       )}
 
-      <ol ref={liste} className="flex-1 overflow-y-auto p-2">
+      <ol ref={liste} className="max-h-[45vh] overflow-y-auto p-2 md:max-h-none md:flex-1">
         {tickets.length === 0 && (
           <li className="px-2 py-6 text-center text-sm text-muted">
             {isFacilitator

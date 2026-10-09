@@ -103,9 +103,13 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
       </Head>
 
       <div className="min-h-screen bg-surface text-ink font-sans">
-        <Sidebar collapsed={collapsed} onToggle={toggle} footerItem={footerItem} />
+        {/* Sur téléphone, le menu Oskar prendrait plus de la moitié de l'écran :
+            on le masque, l'en-tête de l'outil garde le retour à la boîte à outils. */}
+        <div className="max-md:hidden">
+          <Sidebar collapsed={collapsed} onToggle={toggle} footerItem={footerItem} />
+        </div>
         <div
-          className="oskar-main flex h-screen flex-col transition-[margin] duration-250"
+          className="oskar-main flex h-screen h-[100dvh] flex-col transition-[margin] duration-250 max-md:!ml-0"
           style={{ marginLeft: 'var(--oskar-sidebar)' }}
         >
           {content}

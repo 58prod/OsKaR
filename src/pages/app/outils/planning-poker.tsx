@@ -39,71 +39,75 @@ const PlanningPokerPage: React.FC = () => {
       onShare={handleShare}
       leaveLabel={DEPART_AVEC_VOTE}
     >
-      <PokerToolbar
-        story={state.story}
-        storyUrl={state.storyUrl}
-        chrono={state.chrono}
-        remainingSec={remainingSec}
-        isFacilitator={isFacilitator}
-        revealed={state.revealed}
-        voteCount={Object.keys(state.votes).length}
-        ticketsEstimes={state.tickets.filter((t) => t.estimation !== null).length}
-        ticketsTotal={state.tickets.length}
-        tousOntVote={tousOntVote}
-        suiteKey={state.suiteKey}
-        onStoryChange={actions.setStory}
-        onStoryUrlChange={actions.setStoryUrl}
-        onToggleChrono={actions.toggleChrono}
-        onResetChrono={actions.resetChrono}
-        onDurationChange={actions.setDuration}
-        onSuiteChange={actions.setSuite}
-        onApplyCustom={actions.applyCustom}
-        onReveal={actions.reveal}
-        onReset={actions.reset}
-      />
+      {/* Sur téléphone, tout défile d'un seul tenant (barre, tickets, vote, réactions) ;
+          sur grand écran, chaque colonne défile pour elle-même. */}
+      <div className="relative flex min-h-0 flex-1 flex-col max-md:overflow-y-auto">
+        <PokerToolbar
+          story={state.story}
+          storyUrl={state.storyUrl}
+          chrono={state.chrono}
+          remainingSec={remainingSec}
+          isFacilitator={isFacilitator}
+          revealed={state.revealed}
+          voteCount={Object.keys(state.votes).length}
+          ticketsEstimes={state.tickets.filter((t) => t.estimation !== null).length}
+          ticketsTotal={state.tickets.length}
+          tousOntVote={tousOntVote}
+          suiteKey={state.suiteKey}
+          onStoryChange={actions.setStory}
+          onStoryUrlChange={actions.setStoryUrl}
+          onToggleChrono={actions.toggleChrono}
+          onResetChrono={actions.resetChrono}
+          onDurationChange={actions.setDuration}
+          onSuiteChange={actions.setSuite}
+          onApplyCustom={actions.applyCustom}
+          onReveal={actions.reveal}
+          onReset={actions.reset}
+        />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Liste des tickets : toujours pour l'animateur, pour les autres dès qu'elle existe. */}
-        {(isFacilitator || state.tickets.length > 0) && (
-          <PokerListeTickets
-            tickets={state.tickets}
-            ticketCourant={state.ticketCourant}
-            isFacilitator={isFacilitator}
-            onAdd={actions.ajouterTicket}
-            onEdit={actions.modifierTicket}
-            onMove={actions.deplacerTicket}
-            onPlace={actions.placerTicket}
-            onDelete={actions.supprimerTicket}
-            onEstimate={actions.estimerTicket}
-            onEstimateNext={actions.estimerSuivant}
-            onCorrectEstimation={actions.corrigerEstimation}
-          />
-        )}
-        <div id="poker-board-area" className="flex flex-1 overflow-hidden">
-          <PokerBoard
-            state={state}
-            participants={participants}
-            myId={myId}
-            myEmoji={myEmoji}
-            onVote={actions.vote}
-            onChooseEmoji={actions.chooseEmoji}
-            jeSuisObservateur={jeSuisObservateur}
-            onToggleObservateur={actions.setObservateur}
-          />
+        <div className="flex flex-col md:min-h-0 md:flex-1 md:flex-row md:overflow-hidden">
+          {/* Liste des tickets : toujours pour l'animateur, pour les autres dès qu'elle existe. */}
+          {(isFacilitator || state.tickets.length > 0) && (
+            <PokerListeTickets
+              tickets={state.tickets}
+              ticketCourant={state.ticketCourant}
+              isFacilitator={isFacilitator}
+              onAdd={actions.ajouterTicket}
+              onEdit={actions.modifierTicket}
+              onMove={actions.deplacerTicket}
+              onPlace={actions.placerTicket}
+              onDelete={actions.supprimerTicket}
+              onEstimate={actions.estimerTicket}
+              onEstimateNext={actions.estimerSuivant}
+              onCorrectEstimation={actions.corrigerEstimation}
+            />
+          )}
+          <div id="poker-board-area" className="flex md:flex-1 md:overflow-hidden">
+            <PokerBoard
+              state={state}
+              participants={participants}
+              myId={myId}
+              myEmoji={myEmoji}
+              onVote={actions.vote}
+              onChooseEmoji={actions.chooseEmoji}
+              jeSuisObservateur={jeSuisObservateur}
+              onToggleObservateur={actions.setObservateur}
+            />
+          </div>
+
+          <aside
+            className="relative flex w-full flex-col gap-3.5 border-t border-line bg-surface p-4 md:w-[320px] md:shrink-0 md:overflow-y-auto md:border-l md:border-t-0 md:p-5"
+            aria-label="Résultats et réactions"
+          >
+            <PokerResults results={results} revealed={state.revealed} />
+            <PokerReactions
+              onReact={actions.react}
+              voirReactions={voirReactions}
+              onToggleVoirReactions={actions.toggleVoirReactions}
+            />
+            <PokerDessin onSend={actions.reactDrawing} />
+          </aside>
         </div>
-
-        <aside
-          className="relative flex w-[320px] shrink-0 flex-col gap-3.5 overflow-y-auto border-l border-line bg-surface p-5"
-          aria-label="Résultats et réactions"
-        >
-          <PokerResults results={results} revealed={state.revealed} />
-          <PokerReactions
-            onReact={actions.react}
-            voirReactions={voirReactions}
-            onToggleVoirReactions={actions.toggleVoirReactions}
-          />
-          <PokerDessin onSend={actions.reactDrawing} />
-        </aside>
       </div>
     </ToolPageShell>
   );

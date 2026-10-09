@@ -43,8 +43,8 @@ export const PokerCarteEmoji: React.FC<PokerCarteEmojiProps> = ({ emoji, selecte
         aria-pressed={selected}
         aria-label={`Voter avec mon emoji ${emoji}`}
         className={[
-          'flex items-center justify-center rounded-xl border-2 text-4xl transition-all',
-          'h-[122px] w-[90px] shadow-card',
+          'flex items-center justify-center rounded-xl border-2 text-3xl transition-all sm:text-4xl',
+          'h-[92px] w-[66px] shadow-card sm:h-[122px] sm:w-[90px]',
           selected
             ? 'border-navy bg-navy -translate-y-2.5 scale-105'
             : 'border-dashed border-line bg-white hover:-translate-y-2 hover:border-navy',
