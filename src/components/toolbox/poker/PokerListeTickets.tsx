@@ -378,7 +378,8 @@ const LigneTicket: React.FC<LigneTicketProps> = ({
       {isFacilitator && (
         <div className="flex shrink-0 flex-col items-end gap-0.5">
           <div className="flex">
-            {!enCours && (
+            {/* Estimer un autre ticket, ou réestimer un ticket estimé (y compris celui en cours). */}
+            {(!enCours || estime) && (
               <button
                 type="button"
                 onClick={() => onEstimate(t.id)}

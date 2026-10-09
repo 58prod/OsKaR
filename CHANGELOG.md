@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.65.2] - 2026-10-09
+
+### 🐛 Corrigé — Planning Poker : réestimer le ticket en cours
+- Le bouton « Réestimer » était masqué sur le ticket en cours : une fois
+  estimé, il fallait passer à un autre ticket pour y revenir. Il s'affiche
+  désormais sur tout ticket estimé, y compris celui en cours (votes effacés,
+  ticket débarré, nouvelle estimation à la révélation).
+
 ## [2.65.1] - 2026-10-09
 
 ### 🐛 Corrigé — Planning Poker : les cartes des participants changeaient de place
