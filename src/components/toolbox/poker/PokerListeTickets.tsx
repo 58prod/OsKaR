@@ -19,10 +19,10 @@ interface PokerTicketsProps {
   onEstimate: (id: string) => void;
   onEstimateNext: () => void;
   onCorrectEstimation: (id: string, estimation: string | null) => void;
+  /** Colonne pliée (voir useReplisAuto, qui la plie aussi quand la fenêtre rétrécit). */
+  plie: boolean;
+  onTogglePlie: () => void;
 }
-
-/** Colonne pliée ou non : préférence de chacun, gardée dans le navigateur. */
-const CLE_PLIE = 'oskar.poker.ticketsPlies';
 
 const petitBouton = 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-30';
 const champ = 'w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-sm text-navy outline-none focus:border-[var(--tool-accent)]';
@@ -34,20 +34,11 @@ const champ = 'w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-
  */
 export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
   tickets, ticketCourant, isFacilitator, onAdd, onEdit, onMove, onPlace, onDelete, onEstimate, onEstimateNext, onCorrectEstimation,
+  plie, onTogglePlie,
 }) => {
   const [titre, setTitre] = useState('');
   const [url, setUrl] = useState('');
-  const [plie, setPlie] = useState(false);
-  useEffect(() => {
-    // Sans choix enregistré : pliée sur téléphone, où elle passerait avant le vote.
-    let choix: string | null = null;
-    try { choix = localStorage.getItem(CLE_PLIE); } catch { /* stockage indisponible */ }
-    setPlie(choix === null ? window.matchMedia('(max-width: 767px)').matches : choix === '1');
-  }, []);
-  const basculer = () => setPlie((p) => {
-    try { localStorage.setItem(CLE_PLIE, p ? '0' : '1'); } catch { /* stockage indisponible */ }
-    return !p;
-  });
+  const basculer = onTogglePlie;
   const estimes = tickets.filter((t) => t.estimation !== null).length;
   const suivant = ticketSuivant(tickets, ticketCourant);
 

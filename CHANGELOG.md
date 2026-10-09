@@ -10,6 +10,19 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.68.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : menus repliés automatiquement pour garder les cartes visibles
+- Quand la fenêtre rétrécit, le menu Oskar se replie (sous 1 420 px avec la
+  liste des tickets, 1 120 px sans), puis la colonne des tickets se plie
+  (sous 1 244 px) : la zone de vote garde au moins 560 px, soit 5 cartes par
+  rangée. Quand la fenêtre s'élargit, ce qui avait été replié
+  automatiquement se rouvre ; un choix fait à la main est respecté jusqu'au
+  prochain seuil, et le repli automatique n'est pas mémorisé (le menu
+  retrouve son état en quittant l'outil).
+- `useReplisAuto` (poker), `setCollapsedTemporaire` dans `useSidebarCollapsed`.
+  Vérifié à 1 500 → 1 300 → 1 100 → 1 300 → 1 500 px.
+
 ## [2.67.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker utilisable sur téléphone

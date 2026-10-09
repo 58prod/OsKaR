@@ -69,7 +69,12 @@ function appliquer(valeur: boolean, memoriser: boolean) {
   abonnes.forEach((auChangement) => auChangement());
 }
 
-export function useSidebarCollapsed(): { collapsed: boolean; toggle: () => void } {
+export function useSidebarCollapsed(): {
+  collapsed: boolean;
+  toggle: () => void;
+  /** Replie ou déplie sans mémoriser (repli automatique d'une page, par ex.). */
+  setCollapsedTemporaire: (valeur: boolean) => void;
+} {
   const collapsed = useSyncExternalStore(souscrire, lireEtat, lireEtatServeur);
 
   // Première montée seulement : le script de `_document` a déjà posé l'attribut,
@@ -79,8 +84,11 @@ export function useSidebarCollapsed(): { collapsed: boolean; toggle: () => void 
   }, []);
 
   const toggle = useCallback(() => appliquer(!(plie ?? false), true), []);
+  const setCollapsedTemporaire = useCallback((valeur: boolean) => {
+    if ((plie ?? false) !== valeur) appliquer(valeur, false);
+  }, []);
 
-  return { collapsed, toggle };
+  return { collapsed, toggle, setCollapsedTemporaire };
 }
 
 export default useSidebarCollapsed;

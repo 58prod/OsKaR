@@ -10,12 +10,18 @@ import { PokerDessin } from '@/components/toolbox/poker/PokerDessin';
 import { PokerListeTickets } from '@/components/toolbox/poker/PokerListeTickets';
 import { DEPART_AVEC_VOTE } from '@/components/toolbox/shared/departs';
 import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
+import { useReplisAuto } from '@/components/toolbox/poker/useReplisAuto';
 
 const PlanningPokerPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('planning-poker');
 
   const { state, participants, isHost, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, voirReactions, jeSuisObservateur, tousOntVote, actions } =
     usePokerSession(code, identity);
+
+  // Liste des tickets : toujours pour l'animateur, pour les autres dès qu'elle existe.
+  const panneauTickets = isFacilitator || state.tickets.length > 0;
+  // Fenêtre qui rétrécit : menu Oskar puis tickets repliés, pour garder la place des cartes.
+  const { ticketsPlies, basculerTickets } = useReplisAuto(panneauTickets);
 
   // Choix fait à la création : envoyé dès l'entrée (mis en attente jusqu'à
   // la connexion, comme tout geste fait avant).
@@ -66,8 +72,7 @@ const PlanningPokerPage: React.FC = () => {
         />
 
         <div className="flex flex-col md:min-h-0 md:flex-1 md:flex-row md:overflow-hidden">
-          {/* Liste des tickets : toujours pour l'animateur, pour les autres dès qu'elle existe. */}
-          {(isFacilitator || state.tickets.length > 0) && (
+          {panneauTickets && (
             <PokerListeTickets
               tickets={state.tickets}
               ticketCourant={state.ticketCourant}
@@ -80,6 +85,8 @@ const PlanningPokerPage: React.FC = () => {
               onEstimate={actions.estimerTicket}
               onEstimateNext={actions.estimerSuivant}
               onCorrectEstimation={actions.corrigerEstimation}
+              plie={ticketsPlies}
+              onTogglePlie={basculerTickets}
             />
           )}
           <div id="poker-board-area" className="flex md:flex-1 md:overflow-hidden">
