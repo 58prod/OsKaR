@@ -1,6 +1,10 @@
 import {
   DERNIERS_DESSINS_MAX,
   DESSIN_POIDS_MAX,
+  EMOJI_CATALOG,
+  SUITES,
+  aCarteEmoji,
+  emojiAuHasard,
   INITIAL_POKER_STATE,
   ajouterAuxDerniers,
   cadreDuDessin,
@@ -228,5 +232,25 @@ describe('Planning Poker — quitter la session', () => {
     expect(a.votes.bruno).toBe('3');
     expect(b.votes).toEqual(a.votes);
     expect(b.departs).toEqual(a.departs);
+  });
+});
+
+describe('Planning Poker — suite « Fibonacci + » et carte emoji', () => {
+  it('va jusqu’à 21 et se termine par une carte emoji', () => {
+    expect(SUITES.fibonacciPlus).toEqual(['1', '2', '3', '5', '8', '13', '21', '?']);
+    expect(aCarteEmoji('fibonacciPlus')).toBe(true);
+    expect(aCarteEmoji('fibonacci')).toBe(false);
+  });
+
+  it('tire un emoji du catalogue', () => {
+    expect(EMOJI_CATALOG).toContain(emojiAuHasard());
+    expect(emojiAuHasard(() => 0)).toBe(EMOJI_CATALOG[0]);
+    expect(emojiAuHasard(() => 0.9999)).toBe(EMOJI_CATALOG[EMOJI_CATALOG.length - 1]);
+  });
+
+  it('compte un vote emoji dans la répartition, pas dans la moyenne', () => {
+    const r = computeResults({ alice: '21', bruno: '13', chloe: '🦄' });
+    expect(r.average).toBe('17');
+    expect(r.distribution).toContainEqual({ value: '🦄', count: 1 });
   });
 });

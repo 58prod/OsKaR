@@ -1,17 +1,21 @@
 import React from 'react';
 import type { ToolParticipant } from '@/hooks/useToolSession';
-import type { PokerState } from './pokerLogic';
+import { aCarteEmoji, type PokerState } from './pokerLogic';
+import { PokerCarteEmoji } from './PokerCarteEmoji';
 
 interface PokerBoardProps {
   state: PokerState;
   /** En ligne, plus les votants dont la connexion a décroché (`online: false`). */
   participants: (ToolParticipant & { online?: boolean })[];
   myId: string;
+  /** Emoji de la carte emoji (suite « Fibonacci + »), propre à chacun. */
+  myEmoji: string;
   onVote: (value: string) => void;
+  onChooseEmoji: (emoji: string) => void;
 }
 
 /** Cartes de vote et participants (la story est dans la barre du haut). */
-export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myId, onVote }) => {
+export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myId, myEmoji, onVote, onChooseEmoji }) => {
   const { suite, suiteKey, votes, revealed } = state;
   const myVote = votes[myId];
   const isTshirt = suiteKey === 'tshirt';
@@ -49,6 +53,15 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myI
                 </button>
               );
             })}
+            {aCarteEmoji(suiteKey) && (
+              <PokerCarteEmoji
+                emoji={myEmoji}
+                selected={!!myVote && myVote === myEmoji}
+                locked={revealed}
+                onVote={onVote}
+                onChoose={onChooseEmoji}
+              />
+            )}
           </div>
         </section>
 

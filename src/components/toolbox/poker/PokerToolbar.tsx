@@ -77,6 +77,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
               className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-navy outline-none focus:border-[var(--tool-accent)]"
             >
               <option value="fibonacci">Fibonacci (1,2,3,5,8,13,?)</option>
+              <option value="fibonacciPlus">Fibonacci + (1,2,3,5,8,13,21,?,emoji)</option>
               <option value="tshirt">T-Shirts (XS,S,M,L,XL,?)</option>
               <option value="custom">Personnalisé…</option>
             </select>

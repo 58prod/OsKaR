@@ -8,9 +8,12 @@ import {
 } from '@/components/toolbox/shared/toolChrono';
 import { shootDrawing, shootEmojis, launchFireworks } from './flyingEmoji';
 import {
-  INITIAL_POKER_STATE, SUITES, computeResults, estDessinValide, normalizePokerState, pokerReducer,
+  INITIAL_POKER_STATE, SUITES, computeResults, emojiAuHasard, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
+
+/** Emoji choisi pour la carte emoji de « Fibonacci + », gardé d'une séance à l'autre. */
+const CLE_MON_EMOJI = 'oskar.poker.monEmoji';
 
 /**
  * Orchestration métier du Planning Poker au-dessus du socle temps réel, en
@@ -95,6 +98,22 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     if (!identity || state.revealed) return;
     send({ t: 'vote', round: state.round, voterId: identity.id, value, name: identity.name, color: identity.color });
   }, [send, identity, state.round, state.revealed]);
+
+  // Carte emoji : tirée au hasard tant que la personne n'en a pas choisi une
+  // (après le premier rendu, pour que serveur et navigateur affichent pareil).
+  const [myEmoji, setMyEmoji] = useState('');
+  useEffect(() => {
+    let choisi: string | null = null;
+    try { choisi = localStorage.getItem(CLE_MON_EMOJI); } catch { /* stockage indisponible */ }
+    setMyEmoji(choisi || emojiAuHasard());
+  }, []);
+
+  const chooseEmoji = useCallback((emoji: string) => {
+    setMyEmoji(emoji);
+    try { localStorage.setItem(CLE_MON_EMOJI, emoji); } catch { /* stockage indisponible */ }
+    // Déjà voté avec la carte emoji : le vote suit le nouvel emoji.
+    if (myEmoji && state.votes[myId] === myEmoji) vote(emoji);
+  }, [myEmoji, myId, state.votes, vote]);
 
   // Les personnes en ligne, puis celles qui ont voté et dont la connexion a
   // décroché : leur vote compte, on continue donc de les montrer.
@@ -181,6 +200,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     remainingSec,
     results,
     myId,
-    actions: { vote, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
+    myEmoji,
+    actions: { vote, chooseEmoji, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
   };
 }

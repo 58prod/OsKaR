@@ -11,7 +11,7 @@ export const POKER_ACCENT = '#5b21b6';
 /** État partagé d'une session Planning Poker (synchronisé via Realtime). */
 export type PokerChrono = ToolChrono;
 
-export type SuiteKey = 'fibonacci' | 'tshirt' | 'custom';
+export type SuiteKey = 'fibonacci' | 'fibonacciPlus' | 'tshirt' | 'custom';
 
 export interface PokerState {
   story: string;
@@ -36,10 +36,25 @@ export interface PokerState {
   departs: Departs;
 }
 
-export const SUITES: Record<'fibonacci' | 'tshirt', string[]> = {
+export const SUITES: Record<Exclude<SuiteKey, 'custom'>, string[]> = {
   fibonacci: ['1', '2', '3', '5', '8', '13', '?'],
+  fibonacciPlus: ['1', '2', '3', '5', '8', '13', '21', '?'],
   tshirt: ['XS', 'S', 'M', 'L', 'XL', '?'],
 };
+
+/**
+ * La suite se termine-t-elle par une carte emoji ? Chacun y voit son propre
+ * emoji (tiré au hasard, modifiable) ; le voter envoie cet emoji, qui compte
+ * dans la répartition mais pas dans la moyenne.
+ */
+export function aCarteEmoji(key: SuiteKey): boolean {
+  return key === 'fibonacciPlus';
+}
+
+/** Emoji tiré au hasard dans le catalogue, pour la carte emoji. */
+export function emojiAuHasard(rand: () => number = Math.random): string {
+  return EMOJI_CATALOG[Math.floor(rand() * EMOJI_CATALOG.length)] ?? '🦄';
+}
 
 export const INITIAL_POKER_STATE: PokerState = {
   story: '',

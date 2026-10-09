@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.57.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : suite « Fibonacci + » et carte emoji
+- Nouvelle suite dans la liste de l'animateur : 1, 2, 3, 5, 8, 13, 21, ?
+  et une dernière carte emoji.
+- La carte emoji est propre à chacun : tirée au hasard au départ, modifiable
+  avec le crayon (catalogue des réactions, ou « Au hasard »), gardée dans le
+  navigateur (`oskar.poker.monEmoji`). Changer d'emoji après l'avoir voté
+  met le vote à jour.
+- Un vote emoji apparaît dans la répartition et sur la carte du participant,
+  sans compter dans la moyenne.
+
 ## [2.56.0] - 2026-10-09
 
 ### ✨ Ajouté — « Quitter » dans tous les outils

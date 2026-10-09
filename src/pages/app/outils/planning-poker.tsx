@@ -12,7 +12,7 @@ import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
 const PlanningPokerPage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('planning-poker');
 
-  const { state, participants, isFacilitator, toggleFacilitator, remainingSec, results, myId, actions } =
+  const { state, participants, isFacilitator, toggleFacilitator, remainingSec, results, myId, myEmoji, actions } =
     usePokerSession(code, identity);
 
   return (
@@ -48,7 +48,14 @@ const PlanningPokerPage: React.FC = () => {
 
       <div className="flex flex-1 overflow-hidden">
         <div id="poker-board-area" className="flex flex-1 overflow-hidden">
-          <PokerBoard state={state} participants={participants} myId={myId} onVote={actions.vote} />
+          <PokerBoard
+            state={state}
+            participants={participants}
+            myId={myId}
+            myEmoji={myEmoji}
+            onVote={actions.vote}
+            onChooseEmoji={actions.chooseEmoji}
+          />
         </div>
 
         <aside
