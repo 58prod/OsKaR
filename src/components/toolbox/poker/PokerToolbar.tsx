@@ -3,6 +3,7 @@ import { ExternalLink, Eye, Layers, Link2, Trash2 } from 'lucide-react';
 import { ChronoControls } from '@/components/toolbox/shared/ChronoControls';
 import type { ToolChrono } from '@/components/toolbox/shared/toolChrono';
 import { POKER_ACCENT, type SuiteKey } from './pokerLogic';
+import { ChampTitre, TitreAffiche } from './PokerTitreTicket';
 
 interface PokerToolbarProps {
   story: string;
@@ -70,38 +71,13 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
         <Layers className="h-4 w-4" style={{ color: POKER_ACCENT }} aria-hidden /> Ticket
       </span>
 
-      {isFacilitator ? (
-        <label className="min-w-[220px] flex-1">
-          <span className="sr-only">Ticket à estimer</span>
-          <input
-            type="text"
-            value={story}
-            onChange={(e) => onStoryChange(e.target.value)}
-            placeholder="Titre du ticket à estimer…"
-            className="w-full bg-transparent text-base font-semibold text-navy outline-none placeholder:font-normal placeholder:text-line"
-          />
-        </label>
-      ) : (
-        <span className="flex min-w-[220px] flex-1 items-center gap-1">
-          {story && storyUrl ? (
-            // Le titre lui-même ouvre le ticket.
-            <a
-              href={storyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={`Ouvrir le ticket dans un nouvel onglet : ${storyUrl}`}
-              className="truncate text-base font-semibold text-navy underline-offset-4 hover:underline"
-            >
-              {story}
-            </a>
-          ) : (
-            <span className="truncate text-base font-semibold text-navy">
-              {story || <span className="font-normal text-muted">En attente de la fonctionnalité…</span>}
-            </span>
-          )}
-          {iconeLien}
-        </span>
-      )}
+      {/* Titre sur deux lignes au plus, sans grandir la barre ; bulle s'il est plus long. */}
+      <div className="flex min-w-[220px] flex-1 items-center gap-1">
+        {isFacilitator
+          ? <ChampTitre titre={story} onChange={onStoryChange} />
+          : <TitreAffiche titre={story} url={storyUrl} />}
+        {!isFacilitator && iconeLien}
+      </div>
       {isFacilitator && iconeLien}
 
       {isFacilitator && (

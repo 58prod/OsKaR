@@ -342,8 +342,8 @@ const LigneTicket: React.FC<LigneTicketProps> = ({
                 href={t.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                title={`Ouvrir le ticket dans un nouvel onglet : ${t.url}`}
-                className={`min-w-0 break-words underline-offset-2 hover:underline ${estime ? 'line-through' : ''}`}
+                title={`${t.titre}\n\nOuvrir le ticket dans un nouvel onglet : ${t.url}`}
+                className={`line-clamp-2 min-w-0 break-words underline-offset-2 hover:underline ${estime ? 'line-through' : ''}`}
               >
                 {t.titre}
               </a>
@@ -359,7 +359,8 @@ const LigneTicket: React.FC<LigneTicketProps> = ({
               </a>
             </>
           ) : (
-            <span className={`min-w-0 break-words ${estime ? 'line-through' : ''}`}>{t.titre}</span>
+            // Deux lignes au plus ; le titre complet au survol.
+            <span title={t.titre} className={`line-clamp-2 min-w-0 break-words ${estime ? 'line-through' : ''}`}>{t.titre}</span>
           )}
         </div>
         {(enCours || estime) && (

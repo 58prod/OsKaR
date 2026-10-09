@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.64.1] - 2026-10-09
+
+### 💄 Modifié — Planning Poker : titres longs
+- Barre du haut : le titre du ticket passe sur deux lignes au plus, dans une
+  zone de hauteur fixe (la barre ne grandit pas) ; un titre court reste
+  centré. Au-delà de deux lignes, le titre complet s'affiche dans une bulle
+  au survol, chez l'animateur (zone de saisie) comme chez les participants.
+  Entrée valide le titre (pas de retour à la ligne).
+- Liste des tickets : titres limités à deux lignes, titre complet au survol.
+
 ## [2.64.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : prioriser les tickets par glisser-déposer
