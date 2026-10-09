@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.62.1] - 2026-10-09
+
+### 💄 Modifié — Planning Poker : « Voir les réactions des autres »
+- Le réglage « Celles des autres : visibles / masquées » (qui passait à la
+  ligne) devient un interrupteur « Voir les réactions des autres », en bas du
+  panneau « Réactions », sur une seule ligne. Même comportement, activé par
+  défaut.
+
 ## [2.62.0] - 2026-10-09
 
 ### ✨ Ajouté — Fermer la fenêtre d'entrée d'un outil
