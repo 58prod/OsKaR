@@ -47,7 +47,8 @@ const PlanningPokerPage: React.FC = () => {
         isFacilitator={isFacilitator}
         revealed={state.revealed}
         voteCount={Object.keys(state.votes).length}
-        totalCount={participants.length}
+        ticketsEstimes={state.tickets.filter((t) => t.estimation !== null).length}
+        ticketsTotal={state.tickets.length}
         suiteKey={state.suiteKey}
         onStoryChange={actions.setStory}
         onStoryUrlChange={actions.setStoryUrl}

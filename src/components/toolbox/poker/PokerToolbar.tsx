@@ -12,8 +12,11 @@ interface PokerToolbarProps {
   remainingSec: number;
   isFacilitator: boolean;
   revealed: boolean;
+  /** Votes de la manche (le bouton Révéler en demande au moins un). */
   voteCount: number;
-  totalCount: number;
+  /** Tickets de la liste estimés, et nombre total de tickets. */
+  ticketsEstimes: number;
+  ticketsTotal: number;
   suiteKey: SuiteKey;
   onStoryChange: (story: string) => void;
   onStoryUrlChange: (url: string) => void;
@@ -33,7 +36,7 @@ interface PokerToolbarProps {
  * partagé aux couleurs de l'outil.
  */
 export const PokerToolbar: React.FC<PokerToolbarProps> = ({
-  story, storyUrl, chrono, remainingSec, isFacilitator, revealed, voteCount, totalCount, suiteKey,
+  story, storyUrl, chrono, remainingSec, isFacilitator, revealed, voteCount, ticketsEstimes, ticketsTotal, suiteKey,
   onStoryChange, onStoryUrlChange, onToggleChrono, onResetChrono, onDurationChange, onSuiteChange, onApplyCustom, onReveal, onReset,
 }) => {
   const [customRaw, setCustomRaw] = useState('');
@@ -44,15 +47,17 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
   useEffect(() => { setUrlSaisie(storyUrl); }, [storyUrl]);
   const validerUrl = () => { if (urlSaisie.trim() !== storyUrl) onStoryUrlChange(urlSaisie); };
 
-  const lienTicket = storyUrl && (
+  // Icône d'ouverture, collée au titre du ticket.
+  const iconeLien = storyUrl && (
     <a
       href={storyUrl}
       target="_blank"
       rel="noopener noreferrer"
       title={`Ouvrir le ticket dans un nouvel onglet : ${storyUrl}`}
-      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
     >
-      <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Ouvrir
+      <ExternalLink className="h-4 w-4" aria-hidden />
+      <span className="sr-only">Ouvrir le ticket dans un nouvel onglet</span>
     </a>
   );
 
@@ -77,10 +82,27 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
           />
         </label>
       ) : (
-        <span className="min-w-[220px] flex-1 truncate text-base font-semibold text-navy">
-          {story || <span className="font-normal text-muted">En attente de la fonctionnalité…</span>}
+        <span className="flex min-w-[220px] flex-1 items-center gap-1">
+          {story && storyUrl ? (
+            // Le titre lui-même ouvre le ticket.
+            <a
+              href={storyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`Ouvrir le ticket dans un nouvel onglet : ${storyUrl}`}
+              className="truncate text-base font-semibold text-navy underline-offset-4 hover:underline"
+            >
+              {story}
+            </a>
+          ) : (
+            <span className="truncate text-base font-semibold text-navy">
+              {story || <span className="font-normal text-muted">En attente de la fonctionnalité…</span>}
+            </span>
+          )}
+          {iconeLien}
         </span>
       )}
+      {isFacilitator && iconeLien}
 
       {isFacilitator && (
         <label className="flex w-56 shrink-0 items-center gap-1.5 rounded-lg border border-line px-2.5 py-1 focus-within:border-[var(--tool-accent)]">
@@ -98,11 +120,13 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
           />
         </label>
       )}
-      {lienTicket}
 
-      <p className="shrink-0 text-sm text-muted" aria-live="polite">
-        <strong className="text-navy">{voteCount}</strong> / {totalCount} vote{totalCount > 1 ? 's' : ''}
-      </p>
+
+      {ticketsTotal > 0 && (
+        <p className="shrink-0 text-sm text-muted" aria-live="polite">
+          Tickets estimés : <strong className="text-navy">{ticketsEstimes}</strong> / {ticketsTotal}
+        </p>
+      )}
 
       <div className="ml-auto flex flex-wrap items-center gap-2.5">
         {isFacilitator && (

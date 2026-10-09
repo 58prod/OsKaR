@@ -52,7 +52,7 @@ export const PokerListeTickets: React.FC<PokerTicketsProps> = ({
         <ListTodo className="h-4 w-4 shrink-0" style={{ color: POKER_ACCENT }} aria-hidden />
         <h2 className="flex-1 text-xs font-bold uppercase tracking-wide text-muted">Tickets</h2>
         <span className="text-sm text-muted" aria-live="polite">
-          <strong className="text-navy">{estimes}</strong> / {tickets.length} estimé{estimes > 1 ? 's' : ''}
+          Estimés : <strong className="text-navy">{estimes}</strong> / {tickets.length}
         </span>
       </div>
 
@@ -248,28 +248,44 @@ const LigneTicket: React.FC<LigneTicketProps> = ({
       <span className="mt-0.5 w-5 shrink-0 text-right text-xs font-bold text-muted">{position}</span>
 
       <div className="min-w-0 flex-1">
-        <div className={`break-words text-sm font-semibold ${estime ? 'text-muted line-through' : 'text-navy'}`}>
-          {t.titre}
-        </div>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-          {enCours && <span className="font-bold" style={{ color: POKER_ACCENT }}>En cours</span>}
-          {estime && (
-            <span className="rounded bg-success-50 px-1.5 py-0.5 font-bold text-success-700">
-              Estimé : {t.estimation}
-            </span>
+        {/* Le trait d'un ticket estimé se pose sur le titre lui-même (il ne traverse pas une boîte flex). */}
+        <div className={`flex items-start gap-1 text-sm font-semibold ${estime ? 'text-muted' : 'text-navy'}`}>
+          {t.url ? (
+            <>
+              <a
+                href={t.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Ouvrir le ticket dans un nouvel onglet : ${t.url}`}
+                className={`min-w-0 break-words underline-offset-2 hover:underline ${estime ? 'line-through' : ''}`}
+              >
+                {t.titre}
+              </a>
+              <a
+                href={t.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Ouvrir le ticket dans un nouvel onglet : ${t.url}`}
+                className="mt-0.5 shrink-0 text-muted transition-colors hover:text-navy"
+              >
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                <span className="sr-only">Ouvrir « {t.titre} » dans un nouvel onglet</span>
+              </a>
+            </>
+          ) : (
+            <span className={`min-w-0 break-words ${estime ? 'line-through' : ''}`}>{t.titre}</span>
           )}
-          {t.url && (
-            <a
-              href={t.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={t.url}
-              className="inline-flex items-center gap-0.5 font-semibold text-navy underline-offset-2 hover:underline"
-            >
-              <ExternalLink className="h-3 w-3" aria-hidden /> Ouvrir
-            </a>
-          )}
         </div>
+        {(enCours || estime) && (
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+            {enCours && <span className="font-bold" style={{ color: POKER_ACCENT }}>En cours</span>}
+            {estime && (
+              <span className="rounded bg-success-50 px-1.5 py-0.5 font-bold text-success-700">
+                Estimé : {t.estimation}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {isFacilitator && (

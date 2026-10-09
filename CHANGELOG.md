@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.63.1] - 2026-10-09
+
+### 💄 Modifié — Planning Poker : compteur de tickets, liens sur les titres
+- Dans la barre du haut, le compteur de votes (« 0 / 1 vote ») laisse la
+  place au compteur de la liste : « Tickets estimés : 1 / 3 » (affiché dès
+  qu'il y a des tickets). Panneau : « Estimés : 1 / 3 ».
+- Le bouton « Ouvrir » disparaît : le titre du ticket est lui-même un lien
+  (nouvel onglet), suivi d'une petite icône d'ouverture, dans la barre du haut
+  comme dans la liste.
+- Correctif : le titre d'un ticket estimé est de nouveau barré.
+
 ## [2.63.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : lien du ticket et liste de tickets
