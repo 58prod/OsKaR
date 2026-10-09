@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Eraser, FlipHorizontal2, PaintBucket, Pencil, Send, Undo2 } from 'lucide-react';
+import { Eraser, FlipHorizontal2, ImagePlus, PaintBucket, Pencil, Send, Undo2 } from 'lucide-react';
 import {
   DERNIERS_DESSINS_MAX, DESSIN_TAILLE, POKER_ACCENT, ajouterAuxDerniers, cadreDuDessin, estDessinValide, remplirZone,
 } from './pokerLogic';
@@ -24,11 +24,15 @@ const EPAISSEURS = [
 const MARGE = 10;
 const CONTOUR = 5;
 const CLE_DERNIERS = 'oskar.poker.derniersDessins';
+/** Image importée : au-delà, on refuse (elle est de toute façon réduite à 96 px). */
+const IMAGE_POIDS_MAX = 15 * 1024 * 1024;
 
 type Point = { x: number; y: number };
 type Geste =
   | { type: 'trait'; couleur: string; epaisseur: number; miroir: boolean; points: Point[] }
   | { type: 'remplir'; couleur: string; miroir: boolean; point: Point }
+  /** Image importée : remplace le contenu du cadre, on peut dessiner par-dessus. */
+  | { type: 'image'; image: CanvasImageSource; largeur: number; hauteur: number }
   | { type: 'effacer' };
 
 const enMiroir = (p: Point): Point => ({ x: COTE - p.x, y: p.y });
@@ -70,6 +74,25 @@ function remplir(ctx: CanvasRenderingContext2D, g: Extract<Geste, { type: 'rempl
     remplirZone(image.data, COTE, m.x, m.y, rgb);
   }
   ctx.putImageData(image, 0, 0);
+}
+
+/** Pose l'image entière, centrée, dans le cadre (sans la rogner). */
+function poserImage(ctx: CanvasRenderingContext2D, g: Extract<Geste, { type: 'image' }>) {
+  const echelle = Math.min(COTE / g.largeur, COTE / g.hauteur);
+  const l = g.largeur * echelle;
+  const h = g.hauteur * echelle;
+  ctx.clearRect(0, 0, COTE, COTE);
+  ctx.drawImage(g.image, (COTE - l) / 2, (COTE - h) / 2, l, h);
+}
+
+/** Lit une image choisie ou déposée ; null si le navigateur ne sait pas la décoder (HEIC…). */
+async function lireImage(fichier: File): Promise<Extract<Geste, { type: 'image' }> | null> {
+  try {
+    const image = await createImageBitmap(fichier);
+    return { type: 'image', image, largeur: image.width, hauteur: image.height };
+  } catch {
+    return null;
+  }
 }
 
 const nouveauCanvas = () => {
@@ -142,7 +165,8 @@ interface PokerDessinProps {
  * « Mon emoji » : un cadre blanc où l'on dessine au doigt ou à la souris,
  * puis on envoie son dessin, qui s'envole chez tout le monde comme un emoji.
  * Crayon (trois épaisseurs), pot de peinture, symétrie miroir et annulation ;
- * le dessin est recadré, réduit et habillé en autocollant. Les derniers
+ * on peut aussi partir d'une image (bouton ou glisser-déposer dans le cadre).
+ * Le dessin est recadré, réduit et habillé en autocollant. Les derniers
  * dessins envoyés restent dans le navigateur pour être renvoyés d'un clic.
  */
 export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
@@ -155,6 +179,9 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
   const [epaisseur, setEpaisseur] = useState(EPAISSEURS[1].valeur);
   const [miroir, setMiroir] = useState(false);
   const [derniers, setDerniers] = useState<string[]>([]);
+  const fichier = useRef<HTMLInputElement>(null);
+  const [erreurImage, setErreurImage] = useState('');
+  const [survol, setSurvol] = useState(false);
 
   useEffect(() => { setDerniers(lireDerniers()); }, []);
 
@@ -170,6 +197,7 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
     ctx.clearRect(0, 0, COTE, COTE);
     for (const g of gestes.current) {
       if (g.type === 'effacer') ctx.clearRect(0, 0, COTE, COTE);
+      else if (g.type === 'image') poserImage(ctx, g);
       else if (g.type === 'trait') tracer(ctx, g, g.points);
       else remplir(ctx, g);
     }
@@ -231,6 +259,27 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
   const effacer = () => {
     canvas.current?.getContext('2d')?.clearRect(0, 0, COTE, COTE);
     ajouter({ type: 'effacer' });
+  };
+
+  const importer = async (f: File | undefined) => {
+    if (!f) return;
+    setErreurImage('');
+    if (!f.type.startsWith('image/')) {
+      setErreurImage('Ce fichier n’est pas une image.');
+      return;
+    }
+    if (f.size > IMAGE_POIDS_MAX) {
+      setErreurImage('Image trop lourde (15 Mo au plus).');
+      return;
+    }
+    const g = await lireImage(f);
+    const ctx = canvas.current?.getContext('2d');
+    if (!g || !ctx) {
+      setErreurImage('Format non pris en charge : essayez une image JPEG ou PNG.');
+      return;
+    }
+    poserImage(ctx, g);
+    ajouter(g);
   };
 
   const envoyerImage = (src: string) => {
@@ -314,7 +363,12 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
         </button>
       </div>
 
-      <div className="relative mx-auto h-[160px] w-[160px]">
+      <div
+        className="relative mx-auto h-[160px] w-[160px]"
+        onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); setSurvol(true); } }}
+        onDragLeave={() => setSurvol(false)}
+        onDrop={(e) => { e.preventDefault(); setSurvol(false); void importer(e.dataTransfer.files[0]); }}
+      >
         <canvas
           ref={canvas}
           width={COTE}
@@ -324,9 +378,10 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
           onPointerUp={lever}
           onPointerCancel={lever}
           aria-label="Cadre de dessin : dessinez votre emoji"
-          className={`block h-full w-full touch-none rounded-lg border-[1.5px] border-dashed border-line bg-white ${
+          className={`block h-full w-full touch-none rounded-lg border-[1.5px] border-dashed bg-white ${
             outil === 'pot' ? 'cursor-cell' : 'cursor-crosshair'
           }`}
+          style={{ borderColor: survol ? POKER_ACCENT : undefined }}
         />
         {miroir && (
           <span
@@ -379,6 +434,22 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
         </button>
         <button
           type="button"
+          onClick={() => fichier.current?.click()}
+          aria-label="Importer une image"
+          title="Importer une image (ou la glisser dans le cadre)"
+          className="inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg border border-line text-navy transition-colors hover:bg-surface"
+        >
+          <ImagePlus className="h-4 w-4" aria-hidden />
+        </button>
+        <input
+          ref={fichier}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => { void importer(e.target.files?.[0]); e.target.value = ''; }}
+        />
+        <button
+          type="button"
           onClick={envoyer}
           disabled={vide}
           style={{ background: POKER_ACCENT }}
@@ -387,6 +458,10 @@ export const PokerDessin: React.FC<PokerDessinProps> = ({ onSend }) => {
           <Send className="h-4 w-4" aria-hidden /> Envoyer
         </button>
       </div>
+
+      {erreurImage && (
+        <p role="alert" className="mt-2 text-xs font-semibold text-danger-600">{erreurImage}</p>
+      )}
 
       {derniers.length > 0 && (
         <div className="mt-3 border-t border-line pt-2.5">

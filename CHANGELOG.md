@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.60.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : importer une image dans « Mon emoji »
+- Nouveau bouton « Importer une image » sous le cadre de dessin (ou glisser
+  l'image dans le cadre) : elle s'affiche en entier, centrée, sans être rognée.
+- C'est une étape du dessin comme une autre : on peut dessiner ou peindre
+  par-dessus, l'annuler (Ctrl/⌘Z), puis l'envoyer ; elle est recadrée,
+  réduite à 96 px et habillée en autocollant comme un dessin (une photo de
+  ~500 Ko donne ~18 Ko envoyés). Rien n'est stocké sur le serveur.
+- Fichier non image, trop lourd (> 15 Mo) ou au format non décodé par le
+  navigateur (HEIC…) : message clair sous le cadre.
+
 ## [2.59.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : réserver l'animation au créateur
