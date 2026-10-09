@@ -8,7 +8,7 @@ import {
 } from '@/components/toolbox/shared/toolChrono';
 import { shootDrawing, shootEmojis, launchFireworks } from './flyingEmoji';
 import {
-  INITIAL_POKER_STATE, SUITES, computeResults, emojiAuHasard, estDessinValide, normalizePokerState, pokerReducer,
+  INITIAL_POKER_STATE, SUITES, computeResults, emojiAuHasard, lireSuitePersonnalisee, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
 
@@ -147,7 +147,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   }, [send, state.round, state.suite]);
 
   const applyCustom = useCallback((raw: string) => {
-    const vals = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    const vals = lireSuitePersonnalisee(raw);
     if (vals.length < 2) {
       toast.warning('Ajoutez au moins 2 valeurs séparées par des virgules.');
       return;

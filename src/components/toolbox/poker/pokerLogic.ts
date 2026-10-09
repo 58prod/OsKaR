@@ -36,19 +36,32 @@ export interface PokerState {
   departs: Departs;
 }
 
+/**
+ * Carte emoji, à sa place dans une suite : chacun y voit son propre emoji
+ * (tiré au hasard, modifiable) ; la voter envoie cet emoji, qui compte dans
+ * la répartition mais pas dans la moyenne. Dans une suite personnalisée,
+ * il suffit de taper « emoji ».
+ */
+export const CARTE_EMOJI = 'emoji';
+
 export const SUITES: Record<Exclude<SuiteKey, 'custom'>, string[]> = {
   fibonacci: ['1', '2', '3', '5', '8', '13', '?'],
-  fibonacciPlus: ['1', '2', '3', '5', '8', '13', '21', '?'],
+  fibonacciPlus: ['1', '2', '3', '5', '8', '13', '21', '?', CARTE_EMOJI],
   tshirt: ['XS', 'S', 'M', 'L', 'XL', '?'],
 };
 
 /**
- * La suite se termine-t-elle par une carte emoji ? Chacun y voit son propre
- * emoji (tiré au hasard, modifiable) ; le voter envoie cet emoji, qui compte
- * dans la répartition mais pas dans la moyenne.
+ * Valeurs d'une suite personnalisée tapée « 0, 1, 2, ?, emoji » : « emoji »
+ * (ou « Émoji »…) devient la carte emoji, et une valeur répétée n'est gardée
+ * qu'une fois (deux cartes identiques ne se distingueraient pas).
  */
-export function aCarteEmoji(key: SuiteKey): boolean {
-  return key === 'fibonacciPlus';
+export function lireSuitePersonnalisee(raw: string): string[] {
+  const vals = raw
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean)
+    .map((v) => (/^[ée]mojis?$/i.test(v) ? CARTE_EMOJI : v));
+  return [...new Set(vals)];
 }
 
 /** Emoji tiré au hasard dans le catalogue, pour la carte emoji. */

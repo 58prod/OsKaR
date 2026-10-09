@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.58.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : carte emoji dans une suite personnalisée
+- Taper « emoji » (ou « Émoji », « emojis ») parmi les valeurs d'une suite
+  personnalisée ajoute la carte emoji de « Fibonacci + », à l'endroit où le
+  mot a été tapé : emoji tiré au hasard, propre à chacun et modifiable.
+- La carte emoji est désormais une valeur de la suite (`CARTE_EMOJI`), y
+  compris pour « Fibonacci + » ; une valeur tapée deux fois n'est gardée
+  qu'une fois. Indication ajoutée dans le champ (« Ex : 0,1,2,4,8,?,emoji »).
+
 ## [2.57.2] - 2026-10-09
 
 ### 💄 Modifié — Planning Poker : cartes des participants de même hauteur

@@ -86,13 +86,14 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
                 onSubmit={(e) => { e.preventDefault(); onApplyCustom(customRaw); }}
                 className="flex items-center gap-1.5"
               >
-                <label htmlFor="poker-suite-custom" className="sr-only">Valeurs personnalisées (séparées par des virgules)</label>
+                <label htmlFor="poker-suite-custom" className="sr-only">Valeurs personnalisées (séparées par des virgules ; « emoji » ajoute une carte emoji)</label>
                 <input
                   id="poker-suite-custom"
                   type="text"
                   value={customRaw}
                   onChange={(e) => setCustomRaw(e.target.value)}
-                  placeholder="Ex : 0,1,2,4,8,?"
+                  placeholder="Ex : 0,1,2,4,8,?,emoji"
+                  title="Tapez « emoji » pour ajouter une carte emoji, propre à chacun"
                   className="w-40 rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-navy outline-none focus:border-[var(--tool-accent)]"
                 />
                 <button

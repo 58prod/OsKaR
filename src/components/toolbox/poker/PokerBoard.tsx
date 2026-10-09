@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ToolParticipant } from '@/hooks/useToolSession';
-import { aCarteEmoji, type PokerState } from './pokerLogic';
+import { CARTE_EMOJI, type PokerState } from './pokerLogic';
 import { PokerCarteEmoji } from './PokerCarteEmoji';
 
 interface PokerBoardProps {
@@ -30,8 +30,20 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myI
           </h2>
           <div className="flex flex-wrap gap-3.5" role="group" aria-label="Cartes de vote">
             {suite.map((val) => {
-              const selected = myVote === val;
               const locked = revealed;
+              if (val === CARTE_EMOJI) {
+                return (
+                  <PokerCarteEmoji
+                    key={val}
+                    emoji={myEmoji}
+                    selected={!!myVote && myVote === myEmoji}
+                    locked={locked}
+                    onVote={onVote}
+                    onChoose={onChooseEmoji}
+                  />
+                );
+              }
+              const selected = myVote === val;
               return (
                 <button
                   key={val}
@@ -53,15 +65,6 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myI
                 </button>
               );
             })}
-            {aCarteEmoji(suiteKey) && (
-              <PokerCarteEmoji
-                emoji={myEmoji}
-                selected={!!myVote && myVote === myEmoji}
-                locked={revealed}
-                onVote={onVote}
-                onChoose={onChooseEmoji}
-              />
-            )}
           </div>
         </section>
 

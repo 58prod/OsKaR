@@ -3,7 +3,8 @@ import {
   DESSIN_POIDS_MAX,
   EMOJI_CATALOG,
   SUITES,
-  aCarteEmoji,
+  CARTE_EMOJI,
+  lireSuitePersonnalisee,
   emojiAuHasard,
   INITIAL_POKER_STATE,
   ajouterAuxDerniers,
@@ -237,9 +238,14 @@ describe('Planning Poker — quitter la session', () => {
 
 describe('Planning Poker — suite « Fibonacci + » et carte emoji', () => {
   it('va jusqu’à 21 et se termine par une carte emoji', () => {
-    expect(SUITES.fibonacciPlus).toEqual(['1', '2', '3', '5', '8', '13', '21', '?']);
-    expect(aCarteEmoji('fibonacciPlus')).toBe(true);
-    expect(aCarteEmoji('fibonacci')).toBe(false);
+    expect(SUITES.fibonacciPlus).toEqual(['1', '2', '3', '5', '8', '13', '21', '?', CARTE_EMOJI]);
+    expect(SUITES.fibonacci).not.toContain(CARTE_EMOJI);
+  });
+
+  it('fait de « emoji » une carte emoji dans une suite personnalisée', () => {
+    expect(lireSuitePersonnalisee(' 0, 1,2 ,, ?, Emoji ')).toEqual(['0', '1', '2', '?', CARTE_EMOJI]);
+    expect(lireSuitePersonnalisee('émoji,1,EMOJIS,1')).toEqual([CARTE_EMOJI, '1']);
+    expect(lireSuitePersonnalisee('emojis rigolos,3')).toEqual(['emojis rigolos', '3']);
   });
 
   it('tire un emoji du catalogue', () => {
