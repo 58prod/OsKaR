@@ -2,6 +2,9 @@ import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/tool
 import {
   appliquerDepart, estParti, lireDeparts, sansPartis, type DepartOp, type Departs,
 } from '@/components/toolbox/shared/departs';
+import {
+  appliquerTicket, lireTickets, titreSur, urlSure, type PokerTicket, type TicketOp,
+} from './pokerTickets';
 
 export { chronoRemaining, formatTime } from '@/components/toolbox/shared/toolChrono';
 
@@ -14,7 +17,16 @@ export type PokerChrono = ToolChrono;
 export type SuiteKey = 'fibonacci' | 'fibonacciPlus' | 'tshirt' | 'custom';
 
 export interface PokerState {
+  /** Titre du ticket en cours d'estimation. */
   story: string;
+  /** Lien du ticket en cours (http/https), ou ''. */
+  storyUrl: string;
+  /** Tickets préparés par l'animateur, par priorité (voir pokerTickets). */
+  tickets: PokerTicket[];
+  /** Tickets supprimés : un ajout ou une modification en retard ne les fait pas revenir. */
+  ticketsSupprimes: string[];
+  /** Ticket de la liste en cours d'estimation, ou null (ticket saisi à la main). */
+  ticketCourant: string | null;
   suiteKey: SuiteKey;
   suite: string[];
   /** participantId -> valeur votée. */
@@ -76,6 +88,10 @@ export function emojiAuHasard(rand: () => number = Math.random): string {
 
 export const INITIAL_POKER_STATE: PokerState = {
   story: '',
+  storyUrl: '',
+  tickets: [],
+  ticketsSupprimes: [],
+  ticketCourant: null,
   suiteKey: 'fibonacci',
   suite: [...SUITES.fibonacci],
   votes: {},
@@ -100,6 +116,11 @@ export function normalizePokerState(raw: Partial<PokerState> | null | undefined)
     round: typeof s.round === 'number' ? s.round : 0,
     departs: lireDeparts(s.departs),
     animateurSeul: !!s.animateurSeul,
+    story: typeof s.story === 'string' ? s.story : '',
+    storyUrl: urlSure(s.storyUrl),
+    tickets: lireTickets(s.tickets),
+    ticketsSupprimes: Array.isArray(s.ticketsSupprimes) ? s.ticketsSupprimes.filter((id) => typeof id === 'string') : [],
+    ticketCourant: typeof s.ticketCourant === 'string' ? s.ticketCourant : null,
   };
 }
 
@@ -114,10 +135,24 @@ export function normalizePokerState(raw: Partial<PokerState> | null | undefined)
 export type PokerOp =
   | { t: 'vote'; round: number; voterId: string; value: string; name?: string; color?: string }
   | { t: 'story'; story: string }
-  /** Nouvelle manche (`round` = manche courante + 1) : votes effacés. */
-  | { t: 'newRound'; round: number; suiteKey?: SuiteKey; suite?: string[]; chrono?: PokerChrono }
-  /** Révélation : fige les votes vus par celui qui révèle, identiques pour tous. */
-  | { t: 'reveal'; round: number; votes: Record<string, string>; chrono: PokerChrono }
+  | { t: 'storyUrl'; storyUrl: string }
+  /**
+   * Nouvelle manche (`round` = manche courante + 1) : votes effacés. Avec
+   * `ticketId`, c'est un ticket de la liste qu'on se met à estimer.
+   */
+  | {
+    t: 'newRound'; round: number; suiteKey?: SuiteKey; suite?: string[]; chrono?: PokerChrono;
+    ticketId?: string | null; story?: string; storyUrl?: string;
+  }
+  /**
+   * Révélation : fige les votes vus par celui qui révèle, identiques pour tous,
+   * et inscrit l'estimation retenue sur le ticket en cours.
+   */
+  | {
+    t: 'reveal'; round: number; votes: Record<string, string>; chrono: PokerChrono;
+    ticketId?: string | null; estimation?: string; at?: number;
+  }
+  | TicketOp
   | { t: 'chrono'; chrono: PokerChrono }
   /** Animation réservée au créateur, ou ouverte à tous (envoyée par le créateur). */
   | { t: 'animateurSeul'; value: boolean }
@@ -138,8 +173,22 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
           ? { ...state.voterNames, [op.voterId]: { name: op.name, color: op.color ?? '#1e2d7d' } }
           : state.voterNames,
       };
-    case 'story':
-      return state.story === op.story ? state : { ...state, story: op.story };
+    case 'story': {
+      if (state.story === op.story) return state;
+      // Le titre du ticket en cours suit la barre du haut.
+      const tickets = state.ticketCourant
+        ? state.tickets.map((t) => (t.id === state.ticketCourant ? { ...t, titre: titreSur(op.story) || t.titre } : t))
+        : state.tickets;
+      return { ...state, story: op.story, tickets };
+    }
+    case 'storyUrl': {
+      const storyUrl = urlSure(op.storyUrl);
+      if (state.storyUrl === storyUrl) return state;
+      const tickets = state.ticketCourant
+        ? state.tickets.map((t) => (t.id === state.ticketCourant ? { ...t, url: storyUrl } : t))
+        : state.tickets;
+      return { ...state, storyUrl, tickets };
+    }
     case 'newRound':
       // Déjà appliquée (rejeu) ou dépassée par une remise à zéro plus récente.
       if (op.round <= state.round) return state;
@@ -152,10 +201,24 @@ export function pokerReducer(raw: PokerState, op: PokerOp): PokerState {
         suiteKey: op.suiteKey ?? state.suiteKey,
         suite: op.suite ?? state.suite,
         chrono: op.chrono ?? state.chrono,
+        ...(op.ticketId !== undefined ? {
+          ticketCourant: op.ticketId,
+          story: op.story ?? state.story,
+          storyUrl: urlSure(op.storyUrl),
+        } : {}),
       };
-    case 'reveal':
+    case 'reveal': {
       if (op.round !== state.round || state.revealed) return state;
-      return { ...state, votes: sansPartis(op.votes, state.departs), revealed: true, chrono: op.chrono };
+      const revele = { ...state, votes: sansPartis(op.votes, state.departs), revealed: true, chrono: op.chrono };
+      if (!op.ticketId || op.estimation === undefined || typeof op.at !== 'number') return revele;
+      return appliquerTicket(revele, { t: 'ticketEstimation', id: op.ticketId, estimation: op.estimation, at: op.at });
+    }
+    case 'ticketAdd':
+    case 'ticketEdit':
+    case 'ticketMove':
+    case 'ticketDelete':
+    case 'ticketEstimation':
+      return appliquerTicket(state, op);
     case 'chrono':
       return { ...state, chrono: op.chrono };
     case 'animateurSeul':
@@ -218,6 +281,19 @@ export function computeResults(votes: Record<string, string>): PokerResults {
     .map(([value, count]) => ({ value, count }));
 
   return { average, consensus, distribution, voteCount: vals.length };
+}
+
+/**
+ * Estimation inscrite sur le ticket à la révélation : la moyenne des votes
+ * chiffrés, sinon la valeur la plus votée (tailles de t-shirt, emoji…).
+ * L'animateur peut la corriger dans la liste. null s'il n'y a aucun vote.
+ */
+export function estimationRetenue(votes: Record<string, string>): string | null {
+  const r = computeResults(votes);
+  if (r.voteCount === 0) return null;
+  if (r.average !== '—') return r.average;
+  const max = Math.max(...r.distribution.map((d) => d.count));
+  return r.distribution.find((d) => d.count === max)?.value ?? null;
 }
 
 /** Côté (px) de l'image envoyée pour un emoji dessiné à la main. */

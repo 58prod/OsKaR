@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Eye, Layers, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ExternalLink, Eye, Layers, Link2, Trash2 } from 'lucide-react';
 import { ChronoControls } from '@/components/toolbox/shared/ChronoControls';
 import type { ToolChrono } from '@/components/toolbox/shared/toolChrono';
 import { POKER_ACCENT, type SuiteKey } from './pokerLogic';
 
 interface PokerToolbarProps {
   story: string;
+  /** Lien du ticket en cours, ou ''. */
+  storyUrl: string;
   chrono: ToolChrono;
   remainingSec: number;
   isFacilitator: boolean;
@@ -14,6 +16,7 @@ interface PokerToolbarProps {
   totalCount: number;
   suiteKey: SuiteKey;
   onStoryChange: (story: string) => void;
+  onStoryUrlChange: (url: string) => void;
   onToggleChrono: () => void;
   onResetChrono: () => void;
   onDurationChange: (seconds: number) => void;
@@ -30,11 +33,28 @@ interface PokerToolbarProps {
  * partagé aux couleurs de l'outil.
  */
 export const PokerToolbar: React.FC<PokerToolbarProps> = ({
-  story, chrono, remainingSec, isFacilitator, revealed, voteCount, totalCount, suiteKey,
-  onStoryChange, onToggleChrono, onResetChrono, onDurationChange, onSuiteChange, onApplyCustom, onReveal, onReset,
+  story, storyUrl, chrono, remainingSec, isFacilitator, revealed, voteCount, totalCount, suiteKey,
+  onStoryChange, onStoryUrlChange, onToggleChrono, onResetChrono, onDurationChange, onSuiteChange, onApplyCustom, onReveal, onReset,
 }) => {
   const [customRaw, setCustomRaw] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
+  // Adresse saisie : envoyée à la sortie du champ (ou Entrée), pas à chaque
+  // lettre, car elle est complétée (« https:// ») et vérifiée à l'envoi.
+  const [urlSaisie, setUrlSaisie] = useState(storyUrl);
+  useEffect(() => { setUrlSaisie(storyUrl); }, [storyUrl]);
+  const validerUrl = () => { if (urlSaisie.trim() !== storyUrl) onStoryUrlChange(urlSaisie); };
+
+  const lienTicket = storyUrl && (
+    <a
+      href={storyUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`Ouvrir le ticket dans un nouvel onglet : ${storyUrl}`}
+      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+    >
+      <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Ouvrir
+    </a>
+  );
 
   return (
     <div
@@ -52,7 +72,7 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
             type="text"
             value={story}
             onChange={(e) => onStoryChange(e.target.value)}
-            placeholder="Décrivez la fonctionnalité à estimer…"
+            placeholder="Titre du ticket à estimer…"
             className="w-full bg-transparent text-base font-semibold text-navy outline-none placeholder:font-normal placeholder:text-line"
           />
         </label>
@@ -61,6 +81,24 @@ export const PokerToolbar: React.FC<PokerToolbarProps> = ({
           {story || <span className="font-normal text-muted">En attente de la fonctionnalité…</span>}
         </span>
       )}
+
+      {isFacilitator && (
+        <label className="flex w-56 shrink-0 items-center gap-1.5 rounded-lg border border-line px-2.5 py-1 focus-within:border-[var(--tool-accent)]">
+          <Link2 className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+          <span className="sr-only">Lien du ticket (facultatif)</span>
+          <input
+            type="text"
+            inputMode="url"
+            value={urlSaisie}
+            onChange={(e) => setUrlSaisie(e.target.value)}
+            onBlur={validerUrl}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); validerUrl(); } }}
+            placeholder="Lien du ticket (facultatif)"
+            className="w-full bg-transparent text-sm text-navy outline-none placeholder:text-muted"
+          />
+        </label>
+      )}
+      {lienTicket}
 
       <p className="shrink-0 text-sm text-muted" aria-live="polite">
         <strong className="text-navy">{voteCount}</strong> / {totalCount} vote{totalCount > 1 ? 's' : ''}

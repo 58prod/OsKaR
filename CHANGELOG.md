@@ -10,6 +10,26 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.63.0] - 2026-10-09
+
+### ✨ Ajouté — Planning Poker : lien du ticket et liste de tickets
+- **Lien du ticket** : dans la barre du haut, l'animateur saisit le titre et
+  le lien du ticket (« https:// » ajouté au besoin) ; chacun dispose d'un
+  bouton « Ouvrir » qui l'ouvre dans un nouvel onglet. Seuls les liens http
+  et https sont acceptés, y compris reçus du réseau.
+- **Liste de tickets** (panneau de gauche) : l'animateur l'alimente (titre +
+  lien facultatif), modifie, supprime (en deux clics) et priorise (flèches
+  monter / descendre) ; les participants la voient dès qu'elle existe, avec
+  les liens. « Estimer » met un ticket dans la barre du haut et relance une
+  manche ; « Estimer le ticket suivant » prend le premier non estimé.
+- **Estimation** : à la révélation, le ticket en cours est barré avec
+  l'estimation retenue (moyenne des votes chiffrés, sinon valeur la plus
+  votée), modifiable dans la liste ; « Réestimer » le remet en jeu. Compteur
+  « estimés / total ».
+- Synchro par opérations (`pokerTickets.ts`) : modifications, priorité et
+  estimation datées (la plus récente l'emporte), suppressions retenues ;
+  tests dans `pokerTickets.test.ts`.
+
 ## [2.62.1] - 2026-10-09
 
 ### 💄 Modifié — Planning Poker : « Voir les réactions des autres »

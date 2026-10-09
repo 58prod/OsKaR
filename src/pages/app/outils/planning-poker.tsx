@@ -7,6 +7,7 @@ import { PokerBoard } from '@/components/toolbox/poker/PokerBoard';
 import { PokerResults } from '@/components/toolbox/poker/PokerResults';
 import { PokerReactions } from '@/components/toolbox/poker/PokerReactions';
 import { PokerDessin } from '@/components/toolbox/poker/PokerDessin';
+import { PokerListeTickets } from '@/components/toolbox/poker/PokerListeTickets';
 import { DEPART_AVEC_VOTE } from '@/components/toolbox/shared/departs';
 import { usePokerSession } from '@/components/toolbox/poker/usePokerSession';
 
@@ -40,6 +41,7 @@ const PlanningPokerPage: React.FC = () => {
     >
       <PokerToolbar
         story={state.story}
+        storyUrl={state.storyUrl}
         chrono={state.chrono}
         remainingSec={remainingSec}
         isFacilitator={isFacilitator}
@@ -48,6 +50,7 @@ const PlanningPokerPage: React.FC = () => {
         totalCount={participants.length}
         suiteKey={state.suiteKey}
         onStoryChange={actions.setStory}
+        onStoryUrlChange={actions.setStoryUrl}
         onToggleChrono={actions.toggleChrono}
         onResetChrono={actions.resetChrono}
         onDurationChange={actions.setDuration}
@@ -58,6 +61,21 @@ const PlanningPokerPage: React.FC = () => {
       />
 
       <div className="flex flex-1 overflow-hidden">
+        {/* Liste des tickets : toujours pour l'animateur, pour les autres dès qu'elle existe. */}
+        {(isFacilitator || state.tickets.length > 0) && (
+          <PokerListeTickets
+            tickets={state.tickets}
+            ticketCourant={state.ticketCourant}
+            isFacilitator={isFacilitator}
+            onAdd={actions.ajouterTicket}
+            onEdit={actions.modifierTicket}
+            onMove={actions.deplacerTicket}
+            onDelete={actions.supprimerTicket}
+            onEstimate={actions.estimerTicket}
+            onEstimateNext={actions.estimerSuivant}
+            onCorrectEstimation={actions.corrigerEstimation}
+          />
+        )}
         <div id="poker-board-area" className="flex flex-1 overflow-hidden">
           <PokerBoard
             state={state}

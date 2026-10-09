@@ -8,9 +8,10 @@ import {
 } from '@/components/toolbox/shared/toolChrono';
 import { shootDrawing, shootEmojis, launchFireworks } from './flyingEmoji';
 import {
-  INITIAL_POKER_STATE, SUITES, computeResults, emojiAuHasard, lireSuitePersonnalisee, estDessinValide, normalizePokerState, pokerReducer,
+  INITIAL_POKER_STATE, SUITES, computeResults, estimationRetenue, emojiAuHasard, lireSuitePersonnalisee, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
+import { ordreDeplace, ordreEnFin, ticketSuivant } from './pokerTickets';
 
 /** « Voir les réactions des autres » : préférence de chacun, gardée dans le navigateur. */
 const CLE_VOIR_REACTIONS = 'oskar.poker.voirReactions';
@@ -88,13 +89,18 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
 
   const reveal = useCallback(() => {
     const c = state.chrono;
+    const estimation = state.ticketCourant ? estimationRetenue(state.votes) : null;
     send({
       t: 'reveal',
       round: state.round,
       votes: state.votes,
       chrono: { ...c, running: false, endsAt: null, remainingSec: chronoRemaining(c) },
+      // Le ticket en cours est marqué estimé (barré dans la liste).
+      ...(state.ticketCourant && estimation !== null
+        ? { ticketId: state.ticketCourant, estimation, at: Date.now() }
+        : {}),
     });
-  }, [send, state.chrono, state.round, state.votes]);
+  }, [send, state.chrono, state.round, state.votes, state.ticketCourant]);
 
   // Auto-révélation en fin de chrono, par l'animateur (l'hôte par défaut ; si
   // l'hôte est parti, celui qui a pris la main). Deux révélations simultanées
@@ -157,6 +163,49 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   const setAnimateurSeul = useCallback((value: boolean) => send({ t: 'animateurSeul', value }), [send]);
 
   const setStory = useCallback((story: string) => send({ t: 'story', story }), [send]);
+  const setStoryUrl = useCallback((storyUrl: string) => send({ t: 'storyUrl', storyUrl }), [send]);
+
+  /* ── Liste des tickets (animateur) ── */
+  const ajouterTicket = useCallback((titre: string, url: string) => {
+    const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    send({ t: 'ticketAdd', id, titre, url, ordre: ordreEnFin(state.tickets), at: Date.now() });
+  }, [send, state.tickets]);
+
+  const modifierTicket = useCallback((id: string, titre: string, url: string) => {
+    send({ t: 'ticketEdit', id, titre, url, at: Date.now() });
+  }, [send]);
+
+  const deplacerTicket = useCallback((id: string, sens: -1 | 1) => {
+    const ordre = ordreDeplace(state.tickets, id, sens);
+    if (ordre !== null) send({ t: 'ticketMove', id, ordre, at: Date.now() });
+  }, [send, state.tickets]);
+
+  const supprimerTicket = useCallback((id: string) => send({ t: 'ticketDelete', id }), [send]);
+
+  const corrigerEstimation = useCallback((id: string, estimation: string | null) => {
+    send({ t: 'ticketEstimation', id, estimation, at: Date.now() });
+  }, [send]);
+
+  // Estimer (ou réestimer) un ticket : il passe dans la barre du haut, votes
+  // et minuteur repartent de zéro, et il n'est plus barré.
+  const estimerTicket = useCallback((id: string) => {
+    const ticket = state.tickets.find((t) => t.id === id);
+    if (!ticket) return;
+    if (ticket.estimation !== null) send({ t: 'ticketEstimation', id, estimation: null, at: Date.now() });
+    send({
+      t: 'newRound',
+      round: state.round + 1,
+      chrono: resetChronoState(state.chrono),
+      ticketId: id,
+      story: ticket.titre,
+      storyUrl: ticket.url,
+    });
+  }, [send, state.tickets, state.round, state.chrono]);
+
+  const estimerSuivant = useCallback(() => {
+    const suivant = ticketSuivant(state.tickets, state.ticketCourant);
+    if (suivant) estimerTicket(suivant.id);
+  }, [estimerTicket, state.tickets, state.ticketCourant]);
 
   const setSuite = useCallback((key: SuiteKey) => {
     send({
@@ -223,6 +272,10 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     myId,
     myEmoji,
     voirReactions,
-    actions: { vote, chooseEmoji, setAnimateurSeul, toggleVoirReactions, setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing },
+    actions: {
+      vote, chooseEmoji, setAnimateurSeul, toggleVoirReactions, setStoryUrl,
+      ajouterTicket, modifierTicket, deplacerTicket, supprimerTicket, corrigerEstimation, estimerTicket, estimerSuivant,
+      setStory, setSuite, applyCustom, reveal, reset, toggleChrono, resetChrono, setDuration, react, reactDrawing,
+    },
   };
 }
