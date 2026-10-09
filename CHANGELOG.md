@@ -10,6 +10,13 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.65.1] - 2026-10-09
+
+### 🐛 Corrigé — Planning Poker : les cartes des participants changeaient de place
+- L'ordre suivait la liste de présence du temps réel, qui se réordonne à
+  chaque arrivée, départ ou reconnexion. Ordre désormais stable : sa propre
+  carte en premier, puis les autres par ordre alphabétique de prénom.
+
 ## [2.65.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : observateurs et « Tout le monde a voté »

@@ -157,8 +157,17 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
         isHost: false,
         online: false,
       }));
-    return [...online, ...absents].map((p) => ({ ...p, observateur: !!state.observateurs[p.id]?.on }));
-  }, [session.participants, state.votes, state.voterNames, state.departs, state.observateurs]);
+    // Ordre stable : la liste de présence se réordonne à chaque arrivée ou
+    // reconnexion ; on montre donc sa propre carte en premier, puis les autres
+    // par ordre alphabétique, pour que chacun garde sa place.
+    return [...online, ...absents]
+      .map((p) => ({ ...p, observateur: !!state.observateurs[p.id]?.on }))
+      .sort((a, b) => {
+        if (a.id === myId) return -1;
+        if (b.id === myId) return 1;
+        return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+      });
+  }, [session.participants, state.votes, state.voterNames, state.departs, state.observateurs, myId]);
 
   // Observateur : ne vote pas ; choix de chacun, gardé d'une manche à l'autre.
   const jeSuisObservateur = estObservateur(state, myId);
