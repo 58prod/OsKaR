@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
+import { estParti } from '@/components/toolbox/shared/departs';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -26,6 +27,8 @@ export function useMoodSession(code: string | null, identity: ToolIdentity | nul
     identity,
     initialState: INITIAL_MOOD_STATE,
     reducer: moodReducer,
+    leaveOp: (who: ToolIdentity): MoodOp => ({ t: 'leave', voterId: who.id, at: Date.now() }),
+    backOp: (who: ToolIdentity): MoodOp => ({ t: 'back', voterId: who.id, at: Date.now() }),
   });
   const { isHost } = session;
   const send = session.dispatch as (op: MoodOp) => void;
@@ -70,7 +73,10 @@ export function useMoodSession(code: string | null, identity: ToolIdentity | nul
   // Les personnes en ligne, puis celles qui ont voté et dont la connexion a
   // décroché : leurs notes comptent, on continue donc de les montrer.
   const players = useMemo(() => {
-    const online = session.participants.map((p) => ({ ...p, online: true }));
+    // Une personne partie peut figurer encore un instant dans la présence.
+    const online = session.participants
+      .filter((p) => !estParti(state.departs, p.id))
+      .map((p) => ({ ...p, online: true }));
     const present = new Set(online.map((p) => p.id));
     const absents = Object.keys(state.votes)
       .filter((id) => !present.has(id))
@@ -82,7 +88,7 @@ export function useMoodSession(code: string | null, identity: ToolIdentity | nul
         online: false,
       }));
     return [...online, ...absents];
-  }, [session.participants, state.votes, state.voterNames]);
+  }, [session.participants, state.votes, state.voterNames, state.departs]);
 
   // Notes et discussion effacées, minuteur revenu à sa durée.
   const reset = useCallback(() => {

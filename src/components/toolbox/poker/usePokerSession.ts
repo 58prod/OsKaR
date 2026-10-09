@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
+import { estParti } from '@/components/toolbox/shared/departs';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -10,9 +11,6 @@ import {
   INITIAL_POKER_STATE, SUITES, computeResults, estDessinValide, normalizePokerState, pokerReducer,
   type PokerOp, type PokerState, type SuiteKey,
 } from './pokerLogic';
-
-/** Quitter la session : la personne et son vote disparaissent pour tous. */
-const pokerLeaveOp = (identity: ToolIdentity): PokerOp => ({ t: 'leave', voterId: identity.id });
 
 /**
  * Orchestration métier du Planning Poker au-dessus du socle temps réel, en
@@ -42,7 +40,8 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
     initialState: INITIAL_POKER_STATE,
     onSignal,
     reducer: pokerReducer,
-    leaveOp: pokerLeaveOp,
+    leaveOp: (who: ToolIdentity): PokerOp => ({ t: 'leave', voterId: who.id, at: Date.now() }),
+    backOp: (who: ToolIdentity): PokerOp => ({ t: 'back', voterId: who.id, at: Date.now() }),
   });
   const { isHost, sendSignal } = session;
   const send = session.dispatch as (op: PokerOp) => void;
@@ -102,7 +101,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
   const players = useMemo(() => {
     // Une personne partie peut figurer encore un instant dans la présence.
     const online = session.participants
-      .filter((p) => !state.left.includes(p.id))
+      .filter((p) => !estParti(state.departs, p.id))
       .map((p) => ({ ...p, online: true }));
     const present = new Set(online.map((p) => p.id));
     const absents = Object.keys(state.votes)
@@ -115,7 +114,7 @@ export function usePokerSession(code: string | null, identity: ToolIdentity | nu
         online: false,
       }));
     return [...online, ...absents];
-  }, [session.participants, state.votes, state.voterNames, state.left]);
+  }, [session.participants, state.votes, state.voterNames, state.departs]);
 
   const setStory = useCallback((story: string) => send({ t: 'story', story }), [send]);
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
+import { DEPART_AVEC_VOTE } from '@/components/toolbox/shared/departs';
 import { MoodToolbar } from '@/components/toolbox/mood/MoodToolbar';
 import { MoodBoard } from '@/components/toolbox/mood/MoodBoard';
 import { MoodResults } from '@/components/toolbox/mood/MoodResults';
@@ -23,6 +24,7 @@ const TeamMoodPage: React.FC = () => {
       onToggleFacilitator={toggleFacilitator}
       onJoin={handleJoin}
       onShare={handleShare}
+      leaveLabel={DEPART_AVEC_VOTE}
     >
       <MoodToolbar
         state={state}

@@ -134,3 +134,21 @@ describe('Team Mood — résultats', () => {
     expect(Object.keys(s.votes)).toEqual(['alice']);
   });
 });
+
+describe('Team Mood — quitter la session', () => {
+  const avant = appliquer([
+    { t: 'vote', round: 0, voterId: 'alice', dims: notes(8, 5, 6, 7, 8), name: 'Alice' },
+    { t: 'vote', round: 0, voterId: 'bruno', dims: notes(2, 9, 3, 4, 2), name: 'Bruno' },
+  ]);
+  const depart: MoodOp = { t: 'leave', voterId: 'bruno', at: 10 };
+
+  it('retire la personne et ses notes, sans la faire réapparaître', () => {
+    const revele: MoodOp = { t: 'reveal', round: 0, votes: avant.votes, chrono: arret };
+    const tardif: MoodOp = { t: 'vote', round: 0, voterId: 'bruno', dims: notes(1, 1, 1, 1, 1) };
+    const a = appliquer([depart, tardif, revele], avant);
+    const b = appliquer([revele, depart, depart], avant);
+    expect(Object.keys(a.votes)).toEqual(['alice']);
+    expect(b.votes).toEqual(a.votes);
+    expect(b.voterNames.bruno).toBeUndefined();
+  });
+});

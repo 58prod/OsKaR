@@ -109,3 +109,28 @@ describe('ROTI — votants hors ligne et anciennes sessions', () => {
     });
   });
 });
+
+describe('ROTI — quitter la session', () => {
+  const avant = appliquer([
+    { t: 'vote', round: 0, voterId: 'alice', star: 4, comment: '', name: 'Alice' },
+    { t: 'vote', round: 0, voterId: 'bruno', star: 2, comment: 'Trop long', name: 'Bruno' },
+  ]);
+  const depart: RotiOp = { t: 'leave', voterId: 'bruno', at: 10 };
+
+  it('retire la personne et sa note, sans la faire réapparaître', () => {
+    const revele: RotiOp = { t: 'reveal', round: 0, votes: avant.votes, chrono: arret };
+    const tardif: RotiOp = { t: 'vote', round: 0, voterId: 'bruno', star: 1, comment: '' };
+    const a = appliquer([depart, tardif, revele], avant);
+    const b = appliquer([revele, depart, depart], avant);
+    expect(Object.keys(a.votes)).toEqual(['alice']);
+    expect(b.votes).toEqual(a.votes);
+    expect(b.voterNames.bruno).toBeUndefined();
+  });
+
+  it('la laisse revenir après son départ, dans n’importe quel ordre', () => {
+    const retour: RotiOp = { t: 'back', voterId: 'bruno', at: 20 };
+    const vote: RotiOp = { t: 'vote', round: 0, voterId: 'bruno', star: 5, comment: '' };
+    expect(appliquer([depart, retour, vote], avant).votes.bruno?.star).toBe(5);
+    expect(appliquer([retour, vote, depart], avant).votes.bruno?.star).toBe(5);
+  });
+});

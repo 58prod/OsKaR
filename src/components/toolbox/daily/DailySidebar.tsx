@@ -16,13 +16,15 @@ export const DailySidebar: React.FC<DailySidebarProps> = ({ state, participants,
   const inRun = isActive(state.phase) || state.phase === 'done';
   // Ordre figé pendant la séance, sinon ordre de présence courant.
   const ids = inRun && state.order.length ? state.order : participants.map((p) => p.id);
+  // Les personnes parties restent dans l'ordre (positions) mais ne sont plus montrées.
+  const shown = ids.filter((id) => people.has(id));
   const speaking = state.phase === 'running' || state.phase === 'paused';
 
   return (
     <aside className="relative flex w-[280px] shrink-0 flex-col border-r border-line bg-white" aria-label="Ordre de passage">
       <div className="border-b border-line px-5 py-4">
         <h2 className="text-xs font-bold uppercase tracking-wide text-muted">Ordre de passage</h2>
-        <p className="mt-0.5 text-sm text-navy">{ids.length} participant{ids.length > 1 ? 's' : ''}</p>
+        <p className="mt-0.5 text-sm text-navy">{shown.length} participant{shown.length > 1 ? 's' : ''}</p>
       </div>
       <ol className="flex-1 overflow-y-auto p-3">
         {ids.map((id, pos) => {

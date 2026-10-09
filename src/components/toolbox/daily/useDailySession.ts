@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
+import { estParti } from '@/components/toolbox/shared/departs';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import {
   INITIAL_DAILY_STATE, dailyReducer, isActive, normalizeDailyState, shuffled, totalElapsed, turnRemaining,
@@ -20,6 +21,8 @@ export function useDailySession(code: string | null, identity: ToolIdentity | nu
     identity,
     initialState: INITIAL_DAILY_STATE,
     reducer: dailyReducer,
+    leaveOp: (who: ToolIdentity): DailyOp => ({ t: 'leave', id: who.id, at: Date.now() }),
+    backOp: (who: ToolIdentity): DailyOp => ({ t: 'back', id: who.id, at: Date.now() }),
   });
   const { isHost, isLoading } = session;
   const send = session.dispatch as (op: DailyOp) => void;
@@ -55,19 +58,23 @@ export function useDailySession(code: string | null, identity: ToolIdentity | nu
     const byId = new Map<string, DailyPerson & { online: boolean }>();
     Object.entries(state.names).forEach(([id, p]) => byId.set(id, { ...p, online: online.has(id) }));
     session.participants.forEach((p) => byId.set(p.id, { name: p.name, color: p.color, online: true }));
+    // Les personnes parties n'apparaissent plus.
+    Object.keys(state.departs).forEach((id) => { if (estParti(state.departs, id)) byId.delete(id); });
     return byId;
-  }, [session.participants, state.names]);
+  }, [session.participants, state.names, state.departs]);
 
   const start = useCallback(() => {
-    const ids = session.participants.map((p) => p.id);
+    // Une personne partie peut figurer encore un instant dans la présence.
+    const present = session.participants.filter((p) => !estParti(state.departs, p.id));
+    const ids = present.map((p) => p.id);
     if (ids.length === 0) return;
     const names: Record<string, DailyPerson> = {};
-    session.participants.forEach((p) => { names[p.id] = { name: p.name, color: p.color }; });
+    present.forEach((p) => { names[p.id] = { name: p.name, color: p.color }; });
     send({
       t: 'start', run: state.run + 1, token: token(),
       order: state.randomOrder ? shuffled(ids) : ids, names, at: Date.now(),
     });
-  }, [send, session.participants, state.run, state.randomOrder]);
+  }, [send, session.participants, state.run, state.randomOrder, state.departs]);
 
   const pauseResume = useCallback(() => {
     if (state.phase === 'running') {
@@ -100,7 +107,7 @@ export function useDailySession(code: string | null, identity: ToolIdentity | nu
 
   return {
     state,
-    participants: session.participants,
+    participants: session.participants.filter((p) => !estParti(state.departs, p.id)),
     people,
     isFacilitator,
     toggleFacilitator,

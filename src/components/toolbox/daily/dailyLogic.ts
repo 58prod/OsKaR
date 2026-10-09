@@ -1,3 +1,5 @@
+import { estParti, lireDeparts, noterDepart, type Departs } from '@/components/toolbox/shared/departs';
+
 /** Logique pure du Daily Stand-up (tour de table minuté). */
 
 /** Couleur de l'outil (celle de sa carte dans la boîte à outils). */
@@ -58,6 +60,14 @@ export interface DailyState {
    */
   run: number;
   runToken: string;
+  /**
+   * Personnes parties (bouton « Quitter », page ou onglet fermés) : elles
+   * restent dans `order` (les gestes désignent une personne par sa position)
+   * mais sont passées d'office et ne sont plus affichées. Un retour annule
+   * le départ (voir shared/departs). Gardé d'une séance à l'autre : un départ
+   * reçu juste avant ou juste après un démarrage donne le même résultat.
+   */
+  departs: Departs;
 }
 
 export const DAILY_DURATIONS = [
@@ -93,6 +103,7 @@ export const INITIAL_DAILY_STATE: DailyState = {
   randomOrder: false,
   run: 0,
   runToken: '',
+  departs: {},
 };
 
 const PHASES: DailyPhase[] = ['idle', 'next', 'running', 'paused', 'done'];
@@ -114,6 +125,7 @@ export function normalizeDailyState(raw: Partial<DailyState> | null | undefined)
     randomOrder: !!s.randomOrder,
     run: typeof s.run === 'number' ? s.run : 0,
     runToken: typeof s.runToken === 'string' ? s.runToken : '',
+    departs: lireDeparts(s.departs),
   };
 }
 
@@ -160,7 +172,11 @@ export type DailyOp =
   /** Arrivée en retard : ajout en fin de tour. */
   | { t: 'join'; run: number; id: string; person: DailyPerson }
   | { t: 'duration'; durationSec: number }
-  | { t: 'randomOrder'; value: boolean };
+  | { t: 'randomOrder'; value: boolean }
+  /** Départ volontaire : la personne n'apparaît plus, son tour est passé. */
+  | { t: 'leave'; id: string; at: number }
+  /** Retour d'une personne partie (même identifiant, gardé par le navigateur). */
+  | { t: 'back'; id: string; at: number };
 
 /** Une nouvelle séance l'emporte-t-elle sur la séance courante ? */
 function newerRun(run: number, token: string, s: DailyState): boolean {
@@ -171,8 +187,36 @@ function finish(s: DailyState, at: number): DailyState {
   return { ...s, phase: 'done', endsAt: null, remainingSec: 0, endedAt: at };
 }
 
+/**
+ * Passe d'office les personnes parties : celle qui parle termine son tour,
+ * celle qui est annoncée (et les suivantes parties) est passée. Appliqué après
+ * chaque opération, quel que soit l'ordre d'arrivée du départ.
+ */
+function passerLesPartis(s: DailyState, at: number): DailyState {
+  const parti = (id: string | undefined) => !!id && estParti(s.departs, id);
+  if (!isActive(s.phase)) return s;
+  let next = s;
+  if ((next.phase === 'running' || next.phase === 'paused') && parti(next.order[next.currentIdx])) {
+    if (next.currentIdx >= next.order.length - 1) return finish(next, at);
+    next = { ...next, phase: 'next', endsAt: null, remainingSec: next.durationSec };
+  }
+  while (next.phase === 'next' && parti(next.order[next.currentIdx + 1])) {
+    const idx = next.currentIdx + 1;
+    const skipped = next.skipped.includes(next.order[idx]) ? next.skipped : [...next.skipped, next.order[idx]];
+    next = { ...next, skipped, currentIdx: idx };
+    if (idx >= next.order.length - 1) return finish(next, at);
+  }
+  return next;
+}
+
 export function dailyReducer(raw: DailyState, op: DailyOp): DailyState {
   const s = normalizeDailyState(raw);
+  const next = appliquer(s, op);
+  if (next === s) return s;
+  return passerLesPartis(next, 'at' in op ? op.at : 'endsAt' in op ? op.endsAt : Date.now());
+}
+
+function appliquer(s: DailyState, op: DailyOp): DailyState {
   switch (op.t) {
     case 'start': {
       if (!newerRun(op.run, op.token, s) || op.order.length === 0) return s;
@@ -199,6 +243,7 @@ export function dailyReducer(raw: DailyState, op: DailyOp): DailyState {
         durationSec: s.durationSec,
         remainingSec: s.durationSec,
         randomOrder: s.randomOrder,
+        departs: s.departs,
         run: op.run,
         runToken: op.token,
       };
@@ -222,7 +267,7 @@ export function dailyReducer(raw: DailyState, op: DailyOp): DailyState {
       return { ...s, skipped, currentIdx: op.idx };
     }
     case 'join': {
-      if (op.run !== s.run || !isActive(s.phase) || !op.id || s.order.includes(op.id)) return s;
+      if (op.run !== s.run || !isActive(s.phase) || !op.id || s.order.includes(op.id) || estParti(s.departs, op.id)) return s;
       // Les retardataires qui n'ont pas encore été annoncés sont rangés par
       // identifiant : deux arrivées simultanées donnent le même ordre partout.
       const keep = Math.max(s.baseCount, s.currentIdx + 2);
@@ -238,6 +283,11 @@ export function dailyReducer(raw: DailyState, op: DailyOp): DailyState {
     }
     case 'randomOrder':
       return s.randomOrder === op.value ? s : { ...s, randomOrder: op.value };
+    case 'leave':
+    case 'back': {
+      const departs = noterDepart(s.departs, op.id, op.t === 'leave', op.at);
+      return departs ? { ...s, departs } : s;
+    }
     default:
       return s;
   }

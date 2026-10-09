@@ -26,6 +26,7 @@ const DailyStandupPage: React.FC = () => {
       onToggleFacilitator={toggleFacilitator}
       onJoin={handleJoin}
       onShare={handleShare}
+      leaveLabel="Vous n’apparaîtrez plus dans l’ordre de passage ; si votre tour n’est pas encore venu, il sera passé. Vous pourrez revenir avec le lien d’invitation."
     >
       <DailyToolbar
         state={state}

@@ -10,6 +10,29 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.56.0] - 2026-10-09
+
+### ✨ Ajouté — « Quitter » dans tous les outils
+- Le bouton « Quitter » et les confirmations de départ (onglet ou fenêtre
+  fermés, rechargement, retour arrière) passent dans `ToolPageShell` : les
+  13 outils en profitent. Texte de confirmation propre à chaque outil
+  (`leaveLabel`) : outils de vote, Daily, et par défaut « ce que vous avez déjà
+  partagé reste dans la session ».
+- Outils à présence seule (rétro, récré, brainstorming, boîte à idées…) : la
+  personne disparaît d'elle-même en quittant ; ses contributions restent.
+- ROTI et Team Mood : comme le Planning Poker, la personne et son vote sont
+  retirés pour tous.
+- Daily : la personne qui part n'est plus affichée ; si elle parlait, son tour
+  se termine, si son tour n'était pas venu, il est passé d'office (l'ordre de
+  passage garde sa place, les gestes désignant une position).
+
+### 🐛 Corrigé — Revenir après avoir quitté
+- L'identifiant d'un participant étant gardé par le navigateur, une personne
+  qui revenait (ou rechargeait la page) restait considérée comme partie. Les
+  départs et retours sont désormais datés (`shared/departs.ts`, opération
+  `back` envoyée à chaque arrivée par `useToolSession`) : le plus récent
+  l'emporte, quel que soit l'ordre d'arrivée des messages.
+
 ## [2.55.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : quitter la session

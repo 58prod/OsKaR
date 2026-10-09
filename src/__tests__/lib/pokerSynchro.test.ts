@@ -199,7 +199,7 @@ describe('Planning Poker — quitter la session', () => {
   ]);
 
   it('retire la personne et son vote', () => {
-    const s = pokerReducer(avant, { t: 'leave', voterId: 'bruno' });
+    const s = pokerReducer(avant, { t: 'leave', voterId: 'bruno', at: 10 });
     expect(s.votes).toEqual({ alice: '5' });
     expect(s.voterNames.bruno).toBeUndefined();
   });
@@ -207,7 +207,7 @@ describe('Planning Poker — quitter la session', () => {
   it('ne la fait pas réapparaître avec une révélation ou un vote arrivés en retard', () => {
     const revele: PokerOp = { t: 'reveal', round: 0, votes: avant.votes, chrono: arret };
     const tardif: PokerOp = { t: 'vote', round: 0, voterId: 'bruno', value: '13' };
-    const depart: PokerOp = { t: 'leave', voterId: 'bruno' };
+    const depart: PokerOp = { t: 'leave', voterId: 'bruno', at: 10 };
     const a = appliquer([depart, tardif, revele], avant);
     const b = appliquer([revele, depart], avant);
     expect(a.votes).toEqual({ alice: '5' });
@@ -215,12 +215,18 @@ describe('Planning Poker — quitter la session', () => {
   });
 
   it('ne change rien quand le départ est reçu deux fois', () => {
-    const une = pokerReducer(avant, { t: 'leave', voterId: 'bruno' });
-    expect(pokerReducer(une, { t: 'leave', voterId: 'bruno' })).toEqual(une);
+    const une = pokerReducer(avant, { t: 'leave', voterId: 'bruno', at: 10 });
+    expect(pokerReducer(une, { t: 'leave', voterId: 'bruno', at: 10 })).toEqual(une);
   });
 
-  it('oublie les départs à la manche suivante', () => {
-    const s = appliquer([{ t: 'leave', voterId: 'bruno' }, { t: 'newRound', round: 1 }], avant);
-    expect(s.left).toEqual([]);
+  it('la fait réapparaître si elle revient, même si son départ arrive après', () => {
+    const depart: PokerOp = { t: 'leave', voterId: 'bruno', at: 10 };
+    const retour: PokerOp = { t: 'back', voterId: 'bruno', at: 20 };
+    const vote: PokerOp = { t: 'vote', round: 0, voterId: 'bruno', value: '3' };
+    const a = appliquer([depart, retour, vote], avant);
+    const b = appliquer([retour, vote, depart], avant);
+    expect(a.votes.bruno).toBe('3');
+    expect(b.votes).toEqual(a.votes);
+    expect(b.departs).toEqual(a.departs);
   });
 });

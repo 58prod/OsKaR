@@ -1,4 +1,7 @@
 import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/toolChrono';
+import {
+  appliquerDepart, estParti, lireDeparts, sansPartis, type DepartOp, type Departs,
+} from '@/components/toolbox/shared/departs';
 
 export { chronoRemaining } from '@/components/toolbox/shared/toolChrono';
 
@@ -49,6 +52,8 @@ export interface MoodState {
   collective: MoodScores | null;
   /** Notes anonymes : seules les moyennes sont affichées. */
   anonymous: boolean;
+  /** Départs et retours des participants (voir shared/departs). */
+  departs: Departs;
 }
 
 export const INITIAL_MOOD_SCORES: MoodScores = {
@@ -64,6 +69,7 @@ export const INITIAL_MOOD_STATE: MoodState = {
   phase: 'vote',
   collective: null,
   anonymous: false,
+  departs: {},
 };
 
 /** Moyenne en dessous de laquelle une dimension mérite qu'on en parle. */
@@ -110,6 +116,7 @@ export function normalizeMoodState(raw: Partial<MoodState> | null | undefined): 
     phase: s.phase === 'discussion' && s.revealed ? 'discussion' : 'vote',
     collective: sanitizeScores(s.collective, 0.5),
     anonymous: !!s.anonymous,
+    departs: lireDeparts(s.departs),
   };
 }
 
@@ -142,13 +149,16 @@ export type MoodOp =
   /** Note collective d'une dimension (une opération par dimension). */
   | { t: 'collective'; round: number; key: MoodDimKey; value: number }
   | { t: 'anonymous'; value: boolean }
-  | { t: 'chrono'; chrono: ToolChrono };
+  | { t: 'chrono'; chrono: ToolChrono }
+  /** Départ volontaire (la personne et son vote disparaissent) ou retour. */
+  | DepartOp;
 
 export function moodReducer(raw: MoodState, op: MoodOp): MoodState {
   const s = normalizeMoodState(raw);
   switch (op.t) {
     case 'vote': {
       if (op.round !== s.round || s.revealed || !op.voterId) return s;
+      if (estParti(s.departs, op.voterId)) return s;
       const dims = sanitizeScores(op.dims);
       if (!dims) return s;
       const cur = s.votes[op.voterId]?.dims;
@@ -163,7 +173,7 @@ export function moodReducer(raw: MoodState, op: MoodOp): MoodState {
     }
     case 'reveal':
       if (op.round !== s.round || s.revealed) return s;
-      return { ...s, votes: sanitizeVotes(op.votes), revealed: true, chrono: op.chrono };
+      return { ...s, votes: sansPartis(sanitizeVotes(op.votes), s.departs), revealed: true, chrono: op.chrono };
     case 'newRound':
       if (op.round <= s.round) return s;
       return {
@@ -197,6 +207,9 @@ export function moodReducer(raw: MoodState, op: MoodOp): MoodState {
       return s.anonymous === !!op.value ? s : { ...s, anonymous: !!op.value };
     case 'chrono':
       return { ...s, chrono: op.chrono };
+    case 'leave':
+    case 'back':
+      return appliquerDepart(s, op);
     default:
       return s;
   }

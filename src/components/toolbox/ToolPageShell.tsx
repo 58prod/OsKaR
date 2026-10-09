@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import type { ToolIdentity } from '@/hooks/useToolSession';
 import { JoinSessionModal } from '@/components/toolbox/JoinSessionModal';
 import { ToolHeader } from '@/components/toolbox/ToolHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { useAppStore } from '@/store/useAppStore';
+import { useConfirmerDepart } from '@/hooks/useConfirmerDepart';
+
+/** Ce que devient la personne qui quitte (outils sans vote). */
+const DEPART_PAR_DEFAUT =
+  'Vous n’apparaîtrez plus parmi les participants. Ce que vous avez déjà partagé reste dans la session, et vous pourrez revenir avec le lien d’invitation.';
 
 interface ToolPageShellProps {
   title: string;
@@ -20,8 +26,7 @@ interface ToolPageShellProps {
   retentionLabel?: string;
   /** Précision sur le code, affichée à l'entrée dans la session. */
   codeHint?: string;
-  /** Bouton « Quitter » dans l'en-tête (après confirmation), avec le texte de la confirmation. */
-  onLeave?: () => void;
+  /** Ce que devient la personne qui quitte la session, affiché avant de confirmer. */
   leaveLabel?: string;
   children: React.ReactNode;
 }
@@ -34,12 +39,21 @@ interface ToolPageShellProps {
  * - en-tête (logo, titre, toggle animateur, invitation) + contenu de l'outil.
  */
 export const ToolPageShell: React.FC<ToolPageShellProps> = ({
-  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, onLeave, leaveLabel, children,
+  title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, leaveLabel = DEPART_PAR_DEFAUT, children,
 }) => {
   const { collapsed, toggle } = useSidebarCollapsed();
   const { authReady, isAuthenticated } = useAppStore();
   // Pied de sidebar : connecté → masqué ; visiteur → lien « Se connecter » par défaut.
   const footerItem = !authReady || isAuthenticated ? null : undefined;
+
+  // Quitter (bouton, retour arrière, onglet fermé) : confirmation, puis la
+  // personne disparaît de la session (voir `leaveOp` dans useToolSession).
+  const router = useRouter();
+  const autoriserDepart = useConfirmerDepart(!!code && !!identity, `Quitter « ${title} » ?\n\n${leaveLabel}`);
+  const quitter = useCallback(() => {
+    autoriserDepart();
+    void router.push('/app/outils');
+  }, [autoriserDepart, router]);
 
   const content = !code ? (
     <div className="flex flex-1 items-center justify-center bg-surface" role="status" aria-live="polite">
@@ -68,7 +82,7 @@ export const ToolPageShell: React.FC<ToolPageShellProps> = ({
         isFacilitator={isFacilitator}
         onToggleFacilitator={onToggleFacilitator}
         onShare={onShare}
-        onLeave={onLeave}
+        onLeave={quitter}
         leaveLabel={leaveLabel}
       />
       {children}

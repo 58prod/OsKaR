@@ -1,4 +1,7 @@
 import { initialChrono, type ToolChrono } from '@/components/toolbox/shared/toolChrono';
+import {
+  appliquerDepart, estParti, lireDeparts, sansPartis, type DepartOp, type Departs,
+} from '@/components/toolbox/shared/departs';
 
 export { chronoRemaining, formatTime } from '@/components/toolbox/shared/toolChrono';
 
@@ -33,6 +36,8 @@ export interface RotiState {
    * parti avant une remise à zéro porte l'ancien numéro : il est ignoré.
    */
   round: number;
+  /** Départs et retours des participants (voir shared/departs). */
+  departs: Departs;
 }
 
 export const INITIAL_ROTI_STATE: RotiState = {
@@ -42,6 +47,7 @@ export const INITIAL_ROTI_STATE: RotiState = {
   revealed: false,
   chrono: initialChrono(60),
   round: 0,
+  departs: {},
 };
 
 /** Un vote reçu du réseau : note entière de 1 à 5, commentaire borné. Sinon null. */
@@ -74,6 +80,7 @@ export function normalizeRotiState(raw: Partial<RotiState> | null | undefined): 
     revealed: !!s.revealed,
     chrono: s.chrono ?? INITIAL_ROTI_STATE.chrono,
     round: typeof s.round === 'number' ? s.round : 0,
+    departs: lireDeparts(s.departs),
   };
 }
 
@@ -92,13 +99,16 @@ export type RotiOp =
   | { t: 'newRound'; round: number; chrono?: ToolChrono }
   /** Révélation : fige les votes vus par celui qui révèle, identiques pour tous. */
   | { t: 'reveal'; round: number; votes: Record<string, RotiVote>; chrono: ToolChrono }
-  | { t: 'chrono'; chrono: ToolChrono };
+  | { t: 'chrono'; chrono: ToolChrono }
+  /** Départ volontaire (la personne et son vote disparaissent) ou retour. */
+  | DepartOp;
 
 export function rotiReducer(raw: RotiState, op: RotiOp): RotiState {
   const state = normalizeRotiState(raw);
   switch (op.t) {
     case 'vote': {
       if (op.round !== state.round || state.revealed || !op.voterId) return state;
+      if (estParti(state.departs, op.voterId)) return state;
       const vote = sanitizeVote(op);
       if (!vote) return state;
       const current = state.votes[op.voterId];
@@ -128,9 +138,12 @@ export function rotiReducer(raw: RotiState, op: RotiOp): RotiState {
       };
     case 'reveal':
       if (op.round !== state.round || state.revealed) return state;
-      return { ...state, votes: sanitizeVotes(op.votes), revealed: true, chrono: op.chrono };
+      return { ...state, votes: sansPartis(sanitizeVotes(op.votes), state.departs), revealed: true, chrono: op.chrono };
     case 'chrono':
       return { ...state, chrono: op.chrono };
+    case 'leave':
+    case 'back':
+      return appliquerDepart(state, op);
     default:
       return state;
   }

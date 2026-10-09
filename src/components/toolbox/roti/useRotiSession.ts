@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
+import { estParti } from '@/components/toolbox/shared/departs';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -28,6 +29,8 @@ export function useRotiSession(code: string | null, identity: ToolIdentity | nul
     identity,
     initialState: INITIAL_ROTI_STATE,
     reducer: rotiReducer,
+    leaveOp: (who: ToolIdentity): RotiOp => ({ t: 'leave', voterId: who.id, at: Date.now() }),
+    backOp: (who: ToolIdentity): RotiOp => ({ t: 'back', voterId: who.id, at: Date.now() }),
   });
   const { isHost } = session;
   const send = session.dispatch as (op: RotiOp) => void;
@@ -84,7 +87,10 @@ export function useRotiSession(code: string | null, identity: ToolIdentity | nul
   // Les personnes en ligne, puis celles qui ont voté et dont la connexion a
   // décroché : leur note compte, on continue donc de les montrer.
   const players = useMemo(() => {
-    const online = session.participants.map((p) => ({ ...p, online: true }));
+    // Une personne partie peut figurer encore un instant dans la présence.
+    const online = session.participants
+      .filter((p) => !estParti(state.departs, p.id))
+      .map((p) => ({ ...p, online: true }));
     const present = new Set(online.map((p) => p.id));
     const absents = Object.keys(state.votes)
       .filter((id) => !present.has(id))
@@ -96,7 +102,7 @@ export function useRotiSession(code: string | null, identity: ToolIdentity | nul
         online: false,
       }));
     return [...online, ...absents];
-  }, [session.participants, state.votes, state.voterNames]);
+  }, [session.participants, state.votes, state.voterNames, state.departs]);
 
   const setSession = useCallback((value: string) => send({ t: 'session', session: value }), [send]);
 

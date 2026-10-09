@@ -37,6 +37,11 @@ interface UseToolSessionOptions<TState> {
    * de rester affichée « hors ligne ». Mode « opérations » seulement.
    */
   leaveOp?: (identity: ToolIdentity) => any;
+  /**
+   * Opération diffusée à chaque arrivée dans la session : l'identifiant étant
+   * gardé par le navigateur, elle annule un départ précédent de la personne.
+   */
+  backOp?: (identity: ToolIdentity) => any;
 }
 
 interface UseToolSessionResult<TState> {
@@ -77,6 +82,7 @@ export function useToolSession<TState>(
   const onSignalRef = useRef(opts.onSignal);
   const reducerRef = useRef(opts.reducer);
   const leaveOpRef = useRef(opts.leaveOp);
+  const backOpRef = useRef(opts.backOp);
   const snapshotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** L'état de la base est-il chargé ? Avant, les opérations sont mises en attente. */
   const readyRef = useRef(false);
@@ -89,6 +95,7 @@ export function useToolSession<TState>(
   onSignalRef.current = opts.onSignal;
   reducerRef.current = opts.reducer;
   leaveOpRef.current = opts.leaveOp;
+  backOpRef.current = opts.backOp;
 
   const isHost = !!identity && hostId === identity.id;
 
@@ -215,6 +222,13 @@ export function useToolSession<TState>(
         const reducer = reducerRef.current;
         const pending = pendingOpsRef.current;
         pendingOpsRef.current = [];
+        // Retour d'une personne déjà partie de cette session : elle réapparaît.
+        if (reducer && backOpRef.current) {
+          const back = backOpRef.current(identity);
+          pending.unshift(back);
+          // Rejouée si l'état complet envoyé aux arrivants arrive juste après.
+          recentOpsRef.current = [...recentOpsRef.current, { op: back, at: Date.now() }];
+        }
         if (reducer) pending.forEach((op) => { next = reducer(next, op); });
         stateRef.current = next;
         setLocalState(next);

@@ -146,3 +146,57 @@ describe('Daily — utilitaires et anciennes sessions', () => {
     expect(dailyReducer(s, { t: 'next', run: 0, idx: 1, at: 10 }).phase).toBe('done');
   });
 });
+
+describe('Daily — quitter la session', () => {
+  it('passe d’office le tour d’une personne partie avant d’avoir parlé', () => {
+    const fin: DailyOp = { t: 'next', run: 1, idx: 0, at: 5_000 };
+    const depart: DailyOp = { t: 'leave', id: 'bruno', at: 4_000 };
+    // Le départ arrive avant ou après la fin du tour d'Alice : même résultat.
+    const a = appliquer([demarre, depart, fin]);
+    const b = appliquer([demarre, fin, depart]);
+    expect(a.phase).toBe('next');
+    expect(a.currentIdx).toBe(1);
+    expect(a.order[a.currentIdx + 1]).toBe('chloe');
+    expect(b.currentIdx).toBe(a.currentIdx);
+    expect(b.phase).toBe(a.phase);
+  });
+
+  it('termine le tour de la personne qui part en parlant', () => {
+    const s = appliquer([demarre, { t: 'leave', id: 'alice', at: 3_000 }]);
+    expect(s.phase).toBe('next');
+    expect(s.currentIdx).toBe(0);
+    expect(s.order[s.currentIdx + 1]).toBe('bruno');
+  });
+
+  it('clôt la séance si les dernières personnes sont parties', () => {
+    const s = appliquer([
+      demarre,
+      { t: 'leave', id: 'bruno', at: 2_000 },
+      { t: 'leave', id: 'chloe', at: 2_500 },
+      { t: 'next', run: 1, idx: 0, at: 6_000 },
+    ]);
+    expect(s.phase).toBe('done');
+  });
+
+  it('ignore un « À toi » adressé à une personne partie, et son retour en retardataire', () => {
+    const s = appliquer([
+      demarre,
+      { t: 'next', run: 1, idx: 0, at: 5_000 },
+      { t: 'leave', id: 'bruno', at: 5_500 },
+      { t: 'go', run: 1, idx: 1, endsAt: 99_000 },
+      { t: 'join', run: 1, id: 'bruno', person: noms.bruno },
+    ]);
+    expect(s.phase).toBe('next');
+    expect(s.order).toEqual(['alice', 'bruno', 'chloe']);
+    expect(s.order[s.currentIdx + 1]).toBe('chloe');
+  });
+
+  it('garde les départs après l’arrêt de la séance, jusqu’au retour', () => {
+    const s = appliquer([demarre, { t: 'leave', id: 'bruno', at: 2_000 }, { t: 'stop', run: 2, token: 'a' }]);
+    expect(s.departs.bruno.left).toBe(true);
+    const retour: DailyOp = { t: 'back', id: 'bruno', at: 3_000 };
+    expect(dailyReducer(s, retour).departs.bruno.left).toBe(false);
+    // Un départ ancien arrivé après le retour ne l'efface pas.
+    expect(appliquer([retour, { t: 'leave', id: 'bruno', at: 2_000 }], INITIAL_DAILY_STATE).departs.bruno.left).toBe(false);
+  });
+});

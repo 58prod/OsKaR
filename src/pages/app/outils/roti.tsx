@@ -1,6 +1,7 @@
 import React from 'react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
+import { DEPART_AVEC_VOTE } from '@/components/toolbox/shared/departs';
 import { RotiToolbar } from '@/components/toolbox/roti/RotiToolbar';
 import { RotiBoard } from '@/components/toolbox/roti/RotiBoard';
 import { RotiResults } from '@/components/toolbox/roti/RotiResults';
@@ -22,6 +23,7 @@ const RotiPage: React.FC = () => {
       onToggleFacilitator={toggleFacilitator}
       onJoin={handleJoin}
       onShare={handleShare}
+      leaveLabel={DEPART_AVEC_VOTE}
     >
       <RotiToolbar
         session={state.session}
