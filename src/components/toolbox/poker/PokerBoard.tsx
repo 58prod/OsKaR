@@ -78,12 +78,18 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myI
                 <li key={p.id} className="flex flex-col items-center">
                   <div
                     className={[
-                      'min-w-[130px] rounded-xl border-[1.5px] bg-white p-4 text-center shadow-card transition-all',
+                      'relative min-w-[130px] rounded-xl border-[1.5px] bg-white p-4 text-center shadow-card transition-all',
                       voted ? 'border-success-500 bg-success-50' : 'border-line',
                       isMe ? '!border-teal' : '',
                       p.online === false ? 'opacity-60' : '',
                     ].join(' ')}
                   >
+                    {/* Pastille posée sur le bord : la carte garde la hauteur des autres. */}
+                    {p.isHost && (
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-warning-200 bg-warning-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-warning-700">
+                        Animateur
+                      </span>
+                    )}
                     <div
                       className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full text-lg font-bold text-white"
                       style={{ background: voted ? '#22c55e' : isMe ? '#00d4b4' : p.color }}
@@ -91,17 +97,13 @@ export const PokerBoard: React.FC<PokerBoardProps> = ({ state, participants, myI
                     >
                       {p.name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="text-sm font-bold text-navy">
+                    <div className="mx-auto max-w-[160px] truncate text-sm font-bold text-navy" title={p.name}>
                       {p.name}
-                      {p.isHost && (
-                        <span className="ml-1 block text-[11px] font-bold text-warning-700">animateur</span>
-                      )}
-                      {p.online === false && (
-                        <span className="ml-1 block text-[11px] font-semibold text-muted">hors ligne</span>
-                      )}
                     </div>
                     <div className="mt-1 text-xs text-muted">
-                      {revealed && !voted ? (
+                      {p.online === false ? (
+                        'Hors ligne · a voté'
+                      ) : revealed && !voted ? (
                         'Pas de vote'
                       ) : voted ? (
                         <span className="inline-flex items-center gap-1.5">

@@ -10,6 +10,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.57.2] - 2026-10-09
+
+### 💄 Modifié — Planning Poker : cartes des participants de même hauteur
+- « Animateur » devient une pastille posée sur le bord haut de la carte, au
+  lieu d'une ligne de plus : sa carte a la hauteur des autres.
+- « Hors ligne » passe dans la ligne d'état (« Hors ligne · a voté ») et un
+  prénom trop long est coupé (complet au survol), pour la même raison.
+
 ## [2.57.1] - 2026-10-09
 
 ### 💄 Modifié — Planning Poker : votes révélés en grand, choix d'emoji centré
