@@ -10,6 +10,16 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.68.1] - 2026-10-13
+
+### 🐛 Corrigé — En mode récré : cadre blanc vide à côté d'une photo
+- Le board rangeait les photos en colonnes CSS (`columns`) ; avec les cartes
+  inclinées, le navigateur coupait parfois une carte entre deux colonnes :
+  photo rognée d'un côté, cadre blanc vide de l'autre.
+- Les colonnes sont désormais construites par `RecreBoard` (largeur mesurée,
+  colonnes de 190 px minimum, photos réparties de gauche à droite) : une carte
+  ne peut plus être coupée. Vérifié avec 5 photos de formats variés.
+
 ## [2.68.0] - 2026-10-09
 
 ### ✨ Ajouté — Planning Poker : menus repliés automatiquement pour garder les cartes visibles
