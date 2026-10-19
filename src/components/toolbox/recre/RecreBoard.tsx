@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Eye, Heart, ImageIcon, Trash2, X } from 'lucide-react';
+import { Eye, Heart, ImageIcon, Star, Trash2, X } from 'lucide-react';
 import {
   placerEnColonnes, ratioAffiche, RECRE_COLONNES, RECRE_COLONNES_ETROIT, RECRE_LARGEUR_ETROITE, tiltFor,
   type RecreState,
@@ -13,6 +13,8 @@ interface RecreBoardProps {
   onDeletePhoto: (photoId: string) => void;
   /** Animateur : ouvrir le diaporama sur cette photo, pour toute l'équipe. */
   onShowToAll: (photoId: string) => void;
+  /** Animateur : mettre la photo en avant sur le board (ou la retirer). */
+  onToggleHighlight: (photoId: string) => void;
 }
 
 /** Galerie « polaroid » des photos déposées, avec compteur de « j'aime ».
@@ -25,9 +27,12 @@ interface RecreBoardProps {
  * Leur nombre est fixe et chaque photo est placée d'après ses proportions
  * (`placerEnColonnes`) : tout le monde voit le même mur, dans le même ordre,
  * quelle que soit la taille de son écran. Les photos sont numérotées pour
- * pouvoir en parler (« la 7 ! »). */
+ * pouvoir en parler (« la 7 ! »).
+ * L'animateur peut aussi, sans lancer le diaporama, mettre une photo en avant :
+ * elle se redresse, grossit et s'encadre de rose chez tout le monde, les
+ * autres s'estompent, et chacun la voit défiler jusqu'à elle. */
 export const RecreBoard: React.FC<RecreBoardProps> = ({
-  state, myId, isFacilitator, onToggleLike, onDeletePhoto, onShowToAll,
+  state, myId, isFacilitator, onToggleLike, onDeletePhoto, onShowToAll, onToggleHighlight,
 }) => {
   const [zoomId, setZoomId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -47,6 +52,13 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
     ro.observe(el);
     return () => ro.disconnect();
   }, [vide]);
+
+  // La photo mise en avant défile jusqu'au centre de l'écran de chacun.
+  const enAvant = state.highlightedId;
+  useEffect(() => {
+    if (!enAvant) return;
+    document.getElementById(`recre-photo-${enAvant}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, [enAvant]);
 
   const nbColonnes = etroit ? RECRE_COLONNES_ETROIT : RECRE_COLONNES;
   const colonnes = useMemo(
@@ -76,22 +88,35 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
-      <div ref={grilleRef} className="flex items-start gap-6" aria-live="polite">
+      <div ref={grilleRef} className="flex items-start gap-5" aria-live="polite">
         {colonnes.map((indexes, col) => (
-          <ul key={col} className="flex min-w-0 flex-1 flex-col gap-6">
+          <ul key={col} className="flex min-w-0 flex-1 flex-col gap-5">
             {indexes.map((i) => {
               const photo = state.photos[i];
               const ratio = ratioAffiche(photo.ratio ?? mesures[photo.id]);
               const liked = photo.likedBy.includes(myId);
               const count = photo.likedBy.length;
               const authorShown = state.authorsShown.includes(photo.id);
+              const misEnAvant = enAvant === photo.id;
               return (
                 <li
                   key={photo.id}
-                  className="relative rounded-md bg-white p-2.5 pb-3 shadow-card transition-transform rotate-[var(--tilt)] hover:z-10 hover:scale-[1.03]"
-                  // Inclinaison via variable : le zoom au survol (hover:scale) s'y ajoute.
-                  style={{ '--tilt': `${tiltFor(i)}deg` } as React.CSSProperties}
+                  id={`recre-photo-${photo.id}`}
+                  className={`relative rounded-md bg-white p-2 pb-2.5 transition-[transform,opacity,box-shadow] duration-300 rotate-[var(--tilt)] ${
+                    misEnAvant
+                      ? 'z-20 scale-[1.12] shadow-card-hover ring-4 ring-[#ec4899]'
+                      : `shadow-card hover:z-10 hover:scale-[1.03] ${enAvant ? 'opacity-50 hover:opacity-100' : ''}`
+                  }`}
+                  // Inclinaison via variable : le zoom au survol (hover:scale) s'y
+                  // ajoute ; la photo mise en avant se redresse.
+                  style={{ '--tilt': `${misEnAvant ? 0 : tiltFor(i)}deg` } as React.CSSProperties}
+                  aria-current={misEnAvant ? 'true' : undefined}
                 >
+                  {misEnAvant && (
+                    <span className="absolute -top-3 left-1/2 z-[1] inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-[#ec4899] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-card">
+                      <Star className="h-3 w-3 fill-white" aria-hidden /> En avant
+                    </span>
+                  )}
                   <span
                     className="absolute -left-2 -top-2 z-[1] inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-navy px-1.5 text-[11px] font-bold text-white shadow-card"
                     aria-hidden
@@ -137,12 +162,25 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
                         <span className="truncate">{photo.authorName}</span>
                       </span>
                     )}
+                    {isFacilitator && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleHighlight(photo.id)}
+                        aria-pressed={misEnAvant}
+                        aria-label={misEnAvant ? 'Ne plus mettre en avant' : `Mettre la photo ${i + 1} en avant`}
+                        title={misEnAvant ? 'Ne plus mettre en avant' : 'Mettre en avant sur le board de tous'}
+                        className="ml-auto rounded-full p-1 transition-colors hover:bg-[#fdf2f8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
+                        style={{ color: misEnAvant ? '#ec4899' : '#94a3b8' }}
+                      >
+                        <Star className="h-3.5 w-3.5" style={{ fill: misEnAvant ? '#ec4899' : 'none' }} aria-hidden />
+                      </button>
+                    )}
                     {photo.authorId === myId && (
                       <button
                         type="button"
                         onClick={() => setConfirmDeleteId(photo.id)}
                         aria-label="Supprimer ma photo"
-                        className="ml-auto rounded-full p-1 text-muted transition-colors hover:bg-danger-50 hover:text-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
+                        className={`${isFacilitator ? '' : 'ml-auto '}rounded-full p-1 text-muted transition-colors hover:bg-danger-50 hover:text-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]`}
                       >
                         <Trash2 className="h-3.5 w-3.5" aria-hidden />
                       </button>
@@ -200,13 +238,23 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={zoom.url} alt="Photo agrandie" className="max-h-[78vh] max-w-[88vw] rounded-sm border-8 border-white object-contain shadow-card-hover" />
           {isFacilitator && !state.reveal && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onShowToAll(zoom.id); setZoomId(null); }}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#ec4899] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#db2777] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <Eye className="h-4 w-4" aria-hidden /> Montrer à toute l&apos;équipe
-            </button>
+            <div className="flex flex-wrap justify-center gap-2.5">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onToggleHighlight(zoom.id); setZoomId(null); }}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border-[1.5px] border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <Star className="h-4 w-4" aria-hidden />
+                {enAvant === zoom.id ? 'Ne plus mettre en avant' : 'Mettre en avant sur le board'}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onShowToAll(zoom.id); setZoomId(null); }}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#ec4899] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#db2777] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <Eye className="h-4 w-4" aria-hidden /> Diaporama à partir de celle-ci
+              </button>
+            </div>
           )}
           <button
             type="button"

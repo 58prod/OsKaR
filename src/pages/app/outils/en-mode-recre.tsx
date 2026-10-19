@@ -86,6 +86,7 @@ const EnModeRecrePage: React.FC = () => {
           onToggleLike={actions.toggleLike}
           onDeletePhoto={actions.removePhoto}
           onShowToAll={actions.startRevealAt}
+          onToggleHighlight={actions.toggleHighlight}
         />
         <RecreReveal
           state={state}

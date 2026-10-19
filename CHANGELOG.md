@@ -10,6 +10,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.73.0] - 2026-10-19
+
+### ✨ Ajouté — « En mode récré ! »
+- L'animateur peut mettre une photo en avant sur le board, sans lancer le
+  diaporama (étoile sous chaque photo, ou depuis la photo agrandie) : elle se
+  redresse, grossit et s'encadre de rose chez tout le monde, les autres
+  s'estompent, et chacun la voit défiler jusqu'à elle. Un second clic la
+  retire ; supprimer la photo ou réinitialiser la récré la retire aussi.
+- Photo agrandie (animateur) : « Mettre en avant sur le board » et
+  « Diaporama à partir de celle-ci » (ex-« Montrer à toute l'équipe »).
+
+### 💄 Modifié
+- Photos un peu plus petites : 5 colonnes fixes au lieu de 4, écarts et
+  cadres resserrés.
+
 ## [2.72.0] - 2026-10-19
 
 ### ✨ Ajouté — « En mode récré ! »

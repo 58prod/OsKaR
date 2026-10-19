@@ -53,6 +53,8 @@ export interface RecreState {
   reveal: RecreReveal | null;
   /** Photos dont l'auteur a été dévoilé : leur nom s'affiche sur le board. */
   authorsShown: string[];
+  /** Photo mise en avant par l'animateur sur le board (sans diaporama). */
+  highlightedId: string | null;
 }
 
 export const INITIAL_RECRE_STATE: RecreState = {
@@ -60,6 +62,7 @@ export const INITIAL_RECRE_STATE: RecreState = {
   photos: [],
   reveal: null,
   authorsShown: [],
+  highlightedId: null,
   chrono: {
     running: false,
     endsAt: null,
@@ -73,7 +76,7 @@ export const INITIAL_RECRE_STATE: RecreState = {
  * l'écran, pour que chacun voie les photos au même endroit. Seul un écran
  * étroit (téléphone) passe à 2 colonnes.
  */
-export const RECRE_COLONNES = 4;
+export const RECRE_COLONNES = 5;
 export const RECRE_COLONNES_ETROIT = 2;
 /** Largeur du board sous laquelle on passe à 2 colonnes (px). */
 export const RECRE_LARGEUR_ETROITE = 640;
@@ -145,6 +148,7 @@ export function normalizeRecreState(raw: Partial<RecreState> | null | undefined)
     photos: raw?.photos ?? [],
     reveal: raw?.reveal ?? null,
     authorsShown: raw?.authorsShown ?? [],
+    highlightedId: raw?.highlightedId ?? null,
   };
 }
 
@@ -207,6 +211,8 @@ export type RecreOp =
   /** L'animateur choisit la photo affichée (vignettes, « précédente »). */
   | { t: 'goToPhoto'; id: string }
   | { t: 'closeReveal' }
+  /** L'animateur met une photo en avant sur le board (null : plus aucune). */
+  | { t: 'highlight'; id: string | null }
   | { t: 'reset' };
 
 export function recreReducer(raw: RecreState, op: RecreOp): RecreState {
@@ -221,7 +227,14 @@ export function recreReducer(raw: RecreState, op: RecreOp): RecreState {
       return { ...state, photos };
     }
     case 'removePhoto':
-      return { ...state, photos: state.photos.filter((p) => p.id !== op.id) };
+      return {
+        ...state,
+        photos: state.photos.filter((p) => p.id !== op.id),
+        highlightedId: state.highlightedId === op.id ? null : state.highlightedId,
+      };
+    case 'highlight':
+      if (op.id !== null && !state.photos.some((p) => p.id === op.id)) return state;
+      return { ...state, highlightedId: op.id };
     case 'like':
       return {
         ...state,

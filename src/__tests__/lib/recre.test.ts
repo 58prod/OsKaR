@@ -105,3 +105,27 @@ describe('Récré — même mur de photos sur tous les écrans', () => {
     expect(placerEnColonnes(photos, 2, (i) => (i === 1 ? 0.6 : undefined))).toEqual([[0, 2], [1]]);
   });
 });
+
+describe('Récré — photo mise en avant sur le board', () => {
+  it('l’animateur met une photo en avant, puis la retire', () => {
+    let s = avecPhotos(['p1', 'p2']);
+    s = recreReducer(s, { t: 'highlight', id: 'p2' });
+    expect(s.highlightedId).toBe('p2');
+    expect(recreReducer(s, { t: 'highlight', id: 'p2' })).toEqual(s);
+    expect(recreReducer(s, { t: 'highlight', id: null }).highlightedId).toBeNull();
+  });
+
+  it('ignore une photo inconnue, et oublie la mise en avant d’une photo supprimée', () => {
+    let s = avecPhotos(['p1']);
+    expect(recreReducer(s, { t: 'highlight', id: 'absente' }).highlightedId).toBeNull();
+    s = recreReducer(s, { t: 'highlight', id: 'p1' });
+    expect(recreReducer(s, { t: 'removePhoto', id: 'p1' }).highlightedId).toBeNull();
+    expect(recreReducer(s, { t: 'reset' }).highlightedId).toBeNull();
+  });
+
+  it('une séance d’avant la mise en avant se lit sans erreur', () => {
+    const ancienne = { ...INITIAL_RECRE_STATE } as Partial<RecreState>;
+    delete ancienne.highlightedId;
+    expect(recreReducer(ancienne as RecreState, { t: 'theme', theme: 'x' }).highlightedId).toBeNull();
+  });
+});

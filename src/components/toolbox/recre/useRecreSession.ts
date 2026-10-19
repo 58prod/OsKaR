@@ -135,6 +135,11 @@ export function useRecreSession(code: string | null, identity: ToolIdentity | nu
     send({ t: 'startReveal', queue: [photoId, ...shuffle(pending.map((p) => p.id))] });
   }, [state.photos, state.authorsShown, send]);
 
+  /** Met une photo en avant sur le board ; un second clic la retire. */
+  const toggleHighlight = useCallback((photoId: string) => {
+    send({ t: 'highlight', id: state.highlightedId === photoId ? null : photoId });
+  }, [state.highlightedId, send]);
+
   const goToPhoto = useCallback((photoId: string) => send({ t: 'goToPhoto', id: photoId }), [send]);
 
   const showAuthor = useCallback(() => send({ t: 'showAuthor' }), [send]);
@@ -155,7 +160,7 @@ export function useRecreSession(code: string | null, identity: ToolIdentity | nu
     myId,
     actions: {
       setTheme, addPhotos, removePhoto, toggleLike, toggleChrono, resetChrono, setDuration,
-      startReveal, startRevealAt, goToPhoto, showAuthor, nextPhoto, closeReveal, reset,
+      startReveal, startRevealAt, goToPhoto, toggleHighlight, showAuthor, nextPhoto, closeReveal, reset,
     },
   };
 }
