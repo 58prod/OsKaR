@@ -47,11 +47,6 @@ export function couleurLisible(hex: string): string {
   return `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`.toLowerCase();
 }
 
-/** Nom d'une couleur de la palette (« Bleu »…), pour les libellés. */
-export function nomCouleur(valeur: string): string {
-  return PARTICIPANT_COLORS.find((c) => c.valeur === valeur)?.nom ?? 'Couleur';
-}
-
 /**
  * Première couleur de la palette que personne d'autre n'a ; `actuelle` si
  * elle est libre. Toutes prises : on garde `actuelle`.
@@ -109,10 +104,19 @@ export function getOrCreateColor(): string {
 
 const ecouteursCouleur = new Set<(color: string) => void>();
 
-/** Être prévenu d'un changement de couleur (choix de la personne ou couleur déjà prise). */
+/**
+ * Être prévenu d'un changement de couleur : choix de la personne, couleur
+ * déjà prise, ou choix fait dans un autre onglet (sinon deux onglets de la
+ * même personne garderaient deux couleurs).
+ */
 export function ecouterCouleur(f: (color: string) => void): () => void {
   ecouteursCouleur.add(f);
-  return () => { ecouteursCouleur.delete(f); };
+  const autreOnglet = (e: StorageEvent) => { if (e.key === COLOR_KEY && estCouleur(e.newValue)) f(e.newValue); };
+  if (typeof window !== 'undefined') window.addEventListener('storage', autreOnglet);
+  return () => {
+    ecouteursCouleur.delete(f);
+    if (typeof window !== 'undefined') window.removeEventListener('storage', autreOnglet);
+  };
 }
 
 /**

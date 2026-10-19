@@ -148,7 +148,7 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
                   <li
                     key={n.id}
                     draggable={!n.revealed && pending.length > 1}
-                    onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragId(n.id); }}
+                    onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', n.id); setDragId(n.id); }}
                     onDragEnd={endDrag}
                     onDragOver={(e) => {
                       if (!dragId || n.revealed) return;

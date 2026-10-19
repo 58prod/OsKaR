@@ -25,6 +25,8 @@ const ATTRIBUT = 'data-sidebar';
 let plie: boolean | null = null;
 /** Nombre de fois où la personne a plié ou déplié le menu elle-même. */
 let basculesManuelles = 0;
+/** Pages d'outil affichées (0 ou 1, mais 2 un instant quand on passe d'un outil à l'autre). */
+let outilsAffiches = 0;
 const abonnes = new Set<() => void>();
 
 function souscrire(auChangement: () => void) {
@@ -107,9 +109,14 @@ export function useMenuReplieDansOutil(): void {
   useEffect(() => {
     const etaitOuvert = !lirePreference();
     const bascules = basculesManuelles;
+    outilsAffiches += 1;
     if (plie !== true) appliquer(true, false);
     return () => {
-      if (etaitOuvert && basculesManuelles === bascules && plie) appliquer(false, false);
+      outilsAffiches -= 1;
+      // Après coup : d'un outil à l'autre (rétro → récré), le menu ne se rouvre pas pour se refermer aussitôt.
+      setTimeout(() => {
+        if (outilsAffiches === 0 && etaitOuvert && basculesManuelles === bascules && plie) appliquer(false, false);
+      }, 0);
     };
   }, []);
 }

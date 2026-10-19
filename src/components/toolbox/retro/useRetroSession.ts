@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import { buildNote, notesOf, downloadTextFile } from '@/components/toolbox/shared/boardNotes';
@@ -73,9 +73,13 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
   const myPending = useMemo(() => myNotes.filter((n) => !n.revealed), [myNotes]);
 
   // Couleur changée (choisie, ou attribuée car déjà prise) : ses notes la suivent.
+  // Une seule fois par couleur : deux onglets en désaccord ne se renvoient pas la balle.
   const myColor = identity?.color;
+  const colorSent = useRef<string | null>(null);
   useEffect(() => {
-    if (myColor && myId && myNotes.some((n) => n.authorColor !== myColor)) {
+    if (!myColor || !myId || colorSent.current === myColor) return;
+    if (myNotes.some((n) => n.authorColor !== myColor)) {
+      colorSent.current = myColor;
       send({ t: 'color', authorId: myId, color: myColor });
     }
   }, [myColor, myId, myNotes, send]);

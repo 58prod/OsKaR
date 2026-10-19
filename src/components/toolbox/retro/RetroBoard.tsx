@@ -102,6 +102,12 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
   const fresh = useFreshNotes(notes);
 
   const endDrag = () => { setDrag(null); setOverKey(null); setOver(null); };
+  // Firefox ne lance le glisser que si des données l'accompagnent.
+  const startDrag = (e: React.DragEvent, item: DragItem) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', item.id);
+    setDrag(item);
+  };
 
   /** Range les notes déplacées avant ou après la cible, dans la même partie de la case. */
   const placeBeside = (items: RetroBoardItem[], targetId: string, side: 'before' | 'after') => {
@@ -216,7 +222,7 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
                   onLike={onLike}
                   onEdit={onEdit}
                   onTreated={onTreated}
-                  onDragStart={() => setDrag({ kind: 'note', id: item.note.id })}
+                  onDragStart={(e) => startDrag(e, { kind: 'note', id: item.note.id })}
                   onDragEnd={endDrag}
                   dropProps={item.note.revealed ? targetProps(items, item.note.id) : {}}
                 />
@@ -228,7 +234,7 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
                   zone={zoneFor(item.notes[0].id)}
                   onOpen={() => setOpenPile(item.pileId)}
                   onTreated={onTreated}
-                  onDragStart={() => setDrag({ kind: 'pile', id: item.pileId })}
+                  onDragStart={(e) => startDrag(e, { kind: 'pile', id: item.pileId })}
                   onDragEnd={endDrag}
                   dropProps={targetProps(items, item.notes[0].id)}
                 />
@@ -312,7 +318,7 @@ const RetroNoteCard: React.FC<{
   onLike: (id: string) => void;
   onEdit: (id: string) => void;
   onTreated: (ids: string[], treated: boolean) => void;
-  onDragStart: () => void;
+  onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
   dropProps: DropProps;
 }> = ({ note, myId, zone, fresh, onLike, onEdit, onTreated, onDragStart, onDragEnd, dropProps }) => {
@@ -395,7 +401,7 @@ const RetroPileCard: React.FC<{
   zone: Zone | null;
   onOpen: () => void;
   onTreated: (ids: string[], treated: boolean) => void;
-  onDragStart: () => void;
+  onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
   dropProps: DropProps;
 }> = ({ notes, color, zone, onOpen, onTreated, onDragStart, onDragEnd, dropProps }) => {

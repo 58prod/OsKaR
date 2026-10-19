@@ -72,10 +72,10 @@ export interface RetroNote extends BoardNote {
   pileId?: string;
   /** Moment de la révélation (horloge du révélateur) : place par défaut sur le tableau. */
   revealedAt?: number;
-  /** Place choisie à la main sur le tableau (glisser-déposer, « Regrouper par personne »). */
+  /** Place choisie à la main sur le tableau (glisser-déposer). */
   order?: number;
   orderAt?: number;
-  /** Place dans la file de préparation de l'auteur (flèches ↑ ↓). */
+  /** Place dans la file de préparation de l'auteur (glisser-déposer, flèches au clavier). */
   queue?: number;
   queueAt?: number;
   /** Note abordée pendant la rétro : barrée et rangée en bas de sa case. */

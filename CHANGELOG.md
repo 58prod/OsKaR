@@ -10,6 +10,22 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.71.2] - 2026-10-19
+
+### 🐛 Corrigé — Relecture de la rétro avant mise en ligne
+- Glisser-déposer (tableau et « Ma préparation ») : le glisser démarre aussi
+  sous Firefox, qui l'exige accompagné de données.
+- Même personne dans deux onglets : la couleur choisie dans l'un passe dans
+  l'autre, et un onglet n'envoie la recoloration de ses notes qu'une fois par
+  couleur (plus de risque d'échange sans fin entre deux onglets en désaccord).
+- Passer d'un outil à l'autre (rétro → « En mode récré ! ») : le menu Oskar ne
+  se rouvre plus pour se refermer aussitôt.
+- Échap dans « Modifier la note » ouverte depuis un tas ne ferme plus le tas.
+- Ménage : fonction inutilisée retirée, commentaires à jour, imports du test.
+- Vérifié : 561 tests verts (hors 21 tests connus du coach IA), types,
+  lint, build de production, et essai à deux participants (révélations à
+  distance mises en avant, regroupement par personne avant révélation).
+
 ## [2.71.1] - 2026-10-19
 
 ### 💄 Retouché — Rétro : regroupement compact, mise en avant plus fine
