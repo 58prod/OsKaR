@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Heart, Layers, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Check, Heart, Layers, Pencil, X } from 'lucide-react';
 import {
-  RETRO_CATEGORIES, boardItems, getRetroCategory,
-  type RetroCategoryKey, type RetroNote,
+  RETRO_CATEGORIES, boardItems, boardKey, getRetroCategory, keyBeside, sortBoardNotes,
+  type RetroBoardItem, type RetroCategoryKey, type RetroNote,
 } from './retroLogic';
 
 interface RetroBoardProps {
@@ -14,43 +14,141 @@ interface RetroBoardProps {
   onPileOnto: (pileId: string, targetId: string) => void;
   onUnpile: (id: string) => void;
   onLike: (id: string) => void;
+  /** Ouvre la modification d'une de ses notes. */
+  onEdit: (id: string) => void;
+  /** Nouvelles places sur le tableau. */
+  onOrder: (orders: Record<string, number>) => void;
+  /** Marque des notes abordées (ou plus). */
+  onTreated: (ids: string[], treated: boolean) => void;
 }
 
 type DragItem = { kind: 'note' | 'pile'; id: string };
+/** Posée sur une note : avant elle, après elle, ou dessus (tas). */
+type Zone = 'before' | 'after' | 'pile';
+
+/** Durée de la mise en avant d'une note qui vient d'être révélée. */
+const FRESH_MS = 6000;
+
+const itemNotes = (it: RetroBoardItem) => (it.kind === 'note' ? [it.note] : it.notes);
+const itemTarget = (it: RetroBoardItem) => (it.kind === 'note' ? it.note.id : it.notes[0].id);
+const itemDragId = (it: RetroBoardItem) => (it.kind === 'note' ? it.note.id : it.pileId);
+const itemKey = (it: RetroBoardItem) => Math.min(...itemNotes(it).map(boardKey));
+const itemTreated = (it: RetroBoardItem) => itemNotes(it).every((n) => n.treated);
+
+/** Bord gauche ou droit d'une note : on range ; au centre : on empile. */
+function zoneOf(e: React.DragEvent): Zone {
+  const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width;
+  if (x < 0.3) return 'before';
+  if (x > 0.7) return 'after';
+  return 'pile';
+}
+
+/**
+ * Notes révélées depuis l'arrivée sur la page : mises en avant quelques
+ * secondes. Une note vue masquée puis révélée, ou révélée il y a moins de
+ * 15 s, compte ; celles déjà là au chargement, non.
+ */
+function useFreshNotes(notes: RetroNote[]): Set<string> {
+  const hidden = useRef(new Set<string>());
+  const seen = useRef(new Set<string>());
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [fresh, setFresh] = useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    const now = Date.now();
+    const added: string[] = [];
+    notes.forEach((n) => {
+      if (!n.revealed) { hidden.current.add(n.id); seen.current.delete(n.id); return; }
+      if (seen.current.has(n.id)) return;
+      seen.current.add(n.id);
+      const recent = n.revealedAt !== undefined && Math.abs(now - n.revealedAt) < 15000;
+      if (hidden.current.has(n.id) || recent) added.push(n.id);
+      hidden.current.delete(n.id);
+    });
+    if (!added.length) return;
+    setFresh((prev) => new Set([...prev, ...added]));
+    timers.current.push(setTimeout(() => {
+      setFresh((prev) => {
+        const next = new Set(prev);
+        added.forEach((id) => next.delete(id));
+        return next;
+      });
+    }, FRESH_MS));
+  }, [notes]);
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  return fresh;
+}
 
 /**
  * Tableau 2 × 2 des quadrants de la rétrospective. Les cases « + » et « – »,
  * toujours les plus remplies, occupent la colonne la plus large ; chaque case
- * défile indépendamment. Les notes non révélées apparaissent masquées ; les
- * notes révélées se déplacent par glisser-déposer, et posées sur une autre
- * note elles forment un tas.
+ * défile indépendamment. Dans chaque case : les notes à aborder dans l'ordre
+ * de leur révélation, puis les notes encore masquées, puis les notes déjà
+ * abordées (barrées). Glissée sur le bord d'une note, une note se range
+ * avant ou après elle ; posée au centre, elle forme un tas.
  */
 export const RetroBoard: React.FC<RetroBoardProps> = ({
-  notes, myId, onMove, onMovePile, onPile, onPileOnto, onUnpile, onLike,
+  notes, myId, onMove, onMovePile, onPile, onPileOnto, onUnpile, onLike, onEdit, onOrder, onTreated,
 }) => {
   const [drag, setDrag] = useState<DragItem | null>(null);
   const [overKey, setOverKey] = useState<RetroCategoryKey | null>(null);
-  const [overTarget, setOverTarget] = useState<string | null>(null);
+  const [over, setOver] = useState<{ id: string; zone: Zone } | null>(null);
   const [openPile, setOpenPile] = useState<string | null>(null);
+  const fresh = useFreshNotes(notes);
 
-  const endDrag = () => { setDrag(null); setOverKey(null); setOverTarget(null); };
+  const endDrag = () => { setDrag(null); setOverKey(null); setOver(null); };
 
-  const dropOnTarget = (targetId: string) => {
-    if (drag?.kind === 'note' && drag.id !== targetId) onPile(drag.id, targetId);
-    if (drag?.kind === 'pile') onPileOnto(drag.id, targetId);
+  /** Range les notes déplacées avant ou après la cible, dans la même partie de la case. */
+  const placeBeside = (items: RetroBoardItem[], targetId: string, side: 'before' | 'after') => {
+    if (!drag) return;
+    const target = items.find((it) => itemTarget(it) === targetId);
+    const dragged = drag.kind === 'note'
+      ? notes.filter((n) => n.id === drag.id && n.revealed)
+      : notes.filter((n) => n.revealed && n.pileId === drag.id);
+    if (!target || !dragged.length) return;
+    const treated = itemTreated(target);
+    const section = items.filter((it) => itemNotes(it)[0].revealed && itemTreated(it) === treated
+      && itemDragId(it) !== drag.id);
+    const index = section.indexOf(target);
+    if (index < 0) return;
+    const key = keyBeside(section.map(itemKey), index, side);
+    const category = target.kind === 'note' ? target.note.category : target.notes[0].category;
+    if (dragged[0].category !== category) {
+      if (drag.kind === 'note') onMove(drag.id, category as RetroCategoryKey);
+      else onMovePile(drag.id, category as RetroCategoryKey);
+    }
+    onOrder(Object.fromEntries(dragged.map((n) => [n.id, key])));
+    // Rangée parmi les notes abordées, elle le devient (et inversement).
+    const toggle = dragged.filter((n) => !!n.treated !== treated).map((n) => n.id);
+    if (toggle.length) onTreated(toggle, treated);
+  };
+
+  const dropOnTarget = (items: RetroBoardItem[], targetId: string, zone: Zone) => {
+    if (zone !== 'pile') placeBeside(items, targetId, zone);
+    else if (drag?.kind === 'note' && drag.id !== targetId) onPile(drag.id, targetId);
+    else if (drag?.kind === 'pile') onPileOnto(drag.id, targetId);
     endDrag();
   };
 
-  const targetProps = (targetId: string) => ({
+  const targetProps = (items: RetroBoardItem[], targetId: string) => ({
     onDragOver: (e: React.DragEvent) => {
       if (!drag) return;
       e.preventDefault();
       e.stopPropagation();
-      setOverTarget(targetId);
+      const zone = zoneOf(e);
+      setOver((o) => (o?.id === targetId && o.zone === zone ? o : { id: targetId, zone }));
     },
-    onDragLeave: () => setOverTarget((t) => (t === targetId ? null : t)),
-    onDrop: (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); dropOnTarget(targetId); },
+    onDragLeave: () => setOver((o) => (o?.id === targetId ? null : o)),
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropOnTarget(items, targetId, zoneOf(e));
+    },
   });
+
+  const zoneFor = (id: string): Zone | null => (over?.id === id ? over.zone : null);
 
   const pileNotes = openPile ? notes.filter((n) => n.revealed && n.pileId === openPile) : [];
   useEffect(() => {
@@ -58,9 +156,11 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
   }, [openPile, pileNotes.length]);
 
   return (
-    <div className="grid flex-1 grid-cols-1 gap-3 overflow-y-auto p-4 md:grid-cols-[3fr_2fr] md:grid-rows-2 md:overflow-hidden">
+    <div className="grid flex-1 grid-cols-1 gap-3 overflow-y-auto p-4 md:grid-cols-[minmax(0,2fr)_minmax(190px,1fr)] md:grid-rows-2 md:overflow-hidden">
       {RETRO_CATEGORIES.map((cat) => {
         const catNotes = notes.filter((n) => n.category === cat.key);
+        const items = boardItems(sortBoardNotes(catNotes));
+        const treatedCount = catNotes.filter((n) => n.revealed && n.treated).length;
         return (
           <section
             key={cat.key}
@@ -87,8 +187,11 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
                 {cat.symbol}
               </span>
               <h3 className="text-sm font-bold" style={{ color: cat.color }}>{cat.label}</h3>
-              <span className="ml-auto rounded-full bg-white/70 px-2 py-0.5 text-xs font-bold text-navy">
-                {catNotes.length}
+              <span
+                className="ml-auto rounded-full bg-white/70 px-2 py-0.5 text-xs font-bold text-navy"
+                title={treatedCount > 0 ? `${treatedCount} abordée${treatedCount > 1 ? 's' : ''} sur ${catNotes.length}` : undefined}
+              >
+                {treatedCount > 0 ? `${treatedCount} / ${catNotes.length}` : catNotes.length}
               </span>
             </header>
 
@@ -99,27 +202,31 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
               }`}
               aria-live="polite"
             >
-              {boardItems(catNotes).map((item) => (item.kind === 'note' ? (
+              {items.map((item) => (item.kind === 'note' ? (
                 <RetroNoteCard
                   key={item.note.id}
                   note={item.note}
                   myId={myId}
-                  isTarget={overTarget === item.note.id}
+                  zone={zoneFor(item.note.id)}
+                  fresh={fresh.has(item.note.id)}
                   onLike={onLike}
+                  onEdit={onEdit}
+                  onTreated={onTreated}
                   onDragStart={() => setDrag({ kind: 'note', id: item.note.id })}
                   onDragEnd={endDrag}
-                  dropProps={item.note.revealed ? targetProps(item.note.id) : {}}
+                  dropProps={item.note.revealed ? targetProps(items, item.note.id) : {}}
                 />
               ) : (
                 <RetroPileCard
                   key={item.pileId}
                   notes={item.notes}
                   color={cat.color}
-                  isTarget={overTarget === item.notes[0].id}
+                  zone={zoneFor(item.notes[0].id)}
                   onOpen={() => setOpenPile(item.pileId)}
+                  onTreated={onTreated}
                   onDragStart={() => setDrag({ kind: 'pile', id: item.pileId })}
                   onDragEnd={endDrag}
-                  dropProps={targetProps(item.notes[0].id)}
+                  dropProps={targetProps(items, item.notes[0].id)}
                 />
               )))}
             </ul>
@@ -129,9 +236,10 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
 
       {openPile && pileNotes.length > 1 && (
         <RetroPileModal
-          notes={pileNotes}
+          notes={sortBoardNotes(pileNotes)}
           myId={myId}
           onLike={onLike}
+          onEdit={onEdit}
           onUnpile={onUnpile}
           onClose={() => setOpenPile(null)}
         />
@@ -159,15 +267,56 @@ const LikeButton: React.FC<{ note: RetroNote; myId: string; onLike: (id: string)
   );
 };
 
+/** Repère de dépôt : barre avant/après, ou contour pour empiler. */
+const DropMarker: React.FC<{ zone: Zone | null }> = ({ zone }) => {
+  if (zone === 'before' || zone === 'after') {
+    return (
+      <span
+        className={`pointer-events-none absolute top-0 z-10 h-full w-[3px] rounded-full bg-teal ${
+          zone === 'before' ? '-left-[5px]' : '-right-[5px]'
+        }`}
+        aria-hidden
+      />
+    );
+  }
+  return null;
+};
+
+/** Bouton « abordée » : visible au survol, toujours visible une fois cochée. */
+const TreatedButton: React.FC<{ treated: boolean; onClick: () => void }> = ({ treated, onClick }) => (
+  <button
+    type="button"
+    onClick={(e) => { e.stopPropagation(); onClick(); }}
+    aria-pressed={treated}
+    aria-label={treated ? 'Remettre parmi les notes à aborder' : 'Marquer comme abordée'}
+    title={treated ? 'Remettre parmi les notes à aborder' : 'Marquer comme abordée'}
+    className={`flex h-[18px] w-[18px] items-center justify-center rounded-full border transition-colors ${
+      treated
+        ? 'border-[#047857] bg-[#047857] text-white'
+        : 'border-line bg-white text-muted hover:border-[#047857] hover:text-[#047857]'
+    }`}
+  >
+    <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
+  </button>
+);
+
 const RetroNoteCard: React.FC<{
   note: RetroNote;
   myId: string;
-  isTarget: boolean;
+  zone: Zone | null;
+  fresh: boolean;
   onLike: (id: string) => void;
+  onEdit: (id: string) => void;
+  onTreated: (ids: string[], treated: boolean) => void;
   onDragStart: () => void;
   onDragEnd: () => void;
   dropProps: DropProps;
-}> = ({ note, myId, isTarget, onLike, onDragStart, onDragEnd, dropProps }) => {
+}> = ({ note, myId, zone, fresh, onLike, onEdit, onTreated, onDragStart, onDragEnd, dropProps }) => {
+  const ref = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (fresh) ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  }, [fresh]);
+
   if (!note.revealed) {
     return (
       <li
@@ -178,24 +327,59 @@ const RetroNoteCard: React.FC<{
     );
   }
 
+  const treated = !!note.treated;
+  const mine = note.authorId === myId;
   return (
     <li
+      ref={ref}
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       {...dropProps}
-      title="Glissez sur une autre note pour les empiler"
-      className={`w-[128px] cursor-grab rounded-md border-l-4 bg-white px-2 py-1.5 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing ${
-        isTarget ? 'ring-2 ring-teal' : ''
-      }`}
-      style={{ borderLeftColor: note.authorColor }}
+      title="Glissez sur le bord d'une note pour la ranger, au centre pour les empiler"
+      className={`group relative w-[128px] cursor-grab rounded-md border-l-4 bg-white px-2 py-1.5 shadow-sm transition-[box-shadow,opacity] hover:shadow-md active:cursor-grabbing ${
+        zone === 'pile' ? 'ring-2 ring-teal' : ''
+      } ${treated ? 'opacity-55 hover:opacity-100' : ''} ${fresh ? 'retro-fraiche' : ''}`}
+      style={{
+        borderLeftColor: note.authorColor,
+        ['--halo' as string]: `${note.authorColor}66`,
+      }}
     >
-      <p className="break-words text-xs leading-snug text-navy">{note.text}</p>
+      <DropMarker zone={zone} />
+      {fresh && (
+        <span
+          className="absolute -top-2 left-1.5 rounded-full px-1.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm"
+          style={{ background: note.authorColor }}
+        >
+          Nouveau
+        </span>
+      )}
+      <p className={`break-words pr-3 text-xs leading-snug ${treated ? 'text-muted line-through' : 'text-navy'}`}>{note.text}</p>
       <div className="mt-1 flex items-center gap-1">
         <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: note.authorColor }} aria-hidden />
         <span className="truncate text-[10px] font-semibold text-muted">{note.authorName}</span>
         <LikeButton note={note} myId={myId} onLike={onLike} />
       </div>
+      <span
+        className={`absolute right-1 top-1 flex items-center gap-0.5 ${
+          treated ? '' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
+        }`}
+      >
+        {mine && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onEdit(note.id); }}
+            aria-label="Modifier ma note"
+            title="Modifier ma note"
+            className={`flex h-[18px] w-[18px] items-center justify-center rounded-full border border-line bg-white text-muted transition-colors hover:text-navy ${
+              treated ? 'opacity-0 focus-visible:opacity-100 group-hover:opacity-100' : ''
+            }`}
+          >
+            <Pencil className="h-2.5 w-2.5" aria-hidden />
+          </button>
+        )}
+        <TreatedButton treated={treated} onClick={() => onTreated([note.id], !treated)} />
+      </span>
     </li>
   );
 };
@@ -203,21 +387,26 @@ const RetroNoteCard: React.FC<{
 const RetroPileCard: React.FC<{
   notes: RetroNote[];
   color: string;
-  isTarget: boolean;
+  zone: Zone | null;
   onOpen: () => void;
+  onTreated: (ids: string[], treated: boolean) => void;
   onDragStart: () => void;
   onDragEnd: () => void;
   dropProps: DropProps;
-}> = ({ notes, color, isTarget, onOpen, onDragStart, onDragEnd, dropProps }) => {
+}> = ({ notes, color, zone, onOpen, onTreated, onDragStart, onDragEnd, dropProps }) => {
   const likes = notes.reduce((sum, n) => sum + n.likedBy.length, 0);
+  const treated = notes.every((n) => n.treated);
   return (
     <li
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       {...dropProps}
-      className="relative w-[128px] cursor-grab active:cursor-grabbing"
+      className={`group relative w-[128px] cursor-grab transition-opacity active:cursor-grabbing ${
+        treated ? 'opacity-55 hover:opacity-100' : ''
+      }`}
     >
+      <DropMarker zone={zone} />
       <span className="absolute inset-0 translate-x-[3px] translate-y-[-2px] rotate-[3deg] rounded-md bg-white/70 shadow-sm" aria-hidden />
       <span className="absolute inset-0 translate-x-[-2px] translate-y-[2px] rotate-[-2deg] rounded-md bg-white/55 shadow-sm" aria-hidden />
       <button
@@ -225,11 +414,11 @@ const RetroPileCard: React.FC<{
         onClick={onOpen}
         aria-label={`Tas de ${notes.length} notes : ${notes[0].text}. Ouvrir`}
         className={`relative block w-full rounded-md border-l-4 bg-white px-2 py-1.5 text-left shadow-sm transition-shadow hover:shadow-md ${
-          isTarget ? 'ring-2 ring-teal' : ''
+          zone === 'pile' ? 'ring-2 ring-teal' : ''
         }`}
         style={{ borderLeftColor: color }}
       >
-        <p className="line-clamp-3 break-words text-xs leading-snug text-navy">{notes[0].text}</p>
+        <p className={`line-clamp-3 break-words pr-3 text-xs leading-snug ${treated ? 'text-muted line-through' : 'text-navy'}`}>{notes[0].text}</p>
         <span className="mt-1 flex items-center gap-1 text-[10px] font-bold" style={{ color }}>
           <Layers className="h-3 w-3" aria-hidden /> {notes.length} notes
           {likes > 0 && (
@@ -239,6 +428,9 @@ const RetroPileCard: React.FC<{
           )}
         </span>
       </button>
+      <span className={`absolute right-1 top-1 ${treated ? '' : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'}`}>
+        <TreatedButton treated={treated} onClick={() => onTreated(notes.map((n) => n.id), !treated)} />
+      </span>
     </li>
   );
 };
@@ -247,9 +439,10 @@ const RetroPileModal: React.FC<{
   notes: RetroNote[];
   myId: string;
   onLike: (id: string) => void;
+  onEdit: (id: string) => void;
   onUnpile: (id: string) => void;
   onClose: () => void;
-}> = ({ notes, myId, onLike, onUnpile, onClose }) => {
+}> = ({ notes, myId, onLike, onEdit, onUnpile, onClose }) => {
   const cat = getRetroCategory(notes[0].category);
 
   useEffect(() => {
@@ -289,7 +482,7 @@ const RetroPileModal: React.FC<{
               className="rounded-lg border-l-4 bg-surface px-3 py-2"
               style={{ borderLeftColor: n.authorColor }}
             >
-              <p className="text-sm leading-snug text-navy">{n.text}</p>
+              <p className={`text-sm leading-snug ${n.treated ? 'text-muted line-through' : 'text-navy'}`}>{n.text}</p>
               <div className="mt-1.5 flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full" style={{ background: n.authorColor }} aria-hidden />
                 <span className="text-[11px] font-semibold text-muted">{n.authorName}</span>
@@ -300,6 +493,15 @@ const RetroPileModal: React.FC<{
                 >
                   Sortir du tas
                 </button>
+                {n.authorId === myId && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit(n.id)}
+                    className="ml-3 text-[11px] font-semibold text-muted underline-offset-2 transition-colors hover:text-navy hover:underline"
+                  >
+                    Modifier
+                  </button>
+                )}
                 <LikeButton note={n} myId={myId} onLike={onLike} />
               </div>
             </li>

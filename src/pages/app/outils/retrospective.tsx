@@ -9,6 +9,7 @@ import { RetroActionsPanel } from '@/components/toolbox/retro/RetroActionsPanel'
 import { useRetroSession } from '@/components/toolbox/retro/useRetroSession';
 import { RetroPanelTab } from '@/components/toolbox/retro/RetroPanelTab';
 import { RetroRecreLink } from '@/components/toolbox/retro/RetroRecreLink';
+import { RetroEditNote } from '@/components/toolbox/retro/RetroEditNote';
 import { getRetentionLabel } from '@/constants/toolbox';
 
 const RetrospectivePage: React.FC = () => {
@@ -22,11 +23,15 @@ const RetrospectivePage: React.FC = () => {
   // Panneaux latéraux repliables, pour laisser la place au tableau quand il est plein.
   const [prepOpen, setPrepOpen] = useState(true);
   const [actionsOpen, setActionsOpen] = useState(true);
+  // Note en cours de modification (une des siennes).
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = editingId ? myNotes.find((n) => n.id === editingId) : undefined;
 
   const me = participants.find((p) => p.id === myId);
   const openActionsCount = retroActions.filter((a) => !state.actionMeta[a.id]?.done).length
     + state.pastActions.filter((a) => !a.done).length;
   const revealedCount = state.notes.filter((n) => n.revealed).length;
+  const treatedCount = state.notes.filter((n) => n.revealed && n.treated).length;
 
   return (
     <ToolPageShell
@@ -47,11 +52,13 @@ const RetrospectivePage: React.FC = () => {
         isFacilitator={isFacilitator}
         notesCount={state.notes.length}
         revealedCount={revealedCount}
+        treatedCount={treatedCount}
         actionsCount={retroActions.length}
         onToggleChrono={actions.toggleChrono}
         onResetChrono={actions.resetChrono}
         onDurationChange={actions.setDuration}
         onExport={actions.exportSummary}
+        onGroupByAuthor={actions.groupByAuthor}
         onNewRetro={actions.newRetro}
         onReset={actions.reset}
       />
@@ -64,6 +71,9 @@ const RetrospectivePage: React.FC = () => {
             myNotes={myNotes}
             onAddNote={actions.addNote}
             onDeleteNote={actions.deleteNote}
+            onEditNote={setEditingId}
+            onMoveInQueue={actions.moveInQueue}
+            onRevealOne={actions.revealOne}
             onRevealNext={actions.revealMyNext}
             onRevealAll={actions.revealMyAll}
             onUnreveal={actions.unrevealMine}
@@ -89,6 +99,9 @@ const RetrospectivePage: React.FC = () => {
             onPileOnto={actions.pileOnto}
             onUnpile={actions.unpile}
             onLike={actions.like}
+            onEdit={setEditingId}
+            onOrder={actions.setOrders}
+            onTreated={actions.setTreated}
           />
           {code && <RetroRecreLink retroCode={code} />}
         </div>
@@ -119,6 +132,15 @@ const RetrospectivePage: React.FC = () => {
           />
         )}
       </div>
+
+      {editing && (
+        <RetroEditNote
+          key={editing.id}
+          note={editing}
+          onSave={(text, category) => actions.editNote(editing.id, text, category)}
+          onClose={() => setEditingId(null)}
+        />
+      )}
     </ToolPageShell>
   );
 };

@@ -527,3 +527,25 @@ svg.lucide {
 svg.lucide.icone-fine {
   stroke-width: 1px;
 }
+
+/* Rétrospective : note qui vient d'être révélée (voir RetroBoard). */
+.retro-fraiche {
+  animation:
+    retroApparition 0.45s cubic-bezier(.34, 1.56, .64, 1),
+    retroHalo 1.3s ease-in-out 0.45s 4;
+  box-shadow: 0 0 0 3px var(--halo);
+}
+
+@keyframes retroApparition {
+  0% { transform: scale(.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes retroHalo {
+  0%, 100% { box-shadow: 0 0 0 3px var(--halo); }
+  50% { box-shadow: 0 0 0 9px var(--halo); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retro-fraiche { animation: none; }
+}

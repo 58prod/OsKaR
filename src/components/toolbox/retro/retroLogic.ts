@@ -70,6 +70,98 @@ export interface RetroPastAction extends RetroActionMeta {
 export interface RetroNote extends BoardNote {
   /** Identifiant du tas : les notes révélées qui le partagent sont empilées. */
   pileId?: string;
+  /** Moment de la révélation (horloge du révélateur) : place par défaut sur le tableau. */
+  revealedAt?: number;
+  /** Place choisie à la main sur le tableau (glisser-déposer, « Regrouper par personne »). */
+  order?: number;
+  orderAt?: number;
+  /** Place dans la file de préparation de l'auteur (flèches ↑ ↓). */
+  queue?: number;
+  queueAt?: number;
+  /** Note abordée pendant la rétro : barrée et rangée en bas de sa case. */
+  treated?: boolean;
+  treatedAt?: number;
+  /** Dernière modification du texte par son auteur (la plus récente gagne). */
+  editedAt?: number;
+}
+
+/* ── Ordre des notes ──────────────────────────────────────────────────────── */
+
+/** Moment de création, lu dans l'identifiant (horodaté en base 36). */
+export function idTime(id: string): number {
+  const t = parseInt(id.split('-')[0], 36);
+  return Number.isFinite(t) ? t : 0;
+}
+
+/** Place d'une note révélée : choisie à la main, sinon ordre de révélation. */
+export function boardKey(n: RetroNote): number {
+  return n.order ?? n.revealedAt ?? idTime(n.id);
+}
+
+/** Place d'une note dans la file de préparation de son auteur. */
+export function queueKey(n: RetroNote): number {
+  return n.queue ?? idTime(n.id);
+}
+
+const parId = (a: RetroNote, b: RetroNote) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+const parCle = (cle: (n: RetroNote) => number) => (a: RetroNote, b: RetroNote) => cle(a) - cle(b) || parId(a, b);
+
+/**
+ * Ordre d'affichage d'une case : les notes révélées à aborder (dans l'ordre
+ * de révélation, donc regroupées par personne quand chacun révèle à son
+ * tour), puis les notes encore masquées, puis les notes déjà abordées.
+ */
+export function sortBoardNotes(notes: RetroNote[]): RetroNote[] {
+  return [
+    ...notes.filter((n) => n.revealed && !n.treated).sort(parCle(boardKey)),
+    ...notes.filter((n) => !n.revealed).sort(parId),
+    ...notes.filter((n) => n.revealed && n.treated).sort(parCle(boardKey)),
+  ];
+}
+
+/** Notes d'un auteur dans l'ordre de sa file : révélées d'abord, puis à révéler. */
+export function sortQueue(notes: RetroNote[]): RetroNote[] {
+  return [
+    ...notes.filter((n) => n.revealed).sort(parCle((n) => n.revealedAt ?? idTime(n.id))),
+    ...notes.filter((n) => !n.revealed).sort(parCle(queueKey)),
+  ];
+}
+
+/**
+ * Clé qui place un élément juste avant ou juste après l'élément `index`
+ * d'une liste de clés croissantes (l'élément déplacé n'y figure pas).
+ */
+export function keyBeside(keys: number[], index: number, side: 'before' | 'after'): number {
+  const prev = side === 'before' ? keys[index - 1] : keys[index];
+  const next = side === 'before' ? keys[index] : keys[index + 1];
+  if (prev === undefined && next === undefined) return Date.now();
+  if (prev === undefined) return next - 1;
+  if (next === undefined) return prev + 1;
+  return (prev + next) / 2;
+}
+
+/**
+ * Nouvelles places qui regroupent les notes révélées par personne, dans
+ * chaque case. Les personnes gardent l'ordre de leur première note.
+ */
+export function ordersByAuthor(notes: RetroNote[]): Record<string, number> {
+  const revealed = notes.filter((n) => n.revealed);
+  if (!revealed.length) return {};
+  const first = new Map<string, number>();
+  revealed.forEach((n) => {
+    const k = boardKey(n);
+    if (!first.has(n.authorId) || k < first.get(n.authorId)!) first.set(n.authorId, k);
+  });
+  const sorted = [...revealed].sort((a, b) => (
+    first.get(a.authorId)! - first.get(b.authorId)!
+    || (a.authorId < b.authorId ? -1 : a.authorId > b.authorId ? 1 : 0)
+    || boardKey(a) - boardKey(b) || parId(a, b)
+  ));
+  // Les nouvelles places restent avant les prochaines révélations.
+  const start = Math.min(...revealed.map(boardKey));
+  const orders: Record<string, number> = {};
+  sorted.forEach((n, i) => { orders[n.id] = start + i * 0.001; });
+  return orders;
 }
 
 export interface RetroState {
@@ -372,11 +464,13 @@ export function mergeImportedActions(
 
 /** Résumé texte de la séance (export .txt). */
 export function buildRetroSummary(state: RetroState): string {
-  const date = new Date().toLocaleDateString('fr-FR');
+  const date = state.retroDate
+    ? new Date(`${state.retroDate}T12:00:00`).toLocaleDateString('fr-FR')
+    : new Date().toLocaleDateString('fr-FR');
   let txt = `RÉTROSPECTIVE OSKAR — ${date}\n${'='.repeat(44)}\n\n`;
   RETRO_CATEGORIES.forEach((cat) => {
     txt += `${cat.symbol} ${cat.label}\n${'-'.repeat(40)}\n`;
-    const notes = state.notes.filter((n) => n.revealed && n.category === cat.key && n.text.trim());
+    const notes = sortBoardNotes(state.notes.filter((n) => n.revealed && n.category === cat.key && n.text.trim()));
     if (notes.length === 0) {
       txt += '(aucune note)\n';
     } else {
@@ -424,7 +518,17 @@ export type RetroOp =
    * Révélation de notes d'un auteur. Les notes voyagent avec : si leur ajout
    * arrive après (messages dans le désordre), elles sont quand même révélées.
    */
-  | { t: 'reveal'; ids: string[]; authorId?: string; session?: number; notes?: RetroNote[] }
+  | { t: 'reveal'; ids: string[]; authorId?: string; session?: number; notes?: RetroNote[]; at?: number }
+  /**
+   * Modification d'une note par son auteur. La note modifiée voyage avec :
+   * arrivée avant l'ajout, elle n'est pas perdue. Le quadrant ne change
+   * que tant que la note n'est pas révélée (ensuite, on la glisse).
+   */
+  | { t: 'editNote'; note: RetroNote; at: number; session?: number }
+  /** Nouvelles places (tableau, ou file de préparation si `queue`). La plus récente gagne. */
+  | { t: 'order'; orders: Record<string, number>; at: number; queue?: boolean }
+  /** Notes marquées abordées (ou plus). La plus récente gagne. */
+  | { t: 'treated'; ids: string[]; treated: boolean; at: number }
   | { t: 'unreveal'; authorId: string }
   | { t: 'move'; id: string; category: string }
   | { t: 'movePile'; pileId: string; category: string }
@@ -471,20 +575,90 @@ export function retroReducer(raw: RetroState, op: RetroOp): RetroState {
       const ids = new Set(op.ids);
       const ofAuthor = (n: RetroNote) => !op.authorId || n.authorId === op.authorId;
       let notes = state.notes;
+      const transported = new Map<string, RetroNote>();
       // Note pas encore arrivée : on l'ajoute depuis la révélation (même auteur, jamais une note supprimée).
       (op.notes ?? []).forEach((n) => {
         if (n && typeof n.id === 'string' && typeof n.text === 'string' && ids.has(n.id)
           && ofAuthor(n) && !state.deletedIds.includes(n.id)) {
-          notes = insertById(notes, { ...n, revealed: false, likedBy: [], retained: false, pileId: undefined });
+          transported.set(n.id, n);
+          notes = insertById(notes, {
+            ...n, revealed: false, likedBy: [], retained: false, pileId: undefined,
+            order: undefined, orderAt: undefined, treated: undefined, treatedAt: undefined,
+          });
         }
       });
-      return { ...state, notes: notes.map((n) => (ids.has(n.id) && ofAuthor(n) ? { ...n, revealed: true } : n)) };
+      const rank = new Map(op.ids.map((id, i) => [id, i]));
+      return {
+        ...state,
+        notes: notes.map((n) => {
+          if (!ids.has(n.id) || !ofAuthor(n) || n.revealed) return n;
+          // Une modification faite avant la révélation peut arriver après elle : la révélation la porte.
+          const t = transported.get(n.id);
+          const edited = t && (t.editedAt ?? 0) > (n.editedAt ?? 0)
+            ? { text: t.text, category: t.category, editedAt: t.editedAt } : {};
+          // Révélées ensemble : elles gardent l'ordre de la file de l'auteur.
+          const revealedAt = op.at !== undefined ? op.at + (rank.get(n.id) ?? 0) : undefined;
+          return { ...n, ...edited, revealed: true, revealedAt };
+        }),
+      };
+    }
+    case 'editNote': {
+      const e = op.note;
+      if (!e || typeof e.id !== 'string' || typeof e.text !== 'string' || !e.text.trim()) return state;
+      if (autreSeance(op, state) || state.deletedIds.includes(e.id)) return state;
+      const text = e.text.trim().slice(0, 280);
+      const existing = state.notes.find((n) => n.id === e.id);
+      if (!existing) {
+        return {
+          ...state,
+          notes: insertById(state.notes, {
+            id: e.id, authorId: e.authorId, authorName: e.authorName, authorColor: e.authorColor,
+            category: e.category, text, revealed: false, likedBy: [], retained: false, editedAt: op.at,
+          }),
+        };
+      }
+      if (existing.authorId !== e.authorId || (existing.editedAt ?? 0) >= op.at) return state;
+      return {
+        ...state,
+        notes: state.notes.map((n) => (n.id === e.id
+          ? { ...n, text, category: n.revealed ? n.category : e.category, editedAt: op.at }
+          : n)),
+      };
+    }
+    case 'order': {
+      const [field, atField] = op.queue ? ['queue', 'queueAt'] as const : ['order', 'orderAt'] as const;
+      return {
+        ...state,
+        notes: state.notes.map((n) => {
+          const o = op.orders?.[n.id];
+          if (typeof o !== 'number' || !Number.isFinite(o)) return n;
+          const prevAt = n[atField] ?? 0;
+          // Le plus récent gagne ; à égalité, la plus grande valeur (même résultat partout).
+          if (prevAt > op.at || (prevAt === op.at && (n[field] ?? -Infinity) >= o)) return n;
+          return { ...n, [field]: o, [atField]: op.at };
+        }),
+      };
+    }
+    case 'treated': {
+      const ids = new Set(op.ids);
+      return {
+        ...state,
+        notes: state.notes.map((n) => {
+          if (!ids.has(n.id) || !n.revealed) return n;
+          const prevAt = n.treatedAt ?? 0;
+          if (prevAt > op.at || (prevAt === op.at && (!!n.treated || !op.treated))) return n;
+          return { ...n, treated: op.treated, treatedAt: op.at };
+        }),
+      };
     }
     case 'unreveal':
       return {
         ...state,
         notes: state.notes.map((n) => (n.authorId === op.authorId && n.revealed
-          ? { ...n, revealed: false, likedBy: [], retained: false, pileId: undefined }
+          ? {
+            ...n, revealed: false, likedBy: [], retained: false, pileId: undefined, revealedAt: undefined,
+            order: undefined, orderAt: undefined, treated: undefined, treatedAt: undefined,
+          }
           : n)),
       };
     case 'move':

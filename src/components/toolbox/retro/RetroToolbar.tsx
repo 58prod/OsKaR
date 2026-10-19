@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, RotateCcw, SquarePlus, Trash2 } from 'lucide-react';
+import { Download, RotateCcw, SquarePlus, Trash2, Users } from 'lucide-react';
 import { ChronoControls } from '@/components/toolbox/shared/ChronoControls';
 import type { ToolChrono } from '@/components/toolbox/shared/toolChrono';
 import { RETRO_ACCENT } from './retroLogic';
@@ -10,11 +10,15 @@ interface RetroToolbarProps {
   isFacilitator: boolean;
   notesCount: number;
   revealedCount: number;
+  /** Notes révélées déjà abordées pendant la rétro. */
+  treatedCount: number;
   actionsCount: number;
   onToggleChrono: () => void;
   onResetChrono: () => void;
   onDurationChange: (seconds: number) => void;
   onExport: () => void;
+  /** Range les notes révélées par personne, dans chaque case. */
+  onGroupByAuthor: () => void;
   /** Vide les cases ; les actions de la séance passent dans le suivi. */
   onNewRetro: () => void;
   /** Efface tout, suivi des actions compris. */
@@ -26,8 +30,8 @@ interface RetroToolbarProps {
  * partagé, export du résumé et nouvelle rétro (animateur).
  */
 export const RetroToolbar: React.FC<RetroToolbarProps> = ({
-  chrono, remainingSec, isFacilitator, notesCount, revealedCount, actionsCount,
-  onToggleChrono, onResetChrono, onDurationChange, onExport, onNewRetro, onReset,
+  chrono, remainingSec, isFacilitator, notesCount, revealedCount, treatedCount, actionsCount,
+  onToggleChrono, onResetChrono, onDurationChange, onExport, onGroupByAuthor, onNewRetro, onReset,
 }) => {
   const [confirmReset, setConfirmReset] = useState(false);
   const [eraseAll, setEraseAll] = useState(false);
@@ -37,6 +41,7 @@ export const RetroToolbar: React.FC<RetroToolbarProps> = ({
     <div className="flex flex-wrap items-center gap-3 border-b border-line bg-white px-6 py-3">
       <p className="text-sm text-muted" aria-live="polite">
         <strong className="text-navy">{revealedCount}</strong> / {notesCount} note{notesCount > 1 ? 's' : ''} révélée{revealedCount > 1 ? 's' : ''}
+        {treatedCount > 0 && <> · <strong className="text-navy">{treatedCount}</strong> abordée{treatedCount > 1 ? 's' : ''}</>}
         {actionsCount > 0 && <> · <strong className="text-navy">{actionsCount}</strong> action{actionsCount > 1 ? 's' : ''}</>}
       </p>
 
@@ -54,6 +59,15 @@ export const RetroToolbar: React.FC<RetroToolbarProps> = ({
 
         {isFacilitator && (
           <>
+            <button
+              type="button"
+              onClick={onGroupByAuthor}
+              disabled={revealedCount === 0}
+              title="Ranger les notes révélées par personne, dans chaque case"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Users className="h-4 w-4" aria-hidden /> Regrouper par personne
+            </button>
             <button
               type="button"
               onClick={onExport}

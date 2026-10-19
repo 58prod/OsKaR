@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, NotebookPen, X } from 'lucide-react';
-import type { BoardNote } from '@/components/toolbox/shared/boardNotes';
-import { RETRO_CATEGORIES, getRetroCategory, type RetroCategoryKey } from './retroLogic';
+import { ArrowDown, ArrowUp, Check, Eye, EyeOff, NotebookPen, Pencil, X } from 'lucide-react';
+import { RETRO_CATEGORIES, getRetroCategory, type RetroCategoryKey, type RetroNote } from './retroLogic';
 import { RetroPanelCollapse } from './RetroPanelTab';
 
 interface RetroPrepPanelProps {
   myName: string;
   myColor: string;
-  myNotes: BoardNote[];
+  /** Ses notes dans l'ordre de sa file : révélées d'abord, puis à révéler. */
+  myNotes: RetroNote[];
   onAddNote: (category: RetroCategoryKey, text: string) => void;
   onDeleteNote: (id: string) => void;
+  onEditNote: (id: string) => void;
+  onMoveInQueue: (id: string, dir: -1 | 1) => void;
+  onRevealOne: (id: string) => void;
   onRevealNext: () => void;
   onRevealAll: () => void;
   onUnreveal: () => void;
@@ -21,7 +24,8 @@ interface RetroPrepPanelProps {
  * gérer sa file d'attente puis révéler ses notes une à une (ou toutes).
  */
 export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
-  myName, myColor, myNotes, onAddNote, onDeleteNote, onRevealNext, onRevealAll, onUnreveal, onCollapse,
+  myName, myColor, myNotes, onAddNote, onDeleteNote, onEditNote, onMoveInQueue, onRevealOne,
+  onRevealNext, onRevealAll, onUnreveal, onCollapse,
 }) => {
   const [category, setCategory] = useState<RetroCategoryKey>('plus');
   const [text, setText] = useState('');
@@ -102,26 +106,51 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
             <ul className="flex flex-col gap-1.5">
               {myNotes.map((n) => {
                 const cat = getRetroCategory(n.category);
+                const pendingIndex = pending.indexOf(n);
+                const isNext = pendingIndex === 0;
                 return (
                   <li
                     key={n.id}
-                    className={`rounded-lg border-l-4 bg-surface p-2 text-sm text-navy ${n.revealed ? 'opacity-55' : ''}`}
+                    className={`rounded-lg border-l-4 p-2 text-sm text-navy ${
+                      n.revealed ? 'bg-surface/60' : 'bg-surface'
+                    } ${isNext ? 'ring-2 ring-teal' : ''}`}
                     style={{ borderLeftColor: cat.color }}
                   >
-                    <div className="flex items-start justify-between gap-1">
+                    <div className="flex items-center gap-1">
                       <span className="text-[11px] font-bold" style={{ color: cat.color }}>{cat.label}</span>
+                      {n.revealed && (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-muted">
+                          <Check className="h-3 w-3" aria-hidden /> révélée
+                        </span>
+                      )}
+                      {isNext && <span className="text-[10px] font-bold text-[#047857]">Prochaine</span>}
+                    </div>
+                    <p className={`mt-0.5 leading-snug ${n.revealed ? 'text-muted line-through decoration-1' : ''}`}>{n.text}</p>
+                    <div className="mt-1 flex items-center justify-end gap-0.5">
+                      {!n.revealed && pending.length > 1 && (
+                        <>
+                          <IconButton label="Monter" onClick={() => onMoveInQueue(n.id, -1)} disabled={pendingIndex === 0}>
+                            <ArrowUp className="h-3.5 w-3.5" aria-hidden />
+                          </IconButton>
+                          <IconButton label="Descendre" onClick={() => onMoveInQueue(n.id, 1)} disabled={pendingIndex === pending.length - 1}>
+                            <ArrowDown className="h-3.5 w-3.5" aria-hidden />
+                          </IconButton>
+                        </>
+                      )}
                       {!n.revealed && (
-                        <button
-                          type="button"
-                          onClick={() => onDeleteNote(n.id)}
-                          aria-label="Supprimer la note"
-                          className="rounded p-0.5 text-muted hover:text-danger-600"
-                        >
+                        <IconButton label="Révéler cette note" onClick={() => onRevealOne(n.id)}>
+                          <Eye className="h-3.5 w-3.5" aria-hidden />
+                        </IconButton>
+                      )}
+                      <IconButton label="Modifier la note" onClick={() => onEditNote(n.id)}>
+                        <Pencil className="h-3.5 w-3.5" aria-hidden />
+                      </IconButton>
+                      {!n.revealed && (
+                        <IconButton label="Supprimer la note" onClick={() => onDeleteNote(n.id)} danger>
                           <X className="h-3.5 w-3.5" aria-hidden />
-                        </button>
+                        </IconButton>
                       )}
                     </div>
-                    <p className="mt-0.5 leading-snug">{n.text}</p>
                   </li>
                 );
               })}
@@ -166,5 +195,26 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
     </aside>
   );
 };
+
+const IconButton: React.FC<{
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  children: React.ReactNode;
+}> = ({ label, onClick, disabled, danger, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    aria-label={label}
+    title={label}
+    className={`rounded p-0.5 text-muted transition-colors disabled:cursor-default disabled:opacity-25 ${
+      danger ? 'hover:text-danger-600' : 'hover:text-navy'
+    }`}
+  >
+    {children}
+  </button>
+);
 
 export default RetroPrepPanel;

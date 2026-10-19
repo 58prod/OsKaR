@@ -6,9 +6,9 @@ import {
   chronoRemaining, resetChronoState, toggleChronoState, withDuration,
 } from '@/components/toolbox/shared/toolChrono';
 import {
-  INITIAL_RETRO_STATE, allActions, buildActionsCsv, buildRetroSummary, mergeImportedActions,
-  normalizeRetroState, parseActionsCsv, retroActions, retroReducer, todayISO,
-  type RetroActionMeta, type RetroCategoryKey, type RetroOp,
+  INITIAL_RETRO_STATE, allActions, buildActionsCsv, buildRetroSummary, keyBeside, mergeImportedActions,
+  normalizeRetroState, ordersByAuthor, parseActionsCsv, queueKey, retroActions, retroReducer, sortQueue, todayISO,
+  type RetroActionMeta, type RetroCategoryKey, type RetroNote, type RetroOp,
 } from './retroLogic';
 
 /**
@@ -41,7 +41,7 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
   }, [state.chrono.running]);
   const remainingSec = chronoRemaining(state.chrono, now);
 
-  const myNotes = useMemo(() => notesOf(state.notes, myId), [state.notes, myId]);
+  const myNotes = useMemo(() => sortQueue(notesOf(state.notes, myId) as RetroNote[]), [state.notes, myId]);
   const actions_ = useMemo(() => retroActions(state), [state]);
 
   const addNote = useCallback((category: RetroCategoryKey, text: string) => {
@@ -51,20 +51,59 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
 
   const deleteNote = useCallback((id: string) => send({ t: 'deleteNote', id }), [send]);
 
-  /** Révèle ses notes ; elles voyagent avec la révélation (voir `retroReducer`). */
-  const reveal = useCallback((notes: import('./retroLogic').RetroNote[]) => {
+  /** Modifie le texte (et, avant révélation, le quadrant) d'une de ses notes. */
+  const editNote = useCallback((id: string, text: string, category: RetroCategoryKey) => {
+    const note = state.notes.find((n) => n.id === id && n.authorId === myId);
+    if (!note || !text.trim()) return;
+    const at = Date.now();
+    send({
+      t: 'editNote',
+      note: { ...note, text: text.trim(), category: note.revealed ? note.category : category, editedAt: at },
+      at,
+      session: state.session,
+    });
+  }, [state.notes, myId, send, state.session]);
+
+  /** Révèle ses notes, dans l'ordre de sa file ; elles voyagent avec la révélation (voir `retroReducer`). */
+  const reveal = useCallback((notes: RetroNote[]) => {
     if (!notes.length) return;
-    send({ t: 'reveal', ids: notes.map((n) => n.id), authorId: myId, session: state.session, notes });
+    send({ t: 'reveal', ids: notes.map((n) => n.id), authorId: myId, session: state.session, notes, at: Date.now() });
   }, [send, myId, state.session]);
 
-  const revealMyNext = useCallback(() => {
-    const next = state.notes.find((n) => n.authorId === myId && !n.revealed);
-    if (next) reveal([next]);
-  }, [state.notes, myId, reveal]);
+  const myPending = useMemo(() => myNotes.filter((n) => !n.revealed), [myNotes]);
 
-  const revealMyAll = useCallback(() => {
-    reveal(state.notes.filter((n) => n.authorId === myId && !n.revealed));
-  }, [state.notes, myId, reveal]);
+  const revealMyNext = useCallback(() => {
+    if (myPending[0]) reveal([myPending[0]]);
+  }, [myPending, reveal]);
+
+  const revealMyAll = useCallback(() => reveal(myPending), [myPending, reveal]);
+
+  const revealOne = useCallback((id: string) => {
+    const note = myPending.find((n) => n.id === id);
+    if (note) reveal([note]);
+  }, [myPending, reveal]);
+
+  /** Monte ou descend une note dans sa file de préparation (ordre de révélation). */
+  const moveInQueue = useCallback((id: string, dir: -1 | 1) => {
+    const i = myPending.findIndex((n) => n.id === id);
+    if (i < 0 || (dir === -1 && i === 0) || (dir === 1 && i === myPending.length - 1)) return;
+    const keys = myPending.filter((n) => n.id !== id).map(queueKey);
+    const key = dir === -1 ? keyBeside(keys, i - 1, 'before') : keyBeside(keys, i, 'after');
+    send({ t: 'order', orders: { [id]: key }, at: Date.now(), queue: true });
+  }, [myPending, send]);
+
+  /** Nouvelles places sur le tableau (glisser-déposer). */
+  const setOrders = useCallback((orders: Record<string, number>) => {
+    if (Object.keys(orders).length) send({ t: 'order', orders, at: Date.now() });
+  }, [send]);
+
+  /** Regroupe les notes révélées par personne, dans chaque case. */
+  const groupByAuthor = useCallback(() => setOrders(ordersByAuthor(state.notes)), [setOrders, state.notes]);
+
+  /** Marque des notes comme abordées : barrées et rangées en bas de leur case. */
+  const setTreated = useCallback((ids: string[], treated: boolean) => {
+    if (ids.length) send({ t: 'treated', ids, treated, at: Date.now() });
+  }, [send]);
 
   const unrevealMine = useCallback(() => send({ t: 'unreveal', authorId: myId }), [send, myId]);
 
@@ -118,7 +157,7 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
   }, [send]);
 
   const exportSummary = useCallback(() => {
-    downloadTextFile('retrospective.txt', buildRetroSummary(state));
+    downloadTextFile(`retrospective-${state.retroDate || todayISO()}.txt`, buildRetroSummary(state));
   }, [state]);
 
   const exportActions = useCallback(() => {
@@ -151,7 +190,8 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     myNotes,
     retroActions: actions_,
     actions: {
-      addNote, deleteNote, revealMyNext, revealMyAll, unrevealMine,
+      addNote, editNote, deleteNote, revealMyNext, revealMyAll, revealOne, unrevealMine, moveInQueue,
+      setOrders, groupByAuthor, setTreated,
       moveToCategory, movePileTo, pileOn, pileOnto, unpile, like,
       setActionMeta, setPastAction, deletePastAction, dismissAction, restoreActions,
       toggleChrono, resetChrono, setDuration,

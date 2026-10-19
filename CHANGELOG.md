@@ -10,6 +10,33 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.69.0] - 2026-10-19
+
+### ✨ Ajouté — Rétrospective : s'y retrouver pendant la séance
+- **Ordre de révélation** : sur le tableau, les notes s'affichent dans l'ordre
+  où elles ont été révélées (et non plus de création). Quand chacun révèle à
+  son tour, les notes d'une même personne se suivent. Les notes encore
+  masquées passent après les notes révélées.
+- **Notes abordées** : une coche sur chaque note (ou tas) la marque comme
+  abordée ; elle est barrée, grisée et rangée en bas de sa case. Compteurs
+  « x / y » par case et « n abordées » dans la barre du haut.
+- **Mise en avant** de la note qui vient d'apparaître : apparition animée,
+  halo à la couleur de l'auteur et pastille « Nouveau » pendant 6 s ; la case
+  défile jusqu'à elle.
+- **Changer l'ordre** : glissée sur le bord gauche ou droit d'une note, une
+  note se range avant ou après elle (au centre, elle s'empile comme avant).
+  Animateur : bouton « Regrouper par personne ».
+- **Modifier une note** : crayon dans « Ma préparation » et au survol de ses
+  propres notes sur le tableau (et dans un tas). Avant révélation, on peut
+  aussi changer de quadrant.
+- **Ma préparation** : notes révélées barrées, repère « Prochaine », flèches
+  pour choisir l'ordre de révélation, bouton pour révéler une note précise.
+- Colonne de gauche (« + » et « – ») élargie aux deux tiers du tableau.
+- Export du résumé : la date est dans le nom du fichier
+  (`retrospective-AAAA-MM-JJ.txt`) et dans son titre.
+- Synchro : opérations `editNote`, `order`, `treated` (la plus récente gagne,
+  même résultat quel que soit l'ordre d'arrivée) ; tests `retroOrdre.test.ts`.
+
 ## [2.68.1] - 2026-10-13
 
 ### 🐛 Corrigé — En mode récré : cadre blanc vide à côté d'une photo
