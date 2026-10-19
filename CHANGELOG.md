@@ -10,6 +10,15 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.71.1] - 2026-10-19
+
+### 💄 Retouché — Rétro : regroupement compact, mise en avant plus fine
+- « Regrouper par personne » ne fait plus que réordonner : plus de ligne au
+  nom de chaque personne, qui prenait de la place.
+- Note qui vient d'être révélée : trait fin (1,5 px) à la couleur de l'auteur
+  et lueur douce qui respire trois fois, au lieu du halo épais ; apparition
+  en glissé léger ; pastille « Nouveau » plus discrète.
+
 ## [2.71.0] - 2026-10-19
 
 ### ✨ Ajouté — Rétro : regrouper par personne dès le départ ; couleur libre (tous les outils)

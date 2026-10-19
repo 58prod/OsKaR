@@ -528,24 +528,29 @@ svg.lucide.icone-fine {
   stroke-width: 1px;
 }
 
-/* Rétrospective : note qui vient d'être révélée (voir RetroBoard). */
+/* Rétrospective : note qui vient d'être révélée (voir RetroBoard). Un trait
+   fin à la couleur de l'auteur et une lueur douce qui respire. */
 .retro-fraiche {
   animation:
-    retroApparition 0.45s cubic-bezier(.34, 1.56, .64, 1),
-    retroHalo 1.3s ease-in-out 0.45s 4;
-  box-shadow: 0 0 0 3px var(--halo);
+    retroApparition 0.5s cubic-bezier(.22, 1, .36, 1),
+    retroLueur 1.8s ease-in-out 0.5s 3;
+  box-shadow: 0 0 0 1.5px var(--trait), 0 0 10px 1px var(--halo);
+}
+
+.retro-fraiche .retro-badge {
+  animation: retroApparition 0.5s cubic-bezier(.22, 1, .36, 1) 0.15s both;
 }
 
 @keyframes retroApparition {
-  0% { transform: scale(.6); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% { transform: translateY(-6px) scale(.96); opacity: 0; }
+  100% { transform: none; opacity: 1; }
 }
 
-@keyframes retroHalo {
-  0%, 100% { box-shadow: 0 0 0 3px var(--halo); }
-  50% { box-shadow: 0 0 0 9px var(--halo); }
+@keyframes retroLueur {
+  0%, 100% { box-shadow: 0 0 0 1.5px var(--trait), 0 0 8px 0 var(--halo); }
+  50% { box-shadow: 0 0 0 1.5px var(--trait), 0 0 18px 4px var(--halo); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .retro-fraiche { animation: none; }
+  .retro-fraiche, .retro-fraiche .retro-badge { animation: none; }
 }

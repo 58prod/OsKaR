@@ -8,7 +8,7 @@ import {
 interface RetroBoardProps {
   notes: RetroNote[];
   myId: string;
-  /** Notes regroupées par personne (un repère au nom de chacun ouvre son groupe). */
+  /** Notes regroupées par personne (seul l'ordre change, rien n'est ajouté). */
   groupByAuthor: boolean;
   onMove: (id: string, category: RetroCategoryKey) => void;
   onMovePile: (pileId: string, category: RetroCategoryKey) => void;
@@ -206,12 +206,7 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
               }`}
               aria-live="polite"
             >
-              {items.map((item, i) => {
-                // Regroupées : le nom de la personne en tête de son groupe (hors notes abordées, rangées en bas).
-                const first = itemNotes(item)[0];
-                const label = groupByAuthor && !itemTreated(item)
-                  && (i === 0 || itemAuthor(items[i - 1]) !== first.authorId || itemTreated(items[i - 1]));
-                const card = item.kind === 'note' ? (
+              {items.map((item) => (item.kind === 'note' ? (
                 <RetroNoteCard
                   key={item.note.id}
                   note={item.note}
@@ -237,18 +232,7 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
                   onDragEnd={endDrag}
                   dropProps={targetProps(items, item.notes[0].id)}
                 />
-                );
-                if (!label) return card;
-                return (
-                  <React.Fragment key={`groupe-${first.authorId}-${item.kind === 'note' ? item.note.id : item.pileId}`}>
-                    <li className="flex basis-full items-center gap-1.5 pt-1 text-[11px] font-bold text-navy first:pt-0" aria-hidden>
-                      <span className="h-2 w-2 rounded-full" style={{ background: first.authorColor }} />
-                      {first.authorName}
-                    </li>
-                    {card}
-                  </React.Fragment>
-                );
-              })}
+              )))}
             </ul>
           </section>
         );
@@ -362,13 +346,14 @@ const RetroNoteCard: React.FC<{
       } ${treated ? 'opacity-55 hover:opacity-100' : ''} ${fresh ? 'retro-fraiche' : ''}`}
       style={{
         borderLeftColor: note.authorColor,
-        ['--halo' as string]: `${note.authorColor}66`,
+        ['--trait' as string]: note.authorColor,
+        ['--halo' as string]: `${note.authorColor}59`,
       }}
     >
       <DropMarker zone={zone} />
       {fresh && (
         <span
-          className="absolute -top-2 left-1.5 rounded-full px-1.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm"
+          className="retro-badge absolute -top-[7px] left-1.5 rounded-full px-1.5 py-px text-[8px] font-bold uppercase leading-none tracking-[0.08em] text-white"
           style={{ background: note.authorColor }}
         >
           Nouveau
