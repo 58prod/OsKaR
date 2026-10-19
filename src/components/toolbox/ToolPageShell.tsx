@@ -20,7 +20,7 @@ interface ToolPageShellProps {
   identity: ToolIdentity | null;
   isFacilitator: boolean;
   onToggleFacilitator: () => void;
-  onJoin: (name: string) => void;
+  onJoin: (name: string, color?: string) => void;
   onShare: () => void;
   /** Rétention propre à l'outil, affichée à l'entrée dans la session. */
   retentionLabel?: string;

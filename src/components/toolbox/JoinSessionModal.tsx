@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Clock, KeyRound, Loader2, LogIn, X } from 'lucide-react';
-import { getLastName } from '@/utils/toolIdentity';
+import { PARTICIPANT_COLORS, getLastName, getOrCreateColor } from '@/utils/toolIdentity';
 import { getRetentionLabel } from '@/constants/toolbox';
 import { ToolSessionService } from '@/services/toolSession';
 
@@ -11,7 +11,7 @@ interface JoinSessionModalProps {
   sessionCode: string;
   /** true si l'utilisateur crée la session (facilitateur). */
   isCreating: boolean;
-  onJoin: (name: string) => void;
+  onJoin: (name: string, color: string) => void;
   /** Rétention propre à l'outil (ex: « 1 an » pour la Rétrospective). */
   retentionLabel?: string;
   /** Précision affichée sous le code (ex: code d'équipe permanent). */
@@ -35,10 +35,12 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
 }) => {
   const router = useRouter();
   const [name, setName] = useState('');
+  const [color, setColor] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setName(getLastName());
+    setColor(getOrCreateColor());
     inputRef.current?.focus();
   }, []);
 
@@ -53,7 +55,7 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim().length === 0) return;
-    onJoin(name.trim());
+    onJoin(name.trim(), color);
   };
 
   return (
@@ -113,6 +115,33 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
             className="mt-1.5 w-full rounded-lg border border-line bg-white px-4 py-2.5 text-navy outline-none transition-colors focus:border-teal focus-visible:ring-2 focus-visible:ring-teal"
             required
           />
+
+          <fieldset className="mt-4">
+            <legend className="text-sm font-semibold text-navy">Votre couleur</legend>
+            <div className="mt-1.5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Votre couleur">
+              {PARTICIPANT_COLORS.map((c) => {
+                const selected = c.valeur === color;
+                return (
+                  <button
+                    key={c.valeur}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    aria-label={c.nom}
+                    title={c.nom}
+                    onClick={() => setColor(c.valeur)}
+                    className={`h-6 w-6 rounded-full transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ${
+                      selected ? 'scale-110 ring-2 ring-navy ring-offset-2' : 'hover:scale-110'
+                    }`}
+                    style={{ background: c.valeur }}
+                  />
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-xs text-muted">
+              Si quelqu’un l’a déjà dans la session, une couleur libre vous sera attribuée.
+            </p>
+          </fieldset>
 
           {isCreating && creationOption}
 

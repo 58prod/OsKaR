@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { ArrowDown, ArrowUp, Check, Eye, EyeOff, NotebookPen, Pencil, X } from 'lucide-react';
+import { Check, ChevronDown, Eye, EyeOff, GripVertical, NotebookPen, Pencil, X } from 'lucide-react';
+import { PARTICIPANT_COLORS } from '@/utils/toolIdentity';
 import { RETRO_CATEGORIES, getRetroCategory, type RetroCategoryKey, type RetroNote } from './retroLogic';
 import { RetroPanelCollapse } from './RetroPanelTab';
 
 interface RetroPrepPanelProps {
   myName: string;
   myColor: string;
+  /** Couleurs déjà prises par les autres participants en ligne. */
+  takenColors: { color: string; name: string }[];
+  onColorChange: (color: string) => void;
   /** Ses notes dans l'ordre de sa file : révélées d'abord, puis à révéler. */
   myNotes: RetroNote[];
   onAddNote: (category: RetroCategoryKey, text: string) => void;
   onDeleteNote: (id: string) => void;
   onEditNote: (id: string) => void;
   onMoveInQueue: (id: string, dir: -1 | 1) => void;
+  onPlaceInQueue: (id: string, targetId: string, side: 'before' | 'after') => void;
   onRevealOne: (id: string) => void;
   onRevealNext: () => void;
   onRevealAll: () => void;
@@ -24,11 +29,20 @@ interface RetroPrepPanelProps {
  * gérer sa file d'attente puis révéler ses notes une à une (ou toutes).
  */
 export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
-  myName, myColor, myNotes, onAddNote, onDeleteNote, onEditNote, onMoveInQueue, onRevealOne,
-  onRevealNext, onRevealAll, onUnreveal, onCollapse,
+  myName, myColor, takenColors, onColorChange, myNotes, onAddNote, onDeleteNote, onEditNote,
+  onMoveInQueue, onPlaceInQueue, onRevealOne, onRevealNext, onRevealAll, onUnreveal, onCollapse,
 }) => {
   const [category, setCategory] = useState<RetroCategoryKey>('plus');
   const [text, setText] = useState('');
+  const [colorsOpen, setColorsOpen] = useState(false);
+  // Glisser-déposer dans la file : note tenue, et repère avant/après la note survolée.
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [over, setOver] = useState<{ id: string; side: 'before' | 'after' } | null>(null);
+  const sideOf = (e: React.DragEvent): 'before' | 'after' => {
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    return e.clientY < r.top + r.height / 2 ? 'before' : 'after';
+  };
+  const endDrag = () => { setDragId(null); setOver(null); };
   const pending = myNotes.filter((n) => !n.revealed);
   const revealedCount = myNotes.length - pending.length;
 
@@ -47,10 +61,47 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
           </p>
           <span className="ml-auto"><RetroPanelCollapse side="left" onClose={onCollapse} /></span>
         </div>
-        <p className="mt-1 flex items-center gap-2 text-sm font-bold text-navy">
-          <span className="h-2.5 w-2.5 rounded-full" style={{ background: myColor }} aria-hidden />
+        <div className="mt-1 flex items-center gap-2 text-sm font-bold text-navy">
+          <button
+            type="button"
+            onClick={() => setColorsOpen((o) => !o)}
+            aria-expanded={colorsOpen}
+            title="Changer ma couleur"
+            className="inline-flex items-center gap-1 rounded-full py-0.5 pl-0.5 pr-1 transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            <span className="h-3.5 w-3.5 rounded-full" style={{ background: myColor }} aria-hidden />
+            <ChevronDown className="h-3 w-3 text-muted" aria-hidden />
+            <span className="sr-only">Changer ma couleur</span>
+          </button>
           {myName}
-        </p>
+        </div>
+        {colorsOpen && (
+          <div className="mt-2 rounded-lg border border-line bg-surface p-2">
+            <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Ma couleur">
+              {PARTICIPANT_COLORS.map((c) => {
+                const prise = takenColors.find((t) => t.color === c.valeur);
+                const selected = c.valeur === myColor;
+                return (
+                  <button
+                    key={c.valeur}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    disabled={!!prise}
+                    aria-label={prise ? `${c.nom} (prise par ${prise.name})` : c.nom}
+                    title={prise ? `${c.nom} — prise par ${prise.name}` : c.nom}
+                    onClick={() => { onColorChange(c.valeur); setColorsOpen(false); }}
+                    className={`relative h-6 w-6 rounded-full transition-transform disabled:cursor-not-allowed disabled:opacity-25 ${
+                      selected ? 'ring-2 ring-navy ring-offset-2 ring-offset-surface' : 'enabled:hover:scale-110'
+                    }`}
+                    style={{ background: c.valeur }}
+                  />
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-[11px] text-muted">Les couleurs pâles sont déjà prises.</p>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
@@ -111,11 +162,34 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
                 return (
                   <li
                     key={n.id}
-                    className={`rounded-lg border-l-4 p-2 text-sm text-navy ${
-                      n.revealed ? 'bg-surface/60' : 'bg-surface'
-                    } ${isNext ? 'ring-2 ring-teal' : ''}`}
+                    draggable={!n.revealed && pending.length > 1}
+                    onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragId(n.id); }}
+                    onDragEnd={endDrag}
+                    onDragOver={(e) => {
+                      if (!dragId || n.revealed) return;
+                      e.preventDefault();
+                      const side = sideOf(e);
+                      setOver((o) => (o?.id === n.id && o.side === side ? o : { id: n.id, side }));
+                    }}
+                    onDragLeave={() => setOver((o) => (o?.id === n.id ? null : o))}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragId && !n.revealed) onPlaceInQueue(dragId, n.id, sideOf(e));
+                      endDrag();
+                    }}
+                    className={`relative rounded-lg border-l-4 p-2 text-sm text-navy ${
+                      n.revealed ? 'bg-surface/60' : 'cursor-grab bg-surface active:cursor-grabbing'
+                    } ${isNext ? 'ring-2 ring-teal' : ''} ${dragId === n.id ? 'opacity-40' : ''}`}
                     style={{ borderLeftColor: cat.color }}
                   >
+                    {over?.id === n.id && over.id !== dragId && (
+                      <span
+                        className={`pointer-events-none absolute inset-x-0 h-[3px] rounded-full bg-teal ${
+                          over.side === 'before' ? '-top-[4px]' : '-bottom-[4px]'
+                        }`}
+                        aria-hidden
+                      />
+                    )}
                     <div className="flex items-center gap-1">
                       <span className="text-[11px] font-bold" style={{ color: cat.color }}>{cat.label}</span>
                       {n.revealed && (
@@ -128,14 +202,19 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
                     <p className={`mt-0.5 leading-snug ${n.revealed ? 'text-muted line-through decoration-1' : ''}`}>{n.text}</p>
                     <div className="mt-1 flex items-center justify-end gap-0.5">
                       {!n.revealed && pending.length > 1 && (
-                        <>
-                          <IconButton label="Monter" onClick={() => onMoveInQueue(n.id, -1)} disabled={pendingIndex === 0}>
-                            <ArrowUp className="h-3.5 w-3.5" aria-hidden />
-                          </IconButton>
-                          <IconButton label="Descendre" onClick={() => onMoveInQueue(n.id, 1)} disabled={pendingIndex === pending.length - 1}>
-                            <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-                          </IconButton>
-                        </>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          aria-label="Glisser pour changer l'ordre (ou flèches haut et bas)"
+                          title="Glisser pour changer l'ordre de révélation"
+                          onKeyDown={(e) => {
+                            if (e.key === 'ArrowUp') { e.preventDefault(); onMoveInQueue(n.id, -1); }
+                            if (e.key === 'ArrowDown') { e.preventDefault(); onMoveInQueue(n.id, 1); }
+                          }}
+                          className="mr-auto cursor-grab rounded p-0.5 text-muted hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                        >
+                          <GripVertical className="h-3.5 w-3.5" aria-hidden />
+                        </span>
                       )}
                       {!n.revealed && (
                         <IconButton label="Révéler cette note" onClick={() => onRevealOne(n.id)}>

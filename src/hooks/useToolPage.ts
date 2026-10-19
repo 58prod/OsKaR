@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useToast } from '@/hooks/useToast';
-import { buildIdentity } from '@/utils/toolIdentity';
+import { buildIdentity, ecouterCouleur } from '@/utils/toolIdentity';
 import { generateSessionCode } from '@/services/toolSession';
 import type { ToolIdentity } from '@/hooks/useToolSession';
 import type { ToolType } from '@/constants/toolbox';
@@ -37,7 +37,12 @@ export function useToolPage(toolType: ToolType) {
     }
   }, [router.isReady, router.query, code, router, toolType]);
 
-  const handleJoin = useCallback((name: string) => setIdentity(buildIdentity(name)), []);
+  const handleJoin = useCallback((name: string, color?: string) => setIdentity(buildIdentity(name, color)), []);
+
+  // Couleur changée en cours de session (choix de la personne, ou déjà prise par quelqu'un).
+  useEffect(() => ecouterCouleur((color) => {
+    setIdentity((prev) => (prev && prev.color !== color ? { ...prev, color } : prev));
+  }), []);
 
   const handleShare = useCallback(async () => {
     if (typeof window === 'undefined' || !code) return;

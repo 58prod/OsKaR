@@ -26,8 +26,8 @@ const PlanningPokerPage: React.FC = () => {
   // Choix fait à la création : envoyé dès l'entrée (mis en attente jusqu'à
   // la connexion, comme tout geste fait avant).
   const [animateurSeul, setAnimateurSeul] = useState(false);
-  const rejoindre = useCallback((name: string) => {
-    handleJoin(name);
+  const rejoindre = useCallback((name: string, color?: string) => {
+    handleJoin(name, color);
     if (isCreating && animateurSeul) actions.setAnimateurSeul(true);
   }, [handleJoin, isCreating, animateurSeul, actions]);
 

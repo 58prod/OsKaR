@@ -3,6 +3,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { TOOLBOX_CONFIG, type ToolType } from '@/constants/toolbox';
 import { ToolSessionService } from '@/services/toolSession';
+import { changerCouleur, couleurLibre } from '@/utils/toolIdentity';
 
 /** Fenêtre (ms) pendant laquelle nos opérations sont rejouées sur un état reçu. */
 const RECENT_OPS_MS = 10_000;
@@ -15,6 +16,8 @@ export interface ToolIdentity {
 
 export interface ToolParticipant extends ToolIdentity {
   isHost: boolean;
+  /** Arrivée dans la session (horloge du participant) : en cas de même couleur, le dernier arrivé change. */
+  joinedAt?: number;
 }
 
 interface UseToolSessionOptions<TState> {
@@ -79,6 +82,8 @@ export function useToolSession<TState>(
   const stateRef = useRef<TState>(initialState);
   const hostIdRef = useRef<string | null>(null);
   const identityRef = useRef(identity);
+  /** Moment de notre arrivée, annoncé dans la présence. */
+  const joinedAtRef = useRef(0);
   const onSignalRef = useRef(opts.onSignal);
   const reducerRef = useRef(opts.reducer);
   const leaveOpRef = useRef(opts.leaveOp);
@@ -104,7 +109,12 @@ export function useToolSession<TState>(
     const byId = new Map<string, ToolParticipant>();
     Object.values(presence).forEach((entries) => {
       entries.forEach((meta: any) => {
-        if (meta?.id) byId.set(meta.id, { id: meta.id, name: meta.name, color: meta.color, isHost: !!meta.isHost });
+        if (meta?.id) {
+          byId.set(meta.id, {
+            id: meta.id, name: meta.name, color: meta.color, isHost: !!meta.isHost,
+            joinedAt: typeof meta.joinedAt === 'number' ? meta.joinedAt : undefined,
+          });
+        }
       });
     });
     setParticipants(Array.from(byId.values()));
@@ -236,7 +246,10 @@ export function useToolSession<TState>(
         if (pending.length) scheduleSnapshot(next);
       }
       readyRef.current = true;
-      await channel.track({ ...identity, isHost: row?.host_id === identity.id });
+      joinedAtRef.current = Date.now();
+      // Identité courante : la couleur a pu changer pendant la connexion.
+      const me = identityRef.current ?? identity;
+      await channel.track({ ...me, isHost: row?.host_id === me.id, joinedAt: joinedAtRef.current });
       setIsConnected(true);
       setIsLoading(false);
     });
@@ -276,6 +289,25 @@ export function useToolSession<TState>(
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolType, code, identity?.id]);
+
+  // Nom ou couleur changés en cours de session : on les annonce aux autres.
+  useEffect(() => {
+    const channel = channelRef.current;
+    if (!identity || !channel || !readyRef.current || !isSupabaseConfigured()) return;
+    void channel.track({ ...identity, isHost: hostIdRef.current === identity.id, joinedAt: joinedAtRef.current });
+  }, [identity?.color, identity?.name]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Même couleur qu'une personne arrivée avant nous : on prend une couleur libre.
+  useEffect(() => {
+    const me = identityRef.current;
+    if (!me || !readyRef.current) return;
+    const mine = joinedAtRef.current;
+    const others = participants.filter((p) => p.id !== me.id);
+    const avantMoi = (p: ToolParticipant) => (p.joinedAt ?? 0) < mine || ((p.joinedAt ?? 0) === mine && p.id < me.id);
+    if (!others.some((p) => p.color === me.color && avantMoi(p))) return;
+    const libre = couleurLibre(others.map((p) => p.color), me.color);
+    if (libre !== me.color) changerCouleur(libre, false);
+  }, [participants, identity?.color]);
 
   return useMemo(
     () => ({ state, setState, participants, hostId, isHost, isConnected, isLoading, sendSignal, dispatch }),

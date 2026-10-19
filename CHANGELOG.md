@@ -10,6 +10,26 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.70.0] - 2026-10-19
+
+### ✨ Ajouté — Couleurs des participants (tous les outils) et confort de la rétro
+- **Choisir sa couleur en arrivant** : la fenêtre « Rejoindre la session » de
+  tous les outils propose 12 couleurs (choix gardé pour les sessions suivantes).
+- **Plus de doublons** : si quelqu'un arrivé avant a déjà la même couleur, une
+  couleur libre est attribuée automatiquement (heure d'arrivée annoncée dans la
+  présence, `joinedAt`). Nouvelle palette bien contrastée : l'ambre et l'orange,
+  qui se confondaient, ne cohabitent plus ; une couleur de l'ancienne palette
+  est retirée au hasard. Stockage indisponible : couleur au hasard au lieu de
+  l'ambre pour tout le monde.
+- Rétro : changer de couleur en cours de séance (pastille à côté de son nom
+  dans « Ma préparation », couleurs déjà prises en pâle) ; ses notes suivent
+  (opération `color`).
+- Rétro : **menu Oskar et panneau « Actions » repliés par défaut** pour laisser
+  la place au tableau (le menu se rouvre en quittant la rétro s'il était ouvert).
+- Rétro : dans « Ma préparation », on **glisse les notes** pour choisir l'ordre
+  de révélation (poignée ⋮⋮, flèches haut/bas au clavier) au lieu des boutons
+  ↑ ↓.
+
 ## [2.69.0] - 2026-10-19
 
 ### ✨ Ajouté — Rétrospective : s'y retrouver pendant la séance

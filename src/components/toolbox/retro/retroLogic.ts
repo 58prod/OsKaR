@@ -530,6 +530,8 @@ export type RetroOp =
   /** Notes marquées abordées (ou plus). La plus récente gagne. */
   | { t: 'treated'; ids: string[]; treated: boolean; at: number }
   | { t: 'unreveal'; authorId: string }
+  /** L'auteur a changé de couleur : ses notes la prennent aussi. */
+  | { t: 'color'; authorId: string; color: string }
   | { t: 'move'; id: string; category: string }
   | { t: 'movePile'; pileId: string; category: string }
   | { t: 'pile'; id: string; targetId: string }
@@ -660,6 +662,13 @@ export function retroReducer(raw: RetroState, op: RetroOp): RetroState {
             order: undefined, orderAt: undefined, treated: undefined, treatedAt: undefined,
           }
           : n)),
+      };
+    case 'color':
+      if (typeof op.color !== 'string' || !/^#[0-9a-f]{6}$/i.test(op.color)) return state;
+      return {
+        ...state,
+        notes: state.notes.map((n) => (n.authorId === op.authorId && n.authorColor !== op.color
+          ? { ...n, authorColor: op.color } : n)),
       };
     case 'move':
       return {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ClipboardList, NotebookPen } from 'lucide-react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
@@ -11,6 +11,8 @@ import { RetroPanelTab } from '@/components/toolbox/retro/RetroPanelTab';
 import { RetroRecreLink } from '@/components/toolbox/retro/RetroRecreLink';
 import { RetroEditNote } from '@/components/toolbox/retro/RetroEditNote';
 import { getRetentionLabel } from '@/constants/toolbox';
+import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
+import { changerCouleur } from '@/utils/toolIdentity';
 
 const RetrospectivePage: React.FC = () => {
   const { code, isCreating, identity, handleJoin, handleShare } = useToolPage('retrospective');
@@ -21,8 +23,17 @@ const RetrospectivePage: React.FC = () => {
   } = useRetroSession(code, identity);
 
   // Panneaux latéraux repliables, pour laisser la place au tableau quand il est plein.
+  // Les actions viennent en fin de rétro : repliées au départ.
   const [prepOpen, setPrepOpen] = useState(true);
-  const [actionsOpen, setActionsOpen] = useState(true);
+  const [actionsOpen, setActionsOpen] = useState(false);
+
+  // Menu Oskar replié pendant la rétro (sans mémoriser), rouvert en partant s'il l'était.
+  const { setCollapsedTemporaire } = useSidebarCollapsed();
+  useEffect(() => {
+    const etaitOuvert = document.documentElement.getAttribute('data-sidebar') !== 'collapsed';
+    setCollapsedTemporaire(true);
+    return () => { if (etaitOuvert) setCollapsedTemporaire(false); };
+  }, [setCollapsedTemporaire]);
   // Note en cours de modification (une des siennes).
   const [editingId, setEditingId] = useState<string | null>(null);
   const editing = editingId ? myNotes.find((n) => n.id === editingId) : undefined;
@@ -67,12 +78,15 @@ const RetrospectivePage: React.FC = () => {
         {prepOpen ? (
           <RetroPrepPanel
             myName={me?.name ?? identity?.name ?? ''}
-            myColor={me?.color ?? identity?.color ?? '#94a3b8'}
+            myColor={identity?.color ?? me?.color ?? '#94a3b8'}
+            takenColors={participants.filter((p) => p.id !== myId).map((p) => ({ color: p.color, name: p.name }))}
+            onColorChange={(color) => changerCouleur(color)}
             myNotes={myNotes}
             onAddNote={actions.addNote}
             onDeleteNote={actions.deleteNote}
             onEditNote={setEditingId}
             onMoveInQueue={actions.moveInQueue}
+            onPlaceInQueue={actions.placeInQueue}
             onRevealOne={actions.revealOne}
             onRevealNext={actions.revealMyNext}
             onRevealAll={actions.revealMyAll}

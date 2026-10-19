@@ -72,6 +72,14 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
 
   const myPending = useMemo(() => myNotes.filter((n) => !n.revealed), [myNotes]);
 
+  // Couleur changée (choisie, ou attribuée car déjà prise) : ses notes la suivent.
+  const myColor = identity?.color;
+  useEffect(() => {
+    if (myColor && myId && myNotes.some((n) => n.authorColor !== myColor)) {
+      send({ t: 'color', authorId: myId, color: myColor });
+    }
+  }, [myColor, myId, myNotes, send]);
+
   const revealMyNext = useCallback(() => {
     if (myPending[0]) reveal([myPending[0]]);
   }, [myPending, reveal]);
@@ -90,6 +98,15 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     const keys = myPending.filter((n) => n.id !== id).map(queueKey);
     const key = dir === -1 ? keyBeside(keys, i - 1, 'before') : keyBeside(keys, i, 'after');
     send({ t: 'order', orders: { [id]: key }, at: Date.now(), queue: true });
+  }, [myPending, send]);
+
+  /** Place une note de sa file juste avant ou après une autre (glisser-déposer). */
+  const placeInQueue = useCallback((id: string, targetId: string, side: 'before' | 'after') => {
+    if (id === targetId) return;
+    const others = myPending.filter((n) => n.id !== id);
+    const index = others.findIndex((n) => n.id === targetId);
+    if (index < 0 || !myPending.some((n) => n.id === id)) return;
+    send({ t: 'order', orders: { [id]: keyBeside(others.map(queueKey), index, side) }, at: Date.now(), queue: true });
   }, [myPending, send]);
 
   /** Nouvelles places sur le tableau (glisser-déposer). */
@@ -190,7 +207,7 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     myNotes,
     retroActions: actions_,
     actions: {
-      addNote, editNote, deleteNote, revealMyNext, revealMyAll, revealOne, unrevealMine, moveInQueue,
+      addNote, editNote, deleteNote, revealMyNext, revealMyAll, revealOne, unrevealMine, moveInQueue, placeInQueue,
       setOrders, groupByAuthor, setTreated,
       moveToCategory, movePileTo, pileOn, pileOnto, unpile, like,
       setActionMeta, setPastAction, deletePastAction, dismissAction, restoreActions,

@@ -143,3 +143,20 @@ describe('Rétrospective — modifier une note', () => {
     expect(r([add(n), { t: 'deleteNote', id: 'm1' }, edit({ text: 'x' }, 100)]).notes).toHaveLength(0);
   });
 });
+
+describe('Rétrospective — couleur des participants', () => {
+  it('donne une couleur libre quand la sienne est prise, et la garde sinon', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { couleurLibre, PARTICIPANT_PALETTE } = require('@/utils/toolIdentity');
+    expect(couleurLibre(['#2563eb'], '#dc2626')).toBe('#dc2626');
+    expect(couleurLibre(['#2563eb', '#dc2626'], '#2563eb')).toBe('#16a34a');
+    expect(couleurLibre(PARTICIPANT_PALETTE, '#2563eb')).toBe('#2563eb');
+    expect(new Set(PARTICIPANT_PALETTE).size).toBe(PARTICIPANT_PALETTE.length);
+  });
+
+  it('recolore toutes les notes de l’auteur, et seulement les siennes', () => {
+    const s = r([add(note('k1', 'alice')), add(note('k2', 'bruno')), { t: 'color', authorId: 'alice', color: '#16a34a' }]);
+    expect(s.notes.map((n) => n.authorColor)).toEqual(['#16a34a', '#000']);
+    expect(r([{ t: 'color', authorId: 'alice', color: 'javascript:' }], s)).toEqual(s);
+  });
+});
