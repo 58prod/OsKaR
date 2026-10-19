@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ClipboardList, NotebookPen } from 'lucide-react';
 import { useToolPage } from '@/hooks/useToolPage';
 import { ToolPageShell } from '@/components/toolbox/ToolPageShell';
@@ -11,7 +11,6 @@ import { RetroPanelTab } from '@/components/toolbox/retro/RetroPanelTab';
 import { RetroRecreLink } from '@/components/toolbox/retro/RetroRecreLink';
 import { RetroEditNote } from '@/components/toolbox/retro/RetroEditNote';
 import { getRetentionLabel } from '@/constants/toolbox';
-import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { changerCouleur } from '@/utils/toolIdentity';
 
 const RetrospectivePage: React.FC = () => {
@@ -27,13 +26,6 @@ const RetrospectivePage: React.FC = () => {
   const [prepOpen, setPrepOpen] = useState(true);
   const [actionsOpen, setActionsOpen] = useState(false);
 
-  // Menu Oskar replié pendant la rétro (sans mémoriser), rouvert en partant s'il l'était.
-  const { setCollapsedTemporaire } = useSidebarCollapsed();
-  useEffect(() => {
-    const etaitOuvert = document.documentElement.getAttribute('data-sidebar') !== 'collapsed';
-    setCollapsedTemporaire(true);
-    return () => { if (etaitOuvert) setCollapsedTemporaire(false); };
-  }, [setCollapsedTemporaire]);
   // Note en cours de modification (une des siennes).
   const [editingId, setEditingId] = useState<string | null>(null);
   const editing = editingId ? myNotes.find((n) => n.id === editingId) : undefined;

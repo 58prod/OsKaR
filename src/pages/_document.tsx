@@ -43,6 +43,8 @@ export default function Document() {
               "(function(){try{var v=localStorage.getItem('oskar.sidebar.collapsed');" +
               "var w=window.innerWidth||document.documentElement.clientWidth||0;" +
               "var c=v===null?(w>0&&w<=900):v==='1';" +
+              // Page d'un outil (/app/outils/retrospective…) : replié à l'arrivée (useMenuReplieDansOutil).
+              "if(/^\\/app\\/outils\\/[^\\/]+/.test(location.pathname))c=true;" +
               "var r=document.documentElement;" +
               "r.setAttribute('data-sidebar',c?'collapsed':'expanded');" +
               "r.style.setProperty('--oskar-sidebar',c?'4rem':'15rem')}catch(e){}})()",

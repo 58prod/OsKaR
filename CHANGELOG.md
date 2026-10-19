@@ -10,6 +10,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.70.1] - 2026-10-19
+
+### 🐛 Corrigé — Menu Oskar replié seulement sur les pages d'outil
+- Le repli du menu à l'arrivée vaut pour **tous les outils** (rétro, poker,
+  récré…) et seulement pour eux : `useMenuReplieDansOutil`, appelé par
+  `ToolPageShell`, remplace le repli propre à la rétro.
+- En quittant l'outil, le menu se rouvre s'il était ouvert avant, sauf si la
+  personne l'a plié ou déplié elle-même entre-temps. La préférence mémorisée
+  n'est jamais modifiée.
+- Adresse d'un outil ouverte directement : le menu est replié dès le premier
+  affichage (script de `_document`), sans s'ouvrir puis se refermer.
+
 ## [2.70.0] - 2026-10-19
 
 ### ✨ Ajouté — Couleurs des participants (tous les outils) et confort de la rétro

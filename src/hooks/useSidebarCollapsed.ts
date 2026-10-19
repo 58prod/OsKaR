@@ -23,6 +23,8 @@ const ATTRIBUT = 'data-sidebar';
 
 /** null tant que la préférence n'a pas été lue (rendu serveur, ou avant montage). */
 let plie: boolean | null = null;
+/** Nombre de fois où la personne a plié ou déplié le menu elle-même. */
+let basculesManuelles = 0;
 const abonnes = new Set<() => void>();
 
 function souscrire(auChangement: () => void) {
@@ -83,12 +85,33 @@ export function useSidebarCollapsed(): {
     if (plie === null) appliquer(lirePreference(), false);
   }, []);
 
-  const toggle = useCallback(() => appliquer(!(plie ?? false), true), []);
+  const toggle = useCallback(() => {
+    basculesManuelles += 1;
+    appliquer(!(plie ?? false), true);
+  }, []);
   const setCollapsedTemporaire = useCallback((valeur: boolean) => {
     if ((plie ?? false) !== valeur) appliquer(valeur, false);
   }, []);
 
   return { collapsed, toggle, setCollapsedTemporaire };
+}
+
+/**
+ * Pages d'outil (rétro, poker…) : le menu est replié à l'arrivée, pour laisser
+ * la place à l'outil, sans toucher à la préférence mémorisée. En quittant
+ * l'outil, il se rouvre s'il était ouvert avant, sauf si la personne l'a plié
+ * ou déplié elle-même entre-temps. `_document` le replie déjà avant le premier
+ * affichage quand on ouvre directement l'adresse d'un outil.
+ */
+export function useMenuReplieDansOutil(): void {
+  useEffect(() => {
+    const etaitOuvert = !lirePreference();
+    const bascules = basculesManuelles;
+    if (plie !== true) appliquer(true, false);
+    return () => {
+      if (etaitOuvert && basculesManuelles === bascules && plie) appliquer(false, false);
+    };
+  }, []);
 }
 
 export default useSidebarCollapsed;

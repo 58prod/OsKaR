@@ -5,7 +5,7 @@ import type { ToolIdentity } from '@/hooks/useToolSession';
 import { JoinSessionModal } from '@/components/toolbox/JoinSessionModal';
 import { ToolHeader, type FacilitatorLock } from '@/components/toolbox/ToolHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
+import { useMenuReplieDansOutil, useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { useAppStore } from '@/store/useAppStore';
 import { useConfirmerDepart } from '@/hooks/useConfirmerDepart';
 
@@ -45,6 +45,8 @@ interface ToolPageShellProps {
 export const ToolPageShell: React.FC<ToolPageShellProps> = ({
   title, code, isCreating, identity, isFacilitator, onToggleFacilitator, onJoin, onShare, retentionLabel, codeHint, leaveLabel = DEPART_PAR_DEFAUT, creationOption, facilitatorLock, children,
 }) => {
+  // Avant useSidebarCollapsed : son effet trouve alors le menu déjà replié.
+  useMenuReplieDansOutil();
   const { collapsed, toggle } = useSidebarCollapsed();
   const { authReady, isAuthenticated } = useAppStore();
   // Pied de sidebar : connecté → masqué ; visiteur → lien « Se connecter » par défaut.
