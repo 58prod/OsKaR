@@ -7,7 +7,7 @@ import {
 } from '@/components/toolbox/shared/toolChrono';
 import {
   INITIAL_RETRO_STATE, allActions, buildActionsCsv, buildRetroSummary, keyBeside, mergeImportedActions,
-  normalizeRetroState, ordersByAuthor, parseActionsCsv, queueKey, retroActions, retroReducer, sortQueue, todayISO,
+  normalizeRetroState, parseActionsCsv, queueKey, retroActions, retroReducer, sortQueue, todayISO,
   type RetroActionMeta, type RetroCategoryKey, type RetroNote, type RetroOp,
 } from './retroLogic';
 
@@ -114,8 +114,10 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     if (Object.keys(orders).length) send({ t: 'order', orders, at: Date.now() });
   }, [send]);
 
-  /** Regroupe les notes révélées par personne, dans chaque case. */
-  const groupByAuthor = useCallback(() => setOrders(ordersByAuthor(state.notes)), [setOrders, state.notes]);
+  /** Regroupe (ou plus) les notes par personne sur le tableau, révélées ou non. */
+  const toggleGroupByAuthor = useCallback(() => {
+    send({ t: 'groupByAuthor', on: !state.groupByAuthor, at: Date.now() });
+  }, [send, state.groupByAuthor]);
 
   /** Marque des notes comme abordées : barrées et rangées en bas de leur case. */
   const setTreated = useCallback((ids: string[], treated: boolean) => {
@@ -208,7 +210,7 @@ export function useRetroSession(code: string | null, identity: ToolIdentity | nu
     retroActions: actions_,
     actions: {
       addNote, editNote, deleteNote, revealMyNext, revealMyAll, revealOne, unrevealMine, moveInQueue, placeInQueue,
-      setOrders, groupByAuthor, setTreated,
+      setOrders, toggleGroupByAuthor, setTreated,
       moveToCategory, movePileTo, pileOn, pileOnto, unpile, like,
       setActionMeta, setPastAction, deletePastAction, dismissAction, restoreActions,
       toggleChrono, resetChrono, setDuration,

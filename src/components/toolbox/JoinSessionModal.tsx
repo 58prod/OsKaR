@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Clock, KeyRound, Loader2, LogIn, X } from 'lucide-react';
-import { PARTICIPANT_COLORS, getLastName, getOrCreateColor } from '@/utils/toolIdentity';
+import { getLastName, getOrCreateColor } from '@/utils/toolIdentity';
+import { ChoixCouleur } from './ChoixCouleur';
 import { getRetentionLabel } from '@/constants/toolbox';
 import { ToolSessionService } from '@/services/toolSession';
 
@@ -118,25 +119,8 @@ export const JoinSessionModal: React.FC<JoinSessionModalProps> = ({
 
           <fieldset className="mt-4">
             <legend className="text-sm font-semibold text-navy">Votre couleur</legend>
-            <div className="mt-1.5 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Votre couleur">
-              {PARTICIPANT_COLORS.map((c) => {
-                const selected = c.valeur === color;
-                return (
-                  <button
-                    key={c.valeur}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    aria-label={c.nom}
-                    title={c.nom}
-                    onClick={() => setColor(c.valeur)}
-                    className={`h-6 w-6 rounded-full transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ${
-                      selected ? 'scale-110 ring-2 ring-navy ring-offset-2' : 'hover:scale-110'
-                    }`}
-                    style={{ background: c.valeur }}
-                  />
-                );
-              })}
+            <div className="mt-1.5">
+              <ChoixCouleur value={color} onChange={setColor} label="Votre couleur" />
             </div>
             <p className="mt-1.5 text-xs text-muted">
               Si quelqu’un l’a déjà dans la session, une couleur libre vous sera attribuée.

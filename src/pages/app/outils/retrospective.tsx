@@ -61,7 +61,8 @@ const RetrospectivePage: React.FC = () => {
         onResetChrono={actions.resetChrono}
         onDurationChange={actions.setDuration}
         onExport={actions.exportSummary}
-        onGroupByAuthor={actions.groupByAuthor}
+        groupByAuthor={state.groupByAuthor}
+        onToggleGroupByAuthor={actions.toggleGroupByAuthor}
         onNewRetro={actions.newRetro}
         onReset={actions.reset}
       />
@@ -99,6 +100,7 @@ const RetrospectivePage: React.FC = () => {
           <RetroBoard
             notes={state.notes}
             myId={myId}
+            groupByAuthor={state.groupByAuthor}
             onMove={actions.moveToCategory}
             onMovePile={actions.movePileTo}
             onPile={actions.pileOn}

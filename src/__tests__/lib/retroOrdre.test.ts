@@ -1,5 +1,5 @@
 import {
-  INITIAL_RETRO_STATE, boardKey, keyBeside, ordersByAuthor, retroReducer, sortBoardNotes, sortQueue,
+  INITIAL_RETRO_STATE, boardKey, keyBeside, retroReducer, sortBoardNotes, sortQueue,
   type RetroNote, type RetroOp, type RetroState,
 } from '@/components/toolbox/retro/retroLogic';
 
@@ -73,16 +73,24 @@ describe('Rétrospective — ordre des notes', () => {
     expect(n).toMatchObject({ revealed: false, treated: undefined, order: undefined, revealedAt: undefined });
   });
 
-  it('regroupe les notes par personne, dans l’ordre de la première note de chacun', () => {
+  it('regroupe par personne avant même les révélations, et chaque note révélée reste dans son groupe', () => {
     const b2 = note('b2', 'bruno');
-    const s = r([add(b2), reveal([b2], 2500)], base);
-    // Avant : b1, a1, a2, b2 ; après : b1, b2, a1, a2.
-    const g = r([{ t: 'order', orders: ordersByAuthor(s.notes), at: 5000 }], s);
-    expect(sortBoardNotes(g.notes).map((n) => n.id)).toEqual(['b1', 'b2', 'a1', 'a2']);
-    // Une note révélée ensuite arrive après.
     const c1 = note('c1', 'chloe');
-    const h = r([add(c1), reveal([c1], 6000)], g);
-    expect(sortBoardNotes(h.notes).map((n) => n.id)).toEqual(['b1', 'b2', 'a1', 'a2', 'c1']);
+    const s = r([add(b2), add(c1), { t: 'groupByAuthor', on: true, at: 3000 }], base);
+    // Alice (a1, a2), puis Bruno (b1 révélée, b2 masquée), puis Chloé (masquée).
+    expect(sortBoardNotes(s.notes, s.groupByAuthor).map((n) => n.id)).toEqual(['a1', 'a2', 'b1', 'b2', 'c1']);
+    const t = r([reveal([c1], 4000), { t: 'treated', ids: ['a1'], treated: true, at: 5000 }], s);
+    expect(sortBoardNotes(t.notes, t.groupByAuthor).map((n) => n.id)).toEqual(['a2', 'b1', 'b2', 'c1', 'a1']);
+    // Sans regroupement : ordre de révélation, masquées ensuite.
+    expect(sortBoardNotes(t.notes).map((n) => n.id)).toEqual(['b1', 'a2', 'c1', 'b2', 'a1']);
+  });
+
+  it('activer / désactiver le regroupement converge quel que soit l’ordre', () => {
+    const on: RetroOp = { t: 'groupByAuthor', on: true, at: 100 };
+    const off: RetroOp = { t: 'groupByAuthor', on: false, at: 200 };
+    expect(r([on, off]).groupByAuthor).toBe(false);
+    expect(r([off, on]).groupByAuthor).toBe(false);
+    expect(r([on]).groupByAuthor).toBe(true);
   });
 
   it('calcule une place avant, après ou entre deux notes', () => {
@@ -152,6 +160,16 @@ describe('Rétrospective — couleur des participants', () => {
     expect(couleurLibre(['#2563eb', '#dc2626'], '#2563eb')).toBe('#16a34a');
     expect(couleurLibre(PARTICIPANT_PALETTE, '#2563eb')).toBe('#2563eb');
     expect(new Set(PARTICIPANT_PALETTE).size).toBe(PARTICIPANT_PALETTE.length);
+  });
+
+  it('garde une couleur libre foncée telle quelle et assombrit une couleur trop claire', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { couleurLisible, PARTICIPANT_PALETTE } = require('@/utils/toolIdentity');
+    expect(couleurLisible('#1E293B')).toBe('#1e293b');
+    expect(couleurLisible('#ffffff')).not.toBe('#ffffff');
+    expect(couleurLisible('#ffff00')).toMatch(/^#[0-9a-f]{6}$/);
+    expect(couleurLisible('rouge')).toBe(PARTICIPANT_PALETTE[0]);
+    PARTICIPANT_PALETTE.forEach((c: string) => expect(couleurLisible(c)).toBe(c));
   });
 
   it('recolore toutes les notes de l’auteur, et seulement les siennes', () => {

@@ -25,6 +25,28 @@ export const PARTICIPANT_COLORS: { valeur: string; nom: string }[] = [
 
 export const PARTICIPANT_PALETTE = PARTICIPANT_COLORS.map((c) => c.valeur);
 
+/** Couleurs de l'ancienne palette, retirées au hasard au profit de la nouvelle. */
+const ANCIENNE_PALETTE = ['#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#10b981', '#06b6d4', '#ef4444'];
+
+const HEX = /^#[0-9a-f]{6}$/i;
+
+/** Couleur au format #rrggbb ? */
+export const estCouleur = (c: unknown): c is string => typeof c === 'string' && HEX.test(c);
+
+/**
+ * Couleur choisie librement, rendue lisible : trop claire, elle serait
+ * invisible en liseré sur une note blanche et illisible sous un texte
+ * blanc ; on l'assombrit alors jusqu'à un contraste correct.
+ */
+export function couleurLisible(hex: string): string {
+  if (!estCouleur(hex)) return PARTICIPANT_PALETTE[0];
+  let rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const canal = (c: number) => { const v = c / 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  const luminance = () => 0.2126 * canal(rgb[0]) + 0.7152 * canal(rgb[1]) + 0.0722 * canal(rgb[2]);
+  while (luminance() > 0.5) rgb = rgb.map((c) => Math.floor(c * 0.9));
+  return `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`.toLowerCase();
+}
+
 /** Nom d'une couleur de la palette (« Bleu »…), pour les libellés. */
 export function nomCouleur(valeur: string): string {
   return PARTICIPANT_COLORS.find((c) => c.valeur === valeur)?.nom ?? 'Couleur';
@@ -73,8 +95,8 @@ export function getOrCreateColor(): string {
   if (typeof window === 'undefined') return PARTICIPANT_PALETTE[0];
   try {
     let color = window.localStorage.getItem(COLOR_KEY);
-    // Couleur de l'ancienne palette : on en tire une nouvelle.
-    if (!color || !PARTICIPANT_PALETTE.includes(color)) {
+    // Couleur de l'ancienne palette (ou invalide) : on en tire une nouvelle. Une couleur libre est gardée.
+    if (!estCouleur(color) || ANCIENNE_PALETTE.includes(color.toLowerCase())) {
       color = couleurAuHasard();
       window.localStorage.setItem(COLOR_KEY, color);
     }
@@ -123,11 +145,11 @@ export function buildIdentity(name: string, color?: string): ToolIdentity {
   try {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(NAME_KEY, trimmed);
-      if (color && PARTICIPANT_PALETTE.includes(color)) window.localStorage.setItem(COLOR_KEY, color);
+      if (estCouleur(color)) window.localStorage.setItem(COLOR_KEY, couleurLisible(color));
     }
   } catch {
     /* localStorage indisponible : on continue sans persister le nom */
   }
-  const chosen = color && PARTICIPANT_PALETTE.includes(color) ? color : getOrCreateColor();
+  const chosen = estCouleur(color) ? couleurLisible(color) : getOrCreateColor();
   return { id: getOrCreateClientId(), name: trimmed, color: chosen };
 }

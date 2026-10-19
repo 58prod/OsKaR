@@ -8,6 +8,8 @@ import {
 interface RetroBoardProps {
   notes: RetroNote[];
   myId: string;
+  /** Notes regroupées par personne (un repère au nom de chacun ouvre son groupe). */
+  groupByAuthor: boolean;
   onMove: (id: string, category: RetroCategoryKey) => void;
   onMovePile: (pileId: string, category: RetroCategoryKey) => void;
   onPile: (id: string, targetId: string) => void;
@@ -34,6 +36,7 @@ const itemTarget = (it: RetroBoardItem) => (it.kind === 'note' ? it.note.id : it
 const itemDragId = (it: RetroBoardItem) => (it.kind === 'note' ? it.note.id : it.pileId);
 const itemKey = (it: RetroBoardItem) => Math.min(...itemNotes(it).map(boardKey));
 const itemTreated = (it: RetroBoardItem) => itemNotes(it).every((n) => n.treated);
+const itemAuthor = (it: RetroBoardItem) => itemNotes(it)[0].authorId;
 
 /** Bord gauche ou droit d'une note : on range ; au centre : on empile. */
 function zoneOf(e: React.DragEvent): Zone {
@@ -90,7 +93,7 @@ function useFreshNotes(notes: RetroNote[]): Set<string> {
  * avant ou après elle ; posée au centre, elle forme un tas.
  */
 export const RetroBoard: React.FC<RetroBoardProps> = ({
-  notes, myId, onMove, onMovePile, onPile, onPileOnto, onUnpile, onLike, onEdit, onOrder, onTreated,
+  notes, myId, groupByAuthor, onMove, onMovePile, onPile, onPileOnto, onUnpile, onLike, onEdit, onOrder, onTreated,
 }) => {
   const [drag, setDrag] = useState<DragItem | null>(null);
   const [overKey, setOverKey] = useState<RetroCategoryKey | null>(null);
@@ -109,8 +112,9 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
       : notes.filter((n) => n.revealed && n.pileId === drag.id);
     if (!target || !dragged.length) return;
     const treated = itemTreated(target);
+    // Regroupées par personne : on se range parmi les notes de la même personne.
     const section = items.filter((it) => itemNotes(it)[0].revealed && itemTreated(it) === treated
-      && itemDragId(it) !== drag.id);
+      && itemDragId(it) !== drag.id && (!groupByAuthor || itemAuthor(it) === itemAuthor(target)));
     const index = section.indexOf(target);
     if (index < 0) return;
     const key = keyBeside(section.map(itemKey), index, side);
@@ -159,7 +163,7 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
     <div className="grid flex-1 grid-cols-1 gap-3 overflow-y-auto p-4 md:grid-cols-[minmax(0,2fr)_minmax(190px,1fr)] md:grid-rows-2 md:overflow-hidden">
       {RETRO_CATEGORIES.map((cat) => {
         const catNotes = notes.filter((n) => n.category === cat.key);
-        const items = boardItems(sortBoardNotes(catNotes));
+        const items = boardItems(sortBoardNotes(catNotes, groupByAuthor));
         const treatedCount = catNotes.filter((n) => n.revealed && n.treated).length;
         return (
           <section
@@ -202,7 +206,12 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
               }`}
               aria-live="polite"
             >
-              {items.map((item) => (item.kind === 'note' ? (
+              {items.map((item, i) => {
+                // Regroupées : le nom de la personne en tête de son groupe (hors notes abordées, rangées en bas).
+                const first = itemNotes(item)[0];
+                const label = groupByAuthor && !itemTreated(item)
+                  && (i === 0 || itemAuthor(items[i - 1]) !== first.authorId || itemTreated(items[i - 1]));
+                const card = item.kind === 'note' ? (
                 <RetroNoteCard
                   key={item.note.id}
                   note={item.note}
@@ -228,7 +237,18 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
                   onDragEnd={endDrag}
                   dropProps={targetProps(items, item.notes[0].id)}
                 />
-              )))}
+                );
+                if (!label) return card;
+                return (
+                  <React.Fragment key={`groupe-${first.authorId}-${item.kind === 'note' ? item.note.id : item.pileId}`}>
+                    <li className="flex basis-full items-center gap-1.5 pt-1 text-[11px] font-bold text-navy first:pt-0" aria-hidden>
+                      <span className="h-2 w-2 rounded-full" style={{ background: first.authorColor }} />
+                      {first.authorName}
+                    </li>
+                    {card}
+                  </React.Fragment>
+                );
+              })}
             </ul>
           </section>
         );
@@ -236,7 +256,7 @@ export const RetroBoard: React.FC<RetroBoardProps> = ({
 
       {openPile && pileNotes.length > 1 && (
         <RetroPileModal
-          notes={sortBoardNotes(pileNotes)}
+          notes={sortBoardNotes(pileNotes, groupByAuthor)}
           myId={myId}
           onLike={onLike}
           onEdit={onEdit}

@@ -106,16 +106,32 @@ export function queueKey(n: RetroNote): number {
 const parId = (a: RetroNote, b: RetroNote) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 const parCle = (cle: (n: RetroNote) => number) => (a: RetroNote, b: RetroNote) => cle(a) - cle(b) || parId(a, b);
 
+/** Ordre des personnes quand on regroupe : alphabétique (même ordre dans les quatre cases). */
+function authorsInOrder(notes: RetroNote[]): string[] {
+  const names = new Map<string, string>();
+  notes.forEach((n) => { if (!names.has(n.authorId)) names.set(n.authorId, n.authorName); });
+  return [...names.entries()]
+    .sort(([ia, na], [ib, nb]) => na.localeCompare(nb, 'fr', { sensitivity: 'base' }) || (ia < ib ? -1 : ia > ib ? 1 : 0))
+    .map(([id]) => id);
+}
+
 /**
  * Ordre d'affichage d'une case : les notes révélées à aborder (dans l'ordre
- * de révélation, donc regroupées par personne quand chacun révèle à son
- * tour), puis les notes encore masquées, puis les notes déjà abordées.
+ * de révélation), puis les notes encore masquées, puis les notes déjà
+ * abordées. Regroupées par personne (`groupByAuthor`), chaque personne a
+ * ses notes révélées puis ses notes masquées à la suite : une note révélée
+ * apparaît au milieu des siennes, même si elle l'est avant les autres.
  */
-export function sortBoardNotes(notes: RetroNote[]): RetroNote[] {
+export function sortBoardNotes(notes: RetroNote[], groupByAuthor = false): RetroNote[] {
+  const actives = notes.filter((n) => n.revealed && !n.treated).sort(parCle(boardKey));
+  const hidden = notes.filter((n) => !n.revealed).sort(parCle(queueKey));
+  const treated = notes.filter((n) => n.revealed && n.treated).sort(parCle(boardKey));
+  if (!groupByAuthor) return [...actives, ...hidden.sort(parId), ...treated];
+  const authors = authorsInOrder(notes);
+  const of = (list: RetroNote[], id: string) => list.filter((n) => n.authorId === id);
   return [
-    ...notes.filter((n) => n.revealed && !n.treated).sort(parCle(boardKey)),
-    ...notes.filter((n) => !n.revealed).sort(parId),
-    ...notes.filter((n) => n.revealed && n.treated).sort(parCle(boardKey)),
+    ...authors.flatMap((id) => [...of(actives, id), ...of(hidden, id)]),
+    ...authors.flatMap((id) => of(treated, id)),
   ];
 }
 
@@ -138,30 +154,6 @@ export function keyBeside(keys: number[], index: number, side: 'before' | 'after
   if (prev === undefined) return next - 1;
   if (next === undefined) return prev + 1;
   return (prev + next) / 2;
-}
-
-/**
- * Nouvelles places qui regroupent les notes révélées par personne, dans
- * chaque case. Les personnes gardent l'ordre de leur première note.
- */
-export function ordersByAuthor(notes: RetroNote[]): Record<string, number> {
-  const revealed = notes.filter((n) => n.revealed);
-  if (!revealed.length) return {};
-  const first = new Map<string, number>();
-  revealed.forEach((n) => {
-    const k = boardKey(n);
-    if (!first.has(n.authorId) || k < first.get(n.authorId)!) first.set(n.authorId, k);
-  });
-  const sorted = [...revealed].sort((a, b) => (
-    first.get(a.authorId)! - first.get(b.authorId)!
-    || (a.authorId < b.authorId ? -1 : a.authorId > b.authorId ? 1 : 0)
-    || boardKey(a) - boardKey(b) || parId(a, b)
-  ));
-  // Les nouvelles places restent avant les prochaines révélations.
-  const start = Math.min(...revealed.map(boardKey));
-  const orders: Record<string, number> = {};
-  sorted.forEach((n, i) => { orders[n.id] = start + i * 0.001; });
-  return orders;
 }
 
 export interface RetroState {
@@ -188,6 +180,9 @@ export interface RetroState {
    * révélation) ne peut pas les faire revenir.
    */
   deletedIds: string[];
+  /** Notes regroupées par personne sur le tableau (choix de l'animateur, le plus récent gagne). */
+  groupByAuthor: boolean;
+  groupByAuthorAt?: number;
 }
 
 /** Jour local au format AAAA-MM-JJ. */
@@ -214,6 +209,7 @@ export const INITIAL_RETRO_STATE: RetroState = {
   chrono: initialChrono(RETRO_DEFAULT_DURATION_SEC),
   session: 0,
   deletedIds: [],
+  groupByAuthor: false,
 };
 
 /**
@@ -231,6 +227,7 @@ export function normalizeRetroState(raw: Partial<RetroState> | null | undefined)
     dismissedActions: raw?.dismissedActions ?? [],
     session: typeof raw?.session === 'number' ? raw.session : 0,
     deletedIds: Array.isArray(raw?.deletedIds) ? raw.deletedIds : [],
+    groupByAuthor: raw?.groupByAuthor === true,
   };
 }
 
@@ -470,7 +467,10 @@ export function buildRetroSummary(state: RetroState): string {
   let txt = `RÉTROSPECTIVE OSKAR — ${date}\n${'='.repeat(44)}\n\n`;
   RETRO_CATEGORIES.forEach((cat) => {
     txt += `${cat.symbol} ${cat.label}\n${'-'.repeat(40)}\n`;
-    const notes = sortBoardNotes(state.notes.filter((n) => n.revealed && n.category === cat.key && n.text.trim()));
+    const notes = sortBoardNotes(
+      state.notes.filter((n) => n.revealed && n.category === cat.key && n.text.trim()),
+      state.groupByAuthor,
+    );
     if (notes.length === 0) {
       txt += '(aucune note)\n';
     } else {
@@ -529,6 +529,8 @@ export type RetroOp =
   | { t: 'order'; orders: Record<string, number>; at: number; queue?: boolean }
   /** Notes marquées abordées (ou plus). La plus récente gagne. */
   | { t: 'treated'; ids: string[]; treated: boolean; at: number }
+  /** Regrouper (ou plus) les notes par personne. Le plus récent gagne. */
+  | { t: 'groupByAuthor'; on: boolean; at: number }
   | { t: 'unreveal'; authorId: string }
   /** L'auteur a changé de couleur : ses notes la prennent aussi. */
   | { t: 'color'; authorId: string; color: string }
@@ -716,6 +718,11 @@ export function retroReducer(raw: RetroState, op: RetroOp): RetroState {
       return { ...state, pastActions: mergeImportedActions(state.pastActions, op.actions).actions };
     case 'chrono':
       return { ...state, chrono: op.chrono };
+    case 'groupByAuthor': {
+      const prevAt = state.groupByAuthorAt ?? 0;
+      if (prevAt > op.at || (prevAt === op.at && (state.groupByAuthor || !op.on))) return state;
+      return { ...state, groupByAuthor: !!op.on, groupByAuthorAt: op.at };
+    }
     case 'newRetro':
       // Déjà appliquée (rejeu) ou dépassée : sans effet, pour ne rien archiver deux fois.
       if (op.session !== undefined && op.session <= state.session) return state;

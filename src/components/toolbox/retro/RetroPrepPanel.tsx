@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check, ChevronDown, Eye, EyeOff, GripVertical, NotebookPen, Pencil, X } from 'lucide-react';
-import { PARTICIPANT_COLORS } from '@/utils/toolIdentity';
+import { ChoixCouleur } from '@/components/toolbox/ChoixCouleur';
 import { RETRO_CATEGORIES, getRetroCategory, type RetroCategoryKey, type RetroNote } from './retroLogic';
 import { RetroPanelCollapse } from './RetroPanelTab';
 
@@ -77,28 +77,13 @@ export const RetroPrepPanel: React.FC<RetroPrepPanelProps> = ({
         </div>
         {colorsOpen && (
           <div className="mt-2 rounded-lg border border-line bg-surface p-2">
-            <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Ma couleur">
-              {PARTICIPANT_COLORS.map((c) => {
-                const prise = takenColors.find((t) => t.color === c.valeur);
-                const selected = c.valeur === myColor;
-                return (
-                  <button
-                    key={c.valeur}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    disabled={!!prise}
-                    aria-label={prise ? `${c.nom} (prise par ${prise.name})` : c.nom}
-                    title={prise ? `${c.nom} — prise par ${prise.name}` : c.nom}
-                    onClick={() => { onColorChange(c.valeur); setColorsOpen(false); }}
-                    className={`relative h-6 w-6 rounded-full transition-transform disabled:cursor-not-allowed disabled:opacity-25 ${
-                      selected ? 'ring-2 ring-navy ring-offset-2 ring-offset-surface' : 'enabled:hover:scale-110'
-                    }`}
-                    style={{ background: c.valeur }}
-                  />
-                );
-              })}
-            </div>
+            <ChoixCouleur
+              value={myColor}
+              onChange={(c) => { onColorChange(c); setColorsOpen(false); }}
+              taken={takenColors}
+              label="Ma couleur"
+              offsetClass="ring-offset-surface"
+            />
             <p className="mt-1.5 text-[11px] text-muted">Les couleurs pâles sont déjà prises.</p>
           </div>
         )}

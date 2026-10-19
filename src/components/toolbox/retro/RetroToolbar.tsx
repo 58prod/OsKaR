@@ -17,8 +17,9 @@ interface RetroToolbarProps {
   onResetChrono: () => void;
   onDurationChange: (seconds: number) => void;
   onExport: () => void;
-  /** Range les notes révélées par personne, dans chaque case. */
-  onGroupByAuthor: () => void;
+  /** Notes regroupées par personne sur le tableau. */
+  groupByAuthor: boolean;
+  onToggleGroupByAuthor: () => void;
   /** Vide les cases ; les actions de la séance passent dans le suivi. */
   onNewRetro: () => void;
   /** Efface tout, suivi des actions compris. */
@@ -31,7 +32,7 @@ interface RetroToolbarProps {
  */
 export const RetroToolbar: React.FC<RetroToolbarProps> = ({
   chrono, remainingSec, isFacilitator, notesCount, revealedCount, treatedCount, actionsCount,
-  onToggleChrono, onResetChrono, onDurationChange, onExport, onGroupByAuthor, onNewRetro, onReset,
+  onToggleChrono, onResetChrono, onDurationChange, onExport, groupByAuthor, onToggleGroupByAuthor, onNewRetro, onReset,
 }) => {
   const [confirmReset, setConfirmReset] = useState(false);
   const [eraseAll, setEraseAll] = useState(false);
@@ -61,10 +62,15 @@ export const RetroToolbar: React.FC<RetroToolbarProps> = ({
           <>
             <button
               type="button"
-              onClick={onGroupByAuthor}
-              disabled={revealedCount === 0}
-              title="Ranger les notes révélées par personne, dans chaque case"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={onToggleGroupByAuthor}
+              aria-pressed={groupByAuthor}
+              title={groupByAuthor
+                ? 'Revenir à l’ordre de révélation'
+                : 'Regrouper les notes de chaque personne, avant ou pendant les révélations'}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${
+                groupByAuthor ? 'text-white' : 'border-line text-navy hover:bg-surface'
+              }`}
+              style={groupByAuthor ? { background: RETRO_ACCENT, borderColor: RETRO_ACCENT } : undefined}
             >
               <Users className="h-4 w-4" aria-hidden /> Regrouper par personne
             </button>

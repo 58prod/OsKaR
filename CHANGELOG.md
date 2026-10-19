@@ -10,6 +10,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.71.0] - 2026-10-19
+
+### ✨ Ajouté — Rétro : regrouper par personne dès le départ ; couleur libre (tous les outils)
+- **« Regrouper par personne » devient un mode** (bouton de l'animateur,
+  allumé ou éteint pour tout le monde) et fonctionne **avant les
+  révélations** : chaque personne (ordre alphabétique) a ses notes révélées
+  puis ses notes encore masquées, sous son nom. Une note révélée apparaît
+  ainsi au milieu des siennes. Les notes abordées restent en bas. Le glisser
+  pour ranger se fait parmi les notes de la même personne. L'export suit le
+  même ordre. Remplace le regroupement ponctuel de la 2.69.0.
+- **Couleur libre** : après les 12 couleurs, une pastille « + » ouvre le
+  sélecteur du système (fenêtre d'arrivée de tous les outils, et
+  « Ma préparation » de la rétro). Une couleur trop claire est assombrie pour
+  rester lisible sur les notes. Composant commun `ChoixCouleur`.
+
 ## [2.70.1] - 2026-10-19
 
 ### 🐛 Corrigé — Menu Oskar replié seulement sur les pages d'outil
