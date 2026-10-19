@@ -13,6 +13,8 @@ export interface RecrePhoto {
   authorColor: string;
   /** URL publique (Storage) ou data URL (repli mode dégradé). */
   url: string;
+  /** Proportions largeur / hauteur (absentes sur les photos d'avant la 2.72). */
+  ratio?: number;
   /** Identifiants des participants ayant aimé la photo. */
   likedBy: string[];
 }
@@ -65,6 +67,54 @@ export const INITIAL_RECRE_STATE: RecreState = {
     durationSec: RECRE_DEFAULT_DURATION_SEC,
   },
 };
+
+/**
+ * Nombre de colonnes du board : fixe, et non plus déduit de la largeur de
+ * l'écran, pour que chacun voie les photos au même endroit. Seul un écran
+ * étroit (téléphone) passe à 2 colonnes.
+ */
+export const RECRE_COLONNES = 4;
+export const RECRE_COLONNES_ETROIT = 2;
+/** Largeur du board sous laquelle on passe à 2 colonnes (px). */
+export const RECRE_LARGEUR_ETROITE = 640;
+
+/** Hauteur du cadre et de la légende d'une carte, en largeurs de colonne. */
+const CADRE_RELATIF = 0.2;
+
+/**
+ * Proportions d'affichage : une photo très haute (capture de téléphone) ou
+ * très large (panorama) est montrée en entier dans un cadre borné.
+ */
+export function ratioAffiche(ratio: number | undefined): number {
+  const r = ratio && Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
+  return Math.min(3, Math.max(0.6, r));
+}
+
+/**
+ * Répartit les photos en colonnes (mur de photos) : chacune va dans la
+ * colonne la moins haute, la plus à gauche en cas d'égalité. Le calcul ne
+ * dépend que de l'ordre des photos et de leurs proportions, jamais de la
+ * taille de l'écran : à nombre de colonnes égal, le mur est le même partout.
+ * Renvoie, pour chaque colonne, les positions (dans `photos`) qu'elle reçoit.
+ */
+export function placerEnColonnes(
+  photos: Pick<RecrePhoto, 'ratio'>[],
+  nbColonnes: number,
+  ratioMesure: (index: number) => number | undefined = () => undefined,
+): number[][] {
+  const n = Math.max(1, nbColonnes);
+  const colonnes: number[][] = Array.from({ length: n }, () => []);
+  const hauteurs = new Array<number>(n).fill(0);
+  photos.forEach((photo, i) => {
+    const ratio = ratioAffiche(photo.ratio ?? ratioMesure(i));
+    // Égalité à un millième près : évite qu'un arrondi flottant change de colonne.
+    let col = 0;
+    for (let c = 1; c < n; c++) if (hauteurs[c] < hauteurs[col] - 1e-3) col = c;
+    colonnes[col].push(i);
+    hauteurs[col] += 1 / ratio + CADRE_RELATIF;
+  });
+  return colonnes;
+}
 
 /** Légère inclinaison déterministe d'une photo (effet « polaroid »). */
 export function tiltFor(index: number): number {
@@ -119,6 +169,28 @@ export function currentRevealPhoto(state: RecreState): { photo: RecrePhoto; posi
 }
 
 /**
+ * Photos dans l'ordre du diaporama (celles arrivées après le lancement à la
+ * fin), pour les vignettes de l'animateur.
+ */
+export function revealOrder(state: RecreState): RecrePhoto[] {
+  if (!state.reveal) return [];
+  const byId = new Map(state.photos.map((p) => [p.id, p]));
+  const queued = state.reveal.queue.map((id) => byId.get(id)).filter((p): p is RecrePhoto => !!p);
+  const later = state.photos.filter((p) => !state.reveal!.queue.includes(p.id));
+  return [...queued, ...later];
+}
+
+/** Photo précédente encore présente dans la file, ou null au début. */
+export function previousRevealId(state: RecreState): string | null {
+  if (!state.reveal) return null;
+  for (let i = state.reveal.index - 1; i >= 0; i--) {
+    const id = state.reveal.queue[i];
+    if (state.photos.some((p) => p.id === id)) return id;
+  }
+  return null;
+}
+
+/**
  * Opérations de la récré, diffusées à tous et appliquées par `recreReducer` :
  * deux personnes qui envoient leurs photos au même moment ne s'écrasent plus.
  */
@@ -132,6 +204,8 @@ export type RecreOp =
   | { t: 'showAuthor' }
   /** `from` : position de départ, pour qu'un même clic reçu deux fois n'avance qu'une fois. */
   | { t: 'nextPhoto'; from: number }
+  /** L'animateur choisit la photo affichée (vignettes, « précédente »). */
+  | { t: 'goToPhoto'; id: string }
   | { t: 'closeReveal' }
   | { t: 'reset' };
 
@@ -189,6 +263,18 @@ export function recreReducer(raw: RecreState, op: RecreOp): RecreState {
         && !state.photos.some((p) => p.id === state.reveal!.queue[index])) index++;
       if (index >= state.reveal.queue.length) return { ...state, reveal: null };
       return { ...state, reveal: { ...state.reveal, index, authorShown: false } };
+    }
+    case 'goToPhoto': {
+      if (!state.reveal || !state.photos.some((p) => p.id === op.id)) return state;
+      // Photo arrivée après le lancement : elle rejoint la fin de la file.
+      const queue = state.reveal.queue.includes(op.id) ? state.reveal.queue : [...state.reveal.queue, op.id];
+      const index = queue.indexOf(op.id);
+      if (index === state.reveal.index && queue === state.reveal.queue) return state;
+      return {
+        ...state,
+        // Une photo déjà dévoilée garde son auteur affiché.
+        reveal: { queue, index, authorShown: state.authorsShown.includes(op.id) },
+      };
     }
     case 'closeReveal':
       return { ...state, reveal: null };

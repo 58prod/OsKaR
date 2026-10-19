@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Eye, Pause, Play, RotateCcw, Target } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight, Dices, Eye, Pause, Play, RotateCcw, Target } from 'lucide-react';
 import { formatTime, type RecreState } from './recreLogic';
+import { RECRE_SUJETS, sujetAuHasard, sujetVoisin } from './recreSujets';
 
 interface RecreToolbarProps {
   state: RecreState;
@@ -29,6 +30,82 @@ function parseDurationInput(raw: string): number | null {
   if (Number.isNaN(n)) return null;
   return n * 60;
 }
+
+const BOUTON_SUJET =
+  'inline-flex h-8 shrink-0 items-center justify-center rounded-lg border border-line bg-surface text-navy transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]';
+
+/**
+ * Sujets proposés à l'animateur : précédent / suivant, tirage au hasard, et
+ * la liste complète à faire défiler.
+ */
+const ChoixSujet: React.FC<{ theme: string; onChange: (sujet: string) => void }> = ({ theme, onChange }) => {
+  const [ouvert, setOuvert] = useState(false);
+  const boiteRef = useRef<HTMLDivElement>(null);
+  const actifRef = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    if (!ouvert) return;
+    // La liste s'ouvre sur le sujet en cours.
+    actifRef.current?.scrollIntoView({ block: 'center' });
+    const fermer = (e: MouseEvent) => {
+      if (!boiteRef.current?.contains(e.target as Node)) setOuvert(false);
+    };
+    const echap = (e: KeyboardEvent) => { if (e.key === 'Escape') setOuvert(false); };
+    document.addEventListener('mousedown', fermer);
+    document.addEventListener('keydown', echap);
+    return () => {
+      document.removeEventListener('mousedown', fermer);
+      document.removeEventListener('keydown', echap);
+    };
+  }, [ouvert]);
+
+  return (
+    <div ref={boiteRef} className="relative flex shrink-0 items-center gap-1">
+      <button type="button" onClick={() => onChange(sujetVoisin(theme, -1))} title="Sujet précédent" aria-label="Sujet précédent" className={`${BOUTON_SUJET} w-8`}>
+        <ChevronLeft className="h-4 w-4" aria-hidden />
+      </button>
+      <button type="button" onClick={() => onChange(sujetAuHasard(theme))} title="Un sujet au hasard" aria-label="Un sujet au hasard" className={`${BOUTON_SUJET} w-8`}>
+        <Dices className="h-4 w-4 text-[#ec4899]" aria-hidden />
+      </button>
+      <button type="button" onClick={() => onChange(sujetVoisin(theme, 1))} title="Sujet suivant" aria-label="Sujet suivant" className={`${BOUTON_SUJET} w-8`}>
+        <ChevronRight className="h-4 w-4" aria-hidden />
+      </button>
+      <button
+        type="button"
+        onClick={() => setOuvert((v) => !v)}
+        aria-expanded={ouvert}
+        aria-haspopup="listbox"
+        className={`${BOUTON_SUJET} gap-1 px-2.5 text-sm font-semibold`}
+      >
+        Sujets <ChevronDown className={`h-4 w-4 transition-transform ${ouvert ? 'rotate-180' : ''}`} aria-hidden />
+      </button>
+      {ouvert && (
+        <ul
+          role="listbox"
+          aria-label={`${RECRE_SUJETS.length} sujets proposés`}
+          className="absolute right-0 top-full z-[60] mt-1.5 max-h-[60vh] w-[340px] overflow-y-auto rounded-xl border border-line bg-white p-1.5 shadow-card-hover"
+        >
+          {RECRE_SUJETS.map((sujet) => {
+            const actif = sujet === theme;
+            return (
+              <li key={sujet} ref={actif ? actifRef : undefined} role="option" aria-selected={actif}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(sujet); setOuvert(false); }}
+                  className={`block w-full rounded-lg px-3 py-1.5 text-left text-sm transition-colors ${
+                    actif ? 'bg-[#fdf2f8] font-bold text-[#be185d]' : 'text-navy hover:bg-surface'
+                  }`}
+                >
+                  {sujet}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 /**
  * Barre supérieure de « En mode récré ! » : thème de la séance (éditable par
@@ -63,16 +140,19 @@ export const RecreToolbar: React.FC<RecreToolbarProps> = ({
       </span>
 
       {isFacilitator ? (
-        <label className="flex-1">
-          <span className="sr-only">Thème de la séance</span>
-          <input
-            type="text"
-            value={state.theme}
-            onChange={(e) => onThemeChange(e.target.value)}
-            placeholder="Ex : « Une photo qui résume ma semaine »…"
-            className="w-full bg-transparent text-base font-semibold text-navy outline-none placeholder:font-normal placeholder:text-line"
-          />
-        </label>
+        <div className="flex min-w-[260px] flex-1 items-center gap-1">
+          <label className="min-w-0 flex-1">
+            <span className="sr-only">Thème de la séance</span>
+            <input
+              type="text"
+              value={state.theme}
+              onChange={(e) => onThemeChange(e.target.value)}
+              placeholder="Ex : « Une photo qui résume ma semaine »…"
+              className="w-full bg-transparent text-base font-semibold text-navy outline-none placeholder:font-normal placeholder:text-line"
+            />
+          </label>
+          <ChoixSujet theme={state.theme} onChange={onThemeChange} />
+        </div>
       ) : (
         <span className="flex-1 truncate text-base font-semibold text-navy">
           {state.theme || <span className="font-normal text-muted">En attente du thème…</span>}

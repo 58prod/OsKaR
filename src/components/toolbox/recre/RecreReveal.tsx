@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { ArrowRight, Eye, Heart, X } from 'lucide-react';
-import { currentRevealPhoto, type RecreState } from './recreLogic';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, Eye, Heart, X } from 'lucide-react';
+import { currentRevealPhoto, previousRevealId, revealOrder, type RecreState } from './recreLogic';
 
 interface RecreRevealProps {
   state: RecreState;
@@ -9,6 +9,7 @@ interface RecreRevealProps {
   onLike: (photoId: string) => void;
   onShowAuthor: () => void;
   onNext: () => void;
+  onGoTo: (photoId: string) => void;
   onClose: () => void;
 }
 
@@ -52,14 +53,36 @@ const Confetti: React.FC<{ color: string }> = ({ color }) => {
  * puis passe à la suivante. Tout le monde peut aimer la photo.
  */
 export const RecreReveal: React.FC<RecreRevealProps> = ({
-  state, myId, isFacilitator, onLike, onShowAuthor, onNext, onClose,
+  state, myId, isFacilitator, onLike, onShowAuthor, onNext, onGoTo, onClose,
 }) => {
   const current = currentRevealPhoto(state);
+  const photoId = current?.photo.id ?? null;
+  const authorShown = !!state.reveal?.authorShown;
+
+  // Confettis seulement au moment du dévoilement : revenir sur une photo
+  // déjà dévoilée n'en relance pas.
+  const precedent = useRef<{ id: string | null; shown: boolean }>({ id: null, shown: false });
+  const [fete, setFete] = useState<string | null>(null);
+  useEffect(() => {
+    const avant = precedent.current;
+    if (photoId && authorShown && avant.id === photoId && !avant.shown) setFete(photoId);
+    if (photoId !== avant.id) setFete(null);
+    precedent.current = { id: photoId, shown: authorShown };
+  }, [photoId, authorShown]);
+
+  // La vignette en cours reste visible dans le bandeau.
+  const vignetteRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    vignetteRef.current?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, [photoId]);
+
   if (!state.reveal || !current) return null;
   const { photo, position, total } = current;
   const liked = photo.likedBy.includes(myId);
   const count = photo.likedBy.length;
   const isLast = position >= total;
+  const precedenteId = previousRevealId(state);
+  const vignettes = isFacilitator ? revealOrder(state) : [];
 
   return (
     <div
@@ -68,7 +91,7 @@ export const RecreReveal: React.FC<RecreRevealProps> = ({
       aria-label="Mode révélation"
       className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-5 overflow-hidden bg-[rgba(15,20,50,0.9)] p-6"
     >
-      {state.reveal.authorShown && <Confetti key={photo.id} color={photo.authorColor} />}
+      {fete === photo.id && <Confetti key={`confettis-${photo.id}`} color={photo.authorColor} />}
 
       <span className="text-sm font-semibold tracking-wide text-white/50" aria-live="polite">
         {position} / {total}
@@ -79,7 +102,7 @@ export const RecreReveal: React.FC<RecreRevealProps> = ({
         key={photo.id}
         src={photo.url}
         alt={`Photo ${position} sur ${total}`}
-        className="block max-h-[55vh] max-w-[80%] animate-pop rounded border-[10px] border-white object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+        className={`block ${isFacilitator ? 'max-h-[46vh]' : 'max-h-[55vh]'} max-w-[80%] animate-pop rounded border-[10px] border-white object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]`}
       />
 
       <div className="flex min-h-[48px] items-center" aria-live="polite">
@@ -107,6 +130,15 @@ export const RecreReveal: React.FC<RecreRevealProps> = ({
 
       {isFacilitator ? (
         <div className="flex flex-wrap justify-center gap-2.5">
+          {precedenteId && (
+            <button
+              type="button"
+              onClick={() => onGoTo(precedenteId)}
+              className="inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden /> Précédente
+            </button>
+          )}
           {!state.reveal.authorShown && (
             <button
               type="button"
@@ -126,6 +158,40 @@ export const RecreReveal: React.FC<RecreRevealProps> = ({
         </div>
       ) : (
         <p className="text-xs text-white/50">L&apos;animateur fait défiler les photos.</p>
+      )}
+
+      {vignettes.length > 1 && (
+        <nav aria-label="Choisir la photo à montrer" className="flex w-full max-w-[900px] justify-center">
+          <ul className="flex max-w-full gap-2 overflow-x-auto px-1 py-2 [scrollbar-width:thin]">
+            {vignettes.map((p, i) => {
+              const enCours = p.id === photo.id;
+              const devoile = state.authorsShown.includes(p.id);
+              return (
+                <li key={p.id} className="shrink-0">
+                  <button
+                    ref={enCours ? vignetteRef : undefined}
+                    type="button"
+                    onClick={() => onGoTo(p.id)}
+                    aria-current={enCours ? 'true' : undefined}
+                    aria-label={`Montrer la photo ${i + 1}${devoile ? ' (auteur dévoilé)' : ''}`}
+                    title={devoile ? `Photo ${i + 1} · ${p.authorName}` : `Photo ${i + 1}`}
+                    className={`relative block h-14 w-14 overflow-hidden rounded-md border-2 transition ${
+                      enCours ? 'border-[#ec4899] ring-2 ring-[#ec4899]/50' : 'border-white/20 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.url} alt="" className="h-full w-full object-cover" />
+                    {devoile && (
+                      <span className="absolute bottom-0.5 right-0.5 rounded-full bg-white p-0.5" aria-hidden>
+                        <Check className="h-2.5 w-2.5 text-navy" strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       )}
 
       {isFacilitator && (

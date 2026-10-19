@@ -26,6 +26,10 @@ function loadImage(src: string): Promise<HTMLImageElement> {
  * l'affichage, puis renvoie un blob JPEG. Conserve les proportions.
  */
 export async function downscaleImage(file: File, maxDim = 1000, quality = 0.72): Promise<Blob> {
+  return (await reduire(file, maxDim, quality)).blob;
+}
+
+async function reduire(file: File, maxDim: number, quality: number): Promise<{ blob: Blob; ratio: number }> {
   const dataUrl = await readAsDataURL(file);
   const img = await loadImage(dataUrl);
   const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
@@ -39,26 +43,29 @@ export async function downscaleImage(file: File, maxDim = 1000, quality = 0.72):
   if (!ctx) throw new Error('Canvas non disponible');
   ctx.drawImage(img, 0, 0, w, h);
 
-  return new Promise<Blob>((resolve, reject) => {
+  const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error('Conversion image échouée'))),
       'image/jpeg',
       quality,
     );
   });
+  return { blob, ratio: w / h };
 }
 
 /**
- * Téléverse une photo et renvoie une URL affichable.
+ * Téléverse une photo et renvoie une URL affichable, avec ses proportions
+ * (largeur / hauteur) : elles permettent de placer la photo au même endroit
+ * sur tous les écrans avant même qu'elle soit chargée.
  * - Supabase configuré : upload vers Storage (bucket public) → URL publique,
  *   pour garder l'état Realtime léger (seule l'URL est diffusée).
  * - Sinon (mode dégradé local) ou en cas d'échec : data URL base64 en repli.
  */
-export async function uploadRecrePhoto(code: string, photoId: string, file: File): Promise<string> {
-  const blob = await downscaleImage(file);
+export async function uploadRecrePhoto(code: string, photoId: string, file: File): Promise<{ url: string; ratio: number }> {
+  const { blob, ratio } = await reduire(file, 1000, 0.72);
 
   if (!isSupabaseConfigured()) {
-    return readAsDataURL(blob);
+    return { url: await readAsDataURL(blob), ratio };
   }
 
   const path = `${code.trim().toUpperCase()}/${photoId}.jpg`;
@@ -75,11 +82,11 @@ export async function uploadRecrePhoto(code: string, photoId: string, file: File
     console.error('❌ Upload photo « récré » échoué, repli base64 :', error.message);
     // La photo voyage alors dans le message temps réel, dont la taille est
     // limitée : on la réduit franchement pour qu'elle arrive chez tout le monde.
-    return readAsDataURL(await downscaleImage(file, 640, 0.6));
+    return { url: await readAsDataURL(await downscaleImage(file, 640, 0.6)), ratio };
   }
 
   const { data } = supabase.storage.from(RECRE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return { url: data.publicUrl, ratio };
 }
 
 /**

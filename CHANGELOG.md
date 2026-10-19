@@ -10,6 +10,28 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.72.0] - 2026-10-19
+
+### ✨ Ajouté — « En mode récré ! »
+- 102 sujets proposés à l'animateur : la séance démarre avec un sujet tiré au
+  hasard, à changer avec les flèches (précédent / suivant), le dé (au hasard)
+  ou la liste complète à faire défiler (« Sujets »). Le champ reste libre.
+- Glisser-déposer des photos : n'importe où sur la page (panneau ou board),
+  elles rejoignent « Mes photos », prêtes à envoyer ; les fichiers qui ne sont
+  pas des images sont ignorés et signalés.
+- Diaporama : l'animateur choisit la photo affichée (vignettes en bas,
+  bouton « Précédente ») ; depuis le board, une photo agrandie peut être
+  « Montrée à toute l'équipe ». Une photo déjà dévoilée garde son auteur ;
+  les confettis ne partent qu'au dévoilement.
+
+### 🐛 Corrigé
+- Les photos n'étaient pas dans le même ordre selon la taille de l'écran : le
+  board a désormais 4 colonnes fixes (2 sur un écran étroit), chaque photo est
+  placée d'après ses proportions (enregistrées à l'envoi) dans la colonne la
+  moins haute — même mur pour tous — et porte un numéro (« la 7 ! »).
+- Confettis restés à l'écran en passant d'une photo à l'autre (même clé que
+  l'image).
+
 ## [2.71.2] - 2026-10-19
 
 ### 🐛 Corrigé — Relecture de la rétro avant mise en ligne

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToolSession, type ToolIdentity } from '@/hooks/useToolSession';
 import { useFacilitator } from '@/hooks/useFacilitator';
 import { deleteRecrePhoto, uploadRecrePhoto } from '@/services/recreStorage';
@@ -6,6 +6,7 @@ import {
   chronoRemaining, INITIAL_RECRE_STATE, normalizeRecreState, recreReducer, shuffle,
   type RecreOp, type RecrePhoto,
 } from './recreLogic';
+import { sujetAuHasard } from './recreSujets';
 
 /**
  * Orchestration métier de « En mode récré ! » au-dessus du socle temps réel,
@@ -40,6 +41,15 @@ export function useRecreSession(code: string | null, identity: ToolIdentity | nu
 
   const setTheme = useCallback((theme: string) => send({ t: 'theme', theme }), [send]);
 
+  // Séance sans thème : l'animateur arrive avec un sujet tiré au hasard, qu'il
+  // peut changer. Une seule fois : s'il vide le champ, on n'y revient pas.
+  const themePropose = useRef(false);
+  useEffect(() => {
+    if (themePropose.current || session.isLoading || !isFacilitator || !code) return;
+    themePropose.current = true;
+    if (!state.theme) setTheme(sujetAuHasard(''));
+  }, [session.isLoading, isFacilitator, code, state.theme, setTheme]);
+
   /**
    * Téléverse puis publie une à une les photos sélectionnées. Renvoie les
    * noms des fichiers qui n'ont pas pu être lus (ex : format HEIC sur un
@@ -51,9 +61,10 @@ export function useRecreSession(code: string | null, identity: ToolIdentity | nu
     for (const file of files) {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       try {
-        const url = await uploadRecrePhoto(code, id, file);
+        const { url, ratio } = await uploadRecrePhoto(code, id, file);
         const photo: RecrePhoto = {
           id,
+          ratio,
           authorId: identity.id,
           authorName: identity.name,
           authorColor: identity.color,
@@ -115,6 +126,17 @@ export function useRecreSession(code: string | null, identity: ToolIdentity | nu
     send({ t: 'startReveal', queue: shuffle(pool.map((p) => p.id)) });
   }, [state.photos, state.authorsShown, send]);
 
+  /**
+   * Lance le diaporama sur une photo choisie (depuis le board), suivie des
+   * autres photos à dévoiler dans un ordre mélangé.
+   */
+  const startRevealAt = useCallback((photoId: string) => {
+    const pending = state.photos.filter((p) => p.id !== photoId && !state.authorsShown.includes(p.id));
+    send({ t: 'startReveal', queue: [photoId, ...shuffle(pending.map((p) => p.id))] });
+  }, [state.photos, state.authorsShown, send]);
+
+  const goToPhoto = useCallback((photoId: string) => send({ t: 'goToPhoto', id: photoId }), [send]);
+
   const showAuthor = useCallback(() => send({ t: 'showAuthor' }), [send]);
   const nextPhoto = useCallback(() => {
     if (state.reveal) send({ t: 'nextPhoto', from: state.reveal.index });
@@ -133,7 +155,7 @@ export function useRecreSession(code: string | null, identity: ToolIdentity | nu
     myId,
     actions: {
       setTheme, addPhotos, removePhoto, toggleLike, toggleChrono, resetChrono, setDuration,
-      startReveal, showAuthor, nextPhoto, closeReveal, reset,
+      startReveal, startRevealAt, goToPhoto, showAuthor, nextPhoto, closeReveal, reset,
     },
   };
 }

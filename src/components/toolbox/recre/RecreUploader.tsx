@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { ImagePlus, Loader2, Send, X } from 'lucide-react';
 
 interface RecreUploaderProps {
@@ -13,16 +13,29 @@ interface Pending {
   src: string;
 }
 
+/** Ce que la page peut demander au panneau : ajouter des fichiers déposés n'importe où. */
+export interface RecreUploaderHandle {
+  ajouter: (files: FileList | File[]) => void;
+}
+
+/** Image (le HEIC arrive parfois sans type : on le laisse tenter sa chance). */
+export function estImage(file: File): boolean {
+  return file.type.startsWith('image/') || /\.(heic|heif)$/i.test(file.name);
+}
+
 /** Panneau latéral : ajout (et prévisualisation) de ses photos avant envoi. */
-export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, onAddPhotos }) => {
+export const RecreUploader = forwardRef<RecreUploaderHandle, RecreUploaderProps>(({ myName, myColor, onAddPhotos }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<Pending[]>([]);
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState<string[]>([]);
+  const [ignores, setIgnores] = useState(0);
 
-  const handleFiles = (files: FileList | null) => {
+  const handleFiles = (files: FileList | File[] | null) => {
     if (!files) return;
-    Array.from(files).forEach((file) => {
+    const liste = Array.from(files);
+    setIgnores(liste.filter((f) => !estImage(f)).length);
+    liste.filter(estImage).forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPending((prev) => [...prev, { file, src: e.target?.result as string }]);
@@ -31,12 +44,15 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
     });
   };
 
+  useImperativeHandle(ref, () => ({ ajouter: handleFiles }));
+
   const removePending = (i: number) => setPending((prev) => prev.filter((_, idx) => idx !== i));
 
   const handleSend = async () => {
     if (pending.length === 0) return;
     setSending(true);
     setFailed([]);
+    setIgnores(0);
     try {
       const notSent = await onAddPhotos(pending.map((p) => p.file));
       // On garde dans la liste les photos refusées, pour que l'auteur voie lesquelles.
@@ -65,7 +81,7 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
         >
           <ImagePlus className="h-7 w-7 text-muted" aria-hidden />
           <span className="text-sm text-muted">
-            <strong className="text-navy">Cliquer pour ajouter</strong>
+            <strong className="text-navy">Cliquer ou glisser ici</strong>
             <br />une ou plusieurs photos
           </span>
         </button>
@@ -80,6 +96,12 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
             e.target.value = '';
           }}
         />
+
+        {ignores > 0 && (
+          <p role="alert" className="rounded-lg bg-warning-50 px-3 py-2 text-xs leading-relaxed text-warning-700">
+            {ignores > 1 ? `${ignores} fichiers ignorés : ce ne sont pas des images.` : 'Un fichier ignoré : ce n’est pas une image.'}
+          </p>
+        )}
 
         {failed.length > 0 && (
           <p role="alert" className="rounded-lg bg-danger-50 px-3 py-2 text-xs leading-relaxed text-danger-700">
@@ -123,6 +145,8 @@ export const RecreUploader: React.FC<RecreUploaderProps> = ({ myName, myColor, o
       </div>
     </aside>
   );
-};
+});
+
+RecreUploader.displayName = 'RecreUploader';
 
 export default RecreUploader;
