@@ -10,6 +10,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.74.0] - 2026-10-19
+
+### ✨ Ajouté — « En mode récré ! »
+- Zoom du board : boutons − / + en bas à droite (de 50 % à 200 %), le
+  pourcentage affiché ramène à 100 % d'un clic. Le zoom est propre à chacun
+  et mémorisé dans le navigateur ; il agrandit ou réduit le mur sans changer
+  le nombre de colonnes (le mur reste le même pour tous) et le board défile
+  sur le côté au-delà de 100 %.
+- Marge plus grande en haut du board : la pastille « En avant » n'est plus
+  coupée quand on zoome.
+
 ## [2.73.0] - 2026-10-19
 
 ### ✨ Ajouté — « En mode récré ! »

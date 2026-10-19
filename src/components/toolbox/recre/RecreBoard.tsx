@@ -1,9 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Eye, Heart, ImageIcon, Star, Trash2, X } from 'lucide-react';
+import { Eye, Heart, ImageIcon, Minus, Plus, Star, Trash2, X } from 'lucide-react';
 import {
   placerEnColonnes, ratioAffiche, RECRE_COLONNES, RECRE_COLONNES_ETROIT, RECRE_LARGEUR_ETROITE, tiltFor,
   type RecreState,
 } from './recreLogic';
+
+/** Niveaux de zoom du board (1 = largeur de l'écran), propres à chacun. */
+const NIVEAUX_ZOOM = [0.5, 0.6, 0.7, 0.85, 1, 1.25, 1.5, 2];
+const CLE_ZOOM = 'oskar.recre.zoom';
+
+function zoomMemorise(): number {
+  try {
+    const v = Number(window.localStorage.getItem(CLE_ZOOM));
+    return NIVEAUX_ZOOM.includes(v) ? v : 1;
+  } catch {
+    return 1;
+  }
+}
 
 interface RecreBoardProps {
   state: RecreState;
@@ -36,15 +49,25 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
 }) => {
   const [zoomId, setZoomId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const grilleRef = useRef<HTMLDivElement>(null);
+  const cadreRef = useRef<HTMLDivElement>(null);
   const [etroit, setEtroit] = useState(false);
+  // Zoom du board : seulement chez soi, il agrandit ou réduit le mur sans
+  // changer le nombre de colonnes (le mur reste le même pour tous).
+  const [niveau, setNiveau] = useState(1);
+  useEffect(() => { setNiveau(zoomMemorise()); }, []);
+  const changerNiveau = (pas: 1 | -1 | 0) => {
+    const i = NIVEAUX_ZOOM.indexOf(niveau);
+    const suivant = pas === 0 ? 1 : NIVEAUX_ZOOM[Math.min(NIVEAUX_ZOOM.length - 1, Math.max(0, i + pas))];
+    setNiveau(suivant);
+    try { window.localStorage.setItem(CLE_ZOOM, String(suivant)); } catch { /* navigation privée */ }
+  };
   // Proportions mesurées au chargement, pour les photos déposées avant la 2.72.
   const [mesures, setMesures] = useState<Record<string, number>>({});
   const vide = state.photos.length === 0;
   const zoom = state.photos.find((p) => p.id === zoomId) ?? null;
 
   useEffect(() => {
-    const el = grilleRef.current;
+    const el = cadreRef.current;
     if (!el) return;
     const mesurer = () => setEtroit(el.clientWidth < RECRE_LARGEUR_ETROITE);
     mesurer();
@@ -86,111 +109,144 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
     );
   }
 
+  const iNiveau = NIVEAUX_ZOOM.indexOf(niveau);
+  const boutonZoom =
+    'inline-flex h-8 w-8 items-center justify-center rounded-lg text-navy transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899] disabled:cursor-not-allowed disabled:opacity-30';
+
   return (
-    <div className="flex-1 overflow-y-auto p-6">
-      <div ref={grilleRef} className="flex items-start gap-5" aria-live="polite">
-        {colonnes.map((indexes, col) => (
-          <ul key={col} className="flex min-w-0 flex-1 flex-col gap-5">
-            {indexes.map((i) => {
-              const photo = state.photos[i];
-              const ratio = ratioAffiche(photo.ratio ?? mesures[photo.id]);
-              const liked = photo.likedBy.includes(myId);
-              const count = photo.likedBy.length;
-              const authorShown = state.authorsShown.includes(photo.id);
-              const misEnAvant = enAvant === photo.id;
-              return (
-                <li
-                  key={photo.id}
-                  id={`recre-photo-${photo.id}`}
-                  className={`relative rounded-md bg-white p-2 pb-2.5 transition-[transform,opacity,box-shadow] duration-300 rotate-[var(--tilt)] ${
-                    misEnAvant
-                      ? 'z-20 scale-[1.12] shadow-card-hover ring-4 ring-[#ec4899]'
-                      : `shadow-card hover:z-10 hover:scale-[1.03] ${enAvant ? 'opacity-50 hover:opacity-100' : ''}`
-                  }`}
-                  // Inclinaison via variable : le zoom au survol (hover:scale) s'y
-                  // ajoute ; la photo mise en avant se redresse.
-                  style={{ '--tilt': `${misEnAvant ? 0 : tiltFor(i)}deg` } as React.CSSProperties}
-                  aria-current={misEnAvant ? 'true' : undefined}
-                >
-                  {misEnAvant && (
-                    <span className="absolute -top-3 left-1/2 z-[1] inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-[#ec4899] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-card">
-                      <Star className="h-3 w-3 fill-white" aria-hidden /> En avant
-                    </span>
-                  )}
-                  <span
-                    className="absolute -left-2 -top-2 z-[1] inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-navy px-1.5 text-[11px] font-bold text-white shadow-card"
-                    aria-hidden
+    <div className="relative flex min-w-0 flex-1 flex-col">
+      <div ref={cadreRef} className="flex-1 overflow-auto px-8 pb-16 pt-10">
+        <div
+          className="mx-auto flex items-start gap-5 transition-[width] duration-200"
+          style={{ width: `${niveau * 100}%` }}
+          aria-live="polite"
+        >
+          {colonnes.map((indexes, col) => (
+            <ul key={col} className="flex min-w-0 flex-1 flex-col gap-5">
+              {indexes.map((i) => {
+                const photo = state.photos[i];
+                const ratio = ratioAffiche(photo.ratio ?? mesures[photo.id]);
+                const liked = photo.likedBy.includes(myId);
+                const count = photo.likedBy.length;
+                const authorShown = state.authorsShown.includes(photo.id);
+                const misEnAvant = enAvant === photo.id;
+                return (
+                  <li
+                    key={photo.id}
+                    id={`recre-photo-${photo.id}`}
+                    className={`relative rounded-md bg-white p-2 pb-2.5 transition-[transform,opacity,box-shadow] duration-300 rotate-[var(--tilt)] ${
+                      misEnAvant
+                        ? 'z-20 scale-[1.12] shadow-card-hover ring-4 ring-[#ec4899]'
+                        : `shadow-card hover:z-10 hover:scale-[1.03] ${enAvant ? 'opacity-50 hover:opacity-100' : ''}`
+                    }`}
+                    // Inclinaison via variable : le zoom au survol (hover:scale) s'y
+                    // ajoute ; la photo mise en avant se redresse.
+                    style={{ '--tilt': `${misEnAvant ? 0 : tiltFor(i)}deg` } as React.CSSProperties}
+                    aria-current={misEnAvant ? 'true' : undefined}
                   >
-                    {i + 1}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setZoomId(photo.id)}
-                    className="block w-full overflow-hidden rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
-                    // Cadre aux proportions de la photo : la place est réservée
-                    // avant le chargement, le mur ne bouge pas.
-                    style={{ aspectRatio: String(ratio) }}
-                    aria-label={`Agrandir la photo ${i + 1}`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo.url}
-                      alt={`Photo ${i + 1} partagée sur le board`}
-                      loading="lazy"
-                      onLoad={photo.ratio ? undefined : (e) => {
-                        const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
-                        if (w && h) setMesures((m) => (m[photo.id] ? m : { ...m, [photo.id]: w / h }));
-                      }}
-                      className="block h-full w-full object-contain"
-                    />
-                  </button>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onToggleLike(photo.id)}
-                      aria-pressed={liked}
-                      aria-label={liked ? `Je n'aime plus (${count})` : `J'aime (${count})`}
-                      className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
-                      style={{ color: liked ? '#ec4899' : '#94a3b8' }}
-                    >
-                      <Heart className="h-3.5 w-3.5" style={{ fill: liked ? '#ec4899' : 'none' }} aria-hidden />
-                      {count > 0 && count}
-                    </button>
-                    {authorShown && (
-                      <span className="inline-flex min-w-0 items-center gap-1 text-[11px] font-bold text-muted">
-                        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: photo.authorColor }} aria-hidden />
-                        <span className="truncate">{photo.authorName}</span>
+                    {misEnAvant && (
+                      <span className="absolute -top-3 left-1/2 z-[1] inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-[#ec4899] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-card">
+                        <Star className="h-3 w-3 fill-white" aria-hidden /> En avant
                       </span>
                     )}
-                    {isFacilitator && (
+                    <span
+                      className="absolute -left-2 -top-2 z-[1] inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-navy px-1.5 text-[11px] font-bold text-white shadow-card"
+                      aria-hidden
+                    >
+                      {i + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setZoomId(photo.id)}
+                      className="block w-full overflow-hidden rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
+                      // Cadre aux proportions de la photo : la place est réservée
+                      // avant le chargement, le mur ne bouge pas.
+                      style={{ aspectRatio: String(ratio) }}
+                      aria-label={`Agrandir la photo ${i + 1}`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photo.url}
+                        alt={`Photo ${i + 1} partagée sur le board`}
+                        loading="lazy"
+                        onLoad={photo.ratio ? undefined : (e) => {
+                          const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
+                          if (w && h) setMesures((m) => (m[photo.id] ? m : { ...m, [photo.id]: w / h }));
+                        }}
+                        className="block h-full w-full object-contain"
+                      />
+                    </button>
+                    <div className="mt-2 flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => onToggleHighlight(photo.id)}
-                        aria-pressed={misEnAvant}
-                        aria-label={misEnAvant ? 'Ne plus mettre en avant' : `Mettre la photo ${i + 1} en avant`}
-                        title={misEnAvant ? 'Ne plus mettre en avant' : 'Mettre en avant sur le board de tous'}
-                        className="ml-auto rounded-full p-1 transition-colors hover:bg-[#fdf2f8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
-                        style={{ color: misEnAvant ? '#ec4899' : '#94a3b8' }}
+                        onClick={() => onToggleLike(photo.id)}
+                        aria-pressed={liked}
+                        aria-label={liked ? `Je n'aime plus (${count})` : `J'aime (${count})`}
+                        className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
+                        style={{ color: liked ? '#ec4899' : '#94a3b8' }}
                       >
-                        <Star className="h-3.5 w-3.5" style={{ fill: misEnAvant ? '#ec4899' : 'none' }} aria-hidden />
+                        <Heart className="h-3.5 w-3.5" style={{ fill: liked ? '#ec4899' : 'none' }} aria-hidden />
+                        {count > 0 && count}
                       </button>
-                    )}
-                    {photo.authorId === myId && (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDeleteId(photo.id)}
-                        aria-label="Supprimer ma photo"
-                        className={`${isFacilitator ? '' : 'ml-auto '}rounded-full p-1 text-muted transition-colors hover:bg-danger-50 hover:text-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                      </button>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ))}
+                      {authorShown && (
+                        <span className="inline-flex min-w-0 items-center gap-1 text-[11px] font-bold text-muted">
+                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: photo.authorColor }} aria-hidden />
+                          <span className="truncate">{photo.authorName}</span>
+                        </span>
+                      )}
+                      {isFacilitator && (
+                        <button
+                          type="button"
+                          onClick={() => onToggleHighlight(photo.id)}
+                          aria-pressed={misEnAvant}
+                          aria-label={misEnAvant ? 'Ne plus mettre en avant' : `Mettre la photo ${i + 1} en avant`}
+                          title={misEnAvant ? 'Ne plus mettre en avant' : 'Mettre en avant sur le board de tous'}
+                          className="ml-auto rounded-full p-1 transition-colors hover:bg-[#fdf2f8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
+                          style={{ color: misEnAvant ? '#ec4899' : '#94a3b8' }}
+                        >
+                          <Star className="h-3.5 w-3.5" style={{ fill: misEnAvant ? '#ec4899' : 'none' }} aria-hidden />
+                        </button>
+                      )}
+                      {photo.authorId === myId && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteId(photo.id)}
+                          aria-label="Supprimer ma photo"
+                          className={`${isFacilitator ? '' : 'ml-auto '}rounded-full p-1 text-muted transition-colors hover:bg-danger-50 hover:text-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ))}
+        </div>
+
+      </div>
+
+      <div
+        role="group"
+        aria-label="Zoom du board"
+        className="absolute bottom-4 right-4 z-30 flex items-center gap-0.5 rounded-xl border border-line bg-white p-1 shadow-card"
+      >
+        <button type="button" onClick={() => changerNiveau(-1)} disabled={iNiveau <= 0} aria-label="Dézoomer" title="Dézoomer" className={boutonZoom}>
+          <Minus className="h-4 w-4" aria-hidden />
+        </button>
+        <button
+          type="button"
+          onClick={() => changerNiveau(0)}
+          title="Revenir à 100 %"
+          aria-label={`Zoom ${Math.round(niveau * 100)} %, revenir à 100 %`}
+          className="h-8 min-w-[52px] rounded-lg px-1 text-xs font-bold tabular-nums text-muted transition-colors hover:bg-surface hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ec4899]"
+        >
+          {Math.round(niveau * 100)} %
+        </button>
+        <button type="button" onClick={() => changerNiveau(1)} disabled={iNiveau >= NIVEAUX_ZOOM.length - 1} aria-label="Zoomer" title="Zoomer" className={boutonZoom}>
+          <Plus className="h-4 w-4" aria-hidden />
+        </button>
       </div>
 
       {confirmDeleteId && (
