@@ -117,7 +117,7 @@ export const RecreBoard: React.FC<RecreBoardProps> = ({
     <div className="relative flex min-w-0 flex-1 flex-col">
       <div ref={cadreRef} className="flex-1 overflow-auto px-8 pb-16 pt-10">
         <div
-          className="mx-auto flex items-start gap-5 transition-[width] duration-200"
+          className="flex items-start gap-5 transition-[width] duration-200"
           style={{ width: `${niveau * 100}%` }}
           aria-live="polite"
         >

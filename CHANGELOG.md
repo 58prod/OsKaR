@@ -10,6 +10,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 > Note : ce journal n'a pas été tenu entre les versions 1.0.0 et 2.3.0.
 > Les changements de cette période sont dans l'historique Git.
 
+## [2.74.1] - 2026-10-19
+
+### 🐛 Corrigé — « En mode récré ! »
+- Board dézoomé : les photos partent du coin en haut à gauche au lieu d'être
+  centrées.
+
 ## [2.74.0] - 2026-10-19
 
 ### ✨ Ajouté — « En mode récré ! »
